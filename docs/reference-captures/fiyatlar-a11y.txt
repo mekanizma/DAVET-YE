@@ -1,0 +1,196 @@
+- document:
+  - link "İçeriğe geç":
+    - /url: "#main"
+  - banner:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - navigation "Ana menü":
+      - link "Davetiyeler":
+        - /url: /tr/temalar
+      - link "Gazeteler":
+        - /url: /tr/gazeteler
+      - link "KendinTasarla":
+        - /url: /tr/tasarim-studyosu
+      - link "Ne Sunuyoruz":
+        - /url: /tr/ne-sunuyoruz
+      - link "Fiyatlar":
+        - /url: /tr/fiyatlar
+      - link "Nasıl Çalışır":
+        - /url: /tr/nasil-calisir
+    - button "Dil seçin": TR
+    - link "Giriş yap":
+      - /url: /panel/giris?arayuz=tr
+    - link "Davetiye Oluştur":
+      - /url: /tr/davetiye-olustur
+  - main:
+    - paragraph: ŞEFFAF FİYAT
+    - heading "Tek seferlik ödeme, abonelik yok" [level=1]
+    - paragraph: Davetiyenin fiyatı tek seferliktir ve bütün bölümleri kapsar. Eklentileri yalnızca ihtiyacınız varsa alırsınız; sonradan da ekleyebilirsiniz.
+    - paragraph: Davetiye
+    - paragraph: Başlangıç fiyatı
+    - paragraph: 690 TL
+    - paragraph: Seçtiğiniz davetiyenin fiyatı; davetiyedeki bütün bölümler dahil.
+    - list:
+      - listitem: Tek seferlik ödeme
+      - listitem: Etkinlik tarihinden sonra en az 6 ay yayında
+      - listitem: Sınırsız katılım yanıtı
+      - listitem: Sınırsız misafir görüntüleme
+    - link "Davetiyeleri İncele":
+      - /url: /tr/temalar
+    - region "Eklentiler":
+      - heading "Eklentiler" [level=2]
+      - paragraph: İhtiyacınız kadarını ekleyin; hiçbiri zorunlu değil.
+      - list:
+        - listitem: Anı Duvarı · 5 GB 159 TL
+        - listitem: Anı Çekimi (Lens) · 2 GB 199 TL Ücretsiz
+        - listitem: Masa QR Kartı · 5 GB 49 TL
+        - listitem: Ek Dil · dil başına 149 TL
+        - listitem: Markasız Yayın 69 TL
+        - listitem: Ek Depolama · 10 GB 169 TL
+        - listitem: Ek Süre · 90 gün 99 TL
+    - region "Ücretsiz Bölümler":
+      - heading "Ücretsiz Bölümler" [level=2]
+      - paragraph: Davetiyelerde ek ücret olmadan yer alan bölümler; hangi bölümlerin dahil olduğu her davetiyenin sayfasında yazar.
+      - list:
+        - listitem: Açılış Videosu
+        - listitem: Aile Bilgileri
+        - listitem: Etkinlikler
+        - listitem: Geri Sayım
+        - listitem: Konum
+        - listitem: Program
+        - listitem: Yemek Menüsü
+        - listitem: Galeri
+        - listitem: Katılım Formu
+        - listitem: Hediye Hesabı (IBAN)
+    - paragraph: FİYAT BANTLARI
+    - heading "Hangi fiyatta kaç davetiye var?" [level=2]
+    - table:
+      - rowgroup:
+        - row "Fiyat Davetiye Örnek İncele":
+          - columnheader "Fiyat"
+          - columnheader "Davetiye"
+          - columnheader "Örnek"
+          - columnheader "İncele"
+      - rowgroup:
+        - 'row "690 TL 1 Akdeniz Masalı — Zarif Tül Perde Açılışı ve Akdeniz Manzarası Eşliğinde Dijital Davetiye İncele: Akdeniz Masalı"':
+          - cell "690 TL"
+          - cell "1"
+          - cell "Akdeniz Masalı — Zarif Tül Perde Açılışı ve Akdeniz Manzarası Eşliğinde Dijital Davetiye"
+          - 'cell "İncele: Akdeniz Masalı"':
+            - 'link "İncele: Akdeniz Masalı"':
+              - /url: /tr/temalar/akdeniz-masali
+              - text: İncele
+        - 'row "990 TL 4 Zümrüt Yeşili Çocukluk Aşkı — Kabartmalı Zümrüt Kapak Açılışı ve Çocukluk Aşkı Rölyefleri Eşliğinde Dijital Davetiye İncele: Zümrüt Yeşili Çocukluk Aşkı"':
+          - cell "990 TL"
+          - cell "4"
+          - cell "Zümrüt Yeşili Çocukluk Aşkı — Kabartmalı Zümrüt Kapak Açılışı ve Çocukluk Aşkı Rölyefleri Eşliğinde Dijital Davetiye"
+          - 'cell "İncele: Zümrüt Yeşili Çocukluk Aşkı"':
+            - 'link "İncele: Zümrüt Yeşili Çocukluk Aşkı"':
+              - /url: /tr/temalar/zumrut-yesili-cocukluk-aski
+              - text: İncele
+        - 'row "1.090 TL 1 Siyah İnci — Mühürlü Antrasit Zarf Açılışı ve Siyah Kabartma Sayfalar Eşliğinde Dijital Davetiye İncele: Siyah İnci"':
+          - cell "1.090 TL"
+          - cell "1"
+          - cell "Siyah İnci — Mühürlü Antrasit Zarf Açılışı ve Siyah Kabartma Sayfalar Eşliğinde Dijital Davetiye"
+          - 'cell "İncele: Siyah İnci"':
+            - 'link "İncele: Siyah İnci"':
+              - /url: /tr/temalar/siyah-inci
+              - text: İncele
+        - 'row "1.290 TL 50 Bahar Yolu — Doğanın Uyanışı ve Çiçek Açan Yeni Bir Başlangıç Eşliğinde Dijital Davetiye İncele: Bahar Yolu"':
+          - cell "1.290 TL"
+          - cell "50"
+          - cell "Bahar Yolu — Doğanın Uyanışı ve Çiçek Açan Yeni Bir Başlangıç Eşliğinde Dijital Davetiye"
+          - 'cell "İncele: Bahar Yolu"':
+            - 'link "İncele: Bahar Yolu"':
+              - /url: /tr/temalar/bahar-yolu
+              - text: İncele
+    - heading "Fiyatı davetiye oluşturucuda satır satır görün" [level=2]
+    - paragraph: Seçtiğiniz her eklenti fiyat özetine anında yansır; sürpriz yok.
+    - link "Hemen Başla":
+      - /url: /tr/davetiye-olustur
+  - contentinfo:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - paragraph: Dijital davetiye, katılım takibi ve Anı Duvarı tek bağlantıda.
+    - link "Instagram":
+      - /url: https://www.instagram.com/davetiyemgo/
+    - paragraph: Ürün
+    - list:
+      - listitem:
+        - link "Davetiyeler":
+          - /url: /tr/temalar
+      - listitem:
+        - link "Gazeteler":
+          - /url: /tr/gazeteler
+      - listitem:
+        - link "KendinTasarla":
+          - /url: /tr/tasarim-studyosu
+      - listitem:
+        - link "Fiyatlar":
+          - /url: /tr/fiyatlar
+      - listitem:
+        - link "Ne Sunuyoruz":
+          - /url: /tr/ne-sunuyoruz
+      - listitem:
+        - link "Davetiye Oluştur":
+          - /url: /tr/davetiye-olustur
+    - paragraph: Yardım
+    - list:
+      - listitem:
+        - link "Rehber":
+          - /url: /tr/rehber
+      - listitem:
+        - link "Hakkımızda":
+          - /url: /tr/hakkimizda
+      - listitem:
+        - link "Nasıl Çalışır":
+          - /url: /tr/nasil-calisir
+      - listitem:
+        - link "Sık Sorulanlar":
+          - /url: /tr/sss
+      - listitem:
+        - link "İletişim":
+          - /url: /tr/iletisim
+    - paragraph: Yasal
+    - list:
+      - listitem:
+        - link "Kullanım Koşulları":
+          - /url: /tr/kosullar
+      - listitem:
+        - link "Gizlilik Politikası":
+          - /url: /tr/gizlilik
+      - listitem:
+        - link "KVKK Aydınlatma Metni":
+          - /url: /tr/kvkk
+      - listitem:
+        - link "Çerez Politikası":
+          - /url: /tr/cerez
+    - navigation "Davetiye türleri":
+      - paragraph: Davetiye türleri
+      - list:
+        - listitem:
+          - link "Düğün Davetiyesi":
+            - /url: /tr/dugun-davetiyesi
+        - listitem:
+          - link "Kına Davetiyesi":
+            - /url: /tr/kina-davetiyesi
+        - listitem:
+          - link "Kına ve Düğün Davetiyesi":
+            - /url: /tr/kina-ve-dugun-davetiyesi
+    - text: © 2026 DavetiyemGo
+    - button "Çerez tercihleri"
+    - text: Türkiye’de tasarlandı
+    - 'link "Geliştiren: Vodisoft"':
+      - /url: https://vodisoft.com
+      - text: Geliştiren
+      - strong: Vodisoft
+  - dialog "Çerez tercihlerinizi yönetin":
+    - heading "Çerez tercihlerinizi yönetin" [level=2]
+    - link "Çerez politikası":
+      - /url: /tr/cerez
+    - paragraph: Size daha iyi ve güvenli bir deneyim sunmak için zorunlu ve isteğe bağlı çerezler kullanıyoruz.
+    - button "Tercihleri yönet"
+    - button "Sadece zorunlu"
+    - button "Tümünü kabul et"

@@ -1,0 +1,3315 @@
+{
+  "mode": "customer",
+  "lang": "tr",
+  "user": {
+    "signedIn": false,
+    "verified": false,
+    "name": null,
+    "staff": false
+  },
+  "card": null,
+  "design": null,
+  "startTemplate": null,
+  "startFormat": null,
+  "importLocal": false,
+  "templates": [
+    {
+      "slug": "altin-madalyon",
+      "name": "Altın Madalyon",
+      "category": "wedding",
+      "featured": true,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "lacivert-gece",
+      "name": "Lacivert Gece",
+      "category": "wedding",
+      "featured": true,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "minimal-zarafet",
+      "name": "Minimal Zarafet",
+      "category": "wedding",
+      "featured": true,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "gul-celengi",
+      "name": "Gül Çelengi",
+      "category": "wedding",
+      "featured": true,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "sakura-soz",
+      "name": "Sakura Söz",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "zumrut-kina",
+      "name": "Zümrüt Kına",
+      "category": "henna",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "sunnet-soleni",
+      "name": "Sünnet Şöleni",
+      "category": "circumcision",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "bebek-mevludu",
+      "name": "Bebek Mevlüdü",
+      "category": "baby",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "dogum-gunu",
+      "name": "Doğum Günü",
+      "category": "birthday",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "kurumsal-gala",
+      "name": "Kurumsal Gala",
+      "category": "corporate",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "adacayi-kabartma-dugun",
+      "name": "Adaçayı Kabartma",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "begonvil-avlusu-nisan",
+      "name": "Begonvil Avlusu",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "elhamra-avlusu-nikah",
+      "name": "Elhamra Avlusu",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "fildisi-rokoko-dugun",
+      "name": "Fildişi Rokoko",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "hus-kemeri-soz",
+      "name": "Huş Kemeri",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "inci-zambak-dugun",
+      "name": "İnci Zambak",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "lale-terasi-nikah",
+      "name": "Lale Terası",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "pudra-kabartma-nisan",
+      "name": "Pudra Kabartma",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "sakura-penceresi-dugun",
+      "name": "Sakura Penceresi",
+      "category": "wedding",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "tavuslu-cini-dugun",
+      "name": "Tavuslu Çini",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "mor-salkim-dugun",
+      "name": "Mor Salkım",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "lacivert-madalyon-dugun",
+      "name": "Lacivert Madalyon",
+      "category": "wedding",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "bordo-yaldiz-nikah",
+      "name": "Bordo Yaldız",
+      "category": "wedding",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "gul-kapisi-nisan",
+      "name": "Gül Kapısı",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "zumrut-mermer-dugun",
+      "name": "Zümrüt Mermer",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 707,
+      "design": null
+    },
+    {
+      "slug": "inci-saten-soz",
+      "name": "İnci Saten",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "sampanya-takvim-dugun",
+      "name": "Şampanya Takvim",
+      "category": "wedding",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "vitray-bordo-nisan",
+      "name": "Vitray Bordo",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 707,
+      "design": null
+    },
+    {
+      "slug": "sakayik-tulu-dugun",
+      "name": "Sakayık Tülü",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "fildisi-kamea-nikah",
+      "name": "Fildişi Kamea",
+      "category": "wedding",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "art-deco-yelpaze-dugun",
+      "name": "Art Deco Yelpaze",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "terrakota-kemer-dugun",
+      "name": "Terrakota Kemer",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "adacayi-celenk-nikah",
+      "name": "Adaçayı Çelenk",
+      "category": "wedding",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "buyuk-rakam-tarihi-ayirin",
+      "name": "Büyük Rakamlar",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "editoryal-siyah-beyaz-dugun",
+      "name": "Editoryal Siyah Beyaz",
+      "category": "wedding",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "bordo-editoryal-nisan",
+      "name": "Bordo Editoryal",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "portakal-avlusu-dugun",
+      "name": "Portakal Avlusu",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "mavi-goblen-nikah",
+      "name": "Mavi Goblen",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "ak-hus-dugun",
+      "name": "Ak Huş",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "kadife-perde-soz",
+      "name": "Kadife Perde",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "deco-mermer-dugun",
+      "name": "Deco Mermer",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "fildisi-esinti-nisan",
+      "name": "Fildişi Esinti",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 707,
+      "design": null
+    },
+    {
+      "slug": "kiraz-dali-tarihi-ayirin",
+      "name": "Kiraz Dalı",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "firuze-kemer-nikah",
+      "name": "Firuze Kemer",
+      "category": "wedding",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "bahar-penceresi-dugun",
+      "name": "Bahar Penceresi",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "allik-dantel-nisan",
+      "name": "Allık Dantel",
+      "category": "wedding",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "ay-halkasi-dugun",
+      "name": "Ay Halkası",
+      "category": "wedding",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "renk-bloklari-dugun",
+      "name": "Renk Blokları",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "sampanya-bant-nikah",
+      "name": "Şampanya Bant",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 707,
+      "design": null
+    },
+    {
+      "slug": "muhur-monogram-nisan",
+      "name": "Mühürlü Monogram",
+      "category": "wedding",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "ceviz-oyma-kina",
+      "name": "Ceviz Oyma Kına",
+      "category": "henna",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "lale-bahcesi-kina",
+      "name": "Lale Bahçesi Kına",
+      "category": "henna",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "yar-yar-kina-gecesi",
+      "name": "Yâr Yâr Gecesi",
+      "category": "henna",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "gul-kemerli-kina",
+      "name": "Gül Kemerli Kına",
+      "category": "henna",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "pembe-monogram-kina",
+      "name": "Pembe Monogram Kına",
+      "category": "henna",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "zumrut-madalyon-kina",
+      "name": "Zümrüt Madalyon",
+      "category": "henna",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "cini-lale-kina",
+      "name": "Çini Lale",
+      "category": "henna",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "bindalli-kadife-kina",
+      "name": "Bindallı Kadife",
+      "category": "henna",
+      "featured": false,
+      "width": 500,
+      "height": 707,
+      "design": null
+    },
+    {
+      "slug": "nar-cicegi-kina",
+      "name": "Nar Çiçeği",
+      "category": "henna",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "saray-lalesi-kina",
+      "name": "Saray Lalesi",
+      "category": "henna",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "mum-isigi-kina",
+      "name": "Mum Işığı",
+      "category": "henna",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "al-halka-kina",
+      "name": "Al Halka Kına",
+      "category": "henna",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "barok-kina-dugun",
+      "name": "Barok İki Gece",
+      "category": "multievent",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "fildisi-nikah-dugun",
+      "name": "Fildişi Nikâh Düğün",
+      "category": "multievent",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "sakayik-soz-nisan",
+      "name": "Şakayık Söz Nişan",
+      "category": "multievent",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "lavanta-kina-dugun",
+      "name": "Lavanta Kına Düğün",
+      "category": "multievent",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "inci-kina-dugun-yatay",
+      "name": "İnci İki Gece",
+      "category": "multievent",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "zumrut-nikah-dugun",
+      "name": "Zümrüt Nikâh Düğün",
+      "category": "multievent",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "uc-toren-takvimi",
+      "name": "Üç Tören Takvimi",
+      "category": "multievent",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "gul-kurusu-soz-nisan",
+      "name": "Gül Kurusu Söz",
+      "category": "multievent",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "kraliyet-taci-sunnet",
+      "name": "Kraliyet Tacı",
+      "category": "circumcision",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "kucuk-sehzade-sunnet",
+      "name": "Küçük Şehzade",
+      "category": "circumcision",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "yildizli-solen-sunnet",
+      "name": "Yıldızlı Şölen",
+      "category": "circumcision",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "sunnet-mevlidi",
+      "name": "Sünnet Mevlidi",
+      "category": "circumcision",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "altin-serit-sunnet",
+      "name": "Altın Şerit",
+      "category": "circumcision",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "prens-madalyonu-sunnet",
+      "name": "Prens Madalyonu",
+      "category": "circumcision",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "buyuk-gun-sunnet",
+      "name": "Büyük Gün",
+      "category": "circumcision",
+      "featured": false,
+      "width": 500,
+      "height": 707,
+      "design": null
+    },
+    {
+      "slug": "bordo-solen-sunnet",
+      "name": "Bordo Şölen",
+      "category": "circumcision",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "incili-prens-sunnet",
+      "name": "İncili Prens",
+      "category": "circumcision",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "mavi-fiyonk-mevlit",
+      "name": "Mavi Fiyonk",
+      "category": "circumcision",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "bebegimiz-geliyor",
+      "name": "Bebeğimiz Geliyor",
+      "category": "baby",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "ay-isigi-mevlut",
+      "name": "Ay Işığı Mevlüdü",
+      "category": "baby",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "dis-bugdayi-kutlamasi",
+      "name": "Diş Buğdayı",
+      "category": "baby",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "cicekli-isim-gunu",
+      "name": "Çiçekli İsim Günü",
+      "category": "baby",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "hos-geldin-bebek",
+      "name": "Hoş Geldin Bebek",
+      "category": "baby",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "cinsiyet-partisi",
+      "name": "Cinsiyet Partisi",
+      "category": "baby",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "bulutlar-arasinda-mevlut",
+      "name": "Bulutlar Arasında",
+      "category": "baby",
+      "featured": false,
+      "width": 500,
+      "height": 707,
+      "design": null
+    },
+    {
+      "slug": "lila-celenk-baby-shower",
+      "name": "Lila Çelenk",
+      "category": "baby",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "pembe-gul-mevlut",
+      "name": "Pembe Gül Mevlüdü",
+      "category": "baby",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "leylek-getirdi",
+      "name": "Leylek Getirdi",
+      "category": "baby",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "balon-senligi-dogum-gunu",
+      "name": "Balon Şenliği",
+      "category": "birthday",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "bayrakli-cocuk-partisi",
+      "name": "Bayraklı Parti",
+      "category": "birthday",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "ilk-yas-gunu-gul",
+      "name": "İlk Yaş Günü",
+      "category": "birthday",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "siyah-altin-kirk-yas",
+      "name": "Siyah Altın Kırk",
+      "category": "birthday",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "retro-seksenler-partisi",
+      "name": "Retro Seksenler",
+      "category": "birthday",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "begonvil-bahce-partisi",
+      "name": "Begonvil Bahçe Partisi",
+      "category": "birthday",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "surpriz-parti-sari",
+      "name": "Sürpriz Parti",
+      "category": "birthday",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "pudra-on-sekiz-yas",
+      "name": "Pudra On Sekiz",
+      "category": "birthday",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "adacayi-elli-yas",
+      "name": "Adaçayı Elli Yaş",
+      "category": "birthday",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "uzay-macerasi-dogum-gunu",
+      "name": "Uzay Macerası",
+      "category": "birthday",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "gokkusagi-dogum-gunu",
+      "name": "Gökkuşağı Günü",
+      "category": "birthday",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "prenses-cay-partisi",
+      "name": "Prenses Çay Partisi",
+      "category": "birthday",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "zumrut-gala-yemegi",
+      "name": "Zümrüt Gala Yemeği",
+      "category": "corporate",
+      "featured": false,
+      "width": 500,
+      "height": 700,
+      "design": null
+    },
+    {
+      "slug": "on-yil-kurulus-yildonumu",
+      "name": "Kuruluş Yıldönümü",
+      "category": "corporate",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "mercan-urun-lansmani",
+      "name": "Ürün Lansmanı",
+      "category": "corporate",
+      "featured": false,
+      "width": 700,
+      "height": 500,
+      "design": null
+    },
+    {
+      "slug": "zirve-konferans-programi",
+      "name": "Konferans Programı",
+      "category": "corporate",
+      "featured": false,
+      "width": 500,
+      "height": 707,
+      "design": null
+    },
+    {
+      "slug": "ege-acilis-toreni",
+      "name": "Ege Açılış Töreni",
+      "category": "corporate",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "yil-sonu-partisi",
+      "name": "Yıl Sonu Partisi",
+      "category": "corporate",
+      "featured": false,
+      "width": 600,
+      "height": 600,
+      "design": null
+    },
+    {
+      "slug": "odul-gecesi-antrasit",
+      "name": "Antrasit Ödül Gecesi",
+      "category": "corporate",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    },
+    {
+      "slug": "lale-iftar-daveti",
+      "name": "Lale İftar Daveti",
+      "category": "corporate",
+      "featured": false,
+      "width": 450,
+      "height": 800,
+      "design": null
+    }
+  ],
+  "categories": [
+    {
+      "key": "wedding",
+      "name": "Nişan & Düğün"
+    },
+    {
+      "key": "multievent",
+      "name": "Çoklu Etkinlik"
+    },
+    {
+      "key": "henna",
+      "name": "Kına"
+    },
+    {
+      "key": "circumcision",
+      "name": "Sünnet"
+    },
+    {
+      "key": "baby",
+      "name": "Bebekler İçin"
+    },
+    {
+      "key": "birthday",
+      "name": "Doğum Günü"
+    },
+    {
+      "key": "corporate",
+      "name": "Kurumsal"
+    }
+  ],
+  "formats": [
+    {
+      "key": "portrait",
+      "name": "Dikey kart · 13×18 cm",
+      "width": 500,
+      "height": 700,
+      "widthMm": 127,
+      "heightMm": 178
+    },
+    {
+      "key": "a5",
+      "name": "A5 · 14,8×21 cm",
+      "width": 500,
+      "height": 707,
+      "widthMm": 148,
+      "heightMm": 210
+    },
+    {
+      "key": "square",
+      "name": "Kare · 15×15 cm",
+      "width": 600,
+      "height": 600,
+      "widthMm": 150,
+      "heightMm": 150
+    },
+    {
+      "key": "story",
+      "name": "Telefon ekranı (dikey)",
+      "width": 450,
+      "height": 800,
+      "widthMm": 90,
+      "heightMm": 160
+    },
+    {
+      "key": "landscape",
+      "name": "Yatay kart · 18×13 cm",
+      "width": 700,
+      "height": 500,
+      "widthMm": 178,
+      "heightMm": 127
+    },
+    {
+      "key": "table",
+      "name": "Masa kartı · 10×15 cm",
+      "width": 400,
+      "height": 600,
+      "widthMm": 100,
+      "heightMm": 150
+    }
+  ],
+  "fonts": [
+    {
+      "family": "Bellefair",
+      "url": "/fonts/bellefair.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Bentham",
+      "url": "/fonts/bentham.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Bodoni Moda",
+      "url": "/fonts/bodonimoda.woff2",
+      "minWeight": 400,
+      "maxWeight": 900,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Cardo",
+      "url": "/fonts/cardo.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Castoro",
+      "url": "/fonts/castoro.woff2",
+      "minWeight": 400,
+      "maxWeight": 700,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Cormorant",
+      "url": "/fonts/cormorant.woff2",
+      "minWeight": 300,
+      "maxWeight": 700,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Cormorant Garamond",
+      "url": "/fonts/cormorantgaramond.woff2",
+      "minWeight": 300,
+      "maxWeight": 700,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Cormorant SC",
+      "url": "/fonts/cormorantsc.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Cormorant Upright",
+      "url": "/fonts/cormorantupright.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Crimson Pro",
+      "url": "/fonts/crimsonpro.woff2",
+      "minWeight": 200,
+      "maxWeight": 900,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "DM Serif Display",
+      "url": "/fonts/dmserifdisplay.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "EB Garamond",
+      "url": "/fonts/ebgaramond.woff2",
+      "minWeight": 400,
+      "maxWeight": 800,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Fraunces",
+      "url": "/fonts/fraunces.woff2",
+      "minWeight": 100,
+      "maxWeight": 900,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Gilda Display",
+      "url": "/fonts/gildadisplay.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Gloock",
+      "url": "/fonts/gloock.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Instrument Serif",
+      "url": "/fonts/instrumentserif.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Italiana",
+      "url": "/fonts/italiana.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": false
+    },
+    {
+      "family": "Libre Baskerville",
+      "url": "/fonts/librebaskerville.woff2",
+      "minWeight": 400,
+      "maxWeight": 700,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Libre Caslon Display",
+      "url": "/fonts/librecaslondisplay.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Libre Caslon Text",
+      "url": "/fonts/librecaslontext.woff2",
+      "minWeight": 400,
+      "maxWeight": 700,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Linden Hill",
+      "url": "/fonts/lindenhill.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Lora",
+      "url": "/fonts/lora.woff2",
+      "minWeight": 400,
+      "maxWeight": 700,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Marcellus",
+      "url": "/fonts/marcellus.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Marcellus SC",
+      "url": "/fonts/marcellussc.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Old Standard TT",
+      "url": "/fonts/oldstandardtt.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Playfair Display",
+      "url": "/fonts/playfairdisplay.woff2",
+      "minWeight": 400,
+      "maxWeight": 900,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Playfair Display SC",
+      "url": "/fonts/playfairdisplaysc.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Rozha One",
+      "url": "/fonts/rozhaone.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Sorts Mill Goudy",
+      "url": "/fonts/sortsmillgoudy.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Spectral",
+      "url": "/fonts/spectral.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Yeseva One",
+      "url": "/fonts/yesevaone.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Young Serif",
+      "url": "/fonts/youngserif.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "serif",
+      "turkish": true
+    },
+    {
+      "family": "Aboreto",
+      "url": "/fonts/aboreto.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Abril Fatface",
+      "url": "/fonts/abrilfatface.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Almendra",
+      "url": "/fonts/almendra.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Amatic SC",
+      "url": "/fonts/amaticsc.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Bonheur Royale",
+      "url": "/fonts/bonheurroyale.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Cinzel",
+      "url": "/fonts/cinzel.woff2",
+      "minWeight": 400,
+      "maxWeight": 900,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Cinzel Decorative",
+      "url": "/fonts/cinzeldecorative.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Comfortaa",
+      "url": "/fonts/comfortaa.woff2",
+      "minWeight": 300,
+      "maxWeight": 700,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Courier Prime",
+      "url": "/fonts/courierprime.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Forum",
+      "url": "/fonts/forum.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Grenze Gotisch",
+      "url": "/fonts/grenzegotisch.woff2",
+      "minWeight": 100,
+      "maxWeight": 900,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "IM Fell English",
+      "url": "/fonts/imfellenglish.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Limelight",
+      "url": "/fonts/limelight.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "MedievalSharp",
+      "url": "/fonts/medievalsharp.woff2",
+      "minWeight": 500,
+      "maxWeight": 500,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Philosopher",
+      "url": "/fonts/philosopher.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Playball",
+      "url": "/fonts/playball.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Poiret One",
+      "url": "/fonts/poiretone.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Special Elite",
+      "url": "/fonts/specialelite.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Tenor Sans",
+      "url": "/fonts/tenorsans.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": false
+    },
+    {
+      "family": "Unna",
+      "url": "/fonts/unna.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Yesteryear",
+      "url": "/fonts/yesteryear.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "display",
+      "turkish": true
+    },
+    {
+      "family": "Alex Brush",
+      "url": "/fonts/alexbrush.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Allison",
+      "url": "/fonts/allison.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Allura",
+      "url": "/fonts/allura.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Arizonia",
+      "url": "/fonts/arizonia.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Ballet",
+      "url": "/fonts/ballet.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Beau Rivage",
+      "url": "/fonts/beaurivage.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Birthstone",
+      "url": "/fonts/birthstone.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Carattere",
+      "url": "/fonts/carattere.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Charm",
+      "url": "/fonts/charm.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Charmonman",
+      "url": "/fonts/charmonman.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Clicker Script",
+      "url": "/fonts/clickerscript.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Corinthia",
+      "url": "/fonts/corinthia.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Damion",
+      "url": "/fonts/damion.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Dancing Script",
+      "url": "/fonts/dancingscript.woff2",
+      "minWeight": 400,
+      "maxWeight": 700,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Engagement",
+      "url": "/fonts/engagement.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Ephesis",
+      "url": "/fonts/ephesis.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Great Vibes",
+      "url": "/fonts/greatvibes.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Imperial Script",
+      "url": "/fonts/imperialscript.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Ingrid Darling",
+      "url": "/fonts/ingriddarling.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Italianno",
+      "url": "/fonts/italianno.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Luxurious Script",
+      "url": "/fonts/luxuriousscript.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Marck Script",
+      "url": "/fonts/marckscript.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Mea Culpa",
+      "url": "/fonts/meaculpa.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Monte Carlo",
+      "url": "/fonts/montecarlo.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Norican",
+      "url": "/fonts/norican.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Parisienne",
+      "url": "/fonts/parisienne.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Petit Formal Script",
+      "url": "/fonts/petitformalscript.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Pinyon Script",
+      "url": "/fonts/pinyonscript.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Qwitcher Grypen",
+      "url": "/fonts/qwitchergrypen.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Sacramento",
+      "url": "/fonts/sacramento.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Send Flowers",
+      "url": "/fonts/sendflowers.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Style Script",
+      "url": "/fonts/stylescript.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Tangerine",
+      "url": "/fonts/tangerine.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": false
+    },
+    {
+      "family": "The Nautigal",
+      "url": "/fonts/thenautigal.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Updock",
+      "url": "/fonts/updock.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Waterfall",
+      "url": "/fonts/waterfall.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Whisper",
+      "url": "/fonts/whisper.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "WindSong",
+      "url": "/fonts/windsong.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Yellowtail",
+      "url": "/fonts/yellowtail.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "script",
+      "turkish": true
+    },
+    {
+      "family": "Bebas Neue",
+      "url": "/fonts/bebasneue.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "DM Sans",
+      "url": "/fonts/dmsans.woff2",
+      "minWeight": 100,
+      "maxWeight": 1000,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Figtree",
+      "url": "/fonts/figtree.woff2",
+      "minWeight": 300,
+      "maxWeight": 900,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Inter",
+      "url": "/fonts/inter.woff2",
+      "minWeight": 100,
+      "maxWeight": 900,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Josefin Sans",
+      "url": "/fonts/josefinsans.woff2",
+      "minWeight": 100,
+      "maxWeight": 700,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Jost",
+      "url": "/fonts/jost.woff2",
+      "minWeight": 100,
+      "maxWeight": 900,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Karla",
+      "url": "/fonts/karla.woff2",
+      "minWeight": 200,
+      "maxWeight": 800,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "League Spartan",
+      "url": "/fonts/leaguespartan.woff2",
+      "minWeight": 100,
+      "maxWeight": 900,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Manrope",
+      "url": "/fonts/manrope.woff2",
+      "minWeight": 200,
+      "maxWeight": 800,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Montserrat",
+      "url": "/fonts/montserrat.woff2",
+      "minWeight": 100,
+      "maxWeight": 900,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Oswald",
+      "url": "/fonts/oswald.woff2",
+      "minWeight": 200,
+      "maxWeight": 700,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Outfit",
+      "url": "/fonts/outfit.woff2",
+      "minWeight": 100,
+      "maxWeight": 900,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Poppins",
+      "url": "/fonts/poppins.woff2",
+      "minWeight": 400,
+      "maxWeight": 400,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Quicksand",
+      "url": "/fonts/quicksand.woff2",
+      "minWeight": 300,
+      "maxWeight": 700,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Raleway",
+      "url": "/fonts/raleway.woff2",
+      "minWeight": 100,
+      "maxWeight": 900,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Sora",
+      "url": "/fonts/sora.woff2",
+      "minWeight": 100,
+      "maxWeight": 800,
+      "category": "sans",
+      "turkish": true
+    },
+    {
+      "family": "Urbanist",
+      "url": "/fonts/urbanist.woff2",
+      "minWeight": 100,
+      "maxWeight": 900,
+      "category": "sans",
+      "turkish": true
+    }
+  ],
+  "library": [
+    {
+      "key": "frames",
+      "name": "Çerçeveler",
+      "kind": "image",
+      "items": [
+        {
+          "path": "/img/davetiye/adacayi-madalyon/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/altin-hilal/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/altin-yelpaze/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/barok-kapi/07-g.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/barok-kapi/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/begonvil-bahcesi/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/bordo-muhur/07.webp",
+          "width": 983,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/ceviz-oyma-kapi/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/ege-sutunlari/09.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/elhamra-avlusu/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/fildisi-kemer/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/fildisi-madalyon/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/fildisi-muhur/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/fildisi-rokoko/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/gol-kiyisi-goblen/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/gul-bahcesi-kapisi/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/gul-dantel/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/gul-kurusu-muhur/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/hus-kemeri/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/ilk-ask-lalesi/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/inci-saten/06.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/inci-ve-gul/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/inci-zambak/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/kaftan-perdesi/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/lacivert-hikaye/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/lacivert-madalyon/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/lale-devri/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/lale-terasi/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/lavanta-kemeri/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/mavi-bahar-kapisi/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/mor-salkim/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/nil-kelebegi/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/opera-gecesi/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/pembe-rokoko/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/pudra-kabartma/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/rokoko-esintisi/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/sakayik-tulu/06-g.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/sakayik-tulu/06.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/sakura-bahcesi/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/sakura-ipek/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/sakura-koprusu/09.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/sampanya-cicegi/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/saray-lalesi/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/tavuslu-cini/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/tek-gul/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/vitray-ruyasi/08.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/yaldizli-saray-kapisi/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/yildiz-tozu/07.webp",
+          "width": 1100,
+          "height": 1100
+        },
+        {
+          "path": "/img/davetiye/zumrut-muhur/07.webp",
+          "width": 1100,
+          "height": 1100
+        }
+      ]
+    },
+    {
+      "key": "banners",
+      "name": "Bantlar",
+      "kind": "image",
+      "items": [
+        {
+          "path": "/img/davetiye/adacayi-madalyon/07.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/altin-hilal/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/altin-yelpaze/08.webp",
+          "width": 1100,
+          "height": 157
+        },
+        {
+          "path": "/img/davetiye/barok-kapi/08-g.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/barok-kapi/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/begonvil-bahcesi/09.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/bordo-muhur/08.webp",
+          "width": 1100,
+          "height": 366
+        },
+        {
+          "path": "/img/davetiye/ceviz-oyma-kapi/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/ege-sutunlari/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/elhamra-avlusu/09.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/fildisi-kemer/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/fildisi-madalyon/08.webp",
+          "width": 1100,
+          "height": 440
+        },
+        {
+          "path": "/img/davetiye/fildisi-muhur/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/fildisi-rokoko/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/gol-kiyisi-goblen/08.webp",
+          "width": 1100,
+          "height": 157
+        },
+        {
+          "path": "/img/davetiye/gul-bahcesi-kapisi/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/gul-dantel/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/gul-kurusu-muhur/07.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/hus-kemeri/09.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/ilk-ask-lalesi/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/inci-saten/08.webp",
+          "width": 1100,
+          "height": 157
+        },
+        {
+          "path": "/img/davetiye/inci-ve-gul/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/inci-zambak/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/kaftan-perdesi/07.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/lacivert-hikaye/07.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/lacivert-madalyon/07.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/lale-devri/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/lale-terasi/09.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/lavanta-kemeri/09.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/mavi-bahar-kapisi/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/mor-salkim/07.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/nil-kelebegi/09.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/opera-gecesi/08.webp",
+          "width": 1100,
+          "height": 157
+        },
+        {
+          "path": "/img/davetiye/pembe-rokoko/08.webp",
+          "width": 1100,
+          "height": 379
+        },
+        {
+          "path": "/img/davetiye/pudra-kabartma/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/rokoko-esintisi/08.webp",
+          "width": 1100,
+          "height": 550
+        },
+        {
+          "path": "/img/davetiye/sakayik-tulu/08-g.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/sakayik-tulu/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/sakura-bahcesi/09.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/sakura-ipek/08.webp",
+          "width": 1100,
+          "height": 157
+        },
+        {
+          "path": "/img/davetiye/sakura-koprusu/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/sampanya-cicegi/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/saray-lalesi/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/tavuslu-cini/09.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/tek-gul/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/vitray-ruyasi/07.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/yaldizli-saray-kapisi/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/yildiz-tozu/08.webp",
+          "width": 1100,
+          "height": 367
+        },
+        {
+          "path": "/img/davetiye/zumrut-muhur/08.webp",
+          "width": 1100,
+          "height": 440
+        }
+      ]
+    },
+    {
+      "key": "corners",
+      "name": "Köşe süsleri",
+      "kind": "image",
+      "items": [
+        {
+          "path": "/img/decor/floral-bl.webp",
+          "width": 494,
+          "height": 432
+        },
+        {
+          "path": "/img/decor/floral-br.webp",
+          "width": 655,
+          "height": 338
+        },
+        {
+          "path": "/img/decor/floral-tl.webp",
+          "width": 447,
+          "height": 592
+        },
+        {
+          "path": "/img/decor/floral-tr.webp",
+          "width": 447,
+          "height": 592
+        },
+        {
+          "path": "/img/decor/gilded-tl.webp",
+          "width": 424,
+          "height": 320
+        },
+        {
+          "path": "/img/decor/gilded-tr.webp",
+          "width": 424,
+          "height": 320
+        },
+        {
+          "path": "/img/decor/band-bl.webp",
+          "width": 354,
+          "height": 325
+        },
+        {
+          "path": "/img/decor/band-br.webp",
+          "width": 288,
+          "height": 259
+        },
+        {
+          "path": "/img/decor/band-tr.webp",
+          "width": 213,
+          "height": 280
+        },
+        {
+          "path": "/img/decor/bouquet-cut.webp",
+          "width": 240,
+          "height": 400
+        },
+        {
+          "path": "/img/decor/bouquet-tr.webp",
+          "width": 446,
+          "height": 744
+        }
+      ]
+    },
+    {
+      "key": "backgrounds",
+      "name": "Arka planlar",
+      "kind": "background",
+      "items": [
+        {
+          "path": "/img/davetiye/adacayi-madalyon/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/altin-hilal/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/altin-yelpaze/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/barok-kapi/06-g.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/barok-kapi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/begonvil-bahcesi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/begonvil-bahcesi/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/bordo-muhur/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/ceviz-oyma-kapi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/ege-sutunlari/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/ege-sutunlari/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/elhamra-avlusu/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/elhamra-avlusu/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/fildisi-kemer/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/fildisi-madalyon/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/fildisi-muhur/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/fildisi-rokoko/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/gol-kiyisi-goblen/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/gul-bahcesi-kapisi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/gul-dantel/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/gul-kurusu-muhur/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/hus-kemeri/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/hus-kemeri/08.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/ilk-ask-lalesi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/inci-saten/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/inci-ve-gul/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/inci-zambak/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/kaftan-perdesi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/lacivert-hikaye/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/lacivert-madalyon/06.webp",
+          "width": 941,
+          "height": 1671
+        },
+        {
+          "path": "/img/davetiye/lale-devri/05.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/lale-terasi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/lale-terasi/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/lavanta-kemeri/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/lavanta-kemeri/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/mavi-bahar-kapisi/05.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/mor-salkim/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/nil-kelebegi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/nil-kelebegi/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/opera-gecesi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/pembe-rokoko/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/pudra-kabartma/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/rokoko-esintisi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/sakayik-tulu/07-g.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/sakayik-tulu/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/sakura-bahcesi/05.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/sakura-bahcesi/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/sakura-ipek/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/sakura-koprusu/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/sakura-koprusu/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/sampanya-cicegi/05.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/saray-lalesi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/tavuslu-cini/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/tavuslu-cini/07.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/tek-gul/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/vitray-ruyasi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/yaldizli-saray-kapisi/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/yildiz-tozu/05.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/davetiye/zumrut-muhur/06.webp",
+          "width": 941,
+          "height": 1672
+        },
+        {
+          "path": "/img/decor/marble-emerald.webp",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "path": "/img/decor/marble-ivory.webp",
+          "width": 1024,
+          "height": 1024
+        }
+      ]
+    }
+  ],
+  "rights": {
+    "unlocked": false,
+    "reason": "none",
+    "price": "99 TL",
+    "compareAt": null,
+    "free": false,
+    "pendingOrderUrl": null
+  },
+  "endpoints": {
+    "templates": "/tasarla/api/hazir-tasarimlar?dil=tr",
+    "create": "/tasarla/api/kartlar",
+    "save": "/tasarla/api/kartlar/{id}/kaydet",
+    "download": "/tasarla/api/kartlar/{id}/indir",
+    "uploads": "/tasarla/api/gorseller",
+    "upload": "/tasarla/api/gorseller",
+    "deleteUpload": "/tasarla/api/gorseller/{id}/sil",
+    "token": "/tasarla/api/jeton",
+    "purchase": "/panel/tasarimlar/{id}/satin-al",
+    "signIn": "/panel/giris?donus=%2Ftr%2Ftasarla%3Fyerel%3D1&arayuz=tr",
+    "signUp": "/panel/kayit?donus=%2Ftr%2Ftasarla%3Fyerel%3D1&arayuz=tr",
+    "exit": "/tr/tasarim-studyosu",
+    "panel": "/panel/tasarimlar",
+    "editor": "/tr/tasarla/{id}"
+  },
+  "strings": {
+    "cardStudio.editor.account.designs": "Tasarımlarım",
+    "cardStudio.editor.account.me": "Hesabım",
+    "cardStudio.editor.account.menu": "Hesap menüsü: {0}",
+    "cardStudio.editor.account.signIn": "Giriş yapın",
+    "cardStudio.editor.account.signUp": "Hesap oluşturun",
+    "cardStudio.editor.account.unverified": "E-posta adresiniz henüz doğrulanmadı",
+    "cardStudio.editor.background.change": "Değiştir",
+    "cardStudio.editor.background.chooseImage": "Görsel seçin",
+    "cardStudio.editor.background.color": "Renk",
+    "cardStudio.editor.background.colors": "Arka plan renkleri",
+    "cardStudio.editor.background.custom": "Özel renk",
+    "cardStudio.editor.background.fit": "Yerleşim",
+    "cardStudio.editor.background.fitContain": "Sığdır",
+    "cardStudio.editor.background.fitCover": "Doldur",
+    "cardStudio.editor.background.fitFill": "Esnet",
+    "cardStudio.editor.background.image": "Görsel",
+    "cardStudio.editor.background.none": "Renksiz (beyaz kâğıt)",
+    "cardStudio.editor.background.overlay": "Renk örtüsü",
+    "cardStudio.editor.background.overlayColor": "Örtü rengi",
+    "cardStudio.editor.background.overlayOpacity": "Yoğunluk",
+    "cardStudio.editor.background.removeImage": "Görseli kaldır",
+    "cardStudio.editor.background.reset": "Arka planı sıfırla",
+    "cardStudio.editor.canvas.edit": "Düzenle",
+    "cardStudio.editor.canvas.label": "Tasarım alanı",
+    "cardStudio.editor.combo.babyEyebrow": "Aramıza katıldı",
+    "cardStudio.editor.combo.babyLine": "12 Haziran 2027 · 3,2 kg",
+    "cardStudio.editor.combo.babyName": "Deniz",
+    "cardStudio.editor.combo.birthdayAge": "5 yaşına giriyor!",
+    "cardStudio.editor.combo.birthdayEyebrow": "Doğum günü partisi",
+    "cardStudio.editor.combo.birthdayName": "Elif",
+    "cardStudio.editor.combo.date": "12 Haziran 2027",
+    "cardStudio.editor.combo.dateCaps": "12 · 06 · 2027",
+    "cardStudio.editor.combo.dateShort": "12.06.2027",
+    "cardStudio.editor.combo.engagementEyebrow": "Nişanımıza davetlisiniz",
+    "cardStudio.editor.combo.henna": "Kına Gecesi",
+    "cardStudio.editor.combo.hennaLine": "Bu özel gecede sizi de aramızda görmek isteriz",
+    "cardStudio.editor.combo.inviteLine": "Mutlu günümüzde sizi de aramızda görmek isteriz",
+    "cardStudio.editor.combo.names": "Ayşe & Mehmet",
+    "cardStudio.editor.combo.namesCaps": "Ayşe & Mehmet",
+    "cardStudio.editor.combo.saveTheDate": "Tarihi ayırın",
+    "cardStudio.editor.combo.time": "Cumartesi · Saat 19.00",
+    "cardStudio.editor.combo.venue": "Bahçe Salonu · İstanbul",
+    "cardStudio.editor.combo.weddingEyebrow": "Evleniyoruz",
+    "cardStudio.editor.common.cancel": "Vazgeç",
+    "cardStudio.editor.common.close": "Kapat",
+    "cardStudio.editor.common.loading": "Yükleniyor…",
+    "cardStudio.editor.common.ok": "Tamam",
+    "cardStudio.editor.common.percent": "%{0}",
+    "cardStudio.editor.common.retry": "Tekrar deneyin",
+    "cardStudio.editor.conflict.mine": "Benimkini kaydet",
+    "cardStudio.editor.conflict.server": "Sunucudakini yükle",
+    "cardStudio.editor.conflict.text": "Bu tasarım başka bir sekmede ya da cihazda kaydedildi. Sunucudaki hâlini yükleyebilir ya da buradaki değişikliklerinizi onun üstüne kaydedebilirsiniz.",
+    "cardStudio.editor.conflict.title": "Başka bir sekmede değiştirildi",
+    "cardStudio.editor.decor.empty": "Süsleme bulunamadı.",
+    "cardStudio.editor.download.again": "İndirme başlamadıysa buraya tıklayın",
+    "cardStudio.editor.download.buy": "Satın alın",
+    "cardStudio.editor.download.verify": "E-posta adresimi doğrula",
+    "cardStudio.editor.templates.loadFailed": "Hazır tasarımlar yüklenemedi. Lütfen tekrar deneyin.",
+    "cardStudio.editor.download.customerNote": "Dijital davetiye ya da Go Post gazetesi aldıysanız filigransız indirme sizin için ücretsizdir.",
+    "cardStudio.editor.download.done": "Filigransız, yüksek çözünürlüklü dosyanız indiriliyor.",
+    "cardStudio.editor.download.doneWatermarked": "Filigranlı, düşük çözünürlüklü kopya indiriliyor.",
+    "cardStudio.editor.download.format": "Dosya biçimi",
+    "cardStudio.editor.download.freeText": "Filigranlı, ekran çözünürlüğünde PNG ya da JPG.",
+    "cardStudio.editor.download.freeTitle": "Ücretsiz indirme",
+    "cardStudio.editor.download.jpgHint": "Küçük dosya",
+    "cardStudio.editor.download.paidFreeTitle": "Filigransız indirin — ücretsiz",
+    "cardStudio.editor.download.paidText": "Filigransız, yüksek çözünürlüklü PNG ve JPG ile baskıya hazır PDF.",
+    "cardStudio.editor.download.paidTitle": "Filigransız indirin — {0}",
+    "cardStudio.editor.download.pdfHint": "Baskı için",
+    "cardStudio.editor.download.pdfLocked": "Baskı için PDF, filigransız indirmeyle açılır.",
+    "cardStudio.editor.download.pending": "Ödemeniz onay bekliyor.",
+    "cardStudio.editor.download.pendingLink": "Siparişi görüntüleyin",
+    "cardStudio.editor.download.pngHint": "Paylaşım için",
+    "cardStudio.editor.download.preparing": "Kartınız hazırlanıyor…",
+    "cardStudio.editor.download.preparingHint": "Bu işlem birkaç saniye sürebilir.",
+    "cardStudio.editor.download.reasonCustomer": "Davetiye müşterimiz olduğunuz için ücretsiz.",
+    "cardStudio.editor.download.reasonPurchased": "Bu tasarım için filigransız indirmeyi satın aldınız.",
+    "cardStudio.editor.download.reasonStaff": "Yönetici olarak filigransız indirebilirsiniz.",
+    "cardStudio.editor.download.start": "İndir",
+    "cardStudio.editor.download.startFree": "Filigranlı indir",
+    "cardStudio.editor.download.started": "İndirme başladı",
+    "cardStudio.editor.download.title": "Kartınızı indirin",
+    "cardStudio.editor.download.unavailable": "Dosya şu anda hazırlanamıyor. Lütfen biraz sonra tekrar deneyin.",
+    "cardStudio.editor.download.unlockFree": "Ücretsiz açın",
+    "cardStudio.editor.download.unlocked": "Filigransız · yüksek çözünürlük",
+    "cardStudio.editor.download.was": "Önceki fiyat: {0}",
+    "cardStudio.editor.elements.allShapes": "Tüm şekiller",
+    "cardStudio.editor.elements.arch": "Kemer",
+    "cardStudio.editor.elements.circle": "Daire",
+    "cardStudio.editor.elements.heart": "Kalp",
+    "cardStudio.editor.elements.icon": "Simge",
+    "cardStudio.editor.elements.icons": "Simgeler",
+    "cardStudio.editor.elements.lineDashed": "Kesikli",
+    "cardStudio.editor.elements.lineDotted": "Noktalı",
+    "cardStudio.editor.elements.lineThick": "Kalın",
+    "cardStudio.editor.elements.lineThin": "İnce",
+    "cardStudio.editor.elements.lines": "Çizgiler",
+    "cardStudio.editor.elements.photoArch": "Kemer",
+    "cardStudio.editor.elements.photoCircle": "Daire",
+    "cardStudio.editor.elements.photoFrames": "Fotoğraf çerçeveleri",
+    "cardStudio.editor.elements.photoFramesHint": "Çerçeveyi ekleyin; sonra çift tıklayarak ya da Yüklemeler'den bir fotoğraf seçerek doldurun.",
+    "cardStudio.editor.elements.photoHeart": "Kalp",
+    "cardStudio.editor.elements.photoHexagon": "Altıgen",
+    "cardStudio.editor.elements.photoRounded": "Yuvarlak köşe",
+    "cardStudio.editor.elements.photoScallop": "Dantel",
+    "cardStudio.editor.elements.rounded": "Yuvarlak köşe",
+    "cardStudio.editor.elements.shapes": "Şekiller",
+    "cardStudio.editor.elements.square": "Kare",
+    "cardStudio.editor.elements.star": "Yıldız",
+    "cardStudio.editor.error.boot": "KendinTasarla açılamadı. Lütfen sayfayı yenileyin.",
+    "cardStudio.editor.error.invalidFile": "Bu dosya yüklenemedi. JPG, PNG, WEBP ya da GIF bir görsel seçin.",
+    "cardStudio.editor.error.network": "Bağlantı kurulamadı. İnternet bağlantınızı kontrol edin.",
+    "cardStudio.editor.error.rate": "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.",
+    "cardStudio.editor.error.server": "Bir sorun oluştu. Lütfen tekrar deneyin.",
+    "cardStudio.editor.error.tooLarge": "Dosya çok büyük ya da yükleme alanınız doldu.",
+    "cardStudio.editor.format.changed": "Kart ölçüsü değişti: {0}",
+    "cardStudio.editor.format.title": "Kart ölçüsü",
+    "cardStudio.editor.import.done": "Tasarımınız hesabınıza kaydedildi.",
+    "cardStudio.editor.inspector.title": "Düzenle",
+    "cardStudio.editor.leave.confirm": "Yine de çık",
+    "cardStudio.editor.leave.text": "Son değişiklikleriniz kaydedilemedi. Çıkarsanız kaybolabilir.",
+    "cardStudio.editor.leave.title": "Kaydedilmemiş değişiklikler",
+    "cardStudio.editor.more.format": "Ölçüyü değiştir",
+    "cardStudio.editor.more.layers": "Katmanlar ve arka plan",
+    "cardStudio.editor.more.title": "Diğer",
+    "cardStudio.editor.noscript": "KendinTasarla JavaScript ile çalışır. Lütfen tarayıcınızda JavaScript'i açın.",
+    "cardStudio.editor.page.background": "Arka plan",
+    "cardStudio.editor.page.resize": "Ölçüyü değiştir",
+    "cardStudio.editor.page.title": "Kart",
+    "cardStudio.editor.panel.background": "Arka plan",
+    "cardStudio.editor.panel.close": "Paneli kapat",
+    "cardStudio.editor.panel.decor": "Süslemeler",
+    "cardStudio.editor.panel.elements": "Öğeler",
+    "cardStudio.editor.panel.templates": "Hazır tasarımlar",
+    "cardStudio.editor.panel.text": "Yazı",
+    "cardStudio.editor.panel.uploads": "Yüklemeler",
+    "cardStudio.editor.picker.title": "Görsel seçin",
+    "cardStudio.editor.picker.uploads": "Yüklemelerim",
+    "cardStudio.editor.preview.title": "Önizleme",
+    "cardStudio.editor.rail.label": "Tasarım araçları",
+    "cardStudio.editor.recover.discard": "Yoksay",
+    "cardStudio.editor.recover.restore": "Geri yükle",
+    "cardStudio.editor.recover.text": "Oturumunuz kapanmadan önceki değişiklikleriniz bu tarayıcıda saklandı.",
+    "cardStudio.editor.recover.title": "Kaydedilmemiş değişiklikler bulundu",
+    "cardStudio.editor.resume.continue": "Devam edin",
+    "cardStudio.editor.resume.new": "Yeni başlayın",
+    "cardStudio.editor.resume.title": "Kaldığınız yerden devam edin",
+    "cardStudio.editor.save.dirty": "Kaydedilmemiş değişiklikler",
+    "cardStudio.editor.save.error": "Kaydedilemedi · yeniden denenecek",
+    "cardStudio.editor.save.failed": "Değişiklikler kaydedilemedi.",
+    "cardStudio.editor.save.local": "Tarayıcınızda saklandı",
+    "cardStudio.editor.save.localFailed": "Tarayıcıda saklanamadı",
+    "cardStudio.editor.save.localHint": "Giriş yaptığınızda tasarımınız hesabınıza aktarılır.",
+    "cardStudio.editor.save.notFound": "Bu tasarım bulunamadı; silinmiş olabilir.",
+    "cardStudio.editor.save.saved": "Kaydedildi",
+    "cardStudio.editor.save.saving": "Kaydediliyor…",
+    "cardStudio.editor.signin.downloadText": "Tasarımınız kaybolmaz: bu tarayıcıda saklanır ve giriş yaptıktan sonra hesabınıza aktarılır.",
+    "cardStudio.editor.signin.downloadTitle": "İndirmek için giriş yapın",
+    "cardStudio.editor.signin.sessionText": "Değişiklikleriniz bu tarayıcıda saklandı. Kaldığınız yerden devam etmek için yeniden giriş yapın.",
+    "cardStudio.editor.signin.sessionTitle": "Oturumunuz kapandı",
+    "cardStudio.editor.signin.uploadText": "Fotoğraf yüklemek için giriş yapın. Tasarımınız bu tarayıcıda saklanır ve giriş yaptıktan sonra hesabınıza aktarılır.",
+    "cardStudio.editor.signin.uploadTitle": "Kendi fotoğraflarınızı kullanın",
+    "cardStudio.editor.tab.background": "Arka plan",
+    "cardStudio.editor.tab.decor": "Süsleme",
+    "cardStudio.editor.tab.elements": "Öğeler",
+    "cardStudio.editor.tab.templates": "Tasarımlar",
+    "cardStudio.editor.tab.text": "Yazı",
+    "cardStudio.editor.tab.uploads": "Görseller",
+    "cardStudio.editor.templates.all": "Tümü",
+    "cardStudio.editor.templates.categories": "Kategoriler",
+    "cardStudio.editor.templates.confirmApply": "Uygula",
+    "cardStudio.editor.templates.confirmText": "Hazır tasarım karttaki mevcut tasarımın yerini alır. Dilerseniz Geri al ile eski hâline dönebilirsiniz.",
+    "cardStudio.editor.templates.confirmTitle": "Hazır tasarım uygulansın mı?",
+    "cardStudio.editor.templates.empty": "Bu kategoride hazır tasarım yok.",
+    "cardStudio.editor.templates.featured": "Öne çıkan",
+    "cardStudio.editor.text.body": "Gövde metni ekleyin",
+    "cardStudio.editor.text.combos": "Yazı birleşimleri",
+    "cardStudio.editor.text.heading": "Başlık ekleyin",
+    "cardStudio.editor.text.script": "El yazısı ekleyin",
+    "cardStudio.editor.text.subheading": "Alt başlık ekleyin",
+    "cardStudio.editor.title.untitled": "Adsız tasarım",
+    "cardStudio.editor.top.download": "İndir",
+    "cardStudio.editor.top.exit": "Çıkış",
+    "cardStudio.editor.top.exitLabel": "KendinTasarla'dan çık",
+    "cardStudio.editor.top.fit": "Sığdır",
+    "cardStudio.editor.top.formatLabel": "Kart ölçüsü: {0}",
+    "cardStudio.editor.top.more": "Diğer işlemler",
+    "cardStudio.editor.top.preview": "Önizle",
+    "cardStudio.editor.top.redo": "Yinele",
+    "cardStudio.editor.top.redoHint": "Yinele (Ctrl+Y)",
+    "cardStudio.editor.top.titleLabel": "Tasarım adı",
+    "cardStudio.editor.top.undo": "Geri al",
+    "cardStudio.editor.top.undoHint": "Geri al (Ctrl+Z)",
+    "cardStudio.editor.top.zoom": "Yakınlaştırma",
+    "cardStudio.editor.top.zoomCurrent": "Yakınlaştırma %{0}; %100'e döndürmek için tıklayın",
+    "cardStudio.editor.top.zoomIn": "Yakınlaştır",
+    "cardStudio.editor.top.zoomOut": "Uzaklaştır",
+    "cardStudio.editor.top.zoomReset": "%100",
+    "cardStudio.editor.top.zoomValue": "%{0}",
+    "cardStudio.editor.ui.align": "Hizala",
+    "cardStudio.editor.ui.alignBottom": "Alta hizala",
+    "cardStudio.editor.ui.alignCenter": "Yatayda ortala",
+    "cardStudio.editor.ui.alignLeft": "Sola hizala",
+    "cardStudio.editor.ui.alignMiddle": "Dikeyde ortala",
+    "cardStudio.editor.ui.alignPageBottom": "Kartın altına",
+    "cardStudio.editor.ui.alignPageCenter": "Kartta yatay ortala",
+    "cardStudio.editor.ui.alignPageLeft": "Kartın soluna",
+    "cardStudio.editor.ui.alignPageMiddle": "Kartta dikey ortala",
+    "cardStudio.editor.ui.alignPageRight": "Kartın sağına",
+    "cardStudio.editor.ui.alignPageTop": "Kartın üstüne",
+    "cardStudio.editor.ui.alignRight": "Sağa hizala",
+    "cardStudio.editor.ui.alignTop": "Üste hizala",
+    "cardStudio.editor.ui.all": "Tümü",
+    "cardStudio.editor.ui.arrange": "Düzen",
+    "cardStudio.editor.ui.background": "Zemin",
+    "cardStudio.editor.ui.blur": "Bulanık",
+    "cardStudio.editor.ui.border": "Kenarlık",
+    "cardStudio.editor.ui.bringForward": "Bir öne",
+    "cardStudio.editor.ui.bringToFront": "Öne getir",
+    "cardStudio.editor.ui.cancel": "Vazgeç",
+    "cardStudio.editor.ui.case": "Büyük/küçük",
+    "cardStudio.editor.ui.caseLower": "küçük harf",
+    "cardStudio.editor.ui.caseNone": "Olduğu gibi",
+    "cardStudio.editor.ui.caseTitle": "Baş Harfler",
+    "cardStudio.editor.ui.caseUpper": "BÜYÜK HARF",
+    "cardStudio.editor.ui.change": "Değiştir",
+    "cardStudio.editor.ui.choose": "Seç",
+    "cardStudio.editor.ui.clearColor": "Rengi kaldır",
+    "cardStudio.editor.ui.clip": "Kırp",
+    "cardStudio.editor.ui.close": "Kapat",
+    "cardStudio.editor.ui.color": "Renk",
+    "cardStudio.editor.ui.cover": "Doldur (kırp)",
+    "cardStudio.editor.ui.cropArea": "Görselin çerçevedeki konumu",
+    "cardStudio.editor.ui.cropHint": "Sürükleyerek kaydırın; tekerlekle ya da kaydırıcıyla yakınlaştırın. Soluk kısım çerçevenin dışında kalır.",
+    "cardStudio.editor.ui.cropNote": "Fotoğraf çerçeveyi doldurur (oranı bozulmaz). Görsel seçildiğinde burada çerçevenin içinde kaydırıp yakınlaştırabilirsiniz.",
+    "cardStudio.editor.ui.cropZoom": "Yakınlaştırma",
+    "cardStudio.editor.ui.dashDashed": "Kesikli",
+    "cardStudio.editor.ui.dashDotted": "Noktalı",
+    "cardStudio.editor.ui.dashSolid": "Düz",
+    "cardStudio.editor.ui.defaultFont": "Varsayılan",
+    "cardStudio.editor.ui.defaultFontHint": "Tasarımın varsayılan yazı tipi",
+    "cardStudio.editor.ui.delete": "Sil",
+    "cardStudio.editor.ui.deleteShortcut": "Sil (Delete)",
+    "cardStudio.editor.ui.distributeX": "↔ Eşit dağıt",
+    "cardStudio.editor.ui.distributeY": "↕ Eşit dağıt",
+    "cardStudio.editor.ui.dragToChange": "Sürükleyerek değiştirin",
+    "cardStudio.editor.ui.duplicate": "Çoğalt",
+    "cardStudio.editor.ui.duplicateShortcut": "Çoğalt (Ctrl+D)",
+    "cardStudio.editor.ui.fill": "Doldur",
+    "cardStudio.editor.ui.fillColor": "Dolgu",
+    "cardStudio.editor.ui.fit": "Sığdır",
+    "cardStudio.editor.ui.font": "Yazı tipi",
+    "cardStudio.editor.ui.fontDisplay": "Gösterişli",
+    "cardStudio.editor.ui.fontEmpty": "Eşleşen yazı tipi yok.",
+    "cardStudio.editor.ui.fontNoTurkish": "TR eksik",
+    "cardStudio.editor.ui.fontNoTurkishHint": "Bu yazı tipinde bazı Türkçe harfler (İ ı Ş ş Ğ ğ…) yok; tarayıcı onları yedek yazı tipiyle çizer.",
+    "cardStudio.editor.ui.fontRecent": "Son kullanılanlar",
+    "cardStudio.editor.ui.fontSample": "Örnek yazı: Ayşe & Mehmet",
+    "cardStudio.editor.ui.fontSampleHint": "Listede bu yazıyla önizleyin",
+    "cardStudio.editor.ui.fontSans": "Sans",
+    "cardStudio.editor.ui.fontScript": "El yazısı",
+    "cardStudio.editor.ui.fontSearch": "{0} yazı tipinde arayın…",
+    "cardStudio.editor.ui.fontSerif": "Serif",
+    "cardStudio.editor.ui.fontSize": "Punto",
+    "cardStudio.editor.ui.fontUploaded": "Yüklenenler",
+    "cardStudio.editor.ui.frame": "Çerçeve",
+    "cardStudio.editor.ui.frameChoose": "— Öğe seçin —",
+    "cardStudio.editor.ui.frameContent": "İçindeki öğe",
+    "cardStudio.editor.ui.frameEmptyNote": "Karttaki bir öğeyi seçin; içerik çerçevenin içine kendiliğinden yerleşir.",
+    "cardStudio.editor.ui.frameFillNote": "İçerik çerçevenin kutusunu tamamen kaplar.",
+    "cardStudio.editor.ui.frameFitNote": "İçerik, kenarlardan iç boşluk kadar içeride ortalanır. Çelenk ve dantel gibi kenarı dolu çerçeveler için.",
+    "cardStudio.editor.ui.frameFreeNote": "İçeriği katmanlardan seçip sürükleyerek ya da boyutlandırarak çerçevenin içinde istediğiniz yere koyun; çerçeveyi taşıyınca birlikte hareket eder.",
+    "cardStudio.editor.ui.frameInsert": "Çerçeveye yerleştir",
+    "cardStudio.editor.ui.frameLinked": "“{0}” bu çerçevenin içinde. Ayarları çerçeveyi seçince görünür.",
+    "cardStudio.editor.ui.frameOpen": "Çerçeve ayarlarını aç",
+    "cardStudio.editor.ui.framePlace": "“{0}”, “{1}” çerçevesinin içine yerleştirilir ve çerçeveyle birlikte hareket eder.",
+    "cardStudio.editor.ui.frameRelease": "Çerçeveden çıkar",
+    "cardStudio.editor.ui.frameSelect": "Çerçeveyi seç",
+    "cardStudio.editor.ui.frameSelectContent": "İçeriği seç",
+    "cardStudio.editor.ui.frameShape": "İçerik şekli",
+    "cardStudio.editor.ui.frameSquare": "Kare / daire olarak yerleştir",
+    "cardStudio.editor.ui.frameToggle": "Bu görsel bir çerçeve",
+    "cardStudio.editor.ui.framedFree": "Serbest yerleşim: sürükleyip boyutlandırabilirsiniz; çerçeveyle birlikte hareket eder.",
+    "cardStudio.editor.ui.framedIn": "“{0}” çerçevesinin içinde",
+    "cardStudio.editor.ui.framedPinned": "{0}: konumu ve boyutu çerçeveden gelir. Tutup sürüklemek çerçeveyi taşır.",
+    "cardStudio.editor.ui.free": "Serbest",
+    "cardStudio.editor.ui.frontShortcut": "Öne getir (Ctrl+])",
+    "cardStudio.editor.ui.groupCornerHint": "Orantılı ölçekleyin; yazılar da büyür ya da küçülür (Shift: serbest, Alt: merkezden)",
+    "cardStudio.editor.ui.groupEdgeHint": "Tek yönde esnetin (Shift: orantılı, Alt: merkezden)",
+    "cardStudio.editor.ui.groupScaleNote": "Tuvalde ortak kutunun köşesinden çekince grup orantılı büyür ya da küçülür; yazılar ve kenarlıklar da birlikte ölçeklenir. Kenardan çekince tek yönde esner. Shift oranı değiştirir, Alt merkezden ölçekler.",
+    "cardStudio.editor.ui.heightShort": "Y",
+    "cardStudio.editor.ui.hidden": "Gizli",
+    "cardStudio.editor.ui.hide": "Gizle",
+    "cardStudio.editor.ui.horizontal": "Yatay",
+    "cardStudio.editor.ui.iconEmpty": "Eşleşen simge yok.",
+    "cardStudio.editor.ui.iconGroup.arrows": "Oklar ve gezinme",
+    "cardStudio.editor.ui.iconGroup.baby": "Bebek ve çocuk",
+    "cardStudio.editor.ui.iconGroup.contact": "İletişim",
+    "cardStudio.editor.ui.iconGroup.corners": "Köşe ve çerçeve",
+    "cardStudio.editor.ui.iconGroup.dividers": "Ayraçlar",
+    "cardStudio.editor.ui.iconGroup.faith": "Tören ve inanç",
+    "cardStudio.editor.ui.iconGroup.flowers": "Çiçek ve bitki",
+    "cardStudio.editor.ui.iconGroup.henna": "Kına ve gelenek",
+    "cardStudio.editor.ui.iconGroup.media": "Medya",
+    "cardStudio.editor.ui.iconGroup.nature": "Gök ve doğa",
+    "cardStudio.editor.ui.iconGroup.other": "Diğer",
+    "cardStudio.editor.ui.iconGroup.party": "Kutlama",
+    "cardStudio.editor.ui.iconGroup.places": "Mekân ve ulaşım",
+    "cardStudio.editor.ui.iconGroup.program": "Program akışı",
+    "cardStudio.editor.ui.iconGroup.time": "Tarih ve saat",
+    "cardStudio.editor.ui.iconGroup.wedding": "Düğün ve nişan",
+    "cardStudio.editor.ui.iconSearch": "Simge arayın ({0} simge)",
+    "cardStudio.editor.ui.inset": "İç boşluk",
+    "cardStudio.editor.ui.italic": "İtalik",
+    "cardStudio.editor.ui.keepRatio": "Oranı koru (yazılar da ölçeklenir)",
+    "cardStudio.editor.ui.layer": "Katman",
+    "cardStudio.editor.ui.layerName": "Katman adı",
+    "cardStudio.editor.ui.layers": "Katmanlar",
+    "cardStudio.editor.ui.letterSpacing": "Harf",
+    "cardStudio.editor.ui.lineHeight": "Satır",
+    "cardStudio.editor.ui.lineNote": "Uzunluk: genişlik. Açılı çizgi için döndürün (Shift ile 15° adımlar).",
+    "cardStudio.editor.ui.lock": "Kilitle",
+    "cardStudio.editor.ui.locked": "Kilitli",
+    "cardStudio.editor.ui.mask": "Şekil (maske)",
+    "cardStudio.editor.ui.maskNote": "Fotoğraf seçilen şeklin içinde kalır; kenarlık şeklin çevresini izler. Daire ve kalp için kutuyu kare yapın.",
+    "cardStudio.editor.ui.minSize": "En küçük punto",
+    "cardStudio.editor.ui.minSizeNote": "Uzun içerik kutuya sığmazsa yazı en fazla bu puntoya kadar küçülür; kutu büyümez, yerleşim kaymaz.",
+    "cardStudio.editor.ui.noElements": "Henüz öğe yok.",
+    "cardStudio.editor.ui.noMask": "Dikdörtgen (maske yok)",
+    "cardStudio.editor.ui.none": "Yok",
+    "cardStudio.editor.ui.ok": "Tamam",
+    "cardStudio.editor.ui.opacity": "Opaklık",
+    "cardStudio.editor.ui.percent": "%{0}",
+    "cardStudio.editor.ui.placement": "Yerleşim",
+    "cardStudio.editor.ui.position": "Konum ve boyut",
+    "cardStudio.editor.ui.radius": "Köşe yuvarlama",
+    "cardStudio.editor.ui.remove": "Kaldır",
+    "cardStudio.editor.ui.reset": "Sıfırla",
+    "cardStudio.editor.ui.resetRotation": "Döndürmeyi sıfırla",
+    "cardStudio.editor.ui.rotateHint": "Döndürün (Shift: 15°)",
+    "cardStudio.editor.ui.scaleTo": "Seçimi %{0} boyutuna getirin (yazılarla birlikte)",
+    "cardStudio.editor.ui.selectedCount": "{0} öğe seçili",
+    "cardStudio.editor.ui.sendBackward": "Bir geri",
+    "cardStudio.editor.ui.sendToBack": "Arkaya gönder",
+    "cardStudio.editor.ui.shadow": "Gölge",
+    "cardStudio.editor.ui.shape.arch": "Kemer",
+    "cardStudio.editor.ui.shape.arrowTag": "Ok etiketi",
+    "cardStudio.editor.ui.shape.banner": "Flama",
+    "cardStudio.editor.ui.shape.blob": "Organik",
+    "cardStudio.editor.ui.shape.burst": "Rozet",
+    "cardStudio.editor.ui.shape.cloud": "Bulut",
+    "cardStudio.editor.ui.shape.cross": "Artı",
+    "cardStudio.editor.ui.shape.diamond": "Karo",
+    "cardStudio.editor.ui.shape.dome": "Kubbe",
+    "cardStudio.editor.ui.shape.drop": "Damla",
+    "cardStudio.editor.ui.shape.ellipse": "Elips",
+    "cardStudio.editor.ui.shape.flower": "Çiçek",
+    "cardStudio.editor.ui.shape.heart": "Kalp",
+    "cardStudio.editor.ui.shape.hexagon": "Altıgen",
+    "cardStudio.editor.ui.shape.innerCorner": "İç köşeli",
+    "cardStudio.editor.ui.shape.leaf": "Yaprak",
+    "cardStudio.editor.ui.shape.moon": "Hilal",
+    "cardStudio.editor.ui.shape.notchRect": "Kesik köşeli",
+    "cardStudio.editor.ui.shape.octagon": "Sekizgen",
+    "cardStudio.editor.ui.shape.ogee": "Sivri kemer",
+    "cardStudio.editor.ui.shape.parallelogram": "Paralelkenar",
+    "cardStudio.editor.ui.shape.pentagon": "Beşgen",
+    "cardStudio.editor.ui.shape.quarter": "Çeyrek daire",
+    "cardStudio.editor.ui.shape.rect": "Dikdörtgen",
+    "cardStudio.editor.ui.shape.ribbon": "Kurdele bant",
+    "cardStudio.editor.ui.shape.rightTriangle": "Dik üçgen",
+    "cardStudio.editor.ui.shape.ring": "Halka",
+    "cardStudio.editor.ui.shape.scallop": "Dantel daire",
+    "cardStudio.editor.ui.shape.scallopRect": "Fistolu kart",
+    "cardStudio.editor.ui.shape.semicircle": "Yarım daire",
+    "cardStudio.editor.ui.shape.speech": "Konuşma balonu",
+    "cardStudio.editor.ui.shape.stadium": "Hap",
+    "cardStudio.editor.ui.shape.star": "Yıldız",
+    "cardStudio.editor.ui.shape.star4": "Dört köşeli yıldız",
+    "cardStudio.editor.ui.shape.star6": "Altı köşeli yıldız",
+    "cardStudio.editor.ui.shape.star8": "Sekiz köşeli yıldız",
+    "cardStudio.editor.ui.shape.ticket": "Bilet",
+    "cardStudio.editor.ui.shape.trapezoid": "Yamuk",
+    "cardStudio.editor.ui.shape.triangle": "Üçgen",
+    "cardStudio.editor.ui.shape.wave": "Dalga",
+    "cardStudio.editor.ui.show": "Göster",
+    "cardStudio.editor.ui.shrink": "Sığmazsa küçült",
+    "cardStudio.editor.ui.size": "Boyut",
+    "cardStudio.editor.ui.stretch": "Kutuya esnet",
+    "cardStudio.editor.ui.stretchImage": "Esnet",
+    "cardStudio.editor.ui.stretchNote": "Yazı kutunun genişliğine ve yüksekliğine esner: kutuyu inceltip uzatın ya da genişletip basın, yazı onu doldurur. Satırlar yalnızca yazdığınız satır sonlarında kırılır; sığdırma ve sütunlar kapalı.",
+    "cardStudio.editor.ui.strokeColor": "Çizgi rengi",
+    "cardStudio.editor.ui.text": "Metin",
+    "cardStudio.editor.ui.textCenter": "Ortala",
+    "cardStudio.editor.ui.textFit": "Sığdırma",
+    "cardStudio.editor.ui.textJustify": "İki yana",
+    "cardStudio.editor.ui.textLeft": "Sola",
+    "cardStudio.editor.ui.textRight": "Sağa",
+    "cardStudio.editor.ui.textStyle": "Yazı biçimi",
+    "cardStudio.editor.ui.textTip": "İpucu: Yazıyı tuvalde çift tıklayarak ya da çift dokunarak da düzenleyebilirsiniz.",
+    "cardStudio.editor.ui.thickness": "Kalınlık",
+    "cardStudio.editor.ui.type.icon": "Simge",
+    "cardStudio.editor.ui.type.image": "Görsel",
+    "cardStudio.editor.ui.type.line": "Çizgi",
+    "cardStudio.editor.ui.type.shape": "Şekil",
+    "cardStudio.editor.ui.type.text": "Yazı",
+    "cardStudio.editor.ui.underline": "Altı çizili",
+    "cardStudio.editor.ui.unlock": "Kilidi aç",
+    "cardStudio.editor.ui.vBottom": "Alt",
+    "cardStudio.editor.ui.vMiddle": "Orta",
+    "cardStudio.editor.ui.vTop": "Üst",
+    "cardStudio.editor.ui.vertical": "Dikey",
+    "cardStudio.editor.ui.weight100": "İnce (100)",
+    "cardStudio.editor.ui.weight200": "Çok hafif (200)",
+    "cardStudio.editor.ui.weight300": "Hafif (300)",
+    "cardStudio.editor.ui.weight400": "Normal (400)",
+    "cardStudio.editor.ui.weight500": "Orta (500)",
+    "cardStudio.editor.ui.weight600": "Yarı kalın (600)",
+    "cardStudio.editor.ui.weight700": "Kalın (700)",
+    "cardStudio.editor.ui.weight800": "Çok kalın (800)",
+    "cardStudio.editor.ui.weight900": "Siyah (900)",
+    "cardStudio.editor.ui.widthShort": "G",
+    "cardStudio.editor.ui.yShort": "Y",
+    "cardStudio.editor.ui.zoomIn": "Yakınlaştır",
+    "cardStudio.editor.ui.zoomOut": "Uzaklaştır",
+    "cardStudio.editor.uploads.choose": "Görsel yükleyin",
+    "cardStudio.editor.uploads.delete": "Sil",
+    "cardStudio.editor.uploads.deleteText": "Görsel yüklemelerinizden silinir. Kartlarınızdan birinde kullanılıyorsa silinmez.",
+    "cardStudio.editor.uploads.deleteTitle": "Görsel silinsin mi?",
+    "cardStudio.editor.uploads.empty": "Henüz görsel yüklemediniz.",
+    "cardStudio.editor.uploads.hint": "JPG, PNG, WEBP · sürükleyip bırakabilirsiniz",
+    "cardStudio.editor.uploads.mine": "Yüklemelerim",
+    "cardStudio.editor.uploads.onlyImages": "Yalnızca görsel dosyaları yüklenebilir (JPG, PNG, WEBP, GIF).",
+    "cardStudio.editor.uploads.quota": "Yükleme alanı",
+    "cardStudio.editor.uploads.quotaFull": "Yükleme alanınız doldu ({0}). Kullanmadığınız görselleri silebilirsiniz.",
+    "cardStudio.editor.uploads.quotaText": "{0} / {1} kullanıldı",
+    "cardStudio.editor.uploads.signInText": "Fotoğraf yüklemek için giriş yapın. Tasarımınız bu tarayıcıda saklanır ve giriş yaptıktan sonra hesabınıza aktarılır.",
+    "cardStudio.editor.uploads.signInTitle": "Kendi fotoğraflarınızı kullanın",
+    "cardStudio.editor.uploads.uploading": "{0} yükleniyor",
+    "cardStudio.editor.uploads.use": "Karta ekle",
+    "cardStudio.editor.verify.text": "Devam etmek için e-posta adresinizi doğrulayın. Gelen kutunuzdaki doğrulama bağlantısına tıklayın.",
+    "cardStudio.editor.verify.title": "E-posta adresinizi doğrulayın",
+    "cardStudio.editor.qr.note": "QR kodu davetiyenizin fotoğraf sayfasına gider; kodu silmeyin ve okunabilir boyutta bırakın.",
+    "cardStudio.editor.qr.removedTitle": "QR kodu karttan kaldırıldı",
+    "cardStudio.editor.qr.removedText": "Misafirleriniz fotoğraf sayfasına bu kodla ulaşıyor; kod olmadan kart işe yaramaz.",
+    "cardStudio.editor.qr.restore": "QR kodunu geri getir",
+    "cardStudio.editor.qr.keepRemoved": "Kaldırılmış kalsın",
+    "cardStudio.editor.linked.note": "Başka bir hazır tasarım seçtiğinizde davetiyenizdeki bilgiler yeni tasarıma yerleşir."
+  }
+}

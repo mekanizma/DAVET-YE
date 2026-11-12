@@ -1,0 +1,320 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState, type FormEvent } from "react";
+import Icon from "../Icon";
+import { TextAreaField, TextField } from "../Field";
+import { IbanCard } from "./IbanCard";
+import { useCatalog } from "@/components/CatalogProvider";
+import { formatTL, isEmail } from "@/lib/format";
+import type { PaymentSettings } from "@/lib/catalog";
+import { STATUS_LABEL, type OrderStatus } from "@/lib/orderStatus";
+import type { OrderRecord } from "@/lib/orderTypes";
+
+export interface PlacedOrder {
+  code: string;
+  status: string;
+  at: string;
+  total: number;
+  email: string;
+}
+
+type Phase = "form" | "pay";
+
+export default function IbanCheckout({
+  kind,
+  template,
+  title,
+  languages = [],
+  addons = [],
+  snapshot = {},
+  previewTotal,
+  resume,
+  onUpdate,
+}: {
+  kind: "davetiye" | "gazete";
+  template: string;
+  title: string;
+  languages?: string[];
+  addons?: string[];
+  snapshot?: Record<string, string>;
+  previewTotal: number;
+  resume?: { code: string; email: string } | null;
+  onUpdate?: (order: PlacedOrder) => void;
+}) {
+  const cat = useCatalog();
+  const [phase, setPhase] = useState<Phase>(resume?.code ? "pay" : "form");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState(resume?.email ?? "");
+  const [phone, setPhone] = useState("");
+  const [note, setNote] = useState("");
+  const [sender, setSender] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [failure, setFailure] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [order, setOrder] = useState<OrderRecord | null>(null);
+  const [settings, setSettings] = useState<PaymentSettings>(cat.settings);
+  const [ready, setReady] = useState(cat.paymentReady);
+
+  useEffect(() => {
+    if (!resume?.code || !resume.email) return;
+    let cancelled = false;
+    let timer = 0;
+    async function load(silent = false) {
+      const res = await fetch(`/api/siparis/${encodeURIComponent(resume!.code)}?email=${encodeURIComponent(resume!.email)}`);
+      if (cancelled) return;
+      if (!res.ok) {
+        if (!silent) {
+          setFailure("");
+          setPhase("form");
+        }
+        return false;
+      }
+      const data = await res.json();
+      if (cancelled) return;
+      setOrder(data.order);
+      setSettings(data.settings);
+      setReady(data.paymentReady);
+      if (!silent) setSender("");
+      setPhase("pay");
+      onUpdate?.({
+        code: data.order.code,
+        status: data.order.status,
+        at: data.order.createdAt,
+        total: data.order.total,
+        email: data.order.customer.email,
+      });
+      return true;
+    }
+    load().then((found) => {
+      if (!cancelled && found) timer = window.setInterval(() => load(true), 15000);
+    });
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+    // resume identity is stable enough for this screen
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resume?.code, resume?.email]);
+
+  function remember(o: OrderRecord) {
+    setOrder(o);
+    onUpdate?.({ code: o.code, status: o.status, at: o.createdAt, total: o.total, email: o.customer.email });
+  }
+
+  async function create(ev: FormEvent) {
+    ev.preventDefault();
+    const er: Record<string, string> = {};
+    if (name.trim().length < 3) er.name = "Ad soyad yazın.";
+    if (!isEmail(email)) er.email = "Geçerli bir e-posta yazın.";
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 10) er.phone = "Telefon numarası eksik.";
+    setErrors(er);
+    setFailure("");
+    if (Object.keys(er).length) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/siparis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind,
+          template,
+          languages,
+          addons,
+          customer: { name, email, phone },
+          customerNote: note,
+          snapshot,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setFailure(data.error || "Sipariş oluşturulamadı.");
+        return;
+      }
+      setSettings(data.settings);
+      setReady(data.paymentReady);
+      remember(data.order);
+      setSender("");
+      setFile(null);
+      setPhase("pay");
+    } catch {
+      setFailure("Bağlantı kurulamadı. Yeniden deneyin.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!file || !file.type.startsWith("image/")) {
+      setPreview("");
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  async function report(ev: FormEvent) {
+    ev.preventDefault();
+    if (!order) return;
+    const receipt = file;
+    const er: Record<string, string> = {};
+    if (sender.trim().length < 3) er.sender = "Ad soyad yazın.";
+    if (!receipt) er.dekont = "Dekont yükleyin.";
+    else if (receipt.size > 5 * 1024 * 1024) er.dekont = "Dekont 5 MB’ı geçmemeli.";
+    setErrors(er);
+    if (Object.keys(er).length || !receipt) return;
+    setBusy(true);
+    setFailure("");
+    try {
+      const body = new FormData();
+      body.set("email", order.customer.email);
+      body.set("senderName", sender.trim());
+      body.set("dekont", receipt);
+      const res = await fetch(`/api/siparis/${encodeURIComponent(order.code)}`, { method: "POST", body });
+      const data = await res.json();
+      if (!res.ok) {
+        setFailure(data.error || "Bildirim kaydedilemedi.");
+        return;
+      }
+      remember(data.order);
+      setErrors({});
+      setFile(null);
+    } catch {
+      setFailure("Bağlantı kurulamadı. Yeniden deneyin.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const status = order?.status as OrderStatus | undefined;
+  const total = order?.total ?? previewTotal;
+  const receiptSent = Boolean(order?.snapshot?.__dekont);
+  const showNotify = status === "bekliyor" || status === "reddedildi" || (status === "bildirildi" && !receiptSent);
+  const canSend = sender.trim().length >= 3 && Boolean(file) && ready && !busy;
+
+  if (phase === "form") {
+    return (
+      <form className="iban-pay" onSubmit={create} noValidate>
+        <div className="alert alert--info" role="note">
+          <Icon name="info" size={18} />
+          <span>
+            Ödeme yalnızca <strong>havale veya EFT</strong> ile alınır. Kart bilgisi istenmez. Sipariş kodu oluştuktan
+            sonra tutarı ve kodu açıklamaya yazmanız gerekir.
+          </span>
+        </div>
+        {!ready && (
+          <div className="alert alert--warn" role="status">
+            <Icon name="alert" size={18} />
+            <span>Havale hesabı henüz yayınlanmadı. Siparişinizi yine de oluşturabilirsiniz; hesap eklendiğinde bu ekranda görünür.</span>
+          </div>
+        )}
+        <p className="pay__total">Ödenecek tutar <strong className="num">{formatTL(previewTotal)}</strong></p>
+        <TextField id="pay-name" label="Ad soyad" required value={name} onChange={(e) => setName(e.target.value)} error={errors.name} autoComplete="name" />
+        <TextField id="pay-mail" type="email" label="E-posta" required value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} autoComplete="email" inputMode="email" hint="Sipariş durumunu bu adresle sorgularsınız." />
+        <TextField id="pay-phone" type="tel" label="Telefon" required value={phone} onChange={(e) => setPhone(e.target.value)} error={errors.phone} autoComplete="tel" inputMode="tel" placeholder="05xx xxx xx xx" />
+        <TextAreaField id="pay-note" label="Not (isteğe bağlı)" value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} />
+        {failure && <div className="alert alert--error" role="alert"><Icon name="alert" size={18} /><span>{failure}</span></div>}
+        <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={busy}>
+          <Icon name="envelope" size={16} /> {busy ? "Kaydediliyor…" : "Siparişi oluştur"}
+        </button>
+      </form>
+    );
+  }
+
+  return (
+    <div className="iban-pay">
+      <p className="pay__order">
+        <span>{title}</span>
+        <strong className="num">{order ? order.code : "…"}</strong>
+        {status && <span className={`pill pill--${status}`}>{STATUS_LABEL[status]}</span>}
+      </p>
+
+      {order?.total === 0 || status === "onaylandi" ? null : (
+        <ol className="iban-steps">
+          <li>Aşağıdaki hesaba sipariş tutarının tamamını havale veya EFT ile gönderin.</li>
+          <li>Açıklama kısmına yalnızca sipariş kodunu yazın. Kod olmadan ödeme eşleşmeyebilir.</li>
+          <li>Ad soyadınızı ve dekontu gönderin. Ödeme sistem tarafından kontrol edilip onaylanır. Karttan çekim yapılmaz.</li>
+        </ol>
+      )}
+
+      {status !== "onaylandi" && <IbanCard settings={settings} total={total} code={order?.code} title={title} />}
+      {settings.instructions && status !== "onaylandi" && <p className="field__hint">{settings.instructions}</p>}
+      {(settings.supportEmail || settings.supportPhone) && (
+        <p className="field__hint">
+          Destek: {settings.supportPhone} {settings.supportEmail && <a href={`mailto:${settings.supportEmail}`}>{settings.supportEmail}</a>}
+        </p>
+      )}
+
+      {showNotify ? (
+        <form onSubmit={report} noValidate>
+          {status === "reddedildi" && (
+            <div className="alert alert--error" role="alert">
+              <Icon name="alert" size={18} />
+              <span>{order?.adminNote || "Ödeme onaylanmadı. Havale bilgilerinizi kontrol edip yeniden bildirin."}</span>
+            </div>
+          )}
+          <TextField id="pay-sender" label="Ad soyad" required value={sender} onChange={(e) => setSender(e.target.value)} error={errors.sender} autoComplete="name" hint="Dekonttaki gönderen adıyla aynı olsun." />
+          <div className="dekont">
+            <label htmlFor="pay-dekont">Dekont</label>
+            <input
+              id="pay-dekont"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf"
+              onChange={(e) => {
+                setFile(e.target.files?.[0] ?? null);
+                setErrors((prev) => ({ ...prev, dekont: "" }));
+              }}
+            />
+            <small>{file ? file.name : "Fotoğraf veya PDF seçin. En fazla 5 MB."}</small>
+            {errors.dekont && <p className="field__error" role="alert">{errors.dekont}</p>}
+            {preview && <img className="dekont__preview" src={preview} alt="Seçilen dekontun önizlemesi" />}
+          </div>
+          {failure && <div className="alert alert--error" role="alert"><Icon name="alert" size={18} /><span>{failure}</span></div>}
+          <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={!canSend}>
+            {busy ? "Gönderiliyor…" : status === "reddedildi" ? "Yeniden gönder" : "Gönder"}
+          </button>
+          {!ready && <p className="field__hint">Hesap bilgisi yayınlanmadan havale bildirimi kapalıdır.</p>}
+        </form>
+      ) : null}
+
+      {status === "bildirildi" && receiptSent && (
+        <div className="alert alert--success" role="status">
+          <Icon name="check" size={18} />
+          <span>
+            Ödemeniz sistem tarafından kontrol edilip onaylanacaktır.
+            {order?.senderName ? ` Gönderen: ${order.senderName}.` : ""} Sipariş kodu: <strong className="num">{order?.code}</strong>
+          </span>
+        </div>
+      )}
+
+      {status === "onaylandi" && (
+        <div className="pay-done" role="status">
+          <span className="pay-done__icon"><Icon name="check" size={28} /></span>
+          <h2>Ödeme onaylandı</h2>
+          <p>
+            {order?.adminNote || "Siparişiniz onaylandı. Davetiyeniz hazırlanırken bu kodu saklayın: "}
+            {order?.adminNote ? null : <strong className="num">{order?.code}</strong>}
+          </p>
+          <div className="pay-done__cta">
+            {kind === "davetiye" && (
+              <Link href={`/onizleme/tema/${template}?taslak=1`} className="btn btn--dark btn--lg btn--serif">Davetiyemi önizle</Link>
+            )}
+            <Link href="/panel" className="btn btn--outline btn--lg">Panelime git</Link>
+          </div>
+        </div>
+      )}
+
+      {order && (
+        <ul className="timeline">
+          <li>Oluşturuldu · <time dateTime={order.createdAt}>{new Date(order.createdAt).toLocaleString("tr-TR")}</time></li>
+          {order.reportedAt && <li>Havale bildirildi · <time dateTime={order.reportedAt}>{new Date(order.reportedAt).toLocaleString("tr-TR")}</time></li>}
+          {order.decidedAt && <li>Sonuçlandı · <time dateTime={order.decidedAt}>{new Date(order.decidedAt).toLocaleString("tr-TR")}</time></li>}
+        </ul>
+      )}
+    </div>
+  );
+}

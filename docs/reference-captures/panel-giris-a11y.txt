@@ -1,0 +1,24 @@
+- document:
+  - main:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - heading "Giriş yap" [level=1]
+    - paragraph: Davetiyelerinize ve katılım yanıtlarınıza erişin.
+    - text: E-posta
+    - textbox "E-posta"
+    - text: Şifre
+    - textbox "Şifre"
+    - checkbox "Beni hatırla" [checked]
+    - text: Beni hatırla
+    - button "Giriş yap"
+    - paragraph:
+      - link "Şifremi unuttum":
+        - /url: /panel/sifremi-unuttum
+    - paragraph:
+      - text: Hesabınız yok mu?
+      - link "Hesap oluştur":
+        - /url: /panel/kayit
+    - paragraph:
+      - link "Ana sayfa":
+        - /url: /tr

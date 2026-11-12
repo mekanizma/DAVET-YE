@@ -1,0 +1,802 @@
+- document:
+  - link "İçeriğe geç":
+    - /url: "#main"
+  - banner:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - navigation "Ana menü":
+      - link "Davetiyeler":
+        - /url: /tr/temalar
+      - link "Gazeteler":
+        - /url: /tr/gazeteler
+      - link "KendinTasarla":
+        - /url: /tr/tasarim-studyosu
+      - link "Ne Sunuyoruz":
+        - /url: /tr/ne-sunuyoruz
+      - link "Fiyatlar":
+        - /url: /tr/fiyatlar
+      - link "Nasıl Çalışır":
+        - /url: /tr/nasil-calisir
+    - button "Dil seçin": TR
+    - link "Giriş yap":
+      - /url: /panel/giris?arayuz=tr
+    - link "Davetiye Oluştur":
+      - /url: /tr/davetiye-olustur
+  - main:
+    - paragraph: KOLEKSİYON
+    - heading "Her etkinlik için bir davetiye" [level=1]
+    - paragraph: Hepsi telefon için tasarlandı, hepsi tek bağlantıyla paylaşılır. Seçtiğiniz davetiyeyi satın almadan tam ekran önizleyebilirsiniz.
+    - search "Etkinliğe göre filtrele":
+      - searchbox "Davetiyelerde ara"
+      - text: Etkinlik
+      - combobox "Etkinlik":
+        - option "Tüm etkinlikler" [selected]
+        - option "Nişan & Düğün"
+        - option "Çoklu Etkinlik"
+        - option "Kına"
+      - text: Etiket
+      - combobox "Etiket":
+        - option "Tüm etiketler" [selected]
+        - option "adaçayı yeşili"
+        - option "ahşap"
+        - option "akdeniz"
+        - option "akdeniz masalı"
+        - option "al gülüm"
+        - option "altın"
+        - option "altın detay"
+        - option "altın gül"
+        - option "altın lale"
+        - option "altın mühür"
+        - option "altın saçak"
+        - option "animasyonlu davetiye"
+        - option "antik"
+        - option "antrasit"
+        - option "art deko"
+        - option "art nouveau"
+        - option "avlu"
+        - option "bahar"
+        - option "bahar düğünü"
+        - option "bahar yolu"
+        - option "bahçe düğünü"
+        - option "barok"
+        - option "begonvil"
+        - option "beyaz çiçek"
+        - option "beyaz gül"
+        - option "biz evleniyoruz"
+        - option "bordo"
+        - option "bordo kadife"
+        - option "ceviz"
+        - option "couture"
+        - option "çiçek"
+        - option "çiçekli davetiye"
+        - option "çiçekli kapı"
+        - option "çiçekli perde"
+        - option "çini"
+        - option "çocukluk aşkı"
+        - option "dantel"
+        - option "deniz manzaralı"
+        - option "deniz manzarası"
+        - option "doğa temalı"
+        - option "doğal"
+        - option "düğün davetiyesi"
+        - option "ege"
+        - option "elhamra"
+        - option "endülüs"
+        - option "fildişi"
+        - option "fildişi davetiye"
+        - option "firuze"
+        - option "gala"
+        - option "gatsby"
+        - option "gece"
+        - option "gece düğünü"
+        - option "gece mavisi"
+        - option "geleneksel davetiye"
+        - option "gelin arabası"
+        - option "gelin damat"
+        - option "goblen"
+        - option "gotik"
+        - option "gökyüzü"
+        - option "göl"
+        - option "göl manzarası"
+        - option "gül"
+        - option "gül altını"
+        - option "gül dantel"
+        - option "gül davetiye"
+        - option "gül kurusu"
+        - option "gün batımı"
+        - option "güz masalı"
+        - option "hikâye"
+        - option "hikâye davetiyesi"
+        - option "hilal"
+        - option "huş ağacı"
+        - option "ilkbahar düğünü"
+        - option "inci"
+        - option "inci çiçek"
+        - option "inci davetiye"
+        - option "interaktif davetiye"
+        - option "ipek perde"
+        - option "japon bahçesi"
+        - option "japon esintisi"
+        - option "kabartma"
+        - option "kabartma çiçek"
+        - option "kabartma kapak"
+        - option "kabartma kapı"
+        - option "kaftan"
+        - option "kapı açılışı"
+        - option "kar temalı"
+        - option "kardan bahara"
+        - option "kartuş"
+        - option "katedral"
+        - option "kelebek"
+        - option "kemer"
+        - option "kır düğünü"
+        - option "kırmızı gül"
+        - option "kış düğünü"
+        - option "kış masalı"
+        - option "kiraz çiçeği"
+        - option "klasik"
+        - option "klasik davetiye"
+        - option "koyu davetiye"
+        - option "krem"
+        - option "krem davetiye"
+        - option "kültür"
+        - option "lacivert"
+        - option "lacivert altın"
+        - option "lacivert davetiye"
+        - option "lale"
+        - option "lale davetiye"
+        - option "lapis"
+        - option "lavanta"
+        - option "lcv takibi"
+        - option "lila davetiye"
+        - option "lüks davetiye"
+        - option "madalyon"
+        - option "masalsı"
+        - option "masalsı davetiye"
+        - option "mavi çiçek"
+        - option "mavi davetiye"
+        - option "mermer"
+        - option "mısır"
+        - option "minimal"
+        - option "modern davetiye"
+        - option "mor salkım"
+        - option "mumlu mühür"
+        - option "mühür"
+        - option "mühürlü zarf"
+        - option "nil"
+        - option "nilüfer"
+        - option "nişan davetiyesi"
+        - option "nostaljik"
+        - option "opera davetiye"
+        - option "orman temalı"
+        - option "osmanlı"
+        - option "osmanlı davetiye"
+        - option "oyma kapı"
+        - option "papatya"
+        - option "pastel"
+        - option "pastel davetiye"
+        - option "pastel gül"
+        - option "pembe"
+        - option "pembe davetiye"
+        - option "pembe gül"
+        - option "perde"
+        - option "perde açılışı"
+        - option "portakal çiçeği"
+        - option "pudra"
+        - option "pudra mavisi"
+        - option "pudra pembe"
+        - option "pudra pembe davetiye"
+        - option "rokoko"
+        - option "romantik"
+        - option "romantik davetiye"
+        - option "rönesans"
+        - option "sade davetiye"
+        - option "sahil düğünü"
+        - option "sahne perdesi"
+        - option "sakura"
+        - option "sakura davetiye"
+        - option "saray"
+        - option "saray bahçesi"
+        - option "saray düğünü"
+        - option "saten perde"
+        - option "siyah altın"
+        - option "siyah davetiye"
+        - option "siyah inci"
+        - option "sonbahar düğünü"
+        - option "sonbahar temalı"
+        - option "sütun"
+        - option "şakayık"
+        - option "şampanya"
+        - option "şampanya davetiye"
+        - option "şapel kapısı"
+        - option "şarap rengi"
+        - option "şeftali pembe"
+        - option "tarihi mekân"
+        - option "tavus kuşu"
+        - option "tek gül"
+        - option "teras"
+        - option "tesettür"
+        - option "tesettürlü gelin"
+        - option "toskana"
+        - option "turna"
+        - option "tül perde"
+        - option "vintage"
+        - option "vintage davetiye"
+        - option "vitray davetiye"
+        - option "yakut gül"
+        - option "yaldız"
+        - option "yaprak animasyonu"
+        - option "yaz düğünü"
+        - option "yelpaze"
+        - option "yeşil davetiye"
+        - option "yeşil düş"
+        - option "yıldız"
+        - option "zambak"
+        - option "zarf açılışı"
+        - option "zarf davetiye"
+        - option "zarif"
+        - option "zarif davetiye"
+        - option "zeytin"
+        - option "zeytin dalı"
+        - option "zümrüt"
+        - option "zümrüt yeşili"
+        - option "zümrüt yeşili davetiye"
+      - text: "Sırala:"
+      - combobox "Sırala:":
+        - option "Önerilen" [selected]
+        - option "Artan fiyat"
+        - option "Popüler"
+    - paragraph: 56 davetiye
+    - group "Sütun":
+      - text: Sütun
+      - button "Otomatik" [pressed]
+      - button "4"
+      - button "6"
+    - checkbox "Yalnız kapaklar"
+    - text: Yalnız kapaklar
+    - article:
+      - link "Zümrüt Yeşili Çocukluk Aşkı":
+        - /url: /tr/temalar/zumrut-yesili-cocukluk-aski
+      - img "Zümrüt Yeşili Çocukluk Aşkı"
+      - text: Öne çıkan
+      - heading "Zümrüt Yeşili Çocukluk Aşkı" [level=3]
+      - text: 990 TL 1.250 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Akdeniz Masalı":
+        - /url: /tr/temalar/akdeniz-masali
+      - img "Akdeniz Masalı"
+      - text: Öne çıkan
+      - heading "Akdeniz Masalı" [level=3]
+      - text: 690 TL 1.100 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Gün Batımı":
+        - /url: /tr/temalar/gun-batimi-davetiyem
+      - img "Gün Batımı"
+      - text: Öne çıkan
+      - heading "Gün Batımı" [level=3]
+      - text: 990 TL 1.250 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Kış Masalı":
+        - /url: /tr/temalar/kis-masali
+      - img "Kış Masalı"
+      - text: Öne çıkan
+      - heading "Kış Masalı" [level=3]
+      - text: 990 TL 1.250 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Al Gülüm":
+        - /url: /tr/temalar/al-gulum-davetiyem
+      - img "Al Gülüm"
+      - text: Öne çıkan
+      - heading "Al Gülüm" [level=3]
+      - text: 990 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Siyah İnci":
+        - /url: /tr/temalar/siyah-inci
+      - img "Siyah İnci"
+      - text: Öne çıkan
+      - heading "Siyah İnci" [level=3]
+      - text: 1.090 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Bahar Yolu":
+        - /url: /tr/temalar/bahar-yolu
+      - img "Bahar Yolu"
+      - text: Yeni
+      - heading "Bahar Yolu" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Güz Masalı":
+        - /url: /tr/temalar/guz-masali
+      - img "Güz Masalı"
+      - text: Öne çıkan
+      - heading "Güz Masalı" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Yeşil Düş":
+        - /url: /tr/temalar/yesil-dus
+      - img "Yeşil Düş"
+      - heading "Yeşil Düş" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Barok Kapı":
+        - /url: /tr/temalar/barok-kapi
+      - img "Barok Kapı"
+      - text: Yeni
+      - heading "Barok Kapı" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Fildişi Kemer":
+        - /url: /tr/temalar/fildisi-kemer
+      - img "Fildişi Kemer"
+      - text: Yeni
+      - heading "Fildişi Kemer" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Mavi Bahar Kapısı":
+        - /url: /tr/temalar/mavi-bahar-kapisi
+      - img "Mavi Bahar Kapısı"
+      - text: Yeni
+      - heading "Mavi Bahar Kapısı" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Gül Bahçesi Kapısı":
+        - /url: /tr/temalar/gul-bahcesi-kapisi
+      - img "Gül Bahçesi Kapısı"
+      - text: Yeni
+      - heading "Gül Bahçesi Kapısı" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Yaldızlı Saray Kapısı":
+        - /url: /tr/temalar/yaldizli-saray-kapisi
+      - img "Yaldızlı Saray Kapısı"
+      - text: Yeni
+      - heading "Yaldızlı Saray Kapısı" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Rokoko Esintisi":
+        - /url: /tr/temalar/rokoko-esintisi
+      - img "Rokoko Esintisi"
+      - text: Yeni
+      - heading "Rokoko Esintisi" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Fildişi Rokoko":
+        - /url: /tr/temalar/fildisi-rokoko
+      - img "Fildişi Rokoko"
+      - text: Yeni
+      - heading "Fildişi Rokoko" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Ceviz Oyma Kapı":
+        - /url: /tr/temalar/ceviz-oyma-kapi
+      - img "Ceviz Oyma Kapı"
+      - text: Yeni
+      - heading "Ceviz Oyma Kapı" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Begonvil Bahçesi":
+        - /url: /tr/temalar/begonvil-bahcesi
+      - img "Begonvil Bahçesi"
+      - text: Yeni
+      - heading "Begonvil Bahçesi" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Nil Kelebeği":
+        - /url: /tr/temalar/nil-kelebegi
+      - img "Nil Kelebeği"
+      - text: Yeni
+      - heading "Nil Kelebeği" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Sakura Bahçesi":
+        - /url: /tr/temalar/sakura-bahcesi
+      - img "Sakura Bahçesi"
+      - text: Yeni
+      - heading "Sakura Bahçesi" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Elhamra Avlusu":
+        - /url: /tr/temalar/elhamra-avlusu
+      - img "Elhamra Avlusu"
+      - text: Yeni
+      - heading "Elhamra Avlusu" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Huş Kemeri":
+        - /url: /tr/temalar/hus-kemeri
+      - img "Huş Kemeri"
+      - text: Yeni
+      - heading "Huş Kemeri" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Lavanta Kemeri":
+        - /url: /tr/temalar/lavanta-kemeri
+      - img "Lavanta Kemeri"
+      - text: Yeni
+      - heading "Lavanta Kemeri" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Lale Terası":
+        - /url: /tr/temalar/lale-terasi
+      - img "Lale Terası"
+      - text: Yeni
+      - heading "Lale Terası" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Tavuslu Çini":
+        - /url: /tr/temalar/tavuslu-cini
+      - img "Tavuslu Çini"
+      - text: Yeni
+      - heading "Tavuslu Çini" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Ege Sütunları":
+        - /url: /tr/temalar/ege-sutunlari
+      - img "Ege Sütunları"
+      - text: Yeni
+      - heading "Ege Sütunları" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Sakura Köprüsü":
+        - /url: /tr/temalar/sakura-koprusu
+      - img "Sakura Köprüsü"
+      - text: Yeni
+      - heading "Sakura Köprüsü" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Fildişi Madalyon":
+        - /url: /tr/temalar/fildisi-madalyon
+      - img "Fildişi Madalyon"
+      - text: Yeni
+      - heading "Fildişi Madalyon" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Altın Yelpaze":
+        - /url: /tr/temalar/altin-yelpaze
+      - img "Altın Yelpaze"
+      - text: Yeni
+      - heading "Altın Yelpaze" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Şakayık Tülü":
+        - /url: /tr/temalar/sakayik-tulu
+      - img "Şakayık Tülü"
+      - text: Yeni
+      - heading "Şakayık Tülü" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Yıldız Tozu":
+        - /url: /tr/temalar/yildiz-tozu
+      - img "Yıldız Tozu"
+      - text: Yeni
+      - heading "Yıldız Tozu" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Göl Kıyısı Goblen":
+        - /url: /tr/temalar/gol-kiyisi-goblen
+      - img "Göl Kıyısı Goblen"
+      - text: Yeni
+      - heading "Göl Kıyısı Goblen" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Kaftan Perdesi":
+        - /url: /tr/temalar/kaftan-perdesi
+      - img "Kaftan Perdesi"
+      - text: Yeni
+      - heading "Kaftan Perdesi" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Pembe Rokoko":
+        - /url: /tr/temalar/pembe-rokoko
+      - img "Pembe Rokoko"
+      - text: Yeni
+      - heading "Pembe Rokoko" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "İnci Saten":
+        - /url: /tr/temalar/inci-saten
+      - img "İnci Saten"
+      - text: Yeni
+      - heading "İnci Saten" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Mor Salkım":
+        - /url: /tr/temalar/mor-salkim
+      - img "Mor Salkım"
+      - text: Yeni
+      - heading "Mor Salkım" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Tek Gül":
+        - /url: /tr/temalar/tek-gul
+      - img "Tek Gül"
+      - text: Yeni
+      - heading "Tek Gül" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Gül Dantel":
+        - /url: /tr/temalar/gul-dantel
+      - img "Gül Dantel"
+      - text: Yeni
+      - heading "Gül Dantel" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Opera Gecesi":
+        - /url: /tr/temalar/opera-gecesi
+      - img "Opera Gecesi"
+      - text: Yeni
+      - heading "Opera Gecesi" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Sakura İpek":
+        - /url: /tr/temalar/sakura-ipek
+      - img "Sakura İpek"
+      - text: Yeni
+      - heading "Sakura İpek" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Vitray Rüyası":
+        - /url: /tr/temalar/vitray-ruyasi
+      - img "Vitray Rüyası"
+      - text: Yeni
+      - heading "Vitray Rüyası" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Saray Lalesi":
+        - /url: /tr/temalar/saray-lalesi
+      - img "Saray Lalesi"
+      - text: Yeni
+      - heading "Saray Lalesi" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Adaçayı Madalyon":
+        - /url: /tr/temalar/adacayi-madalyon
+      - img "Adaçayı Madalyon"
+      - text: Yeni
+      - heading "Adaçayı Madalyon" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "İnci Zambak":
+        - /url: /tr/temalar/inci-zambak
+      - img "İnci Zambak"
+      - text: Yeni
+      - heading "İnci Zambak" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Bordo Mühür":
+        - /url: /tr/temalar/bordo-muhur
+      - img "Bordo Mühür"
+      - text: Yeni
+      - heading "Bordo Mühür" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Altın Hilal":
+        - /url: /tr/temalar/altin-hilal
+      - img "Altın Hilal"
+      - text: Yeni
+      - heading "Altın Hilal" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Gül Kurusu Mühür":
+        - /url: /tr/temalar/gul-kurusu-muhur
+      - img "Gül Kurusu Mühür"
+      - text: Yeni
+      - heading "Gül Kurusu Mühür" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Fildişi Mühür":
+        - /url: /tr/temalar/fildisi-muhur
+      - img "Fildişi Mühür"
+      - text: Yeni
+      - heading "Fildişi Mühür" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "İlk Aşk Lalesi":
+        - /url: /tr/temalar/ilk-ask-lalesi
+      - img "İlk Aşk Lalesi"
+      - text: Yeni
+      - heading "İlk Aşk Lalesi" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Lacivert Madalyon":
+        - /url: /tr/temalar/lacivert-madalyon
+      - img "Lacivert Madalyon"
+      - text: Yeni
+      - heading "Lacivert Madalyon" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Lacivert Hikâye":
+        - /url: /tr/temalar/lacivert-hikaye
+      - img "Lacivert Hikâye"
+      - text: Yeni
+      - heading "Lacivert Hikâye" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Pudra Kabartma":
+        - /url: /tr/temalar/pudra-kabartma
+      - img "Pudra Kabartma"
+      - text: Yeni
+      - heading "Pudra Kabartma" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "İnci ve Gül":
+        - /url: /tr/temalar/inci-ve-gul
+      - img "İnci ve Gül"
+      - text: Yeni
+      - heading "İnci ve Gül" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Lale Devri":
+        - /url: /tr/temalar/lale-devri
+      - img "Lale Devri"
+      - text: Yeni
+      - heading "Lale Devri" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Zümrüt Mühür":
+        - /url: /tr/temalar/zumrut-muhur
+      - img "Zümrüt Mühür"
+      - text: Yeni
+      - heading "Zümrüt Mühür" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Şampanya Çiçeği":
+        - /url: /tr/temalar/sampanya-cicegi
+      - img "Şampanya Çiçeği"
+      - text: Yeni
+      - heading "Şampanya Çiçeği" [level=3]
+      - text: 1.290 TL 1.490 TL
+      - group: Daha fazla göster
+    - navigation "Davetiye türleri":
+      - heading "Davetiye türleri" [level=2]
+      - link "Düğün Davetiyesi":
+        - /url: /tr/dugun-davetiyesi
+      - link "Kına Davetiyesi":
+        - /url: /tr/kina-davetiyesi
+      - link "Kına ve Düğün Davetiyesi":
+        - /url: /tr/kina-ve-dugun-davetiyesi
+    - list "Her davetiyede":
+      - listitem:
+        - paragraph: Mobil uyumlu
+        - paragraph: Her telefonda ve tarayıcıda açılır
+      - listitem:
+        - paragraph: Anında paylaşım
+        - paragraph: Tek bağlantıyla kolayca davet edin
+      - listitem:
+        - paragraph: Kolay özelleştirme
+        - paragraph: Kendi hikâyenize göre düzenleyin
+      - listitem:
+        - paragraph: Tek seferlik ödeme
+        - paragraph: Abonelik yok, sürpriz ücret yok
+  - contentinfo:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - paragraph: Dijital davetiye, katılım takibi ve Anı Duvarı tek bağlantıda.
+    - link "Instagram":
+      - /url: https://www.instagram.com/davetiyemgo/
+    - paragraph: Ürün
+    - list:
+      - listitem:
+        - link "Davetiyeler":
+          - /url: /tr/temalar
+      - listitem:
+        - link "Gazeteler":
+          - /url: /tr/gazeteler
+      - listitem:
+        - link "KendinTasarla":
+          - /url: /tr/tasarim-studyosu
+      - listitem:
+        - link "Fiyatlar":
+          - /url: /tr/fiyatlar
+      - listitem:
+        - link "Ne Sunuyoruz":
+          - /url: /tr/ne-sunuyoruz
+      - listitem:
+        - link "Davetiye Oluştur":
+          - /url: /tr/davetiye-olustur
+    - paragraph: Yardım
+    - list:
+      - listitem:
+        - link "Rehber":
+          - /url: /tr/rehber
+      - listitem:
+        - link "Hakkımızda":
+          - /url: /tr/hakkimizda
+      - listitem:
+        - link "Nasıl Çalışır":
+          - /url: /tr/nasil-calisir
+      - listitem:
+        - link "Sık Sorulanlar":
+          - /url: /tr/sss
+      - listitem:
+        - link "İletişim":
+          - /url: /tr/iletisim
+    - paragraph: Yasal
+    - list:
+      - listitem:
+        - link "Kullanım Koşulları":
+          - /url: /tr/kosullar
+      - listitem:
+        - link "Gizlilik Politikası":
+          - /url: /tr/gizlilik
+      - listitem:
+        - link "KVKK Aydınlatma Metni":
+          - /url: /tr/kvkk
+      - listitem:
+        - link "Çerez Politikası":
+          - /url: /tr/cerez
+    - navigation "Davetiye türleri":
+      - paragraph: Davetiye türleri
+      - list:
+        - listitem:
+          - link "Düğün Davetiyesi":
+            - /url: /tr/dugun-davetiyesi
+        - listitem:
+          - link "Kına Davetiyesi":
+            - /url: /tr/kina-davetiyesi
+        - listitem:
+          - link "Kına ve Düğün Davetiyesi":
+            - /url: /tr/kina-ve-dugun-davetiyesi
+    - text: © 2026 DavetiyemGo
+    - button "Çerez tercihleri"
+    - text: Türkiye’de tasarlandı
+    - 'link "Geliştiren: Vodisoft"':
+      - /url: https://vodisoft.com
+      - text: Geliştiren
+      - strong: Vodisoft

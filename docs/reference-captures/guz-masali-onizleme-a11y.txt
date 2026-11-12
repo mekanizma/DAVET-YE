@@ -1,0 +1,81 @@
+- document:
+  - region "İsimler":
+    - text: Biz Evleniyoruz Ayşe & Mehmet 12 Haziran 2027 Sizleri de aramızda görmekten mutluluk duyarız.
+    - button "Sayfa geçişi"
+  - region "Aileler":
+    - text: Ailelerimiz Gelinin Ailesi Ayten & Mustafa YILMAZ Damadın Ailesi Zeynep & Ahmet KAYA
+    - img
+    - text: Ailelerimizin hayır dualarıyla bu mutlu günde sizleri de aramızda görmek isteriz.
+    - button "Sayfa geçişi"
+  - region "Tarih":
+    - text: Tarih 12 Haziran Cumartesi Saat 19:00
+    - button "Takvime Ekle"
+    - button "Sayfa geçişi"
+  - region "Konum":
+    - text: Konum
+    - iframe
+    - text: Çırağan Sarayı Çırağan Cad. No:32, Beşiktaş / İstanbul
+    - button "Yol Tarifi"
+    - button "Sayfa geçişi"
+  - region "Geri sayım":
+    - text: Büyük Güne Kalan Zaman
+    - img
+    - text: 214 Gün 03 Saat 14 Dakika 23 Saniye 12 Haziran 2027 Cumartesi
+    - img
+    - button "Sayfa geçişi"
+  - region "Program akışı":
+    - text: Program 19:00 Karşılama Kokteyl ve canlı müzik 20:00 Nikâh Töreni Sevdiklerimizin şahitliğinde 20:45 Akşam Yemeği 22:00 Pasta & Dans Pist açılıyor
+    - button "Sayfa geçişi"
+  - region "Katılım formu":
+    - text: Katılım Durumu Adınız Soyadınız *
+    - textbox "Adınız Soyadınız *":
+      - /placeholder: Ad Soyad
+    - text: Katılım durumunuz *
+    - radiogroup "Katılım durumunuz *":
+      - radio "Katılıyorum"
+      - text: Katılıyorum
+      - radio "Katılamıyorum"
+      - text: Katılamıyorum
+    - text: Kaç kişi katılacaksınız?
+    - button "-1": −
+    - spinbutton "Kaç kişi katılacaksınız?": "1"
+    - button "+1": +
+    - text: Notunuz
+    - textbox "Notunuz":
+      - /placeholder: İletmek istedikleriniz
+    - button "Gönder"
+    - button "Sayfa geçişi"
+  - region "Anı duvarı":
+    - text: Anı Duvarı Etkinlik günü çektiğiniz fotoğrafları bizimle paylaşın; en güzel anılar burada birikecek. Fotoğraf Yükle
+    - button "Sayfa geçişi"
+  - region "Anı çekimi":
+    - text: Anı Çekimi
+    - img
+    - text: Etkinlik günü kameranızı açın; yakaladığınız anlar doğrudan albümümüze düşsün.
+    - button "Kamerayı Aç"
+    - button "Sayfa geçişi"
+  - region "Dilekler":
+    - text: Dilekleriniz
+    - textbox "Adınız"
+    - textbox "Dileğiniz"
+    - button "Dileğimi Gönder"
+    - strong: Ayşe
+    - paragraph: Çok mutlu olun, ömür boyu beraber!
+    - strong: Mehmet
+    - paragraph: Tebrikler, nice güzel yıllara.
+    - button "Sayfa geçişi"
+  - region "Hediye / IBAN":
+    - text: Hediye
+    - img
+    - text: "Hediye göndermek isteyen sevdiklerimiz için hesap bilgilerimiz: Ayşe Yılmaz TR12 0006 4000 0011 2345 6789 01"
+    - button "IBAN'ı Kopyala"
+    - button "Sayfa geçişi"
+  - region "Kapanış":
+    - text: Teşekkürler
+    - img
+    - text: Hayatımızın en özel gününde sizleri de aramızda görmekten mutluluk duyarız. Ayşe & Mehmet
+    - button "Başa dön"
+  - button "Müziği aç/kapat":
+    - img
+  - text: ÖNİZLEME · ÖNİZLEME · ÖNİZLEME Davetlisiniz
+  - button "Davetiyeyi aç"

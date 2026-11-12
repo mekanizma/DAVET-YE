@@ -1,0 +1,141 @@
+- document:
+  - link "İçeriğe geç":
+    - /url: "#main"
+  - banner:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - navigation "Ana menü":
+      - link "Davetiyeler":
+        - /url: /tr/temalar
+      - link "Gazeteler":
+        - /url: /tr/gazeteler
+      - link "KendinTasarla":
+        - /url: /tr/tasarim-studyosu
+      - link "Ne Sunuyoruz":
+        - /url: /tr/ne-sunuyoruz
+      - link "Fiyatlar":
+        - /url: /tr/fiyatlar
+      - link "Nasıl Çalışır":
+        - /url: /tr/nasil-calisir
+    - button "Dil seçin": TR
+    - link "Giriş yap":
+      - /url: /panel/giris?arayuz=tr
+    - link "Davetiye Oluştur":
+      - /url: /tr/davetiye-olustur
+  - main:
+    - region "Altı adımda davetiyeniz hazır":
+      - tablist "Ürün":
+        - tab "Davetiye" [selected]
+        - tab "Gazete"
+      - paragraph: NASIL ÇALIŞIR
+      - heading "Altı adımda davetiyeniz hazır" [level=1]
+      - paragraph: Tasarım bilgisi gerekmiyor. Her adımda ne yaptığınızı canlı önizlemede görürsünüz.
+    - tabpanel "Davetiye":
+      - list:
+        - listitem:
+          - heading "Etkinlik tipini belirleyin" [level=2]
+          - paragraph: Düğün, nişan, çok günlü kutlamalar ve kına gecesi… Etkinliğinizi seçin; size uygun davetiyeler listelensin.
+        - listitem:
+          - heading "Etkinliğe uygun davetiyeyi seçin" [level=2]
+          - paragraph: Etkinliğinize uygun davetiyeler süzülür; seçtiğiniz anda önizlemede canlanır.
+        - listitem:
+          - heading "Bilgileri doldurun, canlı izleyin" [level=2]
+          - paragraph: İsim, tarih, mekân ve bölümler — her tuşta önizleme güncellenir.
+        - listitem:
+          - heading "Satın alma adımını tamamlayın" [level=2]
+          - paragraph: Tek seferlik ödeme; abonelik yok. Fiyat özeti satır satır önünüzde.
+        - listitem:
+          - heading "Bağlantınızı paylaşın" [level=2]
+          - paragraph: WhatsApp, Instagram ya da SMS; tek bağlantı her yerde çalışır.
+        - listitem:
+          - heading "Katılımı takip edin" [level=2]
+          - paragraph: Yanıtlar panelinizde birikir; arayabilir, filtreleyebilir ve listeyi CSV olarak indirebilirsiniz.
+      - paragraph: Dakikalar içinde hazır; davetiyenizi hemen oluşturmaya başlayın.
+      - link "Hemen Başla":
+        - /url: /tr/davetiye-olustur
+  - contentinfo:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - paragraph: Dijital davetiye, katılım takibi ve Anı Duvarı tek bağlantıda.
+    - link "Instagram":
+      - /url: https://www.instagram.com/davetiyemgo/
+    - paragraph: Ürün
+    - list:
+      - listitem:
+        - link "Davetiyeler":
+          - /url: /tr/temalar
+      - listitem:
+        - link "Gazeteler":
+          - /url: /tr/gazeteler
+      - listitem:
+        - link "KendinTasarla":
+          - /url: /tr/tasarim-studyosu
+      - listitem:
+        - link "Fiyatlar":
+          - /url: /tr/fiyatlar
+      - listitem:
+        - link "Ne Sunuyoruz":
+          - /url: /tr/ne-sunuyoruz
+      - listitem:
+        - link "Davetiye Oluştur":
+          - /url: /tr/davetiye-olustur
+    - paragraph: Yardım
+    - list:
+      - listitem:
+        - link "Rehber":
+          - /url: /tr/rehber
+      - listitem:
+        - link "Hakkımızda":
+          - /url: /tr/hakkimizda
+      - listitem:
+        - link "Nasıl Çalışır":
+          - /url: /tr/nasil-calisir
+      - listitem:
+        - link "Sık Sorulanlar":
+          - /url: /tr/sss
+      - listitem:
+        - link "İletişim":
+          - /url: /tr/iletisim
+    - paragraph: Yasal
+    - list:
+      - listitem:
+        - link "Kullanım Koşulları":
+          - /url: /tr/kosullar
+      - listitem:
+        - link "Gizlilik Politikası":
+          - /url: /tr/gizlilik
+      - listitem:
+        - link "KVKK Aydınlatma Metni":
+          - /url: /tr/kvkk
+      - listitem:
+        - link "Çerez Politikası":
+          - /url: /tr/cerez
+    - navigation "Davetiye türleri":
+      - paragraph: Davetiye türleri
+      - list:
+        - listitem:
+          - link "Düğün Davetiyesi":
+            - /url: /tr/dugun-davetiyesi
+        - listitem:
+          - link "Kına Davetiyesi":
+            - /url: /tr/kina-davetiyesi
+        - listitem:
+          - link "Kına ve Düğün Davetiyesi":
+            - /url: /tr/kina-ve-dugun-davetiyesi
+    - text: © 2026 DavetiyemGo
+    - button "Çerez tercihleri"
+    - text: Türkiye’de tasarlandı
+    - 'link "Geliştiren: Vodisoft"':
+      - /url: https://vodisoft.com
+      - text: Geliştiren
+      - strong: Vodisoft
+  - dialog "Çerez tercihlerinizi yönetin":
+    - heading "Çerez tercihlerinizi yönetin" [level=2]
+    - link "Çerez politikası":
+      - /url: /tr/cerez
+    - paragraph: Size daha iyi ve güvenli bir deneyim sunmak için zorunlu ve isteğe bağlı çerezler kullanıyoruz.
+    - button "Tercihleri yönet"
+    - button "Sadece zorunlu"
+    - button "Tümünü kabul et"

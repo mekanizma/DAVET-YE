@@ -1,0 +1,1321 @@
+{
+  "checked": 146,
+  "badCount": 0,
+  "bad": [],
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 156492,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr",
+      "status": 200,
+      "bytes": 156492,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar",
+      "status": 200,
+      "bytes": 150037,
+      "assets": 16,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/gazeteler",
+      "status": 200,
+      "bytes": 58817,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/tasarim-studyosu",
+      "status": 200,
+      "bytes": 90440,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/tasarla",
+      "status": 200,
+      "bytes": 30132,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/ne-sunuyoruz",
+      "status": 200,
+      "bytes": 49146,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/fiyatlar",
+      "status": 200,
+      "bytes": 49248,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/nasil-calisir",
+      "status": 200,
+      "bytes": 30448,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/sss",
+      "status": 200,
+      "bytes": 29601,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/davetiye-olustur",
+      "status": 200,
+      "bytes": 21899,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/davetiye-olustur/etkinlik",
+      "status": 200,
+      "bytes": 21899,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/davetiye-olustur/sablon",
+      "status": 200,
+      "bytes": 21888,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/gazete-olustur",
+      "status": 200,
+      "bytes": 29832,
+      "assets": 16,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/iletisim",
+      "status": 200,
+      "bytes": 21066,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/hakkimizda",
+      "status": 200,
+      "bytes": 22111,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/rehber",
+      "status": 200,
+      "bytes": 27016,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/kosullar",
+      "status": 200,
+      "bytes": 21859,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/gizlilik",
+      "status": 200,
+      "bytes": 21686,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/kvkk",
+      "status": 200,
+      "bytes": 21729,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/cerez",
+      "status": 200,
+      "bytes": 21034,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/dugun-davetiyesi",
+      "status": 200,
+      "bytes": 155700,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/kina-davetiyesi",
+      "status": 200,
+      "bytes": 65764,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/kina-ve-dugun-davetiyesi",
+      "status": 200,
+      "bytes": 155654,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/panel/giris",
+      "status": 200,
+      "bytes": 10711,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/panel/kayit",
+      "status": 200,
+      "bytes": 10909,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/panel/sifremi-unuttum",
+      "status": 200,
+      "bytes": 10360,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/panel",
+      "status": 200,
+      "bytes": 8857,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/gazeteler/ask-bulteni",
+      "status": 200,
+      "bytes": 56432,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/gazeteler/dogum-gunu-gecesi",
+      "status": 200,
+      "bytes": 56070,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/gazeteler/sonunda-evleniyorlar",
+      "status": 200,
+      "bytes": 56015,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/gazeteler/ask-kazandi",
+      "status": 200,
+      "bytes": 55948,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/times/sablon/ask-bulteni",
+      "status": 200,
+      "bytes": 15947,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/times/sablon/dogum-gunu-gecesi",
+      "status": 200,
+      "bytes": 15865,
+      "assets": 15,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/zumrut-yesili-cocukluk-aski",
+      "status": 200,
+      "bytes": 85063,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/zumrut-yesili-cocukluk-aski",
+      "status": 200,
+      "bytes": 29649,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/akdeniz-masali",
+      "status": 200,
+      "bytes": 84562,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/akdeniz-masali",
+      "status": 200,
+      "bytes": 29533,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/gun-batimi-davetiyem",
+      "status": 200,
+      "bytes": 84175,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/gun-batimi-davetiyem",
+      "status": 200,
+      "bytes": 34871,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/kis-masali",
+      "status": 200,
+      "bytes": 84165,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/kis-masali",
+      "status": 200,
+      "bytes": 34761,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/al-gulum-davetiyem",
+      "status": 200,
+      "bytes": 84163,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/al-gulum-davetiyem",
+      "status": 200,
+      "bytes": 34841,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/siyah-inci",
+      "status": 200,
+      "bytes": 84741,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/siyah-inci",
+      "status": 200,
+      "bytes": 29034,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/bahar-yolu",
+      "status": 200,
+      "bytes": 84366,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/bahar-yolu",
+      "status": 200,
+      "bytes": 34849,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/guz-masali",
+      "status": 200,
+      "bytes": 84469,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/guz-masali",
+      "status": 200,
+      "bytes": 29616,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/yesil-dus",
+      "status": 200,
+      "bytes": 83307,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/yesil-dus",
+      "status": 200,
+      "bytes": 34723,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/barok-kapi",
+      "status": 200,
+      "bytes": 84817,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/barok-kapi",
+      "status": 200,
+      "bytes": 29301,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/fildisi-kemer",
+      "status": 200,
+      "bytes": 84485,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/fildisi-kemer",
+      "status": 200,
+      "bytes": 29260,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/mavi-bahar-kapisi",
+      "status": 200,
+      "bytes": 84849,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/mavi-bahar-kapisi",
+      "status": 200,
+      "bytes": 29324,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/gul-bahcesi-kapisi",
+      "status": 200,
+      "bytes": 84871,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/gul-bahcesi-kapisi",
+      "status": 200,
+      "bytes": 29341,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/yaldizli-saray-kapisi",
+      "status": 200,
+      "bytes": 84937,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/yaldizli-saray-kapisi",
+      "status": 200,
+      "bytes": 29462,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/rokoko-esintisi",
+      "status": 200,
+      "bytes": 84462,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/rokoko-esintisi",
+      "status": 200,
+      "bytes": 34846,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/fildisi-rokoko",
+      "status": 200,
+      "bytes": 84457,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/fildisi-rokoko",
+      "status": 200,
+      "bytes": 34840,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/ceviz-oyma-kapi",
+      "status": 200,
+      "bytes": 84805,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/ceviz-oyma-kapi",
+      "status": 200,
+      "bytes": 29300,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/begonvil-bahcesi",
+      "status": 200,
+      "bytes": 84354,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/begonvil-bahcesi",
+      "status": 200,
+      "bytes": 34867,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/nil-kelebegi",
+      "status": 200,
+      "bytes": 84266,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/nil-kelebegi",
+      "status": 200,
+      "bytes": 34799,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/sakura-bahcesi",
+      "status": 200,
+      "bytes": 84300,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/sakura-bahcesi",
+      "status": 200,
+      "bytes": 34829,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/elhamra-avlusu",
+      "status": 200,
+      "bytes": 84783,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/elhamra-avlusu",
+      "status": 200,
+      "bytes": 29286,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/hus-kemeri",
+      "status": 200,
+      "bytes": 84470,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/hus-kemeri",
+      "status": 200,
+      "bytes": 29200,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/lavanta-kemeri",
+      "status": 200,
+      "bytes": 84490,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/lavanta-kemeri",
+      "status": 200,
+      "bytes": 29279,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/lale-terasi",
+      "status": 200,
+      "bytes": 84717,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/lale-terasi",
+      "status": 200,
+      "bytes": 29227,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/tavuslu-cini",
+      "status": 200,
+      "bytes": 84781,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/tavuslu-cini",
+      "status": 200,
+      "bytes": 29565,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/ege-sutunlari",
+      "status": 200,
+      "bytes": 84761,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/ege-sutunlari",
+      "status": 200,
+      "bytes": 29265,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/sakura-koprusu",
+      "status": 200,
+      "bytes": 84783,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/sakura-koprusu",
+      "status": 200,
+      "bytes": 29268,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/fildisi-madalyon",
+      "status": 200,
+      "bytes": 84700,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/fildisi-madalyon",
+      "status": 200,
+      "bytes": 29100,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/altin-yelpaze",
+      "status": 200,
+      "bytes": 84278,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/altin-yelpaze",
+      "status": 200,
+      "bytes": 34831,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/sakayik-tulu",
+      "status": 200,
+      "bytes": 84478,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/sakayik-tulu",
+      "status": 200,
+      "bytes": 28699,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/yildiz-tozu",
+      "status": 200,
+      "bytes": 84244,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/yildiz-tozu",
+      "status": 200,
+      "bytes": 34775,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/gol-kiyisi-goblen",
+      "status": 200,
+      "bytes": 84376,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/gol-kiyisi-goblen",
+      "status": 200,
+      "bytes": 34934,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/kaftan-perdesi",
+      "status": 200,
+      "bytes": 84488,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/kaftan-perdesi",
+      "status": 200,
+      "bytes": 28797,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/pembe-rokoko",
+      "status": 200,
+      "bytes": 84447,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/pembe-rokoko",
+      "status": 200,
+      "bytes": 34802,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/inci-saten",
+      "status": 200,
+      "bytes": 84271,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/inci-saten",
+      "status": 200,
+      "bytes": 34755,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/mor-salkim",
+      "status": 200,
+      "bytes": 84222,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/mor-salkim",
+      "status": 200,
+      "bytes": 34761,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/tek-gul",
+      "status": 200,
+      "bytes": 84202,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/tek-gul",
+      "status": 200,
+      "bytes": 34712,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/gul-dantel",
+      "status": 200,
+      "bytes": 84468,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/gul-dantel",
+      "status": 200,
+      "bytes": 28683,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/opera-gecesi",
+      "status": 200,
+      "bytes": 84456,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/opera-gecesi",
+      "status": 200,
+      "bytes": 29318,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/sakura-ipek",
+      "status": 200,
+      "bytes": 84298,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/sakura-ipek",
+      "status": 200,
+      "bytes": 34775,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/vitray-ruyasi",
+      "status": 200,
+      "bytes": 84288,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/vitray-ruyasi",
+      "status": 200,
+      "bytes": 34800,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/saray-lalesi",
+      "status": 200,
+      "bytes": 84362,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/saray-lalesi",
+      "status": 200,
+      "bytes": 34809,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/adacayi-madalyon",
+      "status": 200,
+      "bytes": 84647,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/adacayi-madalyon",
+      "status": 200,
+      "bytes": 29045,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/inci-zambak",
+      "status": 200,
+      "bytes": 84276,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/inci-zambak",
+      "status": 200,
+      "bytes": 34784,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/bordo-muhur",
+      "status": 200,
+      "bytes": 84438,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/bordo-muhur",
+      "status": 200,
+      "bytes": 29031,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/altin-hilal",
+      "status": 200,
+      "bytes": 84281,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/altin-hilal",
+      "status": 200,
+      "bytes": 34793,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/gul-kurusu-muhur",
+      "status": 200,
+      "bytes": 84511,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/gul-kurusu-muhur",
+      "status": 200,
+      "bytes": 29108,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/fildisi-muhur",
+      "status": 200,
+      "bytes": 84600,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/fildisi-muhur",
+      "status": 200,
+      "bytes": 29000,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/ilk-ask-lalesi",
+      "status": 200,
+      "bytes": 84359,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/ilk-ask-lalesi",
+      "status": 200,
+      "bytes": 34835,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/lacivert-madalyon",
+      "status": 200,
+      "bytes": 84652,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/lacivert-madalyon",
+      "status": 200,
+      "bytes": 29119,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/lacivert-hikaye",
+      "status": 200,
+      "bytes": 84332,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/lacivert-hikaye",
+      "status": 200,
+      "bytes": 34903,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/pudra-kabartma",
+      "status": 200,
+      "bytes": 84310,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/pudra-kabartma",
+      "status": 200,
+      "bytes": 34841,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/inci-ve-gul",
+      "status": 200,
+      "bytes": 84174,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/inci-ve-gul",
+      "status": 200,
+      "bytes": 34781,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/lale-devri",
+      "status": 200,
+      "bytes": 84339,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/lale-devri",
+      "status": 200,
+      "bytes": 34763,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/zumrut-muhur",
+      "status": 200,
+      "bytes": 84491,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/zumrut-muhur",
+      "status": 200,
+      "bytes": 28990,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/tr/temalar/sampanya-cicegi",
+      "status": 200,
+      "bytes": 84332,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    },
+    {
+      "path": "/onizleme/tema/sampanya-cicegi",
+      "status": 200,
+      "bytes": 34849,
+      "assets": 14,
+      "brokenAssets": [],
+      "brokenImgs": [],
+      "looks404": false
+    }
+  ]
+}

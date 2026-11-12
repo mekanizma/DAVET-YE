@@ -1,0 +1,287 @@
+[
+  {
+    "slug": "altin-cag",
+    "page": "Bizim hikâyemiz",
+    "id": "p2e6",
+    "text": "Go Post",
+    "font": "Playfair Display",
+    "before": {
+      "w": 95.8,
+      "h": 31.02,
+      "minSize": 33,
+      "size": 60
+    },
+    "after": {
+      "w": 154.8,
+      "h": 31,
+      "minSize": 33,
+      "size": 60
+    }
+  },
+  {
+    "slug": "altin-cag",
+    "page": "En güzel anılarımız",
+    "id": "p3e10",
+    "text": "Go Post",
+    "font": "Playfair Display",
+    "before": {
+      "w": 106.5,
+      "h": 30.02,
+      "minSize": 33,
+      "size": 60
+    },
+    "after": {
+      "w": 154.5,
+      "h": 30,
+      "minSize": 33,
+      "size": 60
+    }
+  },
+  {
+    "slug": "altin-cag",
+    "page": "Teşekkür",
+    "id": "p4e6",
+    "text": "Go Post",
+    "font": "Playfair Display",
+    "before": {
+      "w": 99.6,
+      "h": 39,
+      "minSize": 33,
+      "size": 60
+    },
+    "after": {
+      "w": 154.6,
+      "h": 39,
+      "minSize": 33,
+      "size": 60
+    }
+  },
+  {
+    "slug": "askin-manseti",
+    "page": "En Güzel Anılar",
+    "id": "t2w5jnh",
+    "text": "Go Post",
+    "font": "Grenze Gotisch",
+    "before": {
+      "w": 153.9,
+      "h": 46.92,
+      "minSize": 38,
+      "size": 69.8
+    },
+    "after": {
+      "w": 176.9,
+      "h": 46.9,
+      "minSize": 38,
+      "size": 69.8
+    }
+  },
+  {
+    "slug": "askin-manseti",
+    "page": "Arka kapak",
+    "id": "t49r2ns",
+    "text": "Go Post",
+    "font": "Grenze Gotisch",
+    "before": {
+      "w": 145.9,
+      "h": 52.92,
+      "minSize": 38,
+      "size": 69.8
+    },
+    "after": {
+      "w": 176.9,
+      "h": 52.9,
+      "minSize": 38,
+      "size": 69.8
+    }
+  },
+  {
+    "slug": "kolaj-gazetesi",
+    "page": "Ön kapak",
+    "id": "p1e17",
+    "text": "Evleniyoruz!",
+    "font": "Playfair Display",
+    "before": {
+      "w": 367,
+      "h": 74.4,
+      "minSize": 54,
+      "size": 90
+    },
+    "after": {
+      "w": 421,
+      "h": 74.4,
+      "minSize": 54,
+      "size": 90
+    }
+  },
+  {
+    "slug": "kolaj-gazetesi",
+    "page": "Güzel Anılar",
+    "id": "p3e4",
+    "text": "Go Post",
+    "font": "Grenze Gotisch",
+    "before": {
+      "w": 132.9,
+      "h": 46.75,
+      "minSize": 35.2,
+      "size": 64
+    },
+    "after": {
+      "w": 163.9,
+      "h": 46.8,
+      "minSize": 35.2,
+      "size": 64
+    }
+  },
+  {
+    "slug": "kolaj-gazetesi",
+    "page": "Teşekkür",
+    "id": "p4e4",
+    "text": "Go Post",
+    "font": "Grenze Gotisch",
+    "before": {
+      "w": 142.9,
+      "h": 49.25,
+      "minSize": 35.2,
+      "size": 64
+    },
+    "after": {
+      "w": 163.9,
+      "h": 49.3,
+      "minSize": 35.2,
+      "size": 64
+    }
+  },
+  {
+    "slug": "muzigin-kalbi",
+    "page": "Unutulmaz anlar",
+    "id": "p3e9",
+    "text": "BU SADECE BİR FESTİVAL DEĞİL, BİR HİKÂYE",
+    "font": "Oswald",
+    "before": {
+      "w": 92,
+      "h": 61,
+      "minSize": 11,
+      "size": 18.3
+    },
+    "after": {
+      "w": 107.8,
+      "h": 61,
+      "minSize": 11,
+      "size": 18.3
+    }
+  },
+  {
+    "slug": "yaz-gecesi",
+    "page": "Ön kapak",
+    "id": "p1e10",
+    "text": "Partisi",
+    "font": "Playfair Display",
+    "before": {
+      "w": 282.5,
+      "h": 104,
+      "minSize": 72,
+      "size": 120
+    },
+    "after": {
+      "w": 329.5,
+      "h": 104,
+      "minSize": 72,
+      "size": 120
+    }
+  },
+  {
+    "slug": "yaz-gecesi",
+    "page": "Etkinlik detayları",
+    "id": "p2e10",
+    "text": "En Güzel Buluşması",
+    "font": "Playfair Display",
+    "before": {
+      "w": 458,
+      "h": 74.5,
+      "minSize": 48,
+      "size": 80
+    },
+    "after": {
+      "w": 559,
+      "h": 74.5,
+      "minSize": 48,
+      "size": 80
+    }
+  },
+  {
+    "slug": "yaz-gecesi",
+    "page": "Partiden kareler",
+    "id": "p3e28",
+    "text": "Güzel Anlar,",
+    "font": "Playfair Display",
+    "before": {
+      "w": 241,
+      "h": 57.5,
+      "minSize": 38.4,
+      "size": 64
+    },
+    "after": {
+      "w": 301,
+      "h": 57.5,
+      "minSize": 38.4,
+      "size": 64
+    }
+  },
+  {
+    "slug": "yaz-gecesi",
+    "page": "Partiden kareler",
+    "id": "p3e29",
+    "text": "Unutulmaz İnsanlar",
+    "font": "Playfair Display",
+    "before": {
+      "w": 384,
+      "h": 60,
+      "minSize": 38.4,
+      "size": 64
+    },
+    "after": {
+      "w": 449,
+      "h": 60,
+      "minSize": 38.4,
+      "size": 64
+    }
+  },
+  {
+    "slug": "yaz-gecesi",
+    "page": "Teşekkür",
+    "id": "p4e9",
+    "text": "İyi ki Vardınız!",
+    "font": "Birthstone",
+    "before": {
+      "w": 487.5,
+      "h": 182,
+      "minSize": 96,
+      "size": 160
+    },
+    "after": {
+      "w": 682.5,
+      "h": 182,
+      "minSize": 96,
+      "size": 160
+    }
+  },
+  {
+    "slug": "yeni-yila-merhaba",
+    "page": "Parti Hikayeleri",
+    "id": "p3e41",
+    "text": "DAHA FAZLA IŞILTI, DAHA FAZLA MUTLULUK",
+    "font": "DM Serif Display",
+    "before": {
+      "w": 178,
+      "h": 72,
+      "minSize": 18,
+      "size": 30
+    },
+    "after": {
+      "w": 214,
+      "h": 72,
+      "minSize": 18,
+      "size": 30
+    }
+  }
+]

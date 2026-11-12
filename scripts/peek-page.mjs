@@ -1,0 +1,10 @@
+import fs from "node:fs";
+const data = JSON.parse(fs.readFileSync("d:/davetiye/docs/reference-captures/guz-stage.json", "utf8"));
+const p = data.design.pages[0];
+const { elements, ...rest } = p;
+console.log(JSON.stringify(rest, null, 2).slice(0, 2000));
+console.log("lists", Object.keys(data.lists || {}));
+const listKey = Object.keys(data.lists || {})[0];
+if (listKey) console.log(listKey, JSON.stringify(data.lists[listKey], null, 2).slice(0, 800));
+console.log("places", JSON.stringify(data.places, null, 2).slice(0, 400));
+console.log("messages", JSON.stringify(data.messages, null, 2).slice(0, 400));

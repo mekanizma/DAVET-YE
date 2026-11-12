@@ -1,0 +1,28 @@
+﻿{
+    "sequence":  1,
+    "step_index":  0,
+    "transaction_id":  "request-1",
+    "redirected_from_transaction_id":  null,
+    "redirected_from_transaction_state":  "root",
+    "method":  "GET",
+    "url":  {
+                "url":  "https://davetiyemgo.com/",
+                "origin":  "https://davetiyemgo.com",
+                "query_parameter_names":  [
+
+                                          ],
+                "redacted":  false
+            },
+    "resource_type":  "document",
+    "header_names":  [
+                         "accept-language",
+                         "sec-ch-ua",
+                         "sec-ch-ua-mobile",
+                         "sec-ch-ua-platform",
+                         "upgrade-insecure-requests",
+                         "user-agent"
+                     ],
+    "kind":  "request",
+    "status":  null,
+    "failure":  null
+}

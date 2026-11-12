@@ -1,0 +1,181 @@
+/* Davetanisi times-reader skin — chrome look distinct from original Go Post desk */
+
+@font-face {
+  font-family: "Fraunces DN";
+  src: url(/fonts/fraunces.shv99f85vx.woff2) format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Cormorant DN";
+  src: url(/fonts/cormorantgaramond.p2tyovrjgy.woff2) format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bodoni DN";
+  src: url(/fonts/bodonimoda.rhvi4hqvmj.woff2) format("woff2");
+  font-weight: 400 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Cinzel DN";
+  src: url(/fonts/cinzel.fymtoigl6l.woff2) format("woff2");
+  font-weight: 400 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Spectral DN";
+  src: url(/fonts/spectral.woff2) format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Josefin DN";
+  src: url(/fonts/josefinsans.woff2) format("woff2");
+  font-weight: 300 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Jost DN";
+  src: url(/fonts/jost.37yl1rkkzy.woff2) format("woff2");
+  font-weight: 300 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Lora DN";
+  src: url(/fonts/lora.by0zo6s4uo.woff2) format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Oswald DN";
+  src: url(/fonts/oswald.woff2) format("woff2");
+  font-weight: 300 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Playfair DN";
+  src: url(/fonts/playfairdisplay.woff2) format("woff2");
+  font-weight: 400 900;
+  font-display: swap;
+}
+
+html.tr-html body.tr-body {
+  background: #0a0c10 !important;
+  background-image: none !important;
+}
+
+.tr[data-times-reader] {
+  --tr-brand-font: "Fraunces DN", Fraunces, Georgia, serif;
+  --tr-title-font: "Josefin DN", "Josefin Sans", sans-serif;
+  --tr-ui-font: "Jost DN", Jost, "Segoe UI", sans-serif;
+  /* Do NOT set font-family on .tr — !important here overrides stage text fonts
+     (Playfair, Bebas, etc.) and makes headlines overflow/distort. */
+}
+
+.tr[data-times-reader] .tr-brand {
+  font-family: var(--tr-brand-font) !important;
+  font-weight: 600 !important;
+  font-size: clamp(17px, 2.2vw, 22px) !important;
+  letter-spacing: 0.02em !important;
+  font-style: italic;
+  opacity: 0.95 !important;
+}
+
+.tr[data-times-reader] .tr-title {
+  font-family: var(--tr-title-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+}
+
+.tr[data-times-reader] .tr-btn,
+.tr[data-times-reader] .tr-badge,
+.tr[data-times-reader] .tr-label,
+.tr[data-times-reader] .tr-hint,
+.tr[data-times-reader] .tr-controls {
+  font-family: var(--tr-ui-font) !important;
+}
+
+.tr[data-times-reader] .tr-btn--primary {
+  background: color-mix(in srgb, var(--tr-accent, #c8a46a) 88%, #fff) !important;
+  color: #14110e !important;
+  border: none !important;
+  border-radius: 999px !important;
+  letter-spacing: 0.04em;
+}
+
+.tr[data-times-reader] .tr-btn:not(.tr-btn--primary) {
+  border-radius: 999px !important;
+  border-color: color-mix(in srgb, var(--tr-ink, #fff) 28%, transparent) !important;
+}
+
+.tr[data-times-reader] .tr-badge {
+  border-radius: 999px !important;
+  border-color: color-mix(in srgb, var(--tr-accent, #c8a46a) 70%, transparent) !important;
+  color: var(--tr-accent, #c8a46a) !important;
+  letter-spacing: 0.12em;
+}
+
+/* Replace original wood desk / linen with skin-driven stage */
+.tr[data-times-reader][data-scene="desk"],
+.tr[data-times-reader][data-scene="linen"],
+.tr[data-times-reader][data-scene="dark"],
+.tr[data-times-reader][data-scene="plain"] {
+  background: var(--tr-skin-bg, linear-gradient(165deg, #1a222d, #0e141b)) !important;
+}
+
+.tr[data-times-reader]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  background:
+    radial-gradient(circle at 20% 15%, rgb(255 255 255 / 0.06), transparent 28%),
+    radial-gradient(circle at 85% 80%, rgb(255 255 255 / 0.04), transparent 30%);
+}
+
+.tr[data-times-reader] > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Soft paper glow under the cover — not the original hard desk shadow */
+.tr[data-times-reader] .tr-cover__paper {
+  filter: drop-shadow(0 18px 40px rgb(0 0 0 / 0.45)) drop-shadow(0 2px 0 rgb(255 255 255 / 0.04));
+}
+
+@media (max-width: 760px) {
+  .tr[data-times-reader] .tr-brand {
+    font-size: 16px !important;
+    font-style: normal;
+  }
+
+  .tr[data-times-reader] .tr-cover__cta {
+    width: min(100%, 360px);
+  }
+
+  .tr[data-times-reader] .tr-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Stretch / shrink mastheads must never spill their stage box */
+.tr[data-times-reader] [data-stretch],
+.tr[data-times-reader] [data-fit="shrink"] {
+  overflow: hidden !important;
+}
+.tr[data-times-reader] [data-stretch] > .stg-text,
+.tr[data-times-reader] [data-stretch] > .stg-inner,
+.tr[data-times-reader] [data-stretch] > * {
+  transform-origin: 0 0;
+  max-width: none;
+}
+.tr[data-times-reader].tr--embedded [data-stretch],
+.tr[data-times-reader][data-embedded="1"] [data-stretch] {
+  contain: paint;
+}

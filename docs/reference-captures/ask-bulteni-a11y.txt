@@ -1,0 +1,159 @@
+- document:
+  - link "İçeriğe geç":
+    - /url: "#main"
+  - banner:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - navigation "Ana menü":
+      - link "Davetiyeler":
+        - /url: /tr/temalar
+      - link "Gazeteler":
+        - /url: /tr/gazeteler
+      - link "KendinTasarla":
+        - /url: /tr/tasarim-studyosu
+      - link "Ne Sunuyoruz":
+        - /url: /tr/ne-sunuyoruz
+      - link "Fiyatlar":
+        - /url: /tr/fiyatlar
+      - link "Nasıl Çalışır":
+        - /url: /tr/nasil-calisir
+    - button "Dil seçin": TR
+    - link "Giriş yap":
+      - /url: /panel/giris?arayuz=tr
+    - link "Davetiye Oluştur":
+      - /url: /tr/davetiye-olustur
+  - main:
+    - navigation "Gazeteler":
+      - link "Ana sayfa":
+        - /url: /tr
+      - link "Gazeteler":
+        - /url: /tr/gazeteler
+      - text: Aşk Bülteni
+    - paragraph: Büyük Manşet ve Romantik Fotoğraflar Eşliğinde Düğün Gazetesi
+    - heading "Aşk Bülteni" [level=1]
+    - paragraph: Pembe kalpler, el yazısı notlar ve büyük "Aşk Bülteni" manşetiyle hikâyenizi sıcak bir gazete diline taşıyın. Kapakta çift fotoğrafınız, iç sayfalarda zaman çizelgeniz, en güzel kareleriniz ve misafirlerinize teşekkürünüz yer alıyor. Dijital olarak sayfa çevirerek okunur ya da A3/A2 baskıyla düğün masalarının en sevilen hatırası olur.
+    - iframe
+    - button "Gazete stili Orijinal Değiştir":
+      - text: Gazete stili
+      - strong: Orijinal
+      - text: Değiştir
+    - text: 990 TL 1.290 TL %23 İndirim
+    - link "Bu gazeteyle başla":
+      - /url: /tr/gazete-olustur?sablon=ask-bulteni&dil=tr
+    - link "Tam Ekran Önizle":
+      - /url: /times/sablon/ask-bulteni
+    - heading "Diğer gazete şablonları" [level=2]
+    - article:
+      - link "Sonunda Evleniyorlar":
+        - /url: /tr/gazeteler/sonunda-evleniyorlar
+      - img "Sonunda Evleniyorlar"
+      - heading "Sonunda Evleniyorlar" [level=3]
+      - text: 990 TL 1.290 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Aşk Kazandı":
+        - /url: /tr/gazeteler/ask-kazandi
+      - img "Aşk Kazandı"
+      - heading "Aşk Kazandı" [level=3]
+      - text: 990 TL 1.290 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Evleniyoruz":
+        - /url: /tr/gazeteler/evleniyoruz
+      - img "Evleniyoruz"
+      - heading "Evleniyoruz" [level=3]
+      - text: 990 TL 1.290 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Kolaj Gazetesi":
+        - /url: /tr/gazeteler/kolaj-gazetesi
+      - img "Kolaj Gazetesi"
+      - heading "Kolaj Gazetesi" [level=3]
+      - text: 990 TL 1.290 TL
+      - group: Daha fazla göster
+  - contentinfo:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - paragraph: Dijital davetiye, katılım takibi ve Anı Duvarı tek bağlantıda.
+    - link "Instagram":
+      - /url: https://www.instagram.com/davetiyemgo/
+    - paragraph: Ürün
+    - list:
+      - listitem:
+        - link "Davetiyeler":
+          - /url: /tr/temalar
+      - listitem:
+        - link "Gazeteler":
+          - /url: /tr/gazeteler
+      - listitem:
+        - link "KendinTasarla":
+          - /url: /tr/tasarim-studyosu
+      - listitem:
+        - link "Fiyatlar":
+          - /url: /tr/fiyatlar
+      - listitem:
+        - link "Ne Sunuyoruz":
+          - /url: /tr/ne-sunuyoruz
+      - listitem:
+        - link "Davetiye Oluştur":
+          - /url: /tr/davetiye-olustur
+    - paragraph: Yardım
+    - list:
+      - listitem:
+        - link "Rehber":
+          - /url: /tr/rehber
+      - listitem:
+        - link "Hakkımızda":
+          - /url: /tr/hakkimizda
+      - listitem:
+        - link "Nasıl Çalışır":
+          - /url: /tr/nasil-calisir
+      - listitem:
+        - link "Sık Sorulanlar":
+          - /url: /tr/sss
+      - listitem:
+        - link "İletişim":
+          - /url: /tr/iletisim
+    - paragraph: Yasal
+    - list:
+      - listitem:
+        - link "Kullanım Koşulları":
+          - /url: /tr/kosullar
+      - listitem:
+        - link "Gizlilik Politikası":
+          - /url: /tr/gizlilik
+      - listitem:
+        - link "KVKK Aydınlatma Metni":
+          - /url: /tr/kvkk
+      - listitem:
+        - link "Çerez Politikası":
+          - /url: /tr/cerez
+    - navigation "Davetiye türleri":
+      - paragraph: Davetiye türleri
+      - list:
+        - listitem:
+          - link "Düğün Davetiyesi":
+            - /url: /tr/dugun-davetiyesi
+        - listitem:
+          - link "Kına Davetiyesi":
+            - /url: /tr/kina-davetiyesi
+        - listitem:
+          - link "Kına ve Düğün Davetiyesi":
+            - /url: /tr/kina-ve-dugun-davetiyesi
+    - text: © 2026 DavetiyemGo
+    - button "Çerez tercihleri"
+    - text: Türkiye’de tasarlandı
+    - 'link "Geliştiren: Vodisoft"':
+      - /url: https://vodisoft.com
+      - text: Geliştiren
+      - strong: Vodisoft
+  - dialog "Çerez tercihlerinizi yönetin":
+    - heading "Çerez tercihlerinizi yönetin" [level=2]
+    - link "Çerez politikası":
+      - /url: /tr/cerez
+    - paragraph: Size daha iyi ve güvenli bir deneyim sunmak için zorunlu ve isteğe bağlı çerezler kullanıyoruz.
+    - button "Tercihleri yönet"
+    - button "Sadece zorunlu"
+    - button "Tümünü kabul et"

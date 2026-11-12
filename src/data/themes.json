@@ -1,0 +1,1735 @@
+[
+  {
+    "slug": "zumrut-yesili-cocukluk-aski",
+    "title": "Zümrüt Yeşili Çocukluk Aşkı",
+    "price": 990,
+    "compareAt": 1250,
+    "badge": "featured",
+    "cover": "/img/davetiye/covers/zumrut-yesili-cocukluk-aski.jpg",
+    "opening": "door",
+    "featured": false,
+    "order": 0,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "çocukluk aşkı",
+      "düğün davetiyesi",
+      "kapı açılışı",
+      "zümrüt",
+      "zümrüt yeşili"
+    ],
+    "eyebrow": "Kabartmalı Zümrüt Kapak Açılışı ve Çocukluk Aşkı Rölyefleri Eşliğinde Dijital Davetiye",
+    "description": "Zümrüt Yeşili Çocukluk Aşkı temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#3e7048",
+      "accentDeep": "#1f3824",
+      "tint": "#eef7f0",
+      "tint2": "#dbebde",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "akdeniz-masali",
+    "title": "Akdeniz Masalı",
+    "price": 690,
+    "compareAt": 1100,
+    "badge": "featured",
+    "cover": "/img/davetiye/covers/akdeniz-masali.jpg",
+    "heroCover": "/img/davetiye/akdeniz-masali-kapak.jpg",
+    "opening": "curtain",
+    "featured": true,
+    "order": 1,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "akdeniz",
+      "akdeniz masalı",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "perde açılışı"
+    ],
+    "eyebrow": "Zarif Tül Perde Açılışı ve Akdeniz Manzarası Eşliğinde Dijital Davetiye",
+    "description": "Dantel perdelerin ardından açılan Akdeniz manzarasıyla zarif ve aydınlık bir davetiye deneyimi.",
+    "colors": {
+      "accent": "#755838",
+      "accentDeep": "#3b2c1c",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "gun-batimi-davetiyem",
+    "title": "Gün Batımı",
+    "price": 990,
+    "compareAt": 1250,
+    "badge": "featured",
+    "cover": "/img/davetiye/covers/gun-batimi-davetiyem.jpg",
+    "opening": "envelope",
+    "featured": false,
+    "order": 2,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "gün batımı",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Gün Batımı temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#84512a",
+      "accentDeep": "#422915",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe2db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "kis-masali",
+    "title": "Kış Masalı",
+    "price": 990,
+    "compareAt": 1250,
+    "badge": "featured",
+    "cover": "/img/davetiye/covers/kis-masali.jpg",
+    "opening": "envelope",
+    "featured": false,
+    "order": 3,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "kış masalı",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Kış Masalı temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f553e",
+      "accentDeep": "#372b1f",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe2db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "al-gulum-davetiyem",
+    "title": "Al Gülüm",
+    "price": 990,
+    "compareAt": 1490,
+    "badge": "featured",
+    "cover": "/img/davetiye/covers/al-gulum-davetiyem.jpg",
+    "opening": "envelope",
+    "featured": false,
+    "order": 4,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "al gülüm",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "gül",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Al Gülüm temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f563e",
+      "accentDeep": "#382b1f",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "siyah-inci",
+    "title": "Siyah İnci",
+    "price": 1090,
+    "compareAt": 1490,
+    "badge": "featured",
+    "cover": "/img/davetiye/covers/siyah-inci.jpg",
+    "opening": "seal",
+    "featured": false,
+    "order": 5,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "altın mühür",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "inci",
+      "siyah inci"
+    ],
+    "eyebrow": "Mühürlü Antrasit Zarf Açılışı ve Siyah Kabartma Sayfalar Eşliğinde Dijital Davetiye",
+    "description": "Siyah İnci temalı dijital davetiye; mühürlü açılış ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#2e3236",
+      "accentDeep": "#23371f",
+      "tint": "#eff7ee",
+      "tint2": "#ddebdb",
+      "gold": "#c8a35b"
+    }
+  },
+  {
+    "slug": "bahar-yolu",
+    "title": "Bahar Yolu",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/bahar-yolu.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 6,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "bahar",
+      "bahar yolu",
+      "düğün davetiyesi",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Doğanın Uyanışı ve Çiçek Açan Yeni Bir Başlangıç Eşliğinde Dijital Davetiye",
+    "description": "Bahar Yolu temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#7f7c2e",
+      "accentDeep": "#403e17",
+      "tint": "#f7f6ee",
+      "tint2": "#ebebdb",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "guz-masali",
+    "title": "Güz Masalı",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "featured",
+    "cover": "/img/davetiye/covers/guz-masali.webp",
+    "heroCover": "/img/davetiye/guz-masali-kapak.webp",
+    "opening": "envelope",
+    "featured": true,
+    "order": 7,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "güz masalı",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Sonbahar Romantizmi ve Animasyonlu Gelin Arabası Eşliğinde Dijital Davetiye",
+    "description": "Kızıl ve altın sarısı sonbahar yapraklarıyla kaplı büyüleyici bir orman yolunda, süslü gelin arabasının geçişi ve yapraklarla beliren \"Biz Evleniyoruz\" animasyonuyla misafirlerinizi masalsı bir yolculuğa davet edin.",
+    "colors": {
+      "accent": "#8c4821",
+      "accentDeep": "#432514",
+      "tint": "#f7f1ee",
+      "tint2": "#ebe1db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "yesil-dus",
+    "title": "Yeşil Düş",
+    "price": 1290,
+    "compareAt": 1490,
+    "cover": "/img/davetiye/covers/yesil-dus.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 8,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "yeşil düş",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Yeşil Düş temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#758b22",
+      "accentDeep": "#394314",
+      "tint": "#f5f7ee",
+      "tint2": "#e8ebdb",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "barok-kapi",
+    "title": "Barok Kapı",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/barok-kapi.webp",
+    "heroCover": "/img/davetiye/barok-kapi-kapak.webp",
+    "opening": "door",
+    "featured": true,
+    "order": 9,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "barok",
+      "düğün davetiyesi",
+      "kapı açılışı"
+    ],
+    "eyebrow": "Kabartmalı Barok Kapı Açılışı ve Altın Detaylar Eşliğinde Dijital Davetiye",
+    "description": "Kabartmalı barok kapı açılışıyla klasik ve görkemli bir karşılama.",
+    "colors": {
+      "accent": "#755839",
+      "accentDeep": "#3a2c1c",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "fildisi-kemer",
+    "title": "Fildişi Kemer",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/fildisi-kemer.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 10,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "fildişi",
+      "kapı açılışı",
+      "kemer"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Fildişi Kemer temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f573e",
+      "accentDeep": "#372c1f",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "mavi-bahar-kapisi",
+    "title": "Mavi Bahar Kapısı",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/mavi-bahar-kapisi.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 11,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "bahar",
+      "düğün davetiyesi",
+      "kapı açılışı"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Mavi Bahar Kapısı temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#5b6f3e",
+      "accentDeep": "#2d371f",
+      "tint": "#f3f7ee",
+      "tint2": "#e4ebdb",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "gul-bahcesi-kapisi",
+    "title": "Gül Bahçesi Kapısı",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/gul-bahcesi-kapisi.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 12,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "gül",
+      "kapı açılışı"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Gül Bahçesi Kapısı temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#73533b",
+      "accentDeep": "#392a1d",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe2db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "yaldizli-saray-kapisi",
+    "title": "Yaldızlı Saray Kapısı",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/yaldizli-saray-kapisi.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 13,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "kapı açılışı",
+      "saray",
+      "yaldız"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Yaldızlı Saray Kapısı temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#755839",
+      "accentDeep": "#3a2c1c",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "rokoko-esintisi",
+    "title": "Rokoko Esintisi",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/rokoko-esintisi.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 14,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "rokoko",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Rokoko Esintisi temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#775a37",
+      "accentDeep": "#3b2d1b",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe4db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "fildisi-rokoko",
+    "title": "Fildişi Rokoko",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/fildisi-rokoko.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 15,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "fildişi",
+      "rokoko",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Fildişi Rokoko temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#765b38",
+      "accentDeep": "#3b2d1c",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe4db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "ceviz-oyma-kapi",
+    "title": "Ceviz Oyma Kapı",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/ceviz-oyma-kapi.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 16,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "ceviz",
+      "düğün davetiyesi",
+      "kapı açılışı",
+      "oyma kapı"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Ceviz Oyma Kapı temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#7c5131",
+      "accentDeep": "#3e2919",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe2db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "begonvil-bahcesi",
+    "title": "Begonvil Bahçesi",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/begonvil-bahcesi.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 17,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "begonvil",
+      "düğün davetiyesi",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Begonvil Bahçesi temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#8a4923",
+      "accentDeep": "#432514",
+      "tint": "#f7f1ee",
+      "tint2": "#ebe1db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "nil-kelebegi",
+    "title": "Nil Kelebeği",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/nil-kelebegi.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 18,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "nil",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Nil Kelebeği temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#7b6332",
+      "accentDeep": "#3e3219",
+      "tint": "#f7f4ee",
+      "tint2": "#ebe6db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "sakura-bahcesi",
+    "title": "Sakura Bahçesi",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/sakura-bahcesi.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 19,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "sakura",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Sakura Bahçesi temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#824e2b",
+      "accentDeep": "#412716",
+      "tint": "#f7f1ee",
+      "tint2": "#ebe1db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "elhamra-avlusu",
+    "title": "Elhamra Avlusu",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/elhamra-avlusu.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 20,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "avlu",
+      "düğün davetiyesi",
+      "elhamra",
+      "kapı açılışı"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Elhamra Avlusu temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#815b2c",
+      "accentDeep": "#412e16",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe4db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "hus-kemeri",
+    "title": "Huş Kemeri",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/hus-kemeri.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 21,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "kapı açılışı",
+      "kemer"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Huş Kemeri temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#7c5f31",
+      "accentDeep": "#3e3019",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe5db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "lavanta-kemeri",
+    "title": "Lavanta Kemeri",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/lavanta-kemeri.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 22,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "kapı açılışı",
+      "kemer",
+      "lavanta"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Lavanta Kemeri temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#845529",
+      "accentDeep": "#422b15",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "lale-terasi",
+    "title": "Lale Terası",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/lale-terasi.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 23,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "kapı açılışı",
+      "lale",
+      "teras"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Lale Terası temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#7c5831",
+      "accentDeep": "#3e2c19",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "tavuslu-cini",
+    "title": "Tavuslu Çini",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/tavuslu-cini.webp",
+    "heroCover": "/img/davetiye/tavuslu-cini-kapak.webp",
+    "opening": "door",
+    "featured": true,
+    "order": 24,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "çini",
+      "düğün davetiyesi",
+      "kapı açılışı"
+    ],
+    "eyebrow": "Tavus Kuşu Motifli Çini Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Tavus kuşu motifli çini desenleriyle geleneksel zarafet.",
+    "colors": {
+      "accent": "#765f37",
+      "accentDeep": "#3b301b",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe5db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "ege-sutunlari",
+    "title": "Ege Sütunları",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/ege-sutunlari.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 25,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "ege",
+      "kapı açılışı",
+      "sütun"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Ege Sütunları temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#7d5a31",
+      "accentDeep": "#3e2d18",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe4db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "sakura-koprusu",
+    "title": "Sakura Köprüsü",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/sakura-koprusu.webp",
+    "opening": "door",
+    "featured": false,
+    "order": 26,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "kapı açılışı",
+      "sakura"
+    ],
+    "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Sakura Köprüsü temalı dijital davetiye; kapı açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#864c27",
+      "accentDeep": "#432614",
+      "tint": "#f7f1ee",
+      "tint2": "#ebe1db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "fildisi-madalyon",
+    "title": "Fildişi Madalyon",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/fildisi-madalyon.webp",
+    "opening": "seal",
+    "featured": false,
+    "order": 27,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "altın mühür",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "fildişi",
+      "madalyon"
+    ],
+    "eyebrow": "Mühürlü Açılış Eşliğinde Dijital Davetiye",
+    "description": "Fildişi Madalyon temalı dijital davetiye; mühürlü açılış ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f593e",
+      "accentDeep": "#372c1f",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe4db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "altin-yelpaze",
+    "title": "Altın Yelpaze",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/altin-yelpaze.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 28,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "altın",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "yelpaze",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Altın Yelpaze temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#7d5a31",
+      "accentDeep": "#3e2d18",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe4db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "sakayik-tulu",
+    "title": "Şakayık Tülü",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/sakayik-tulu.webp",
+    "opening": "curtain",
+    "featured": false,
+    "order": 29,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "perde açılışı",
+      "şakayık"
+    ],
+    "eyebrow": "Perde Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Şakayık Tülü temalı dijital davetiye; perde açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f583e",
+      "accentDeep": "#372c1f",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "yildiz-tozu",
+    "title": "Yıldız Tozu",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/yildiz-tozu.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 30,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "yıldız",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Yıldız Tozu temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f3e45",
+      "accentDeep": "#371f22",
+      "tint": "#f7eeef",
+      "tint2": "#ebdbdd",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "gol-kiyisi-goblen",
+    "title": "Göl Kıyısı Goblen",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/gol-kiyisi-goblen.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 31,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "goblen",
+      "göl",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Göl Kıyısı Goblen temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f583e",
+      "accentDeep": "#372c1f",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "kaftan-perdesi",
+    "title": "Kaftan Perdesi",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/kaftan-perdesi.webp",
+    "opening": "curtain",
+    "featured": false,
+    "order": 32,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "kaftan",
+      "perde",
+      "perde açılışı"
+    ],
+    "eyebrow": "Perde Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Kaftan Perdesi temalı dijital davetiye; perde açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#81492c",
+      "accentDeep": "#402516",
+      "tint": "#f7f1ee",
+      "tint2": "#ebe0db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "pembe-rokoko",
+    "title": "Pembe Rokoko",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/pembe-rokoko.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 33,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "pembe",
+      "rokoko",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Pembe Rokoko temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#744c3a",
+      "accentDeep": "#3a261d",
+      "tint": "#f7f1ee",
+      "tint2": "#ebe0db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "inci-saten",
+    "title": "İnci Saten",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/inci-saten.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 34,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "inci",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "İnci Saten temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f573e",
+      "accentDeep": "#372c1f",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "mor-salkim",
+    "title": "Mor Salkım",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/mor-salkim.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 35,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "mor salkım",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Mor Salkım temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f4b3e",
+      "accentDeep": "#37261f",
+      "tint": "#f7f0ee",
+      "tint2": "#ebdfdb",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "tek-gul",
+    "title": "Tek Gül",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/tek-gul.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 36,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "gül",
+      "tek gül",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Tek Gül temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f4e3e",
+      "accentDeep": "#37271f",
+      "tint": "#f7f1ee",
+      "tint2": "#ebe0db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "gul-dantel",
+    "title": "Gül Dantel",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/gul-dantel.webp",
+    "opening": "curtain",
+    "featured": false,
+    "order": 37,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "dantel",
+      "düğün davetiyesi",
+      "gül",
+      "gül dantel",
+      "perde açılışı"
+    ],
+    "eyebrow": "Perde Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Gül Dantel temalı dijital davetiye; perde açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#73503a",
+      "accentDeep": "#3a281d",
+      "tint": "#f7f1ee",
+      "tint2": "#ebe1db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "opera-gecesi",
+    "title": "Opera Gecesi",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/opera-gecesi.webp",
+    "heroCover": "/img/davetiye/opera-gecesi-kapak.webp",
+    "opening": "curtain",
+    "featured": true,
+    "order": 38,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "gece",
+      "perde açılışı"
+    ],
+    "eyebrow": "Kadife Sahne Perdesi Açılışı ve Altın Saçaklar Eşliğinde Dijital Davetiye",
+    "description": "Kadife sahne perdeleri ve altın saçaklarla gala gecesi atmosferi.",
+    "colors": {
+      "accent": "#8c2a21",
+      "accentDeep": "#431814",
+      "tint": "#f7efee",
+      "tint2": "#ebdcdb",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "sakura-ipek",
+    "title": "Sakura İpek",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/sakura-ipek.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 39,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "sakura",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Sakura İpek temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#70543e",
+      "accentDeep": "#382a1f",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe2db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "vitray-ruyasi",
+    "title": "Vitray Rüyası",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/vitray-ruyasi.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 40,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Vitray Rüyası temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#7e5530",
+      "accentDeep": "#3f2b18",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe3db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "saray-lalesi",
+    "title": "Saray Lalesi",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/saray-lalesi.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 41,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "lale",
+      "saray",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Saray Lalesi temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f633e",
+      "accentDeep": "#38321f",
+      "tint": "#f7f5ee",
+      "tint2": "#ebe7db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "adacayi-madalyon",
+    "title": "Adaçayı Madalyon",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/adacayi-madalyon.webp",
+    "opening": "seal",
+    "featured": false,
+    "order": 42,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "altın mühür",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "madalyon"
+    ],
+    "eyebrow": "Mühürlü Açılış Eşliğinde Dijital Davetiye",
+    "description": "Adaçayı Madalyon temalı dijital davetiye; mühürlü açılış ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#646f3e",
+      "accentDeep": "#32371f",
+      "tint": "#f5f7ee",
+      "tint2": "#e7ebdb",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "inci-zambak",
+    "title": "İnci Zambak",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/inci-zambak.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 43,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "inci",
+      "zambak",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "İnci Zambak temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#70593d",
+      "accentDeep": "#382d1f",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe4db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "bordo-muhur",
+    "title": "Bordo Mühür",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/bordo-muhur.webp",
+    "heroCover": "/img/davetiye/bordo-muhur-kapak.webp",
+    "opening": "seal",
+    "featured": true,
+    "order": 44,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "altın mühür",
+      "animasyonlu davetiye",
+      "bordo",
+      "düğün davetiyesi",
+      "mühür"
+    ],
+    "eyebrow": "Bordo Mühür Açılışı ve Couture Detaylar Eşliğinde Dijital Davetiye",
+    "description": "Bordo kadife ve altın mühür detaylarıyla couture bir açılış.",
+    "colors": {
+      "accent": "#7f2f36",
+      "accentDeep": "#3f171b",
+      "tint": "#f7eeef",
+      "tint2": "#ebdbdc",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "altin-hilal",
+    "title": "Altın Hilal",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/altin-hilal.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 45,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "altın",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "hilal",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Altın Hilal temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#765338",
+      "accentDeep": "#3b2a1c",
+      "tint": "#f7f2ee",
+      "tint2": "#ebe2db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "gul-kurusu-muhur",
+    "title": "Gül Kurusu Mühür",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/gul-kurusu-muhur.webp",
+    "opening": "seal",
+    "featured": false,
+    "order": 46,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "altın mühür",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "gül",
+      "gül kurusu",
+      "mühür"
+    ],
+    "eyebrow": "Mühürlü Açılış Eşliğinde Dijital Davetiye",
+    "description": "Gül Kurusu Mühür temalı dijital davetiye; mühürlü açılış ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f3e44",
+      "accentDeep": "#371f22",
+      "tint": "#f7eeef",
+      "tint2": "#ebdbdc",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "fildisi-muhur",
+    "title": "Fildişi Mühür",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/fildisi-muhur.webp",
+    "opening": "seal",
+    "featured": false,
+    "order": 47,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "altın mühür",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "fildişi",
+      "mühür"
+    ],
+    "eyebrow": "Mühürlü Açılış Eşliğinde Dijital Davetiye",
+    "description": "Fildişi Mühür temalı dijital davetiye; mühürlü açılış ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#6f593e",
+      "accentDeep": "#382c1f",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe4db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "ilk-ask-lalesi",
+    "title": "İlk Aşk Lalesi",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/ilk-ask-lalesi.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 48,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "lale",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "İlk Aşk Lalesi temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#725d3b",
+      "accentDeep": "#392f1e",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe5db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "lacivert-madalyon",
+    "title": "Lacivert Madalyon",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/lacivert-madalyon.webp",
+    "opening": "seal",
+    "featured": false,
+    "order": 49,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "altın mühür",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "lacivert",
+      "madalyon"
+    ],
+    "eyebrow": "Mühürlü Açılış Eşliğinde Dijital Davetiye",
+    "description": "Lacivert Madalyon temalı dijital davetiye; mühürlü açılış ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#2b4f82",
+      "accentDeep": "#162841",
+      "tint": "#eef1f7",
+      "tint2": "#dbe2eb",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "lacivert-hikaye",
+    "title": "Lacivert Hikâye",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/lacivert-hikaye.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 50,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "hikâye",
+      "lacivert",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Lacivert Hikâye temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#295085",
+      "accentDeep": "#142842",
+      "tint": "#eef2f7",
+      "tint2": "#dbe2eb",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "pudra-kabartma",
+    "title": "Pudra Kabartma",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/pudra-kabartma.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 51,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "kabartma",
+      "pudra",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Pudra Kabartma temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#774436",
+      "accentDeep": "#3c221b",
+      "tint": "#f7f0ee",
+      "tint2": "#ebdedb",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "inci-ve-gul",
+    "title": "İnci ve Gül",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/inci-ve-gul.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 52,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "gül",
+      "inci",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "İnci ve Gül temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#745039",
+      "accentDeep": "#3a281d",
+      "tint": "#f7f1ee",
+      "tint2": "#ebe1db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "lale-devri",
+    "title": "Lale Devri",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/lale-devri.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 53,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "lale",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Lale Devri temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#7a6233",
+      "accentDeep": "#3d311a",
+      "tint": "#f7f4ee",
+      "tint2": "#ebe6db",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "zumrut-muhur",
+    "title": "Zümrüt Mühür",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/zumrut-muhur.webp",
+    "opening": "seal",
+    "featured": false,
+    "order": 54,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu",
+      "kina"
+    ],
+    "tags": [
+      "altın mühür",
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "mühür",
+      "zümrüt"
+    ],
+    "eyebrow": "Mühürlü Açılış Eşliğinde Dijital Davetiye",
+    "description": "Zümrüt Mühür temalı dijital davetiye; mühürlü açılış ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#2c8254",
+      "accentDeep": "#16412a",
+      "tint": "#eef7f2",
+      "tint2": "#dbebe2",
+      "gold": "#b8894e"
+    }
+  },
+  {
+    "slug": "sampanya-cicegi",
+    "title": "Şampanya Çiçeği",
+    "price": 1290,
+    "compareAt": 1490,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/sampanya-cicegi.webp",
+    "opening": "envelope",
+    "featured": false,
+    "order": 55,
+    "eventTypes": [
+      "nisan-dugun",
+      "coklu"
+    ],
+    "tags": [
+      "animasyonlu davetiye",
+      "düğün davetiyesi",
+      "şampanya",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
+    "description": "Şampanya Çiçeği temalı dijital davetiye; zarf açılışı ile açılır, mobil uyumludur ve tek bağlantıyla paylaşılır.",
+    "colors": {
+      "accent": "#735b3a",
+      "accentDeep": "#3a2d1d",
+      "tint": "#f7f3ee",
+      "tint2": "#ebe4db",
+      "gold": "#b8894e"
+    }
+  }
+]

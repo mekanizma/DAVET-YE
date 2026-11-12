@@ -1,0 +1,44 @@
+- document:
+  - banner:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - paragraph: Davetiye oluştur
+    - status
+    - link "Kaydet ve çık":
+      - /url: /tr
+    - navigation "Davetiye oluşturma adımları":
+      - list:
+        - listitem:
+          - button "1. Etkinlik": Etkinlik
+        - listitem:
+          - button "2. Davetiye": Davetiye
+        - listitem:
+          - button "3. Diller" [disabled]: Diller
+        - listitem:
+          - button "4. Bilgiler" [disabled]: Bilgiler
+        - listitem:
+          - button "5. Kontrol" [disabled]: Kontrol
+        - listitem:
+          - button "6. Ödeme" [disabled]: Ödeme
+  - main:
+    - paragraph: Adım 1 / 6
+    - heading "Hangi özel gün için davetiye hazırlıyorsunuz?" [level=1]
+    - paragraph: Etkinliğinizi seçin; bir sonraki adımda ona uygun davetiyeleri gösterelim.
+    - radiogroup "Hangi özel gün için davetiye hazırlıyorsunuz?":
+      - radio "Nişan & Düğün Nişan veya düğün davetiyesi":
+        - strong: Nişan & Düğün
+        - text: Nişan veya düğün davetiyesi
+      - radio "Çoklu Etkinlik Kına, nikâh, düğün… birden fazla töreni tek davetiyede birleştirin":
+        - strong: Çoklu Etkinlik
+        - text: Kına, nikâh, düğün… birden fazla töreni tek davetiyede birleştirin
+      - radio "Kına Kına gecesi davetiyesi":
+        - strong: Kına
+        - text: Kına gecesi davetiyesi
+  - paragraph: Devam etmek için bir etkinlik tipi seçin.
+  - 'button "Devam: Davetiye" [disabled]'
+  - complementary "Davetiye önizlemesi":
+    - heading "Canlı önizleme" [level=2]
+    - paragraph: Seçtiğiniz davetiye burada canlı olarak görünür.
+    - strong: Canlı önizleme
+    - text: Bir davetiye seçtiğinizde burada canlı olarak görünür.

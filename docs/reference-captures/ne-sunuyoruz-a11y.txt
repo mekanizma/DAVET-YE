@@ -1,0 +1,180 @@
+- document:
+  - link "İçeriğe geç":
+    - /url: "#main"
+  - banner:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - navigation "Ana menü":
+      - link "Davetiyeler":
+        - /url: /tr/temalar
+      - link "Gazeteler":
+        - /url: /tr/gazeteler
+      - link "KendinTasarla":
+        - /url: /tr/tasarim-studyosu
+      - link "Ne Sunuyoruz":
+        - /url: /tr/ne-sunuyoruz
+      - link "Fiyatlar":
+        - /url: /tr/fiyatlar
+      - link "Nasıl Çalışır":
+        - /url: /tr/nasil-calisir
+    - button "Dil seçin": TR
+    - link "Giriş yap":
+      - /url: /panel/giris?arayuz=tr
+    - link "Davetiye Oluştur":
+      - /url: /tr/davetiye-olustur
+  - main:
+    - region "Davetiyenizde neler olabilir?":
+      - tablist "Ürün":
+        - tab "Davetiye" [selected]
+        - tab "Gazete"
+      - paragraph: SİZE NE SUNUYORUZ
+      - heading "Davetiyenizde neler olabilir?" [level=1]
+      - paragraph: İsteğe bağlı bölümleri açıp kapatırsınız. Ücretli eklentiler açıkça işaretlidir.
+      - list:
+        - listitem:
+          - strong: Esnek
+          - text: İstediğiniz bölümleri açın ya da kapatın
+        - listitem:
+          - strong: Canlı önizleme
+          - text: Her değişikliği anında görün
+        - listitem:
+          - strong: Tek seferlik ödeme
+          - text: Abonelik yok, fiyat özeti önünüzde
+    - tabpanel "Davetiye":
+      - list:
+        - listitem:
+          - heading "Açılış Videosu" [level=2]
+          - paragraph: Davetiye açılmadan önce kısa bir açılış videosu
+        - listitem:
+          - heading "Aile Bilgileri" [level=2]
+          - paragraph: Aile adlarını davetiyede gösterin
+        - listitem:
+          - heading "Etkinlikler" [level=2]
+          - paragraph: Tarih, saat ve tören bilgileri
+        - listitem:
+          - heading "Geri Sayım" [level=2]
+          - paragraph: Etkinliğe kalan süreyi gösterin
+        - listitem:
+          - heading "Konum" [level=2]
+          - paragraph: Mekân bilgisi ve harita yönlendirmesi
+        - listitem:
+          - heading "Program" [level=2]
+          - paragraph: Nikâh, yemek ve parti akışını gösterin
+        - listitem:
+          - heading "Yemek Menüsü" [level=2]
+          - paragraph: Yemek menünüzü ve servis sırasını paylaşın
+        - listitem:
+          - heading "Galeri" [level=2]
+          - paragraph: Kendi fotoğraflarınızı davetiyeye ekleyin
+        - listitem:
+          - heading "Katılım Formu" [level=2]
+          - paragraph: Davetiyenin sorularıyla katılım yanıtlarını toplayın
+        - listitem:
+          - heading "Hediye Hesabı (IBAN)" [level=2]
+          - paragraph: Hediyesini havale ile göndermek isteyenler için
+        - listitem:
+          - heading "Kıyafet" [level=2]
+          - paragraph: Kıyafet tercihinizi belirtin
+        - listitem:
+          - heading "Dilekler" [level=2]
+          - paragraph: Misafirleriniz mesaj bıraksın
+        - listitem:
+          - heading "Atmosfer Müziği" [level=2]
+          - paragraph: Davetiyenize fon müziği ekleyin
+        - listitem:
+          - text: EKLENTİ
+          - heading "Anı Duvarı" [level=2]
+          - paragraph: Misafirlerinizden fotoğraf toplayın
+        - listitem:
+          - text: EKLENTİ
+          - heading "Anı Çekimi (Lens)" [level=2]
+          - paragraph: Misafirler kameralı çerçevelerle anı yakalasın
+      - paragraph: Davetiyenizi size uygun bölümlerle oluşturun.
+      - link "Hemen Başla":
+        - /url: /tr/davetiye-olustur
+  - contentinfo:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - paragraph: Dijital davetiye, katılım takibi ve Anı Duvarı tek bağlantıda.
+    - link "Instagram":
+      - /url: https://www.instagram.com/davetiyemgo/
+    - paragraph: Ürün
+    - list:
+      - listitem:
+        - link "Davetiyeler":
+          - /url: /tr/temalar
+      - listitem:
+        - link "Gazeteler":
+          - /url: /tr/gazeteler
+      - listitem:
+        - link "KendinTasarla":
+          - /url: /tr/tasarim-studyosu
+      - listitem:
+        - link "Fiyatlar":
+          - /url: /tr/fiyatlar
+      - listitem:
+        - link "Ne Sunuyoruz":
+          - /url: /tr/ne-sunuyoruz
+      - listitem:
+        - link "Davetiye Oluştur":
+          - /url: /tr/davetiye-olustur
+    - paragraph: Yardım
+    - list:
+      - listitem:
+        - link "Rehber":
+          - /url: /tr/rehber
+      - listitem:
+        - link "Hakkımızda":
+          - /url: /tr/hakkimizda
+      - listitem:
+        - link "Nasıl Çalışır":
+          - /url: /tr/nasil-calisir
+      - listitem:
+        - link "Sık Sorulanlar":
+          - /url: /tr/sss
+      - listitem:
+        - link "İletişim":
+          - /url: /tr/iletisim
+    - paragraph: Yasal
+    - list:
+      - listitem:
+        - link "Kullanım Koşulları":
+          - /url: /tr/kosullar
+      - listitem:
+        - link "Gizlilik Politikası":
+          - /url: /tr/gizlilik
+      - listitem:
+        - link "KVKK Aydınlatma Metni":
+          - /url: /tr/kvkk
+      - listitem:
+        - link "Çerez Politikası":
+          - /url: /tr/cerez
+    - navigation "Davetiye türleri":
+      - paragraph: Davetiye türleri
+      - list:
+        - listitem:
+          - link "Düğün Davetiyesi":
+            - /url: /tr/dugun-davetiyesi
+        - listitem:
+          - link "Kına Davetiyesi":
+            - /url: /tr/kina-davetiyesi
+        - listitem:
+          - link "Kına ve Düğün Davetiyesi":
+            - /url: /tr/kina-ve-dugun-davetiyesi
+    - text: © 2026 DavetiyemGo
+    - button "Çerez tercihleri"
+    - text: Türkiye’de tasarlandı
+    - 'link "Geliştiren: Vodisoft"':
+      - /url: https://vodisoft.com
+      - text: Geliştiren
+      - strong: Vodisoft
+  - dialog "Çerez tercihlerinizi yönetin":
+    - heading "Çerez tercihlerinizi yönetin" [level=2]
+    - link "Çerez politikası":
+      - /url: /tr/cerez
+    - paragraph: Size daha iyi ve güvenli bir deneyim sunmak için zorunlu ve isteğe bağlı çerezler kullanıyoruz.
+    - button "Tercihleri yönet"
+    - button "Sadece zorunlu"
+    - button "Tümünü kabul et"

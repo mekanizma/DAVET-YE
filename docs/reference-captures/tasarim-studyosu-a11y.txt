@@ -1,0 +1,249 @@
+- document:
+  - link "İçeriğe geç":
+    - /url: "#main"
+  - banner:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - navigation "Ana menü":
+      - link "Davetiyeler":
+        - /url: /tr/temalar
+      - link "Gazeteler":
+        - /url: /tr/gazeteler
+      - link "KendinTasarla":
+        - /url: /tr/tasarim-studyosu
+      - link "Ne Sunuyoruz":
+        - /url: /tr/ne-sunuyoruz
+      - link "Fiyatlar":
+        - /url: /tr/fiyatlar
+      - link "Nasıl Çalışır":
+        - /url: /tr/nasil-calisir
+    - button "Dil seçin": TR
+    - link "Giriş yap":
+      - /url: /panel/giris?arayuz=tr
+    - link "Davetiye Oluştur":
+      - /url: /tr/davetiye-olustur
+  - main:
+    - region "Davetiye kartınızı kendiniz tasarlayın":
+      - paragraph: KendinTasarla
+      - heading "Davetiye kartınızı kendiniz tasarlayın" [level=1]
+      - link "Tasarlamaya başlayın":
+        - /url: /tr/tasarla
+      - link "Hazır tasarımlar":
+        - /url: "#hazir-tasarimlar"
+      - list:
+        - listitem: Tasarlamak ücretsiz
+        - listitem: Telefonda ve bilgisayarda
+        - listitem: Baskıya hazır dosya
+      - group "Öne çıkan hazır tasarımlar":
+        - group "Altın Madalyon · Önizleme 1 / 6":
+          - img "Altın Madalyon"
+        - group "Lacivert Gece · Önizleme 2 / 6":
+          - img "Lacivert Gece"
+        - group "Minimal Zarafet · Önizleme 3 / 6":
+          - img "Minimal Zarafet"
+        - group "Gül Çelengi · Önizleme 4 / 6":
+          - img "Gül Çelengi"
+        - group "Sakura Söz · Önizleme 5 / 6":
+          - img "Sakura Söz"
+        - group "Zümrüt Kına · Önizleme 6 / 6":
+          - img "Zümrüt Kına"
+        - button "Altın Madalyon"
+        - button "Lacivert Gece"
+        - button "Minimal Zarafet"
+        - button "Gül Çelengi"
+        - button "Sakura Söz"
+        - button "Zümrüt Kına"
+    - region "KendinTasarla'da neler var":
+      - list:
+        - listitem:
+          - strong: Hazır tasarımlar
+          - text: Seçin, dilediğiniz gibi değiştirin
+        - listitem:
+          - strong: Sürükle bırak düzenleme
+          - text: Telefonda ve bilgisayarda
+        - listitem:
+          - strong: Baskıya hazır dosyalar
+          - text: PDF ve yüksek çözünürlüklü PNG
+        - listitem:
+          - strong: Müşterilerimize ücretsiz
+          - text: Davetiye ya da Go Post alanlara
+    - region "Hazır tasarımlar":
+      - paragraph: Başlangıç noktanız
+      - heading "Hazır tasarımlar" [level=2]
+      - list:
+        - listitem:
+          - link "Boş sayfadan başlayın Ölçüyü siz seçin":
+            - /url: /tr/tasarla
+        - listitem:
+          - link "Altın Madalyon Altın Madalyon Nişan & Düğün Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=altin-madalyon
+            - img "Altın Madalyon"
+            - text: Altın Madalyon Nişan & Düğün Bu tasarımla başlayın
+        - listitem:
+          - link "Lacivert Gece Lacivert Gece Nişan & Düğün Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=lacivert-gece
+            - img "Lacivert Gece"
+            - text: Lacivert Gece Nişan & Düğün Bu tasarımla başlayın
+        - listitem:
+          - link "Minimal Zarafet Minimal Zarafet Nişan & Düğün Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=minimal-zarafet
+            - img "Minimal Zarafet"
+            - text: Minimal Zarafet Nişan & Düğün Bu tasarımla başlayın
+        - listitem:
+          - link "Gül Çelengi Gül Çelengi Nişan & Düğün Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=gul-celengi
+            - img "Gül Çelengi"
+            - text: Gül Çelengi Nişan & Düğün Bu tasarımla başlayın
+        - listitem:
+          - link "Sakura Söz Sakura Söz Nişan & Düğün Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=sakura-soz
+            - img "Sakura Söz"
+            - text: Sakura Söz Nişan & Düğün Bu tasarımla başlayın
+        - listitem:
+          - link "Zümrüt Kına Zümrüt Kına Kına Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=zumrut-kina
+            - img "Zümrüt Kına"
+            - text: Zümrüt Kına Kına Bu tasarımla başlayın
+        - listitem:
+          - link "Sünnet Şöleni Sünnet Şöleni Sünnet Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=sunnet-soleni
+            - img "Sünnet Şöleni"
+            - text: Sünnet Şöleni Sünnet Bu tasarımla başlayın
+        - listitem:
+          - link "Bebek Mevlüdü Bebek Mevlüdü Bebekler İçin Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=bebek-mevludu
+            - img "Bebek Mevlüdü"
+            - text: Bebek Mevlüdü Bebekler İçin Bu tasarımla başlayın
+        - listitem:
+          - link "Doğum Günü Doğum Günü Doğum Günü Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=dogum-gunu
+            - img "Doğum Günü"
+            - text: Doğum Günü Doğum Günü Bu tasarımla başlayın
+        - listitem:
+          - link "Kurumsal Gala Kurumsal Gala Kurumsal Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=kurumsal-gala
+            - img "Kurumsal Gala"
+            - text: Kurumsal Gala Kurumsal Bu tasarımla başlayın
+        - listitem:
+          - link "Barok İki Gece Barok İki Gece Çoklu Etkinlik Bu tasarımla başlayın":
+            - /url: /tr/tasarla?tasarim=barok-kina-dugun
+            - img "Barok İki Gece"
+            - text: Barok İki Gece Çoklu Etkinlik Bu tasarımla başlayın
+      - paragraph:
+        - link "110 hazır tasarımın tümünü görün":
+          - /url: /tr/tasarla
+    - region "Tasarlamak her zaman ücretsiz":
+      - paragraph: Fiyat
+      - heading "Tasarlamak her zaman ücretsiz" [level=2]
+      - article "Filigranlı indirme":
+        - heading "Filigranlı indirme" [level=3]
+        - paragraph: Ücretsiz
+        - paragraph: Her kart için, sınırsız
+        - list:
+          - listitem: Bütün hazır tasarımlar ve araçlar
+          - listitem: Sınırsız tasarım ve kayıt
+          - listitem: Telefonda paylaşmaya uygun PNG ve JPG
+        - link "Tasarlamaya başlayın":
+          - /url: /tr/tasarla
+      - article "Filigransız indirme":
+        - heading "Filigransız indirme" [level=3]
+        - paragraph: 99 TL
+        - paragraph: Kart başına, tek seferlik
+        - list:
+          - listitem: Filigransız, yüksek çözünürlüklü PNG ve JPG
+          - listitem: Matbaaya gönderilebilen, baskıya hazır PDF
+          - listitem: Kartınızı güncelleyip dilediğiniz kadar yeniden indirme
+        - link "Tasarlamaya başlayın":
+          - /url: /tr/tasarla
+      - paragraph: Davetiye ya da Go Post satın aldıysanız filigransız indirme sizin için ücretsiz.
+    - region "Kartınızı birkaç dakikada hazırlayın":
+      - paragraph: HAZIRSANIZ
+      - heading "Kartınızı birkaç dakikada hazırlayın" [level=2]
+      - link "Tasarlamaya başlayın":
+        - /url: /tr/tasarla
+  - contentinfo:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - paragraph: Dijital davetiye, katılım takibi ve Anı Duvarı tek bağlantıda.
+    - link "Instagram":
+      - /url: https://www.instagram.com/davetiyemgo/
+    - paragraph: Ürün
+    - list:
+      - listitem:
+        - link "Davetiyeler":
+          - /url: /tr/temalar
+      - listitem:
+        - link "Gazeteler":
+          - /url: /tr/gazeteler
+      - listitem:
+        - link "KendinTasarla":
+          - /url: /tr/tasarim-studyosu
+      - listitem:
+        - link "Fiyatlar":
+          - /url: /tr/fiyatlar
+      - listitem:
+        - link "Ne Sunuyoruz":
+          - /url: /tr/ne-sunuyoruz
+      - listitem:
+        - link "Davetiye Oluştur":
+          - /url: /tr/davetiye-olustur
+    - paragraph: Yardım
+    - list:
+      - listitem:
+        - link "Rehber":
+          - /url: /tr/rehber
+      - listitem:
+        - link "Hakkımızda":
+          - /url: /tr/hakkimizda
+      - listitem:
+        - link "Nasıl Çalışır":
+          - /url: /tr/nasil-calisir
+      - listitem:
+        - link "Sık Sorulanlar":
+          - /url: /tr/sss
+      - listitem:
+        - link "İletişim":
+          - /url: /tr/iletisim
+    - paragraph: Yasal
+    - list:
+      - listitem:
+        - link "Kullanım Koşulları":
+          - /url: /tr/kosullar
+      - listitem:
+        - link "Gizlilik Politikası":
+          - /url: /tr/gizlilik
+      - listitem:
+        - link "KVKK Aydınlatma Metni":
+          - /url: /tr/kvkk
+      - listitem:
+        - link "Çerez Politikası":
+          - /url: /tr/cerez
+    - navigation "Davetiye türleri":
+      - paragraph: Davetiye türleri
+      - list:
+        - listitem:
+          - link "Düğün Davetiyesi":
+            - /url: /tr/dugun-davetiyesi
+        - listitem:
+          - link "Kına Davetiyesi":
+            - /url: /tr/kina-davetiyesi
+        - listitem:
+          - link "Kına ve Düğün Davetiyesi":
+            - /url: /tr/kina-ve-dugun-davetiyesi
+    - text: © 2026 DavetiyemGo
+    - button "Çerez tercihleri"
+    - text: Türkiye’de tasarlandı
+    - 'link "Geliştiren: Vodisoft"':
+      - /url: https://vodisoft.com
+      - text: Geliştiren
+      - strong: Vodisoft
+  - dialog "Çerez tercihlerinizi yönetin":
+    - heading "Çerez tercihlerinizi yönetin" [level=2]
+    - link "Çerez politikası":
+      - /url: /tr/cerez
+    - paragraph: Size daha iyi ve güvenli bir deneyim sunmak için zorunlu ve isteğe bağlı çerezler kullanıyoruz.
+    - button "Tercihleri yönet"
+    - button "Sadece zorunlu"
+    - button "Tümünü kabul et"

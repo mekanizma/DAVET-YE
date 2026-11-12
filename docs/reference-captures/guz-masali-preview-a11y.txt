@@ -1,0 +1,198 @@
+- document:
+  - link "İçeriğe geç":
+    - /url: "#main"
+  - banner:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - navigation "Ana menü":
+      - link "Davetiyeler":
+        - /url: /tr/temalar
+      - link "Gazeteler":
+        - /url: /tr/gazeteler
+      - link "KendinTasarla":
+        - /url: /tr/tasarim-studyosu
+      - link "Ne Sunuyoruz":
+        - /url: /tr/ne-sunuyoruz
+      - link "Fiyatlar":
+        - /url: /tr/fiyatlar
+      - link "Nasıl Çalışır":
+        - /url: /tr/nasil-calisir
+    - button "Dil seçin": TR
+    - link "Giriş yap":
+      - /url: /panel/giris?arayuz=tr
+    - link "Davetiye Oluştur":
+      - /url: /tr/davetiye-olustur
+  - main:
+    - navigation "Davetiyeler":
+      - link "Ana sayfa":
+        - /url: /tr
+      - link "Davetiyeler":
+        - /url: /tr/temalar
+      - text: Güz Masalı
+    - paragraph: Sonbahar Romantizmi ve Animasyonlu Gelin Arabası Eşliğinde Dijital Davetiye
+    - text: Öne çıkan
+    - heading "Güz Masalı" [level=1]
+    - paragraph: Kızıl ve altın sarısı sonbahar yapraklarıyla kaplı büyüleyici bir orman yolunda, süslü gelin arabasının geçişi ve yapraklarla beliren "Biz Evleniyoruz" animasyonuyla misafirlerinizi masalsı bir yolculuğa davet edin. Güz Masalı teması; düğün, nişan ve özel kutlamalarınız için sıcak, samimi ve sinematik bir açılış sunar. Tek tıkla harita ve yol tarifi, kolay LCV katılım bildirimi, takvime ekleme ve anı defteri gibi tüm interaktif dijital özelliklerle bu özel anınızı unutulmaz kılın.
+    - group "Önizleme türü":
+      - button "Tek etkinlik" [pressed]
+      - button "Kına + Düğün"
+    - iframe
+    - list:
+      - listitem: Mobil uyumlu Her telefonda ve tarayıcıda açılır
+      - listitem: Anında paylaşım Tek bağlantıyla kolayca davet edin
+      - listitem: Kolay özelleştirme Kendi hikâyenize göre düzenleyin
+    - paragraph: Bu davetiyeye dahil
+    - list:
+      - listitem: Anı Duvarı 159 TL
+    - text: 1.290 TL 1.490 TL %13 İndirim
+    - link "Bu Davetiyeyle Başla":
+      - /url: /tr/davetiye-olustur?sablon=guz-masali
+    - link "Tam Ekran Önizle":
+      - /url: /onizleme/tema/guz-masali?s=11
+    - paragraph: BÖLÜMLER
+    - heading "Bu davetiyede kullanabilecekleriniz" [level=2]
+    - paragraph: Bu davetiyede aşağıdaki bölümler yer alır; isteğe bağlı olanları dilediğiniz gibi açıp kapatabilirsiniz.
+    - list:
+      - listitem: İsimler Sizin ve eşinizin isimleri İsteğe bağlı
+      - listitem: Aileler Aile adlarını davetiyede gösterin İsteğe bağlı
+      - listitem: Tarih Tarih, saat ve tören bilgileri İsteğe bağlı
+      - listitem: Konum Mekân bilgisi ve harita yönlendirmesi İsteğe bağlı
+      - listitem: Söz Merasimi Tarih, saat ve tören bilgileri İsteğe bağlı
+      - listitem: Nişan Töreni Tarih, saat ve tören bilgileri İsteğe bağlı
+      - listitem: Kına Gecesi Tarih, saat ve tören bilgileri İsteğe bağlı
+      - listitem: Nikâh Töreni Tarih, saat ve tören bilgileri İsteğe bağlı
+      - listitem: Düğün Töreni Tarih, saat ve tören bilgileri İsteğe bağlı
+      - listitem: After Parti Tarih, saat ve tören bilgileri İsteğe bağlı
+      - listitem: Geri sayım Etkinliğe kalan süreyi gösterin İsteğe bağlı
+      - listitem: Hikâyemiz Tanışma hikâyeniz İsteğe bağlı
+      - listitem: Program akışı Nikâh, yemek ve parti akışını gösterin İsteğe bağlı
+      - listitem: Kıyafet kodu Kıyafet tercihinizi belirtin İsteğe bağlı
+      - listitem: Albümümüz Kendi fotoğraflarınızı davetiyeye ekleyin İsteğe bağlı
+      - listitem: Menü Yemek menünüzü ve servis sırasını paylaşın İsteğe bağlı
+      - listitem: Katılım formu Davetiyenin sorularıyla katılım yanıtlarını toplayın İsteğe bağlı
+      - listitem: Anı duvarı Misafirlerinizden fotoğraf toplayın İsteğe bağlı EKLENTİ
+      - listitem: Anı çekimi Misafirler kameralı çerçevelerle anı yakalasın İsteğe bağlı EKLENTİ
+      - listitem: Dilekler Misafirleriniz mesaj bıraksın İsteğe bağlı
+      - listitem: Hediye / IBAN Hediyesini havale ile göndermek isteyenler için İsteğe bağlı
+      - listitem: Kapanış Teşekkür ve kapanış mesajı İsteğe bağlı
+    - paragraph: SİZİN İÇİN SEÇTİK
+    - heading "Benzer davetiyeler" [level=2]
+    - paragraph: Benzer tarzdaki diğer davetiyelere de göz atın.
+    - article:
+      - link "Zümrüt Yeşili Çocukluk Aşkı":
+        - /url: /tr/temalar/zumrut-yesili-cocukluk-aski
+      - img "Zümrüt Yeşili Çocukluk Aşkı"
+      - text: Öne çıkan
+      - heading "Zümrüt Yeşili Çocukluk Aşkı" [level=3]
+      - text: 990 TL 1.250 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Akdeniz Masalı":
+        - /url: /tr/temalar/akdeniz-masali
+      - img "Akdeniz Masalı"
+      - text: Öne çıkan
+      - heading "Akdeniz Masalı" [level=3]
+      - text: 690 TL 1.100 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Gün Batımı":
+        - /url: /tr/temalar/gun-batimi-davetiyem
+      - img "Gün Batımı"
+      - text: Öne çıkan
+      - heading "Gün Batımı" [level=3]
+      - text: 990 TL 1.250 TL
+      - group: Daha fazla göster
+    - article:
+      - link "Kış Masalı":
+        - /url: /tr/temalar/kis-masali
+      - img "Kış Masalı"
+      - text: Öne çıkan
+      - heading "Kış Masalı" [level=3]
+      - text: 990 TL 1.250 TL
+      - group: Daha fazla göster
+  - contentinfo:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - paragraph: Dijital davetiye, katılım takibi ve Anı Duvarı tek bağlantıda.
+    - link "Instagram":
+      - /url: https://www.instagram.com/davetiyemgo/
+    - paragraph: Ürün
+    - list:
+      - listitem:
+        - link "Davetiyeler":
+          - /url: /tr/temalar
+      - listitem:
+        - link "Gazeteler":
+          - /url: /tr/gazeteler
+      - listitem:
+        - link "KendinTasarla":
+          - /url: /tr/tasarim-studyosu
+      - listitem:
+        - link "Fiyatlar":
+          - /url: /tr/fiyatlar
+      - listitem:
+        - link "Ne Sunuyoruz":
+          - /url: /tr/ne-sunuyoruz
+      - listitem:
+        - link "Davetiye Oluştur":
+          - /url: /tr/davetiye-olustur
+    - paragraph: Yardım
+    - list:
+      - listitem:
+        - link "Rehber":
+          - /url: /tr/rehber
+      - listitem:
+        - link "Hakkımızda":
+          - /url: /tr/hakkimizda
+      - listitem:
+        - link "Nasıl Çalışır":
+          - /url: /tr/nasil-calisir
+      - listitem:
+        - link "Sık Sorulanlar":
+          - /url: /tr/sss
+      - listitem:
+        - link "İletişim":
+          - /url: /tr/iletisim
+    - paragraph: Yasal
+    - list:
+      - listitem:
+        - link "Kullanım Koşulları":
+          - /url: /tr/kosullar
+      - listitem:
+        - link "Gizlilik Politikası":
+          - /url: /tr/gizlilik
+      - listitem:
+        - link "KVKK Aydınlatma Metni":
+          - /url: /tr/kvkk
+      - listitem:
+        - link "Çerez Politikası":
+          - /url: /tr/cerez
+    - navigation "Davetiye türleri":
+      - paragraph: Davetiye türleri
+      - list:
+        - listitem:
+          - link "Düğün Davetiyesi":
+            - /url: /tr/dugun-davetiyesi
+        - listitem:
+          - link "Kına Davetiyesi":
+            - /url: /tr/kina-davetiyesi
+        - listitem:
+          - link "Kına ve Düğün Davetiyesi":
+            - /url: /tr/kina-ve-dugun-davetiyesi
+    - text: © 2026 DavetiyemGo
+    - button "Çerez tercihleri"
+    - text: Türkiye’de tasarlandı
+    - 'link "Geliştiren: Vodisoft"':
+      - /url: https://vodisoft.com
+      - text: Geliştiren
+      - strong: Vodisoft
+  - dialog "Çerez tercihlerinizi yönetin":
+    - heading "Çerez tercihlerinizi yönetin" [level=2]
+    - link "Çerez politikası":
+      - /url: /tr/cerez
+    - paragraph: Size daha iyi ve güvenli bir deneyim sunmak için zorunlu ve isteğe bağlı çerezler kullanıyoruz.
+    - button "Tercihleri yönet"
+    - button "Sadece zorunlu"
+    - button "Tümünü kabul et"

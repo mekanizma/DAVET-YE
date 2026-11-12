@@ -1,0 +1,348 @@
+- document:
+  - link "İçeriğe geç":
+    - /url: "#main"
+  - banner:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - button "Menü"
+    - button "Dil seçin": TR
+  - main:
+    - heading "Dijital davetiye & gazete Özel gününüz, özel bir davetiyeyi hak eder." [level=1]
+    - paragraph: Telefonda açılan zarif dijital davetiyenizi ve hikâyenizi manşete taşıyan gazetenizi dakikalar içinde hazırlayın; tek bağlantıyla paylaşın, yanıtları tek panelden izleyin.
+    - list:
+      - listitem:
+        - link "Dijital Davetiye":
+          - /url: /tr/davetiye-olustur
+        - paragraph: Animasyonlu açılış, katılım formu, konum ve geri sayım; tek bağlantıyla telefonda açılır.
+        - text: Davetiye Oluştur
+        - link "Davetiyeleri Keşfet":
+          - /url: /tr/temalar
+      - listitem:
+        - link "Gazeteler":
+          - /url: /tr/gazete-olustur
+        - paragraph: "Hikâyeniz manşette: sayfa çevirmeli dijital gazete ve A3/A2 baskıya hazır dosya."
+        - text: Gazete Oluştur
+        - link "Gazeteleri keşfet":
+          - /url: /tr/gazeteler
+    - list "Hizmet avantajları":
+      - listitem: Dakikalar içinde hazır
+      - listitem: "%100 mobil uyumlu"
+      - listitem: Kolay paylaşım
+    - link "Aşk Bülteni":
+      - /url: /tr/gazeteler/ask-bulteni
+      - text: Gazeteler
+    - group "Dijital davetiye önizlemeleri":
+      - group "Önizleme 1 / 6":
+        - img "Akdeniz Masalı"
+        - link "İncele Akdeniz Masalı":
+          - /url: /tr/temalar/akdeniz-masali
+      - group "Önizleme 2 / 6":
+        - img "Güz Masalı"
+        - link "İncele Güz Masalı":
+          - /url: /tr/temalar/guz-masali
+      - group "Önizleme 3 / 6":
+        - img "Barok Kapı"
+        - link "İncele Barok Kapı":
+          - /url: /tr/temalar/barok-kapi
+      - group "Önizleme 4 / 6":
+        - img "Tavuslu Çini"
+        - link "İncele Tavuslu Çini":
+          - /url: /tr/temalar/tavuslu-cini
+      - group "Önizleme 5 / 6":
+        - img "Opera Gecesi"
+        - link "İncele Opera Gecesi":
+          - /url: /tr/temalar/opera-gecesi
+      - group "Önizleme 6 / 6":
+        - img "Bordo Mühür"
+        - link "İncele Bordo Mühür":
+          - /url: /tr/temalar/bordo-muhur
+      - button "Önizleme 1 / 6"
+      - button "Önizleme 2 / 6"
+      - button "Önizleme 3 / 6"
+      - button "Önizleme 4 / 6"
+      - button "Önizleme 5 / 6"
+      - button "Önizleme 6 / 6"
+    - region "Kategorilere göre keşfedin":
+      - heading "Kategorilere göre keşfedin" [level=2]
+      - paragraph: Her kutlamanın ruhuna uygun, özenle hazırlanmış tasarımlar.
+      - link "Nişan & Düğün":
+        - /url: /tr/dugun-davetiyesi
+      - link "Çoklu Etkinlik":
+        - /url: /tr/kina-ve-dugun-davetiyesi
+      - link "Kına":
+        - /url: /tr/kina-davetiyesi
+      - link "Gazeteler":
+        - /url: /tr/gazeteler
+    - region "Öne çıkan tasarımlar":
+      - heading "Öne çıkan tasarımlar" [level=2]
+      - link "Tüm davetiyeleri gör":
+        - /url: /tr/temalar
+      - article:
+        - link "Akdeniz Masalı":
+          - /url: /tr/temalar/akdeniz-masali
+        - img "Akdeniz Masalı"
+        - text: Öne çıkan
+        - heading "Akdeniz Masalı" [level=3]
+        - text: 690 TL 1.100 TL
+      - article:
+        - link "Güz Masalı":
+          - /url: /tr/temalar/guz-masali
+        - img "Güz Masalı"
+        - text: Öne çıkan
+        - heading "Güz Masalı" [level=3]
+        - text: 1.290 TL 1.490 TL
+      - article:
+        - link "Barok Kapı":
+          - /url: /tr/temalar/barok-kapi
+        - img "Barok Kapı"
+        - text: Yeni
+        - heading "Barok Kapı" [level=3]
+        - text: 1.290 TL 1.490 TL
+      - article:
+        - link "Tavuslu Çini":
+          - /url: /tr/temalar/tavuslu-cini
+        - img "Tavuslu Çini"
+        - text: Yeni
+        - heading "Tavuslu Çini" [level=3]
+        - text: 1.290 TL 1.490 TL
+      - article:
+        - link "Opera Gecesi":
+          - /url: /tr/temalar/opera-gecesi
+        - img "Opera Gecesi"
+        - text: Yeni
+        - heading "Opera Gecesi" [level=3]
+        - text: 1.290 TL 1.490 TL
+      - article:
+        - link "Bordo Mühür":
+          - /url: /tr/temalar/bordo-muhur
+        - img "Bordo Mühür"
+        - text: Yeni
+        - heading "Bordo Mühür" [level=3]
+        - text: 1.290 TL 1.490 TL
+    - region "Hikâyeniz manşette":
+      - heading "Hikâyeniz manşette" [level=2]
+      - link "Tüm gazeteleri gör":
+        - /url: /tr/gazeteler
+      - list:
+        - listitem: Şablonu seçin
+        - listitem: Hikâyenizi yazın
+        - listitem: Bağlantınızı paylaşın, A3/A2 bastırın
+      - article:
+        - link "Aşk Bülteni":
+          - /url: /tr/gazeteler/ask-bulteni
+        - img "Aşk Bülteni"
+        - heading "Aşk Bülteni" [level=3]
+        - text: 990 TL 1.290 TL
+      - article:
+        - link "Doğum Günü Gecesi":
+          - /url: /tr/gazeteler/dogum-gunu-gecesi
+        - img "Doğum Günü Gecesi"
+        - heading "Doğum Günü Gecesi" [level=3]
+        - text: 990 TL 1.290 TL
+      - article:
+        - link "Sonunda Evleniyorlar":
+          - /url: /tr/gazeteler/sonunda-evleniyorlar
+        - img "Sonunda Evleniyorlar"
+        - heading "Sonunda Evleniyorlar" [level=3]
+        - text: 990 TL 1.290 TL
+      - article:
+        - link "Aşk Kazandı":
+          - /url: /tr/gazeteler/ask-kazandi
+        - img "Aşk Kazandı"
+        - heading "Aşk Kazandı" [level=3]
+        - text: 990 TL 1.290 TL
+    - region "Davetiyeniz nasıl hazırlanır?":
+      - heading "Davetiyeniz nasıl hazırlanır?" [level=2]
+      - list:
+        - listitem:
+          - heading "1. Etkinliğe uygun davetiyeyi seçin" [level=3]
+        - listitem:
+          - heading "2. Bilgileri doldurun, canlı izleyin" [level=3]
+        - listitem:
+          - heading "3. Bağlantınızı paylaşın" [level=3]
+      - link "Altı adımın tamamını görün":
+        - /url: /tr/nasil-calisir
+    - region "Sadece bir davetiye değil, eksiksiz bir dijital deneyim.":
+      - paragraph: SİZE NE SUNUYORUZ
+      - heading "Sadece bir davetiye değil, eksiksiz bir dijital deneyim." [level=2]
+      - paragraph: Misafirleriniz için gereken her şey tek, zarif ve kolay kullanılan bir bağlantıda.
+      - link "Davetiyeleri Keşfet":
+        - /url: /tr/temalar
+      - link "Tüm özellikler":
+        - /url: /tr/ne-sunuyoruz
+      - list:
+        - listitem:
+          - heading "Konum & Harita" [level=3]
+        - listitem:
+          - heading "Atmosfer Müziği" [level=3]
+        - listitem:
+          - heading "Geri Sayım" [level=3]
+        - listitem:
+          - heading "Anı Duvarı EKLENTİ" [level=3]
+        - listitem:
+          - heading "Katılım Formu" [level=3]
+        - listitem:
+          - heading "Tek Bağlantıyla Paylaşım" [level=3]
+        - listitem:
+          - heading "Misafir Dili EKLENTİ" [level=3]
+    - region "Neden dijital davetiye?":
+      - heading "Neden dijital davetiye?" [level=2]
+      - article:
+        - heading "Çevre dostu" [level=3]
+        - paragraph: Kâğıt israfı olmadan, doğaya saygılı bir seçim.
+      - article:
+        - heading "Ekonomik" [level=3]
+        - paragraph: Baskı ve kargo maliyeti olmadan tek seferlik ödeme.
+      - article:
+        - heading "Hızlı ve pratik" [level=3]
+        - paragraph: Bilgileri istediğiniz an düzenleyin, tek tıkla yeniden yayınlayın; bağlantınız değişmez.
+      - article:
+        - heading "Sınırsız paylaşım" [level=3]
+        - paragraph: Dilediğiniz kadar kişiye tek bağlantıyla ulaşın.
+      - article:
+        - heading "Modern ve şık" [level=3]
+        - paragraph: Her cihazda etkileyici görünen çağdaş tasarımlar.
+    - region "Tek seferlik ödeme, abonelik yok":
+      - heading "Tek seferlik ödeme, abonelik yok" [level=2]
+      - paragraph: Temel bölümler davetiyenin fiyatına dahildir. Anı Duvarı, Anı Çekimi (Lens) ve Masa QR Kartı gibi eklentileri yalnızca isterseniz alırsınız.
+      - paragraph: Başlangıç fiyatı
+      - paragraph: 690 TL
+      - paragraph: Seçtiğiniz davetiyenin fiyatı; davetiyedeki bütün bölümler dahil.
+      - list:
+        - listitem: Tek seferlik ödeme
+        - listitem: Sınırsız katılım yanıtı
+        - listitem: Sınırsız misafir görüntüleme
+      - link "Davetiyeleri İncele":
+        - /url: /tr/temalar
+      - heading "Eklentiler" [level=3]
+      - list:
+        - listitem:
+          - heading "Anı Duvarı" [level=4]
+          - paragraph: Misafirleriniz etkinlik günü fotoğraflarını yükler, tüm anılar tek duvarda toplanır.
+          - strong: 159 TL
+        - listitem:
+          - heading "Anı Çekimi (Lens)" [level=4]
+          - paragraph: Misafirler kameralı eğlenceli çerçevelerle anı yakalar.
+          - strong: Ücretsiz
+        - listitem:
+          - heading "Masa QR Kartı" [level=4]
+          - paragraph: "Masalara koyacağınız QR'lı kart: misafirleriniz okutup çektikleri fotoğrafları doğrudan size yükler."
+          - strong: 49 TL
+        - listitem:
+          - heading "Ek Dil" [level=4]
+          - paragraph: Davetiyenizi başka dillerde de yayınlayın; misafirleriniz dil seçebilsin.
+          - strong: 149 TL
+        - listitem:
+          - heading "Markasız Yayın" [level=4]
+          - paragraph: Davetiyenin altındaki platform imzası kaldırılır.
+          - strong: 69 TL
+        - listitem:
+          - heading "Ek Depolama" [level=4]
+          - paragraph: Yüklenen fotoğraf ve videolar için 10 GB ek alan.
+          - strong: 169 TL
+      - link "Tüm fiyatları görün":
+        - /url: /tr/fiyatlar
+    - region "Aklınızdaki her şey burada.":
+      - heading "Aklınızdaki her şey burada." [level=2]
+      - group: Davetiye bağlantısını nasıl paylaşırım?
+      - group: Misafirim uygulama indirmek zorunda mı?
+      - group: Katılım yanıtlarını nereden görürüm?
+      - group: Davetiyeyi sonradan düzenleyebilir miyim?
+      - group: Aylık bir ücret var mı?
+      - group: Davetiyem ne kadar süre yayında kalır?
+      - group: İade alabilir miyim?
+      - group: Davetiyem birden fazla dilde olabilir mi?
+      - link "Tüm soruları görün":
+        - /url: /tr/sss
+    - region "Davetiniz daha başlamadan, ilk izleniminizi bırakın.":
+      - paragraph: HAZIRSANIZ
+      - heading "Davetiniz daha başlamadan, ilk izleniminizi bırakın." [level=2]
+      - paragraph: 56 davetiye · 690 TL'den başlayan fiyatlarla · tek seferlik ödeme
+      - link "Hemen Başla":
+        - /url: /tr/davetiye-olustur
+  - contentinfo:
+    - link "DavetiyemGo":
+      - /url: /tr
+      - img "DavetiyemGo"
+    - paragraph: Dijital davetiye, katılım takibi ve Anı Duvarı tek bağlantıda.
+    - link "Instagram":
+      - /url: https://www.instagram.com/davetiyemgo/
+    - paragraph: Ürün
+    - list:
+      - listitem:
+        - link "Davetiyeler":
+          - /url: /tr/temalar
+      - listitem:
+        - link "Gazeteler":
+          - /url: /tr/gazeteler
+      - listitem:
+        - link "KendinTasarla":
+          - /url: /tr/tasarim-studyosu
+      - listitem:
+        - link "Fiyatlar":
+          - /url: /tr/fiyatlar
+      - listitem:
+        - link "Ne Sunuyoruz":
+          - /url: /tr/ne-sunuyoruz
+      - listitem:
+        - link "Davetiye Oluştur":
+          - /url: /tr/davetiye-olustur
+    - paragraph: Yardım
+    - list:
+      - listitem:
+        - link "Rehber":
+          - /url: /tr/rehber
+      - listitem:
+        - link "Hakkımızda":
+          - /url: /tr/hakkimizda
+      - listitem:
+        - link "Nasıl Çalışır":
+          - /url: /tr/nasil-calisir
+      - listitem:
+        - link "Sık Sorulanlar":
+          - /url: /tr/sss
+      - listitem:
+        - link "İletişim":
+          - /url: /tr/iletisim
+    - paragraph: Yasal
+    - list:
+      - listitem:
+        - link "Kullanım Koşulları":
+          - /url: /tr/kosullar
+      - listitem:
+        - link "Gizlilik Politikası":
+          - /url: /tr/gizlilik
+      - listitem:
+        - link "KVKK Aydınlatma Metni":
+          - /url: /tr/kvkk
+      - listitem:
+        - link "Çerez Politikası":
+          - /url: /tr/cerez
+    - navigation "Davetiye türleri":
+      - paragraph: Davetiye türleri
+      - list:
+        - listitem:
+          - link "Düğün Davetiyesi":
+            - /url: /tr/dugun-davetiyesi
+        - listitem:
+          - link "Kına Davetiyesi":
+            - /url: /tr/kina-davetiyesi
+        - listitem:
+          - link "Kına ve Düğün Davetiyesi":
+            - /url: /tr/kina-ve-dugun-davetiyesi
+    - text: © 2026 DavetiyemGo
+    - button "Çerez tercihleri"
+    - text: Türkiye’de tasarlandı
+    - 'link "Geliştiren: Vodisoft"':
+      - /url: https://vodisoft.com
+      - text: Geliştiren
+      - strong: Vodisoft
+  - dialog "Çerez tercihlerinizi yönetin":
+    - heading "Çerez tercihlerinizi yönetin" [level=2]
+    - link "Çerez politikası":
+      - /url: /tr/cerez
+    - paragraph: Size daha iyi ve güvenli bir deneyim sunmak için zorunlu ve isteğe bağlı çerezler kullanıyoruz.
+    - button "Tercihleri yönet"
+    - button "Sadece zorunlu"
+    - button "Tümünü kabul et"
