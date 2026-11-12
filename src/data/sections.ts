@@ -1,3 +1,6 @@
+/** Katılım formu geçici olarak kapalı. Davetiyelerde tekrar göstermek için true yapın. */
+export const RSVP_FORM_ENABLED = false;
+
 export interface InvitationSection {
   id: string;
   title: string;
@@ -8,7 +11,7 @@ export interface InvitationSection {
 }
 
 /** Güz Masalı detay sayfasındaki "Bu davetiyede kullanabilecekleriniz" listesi (referans). */
-export const INVITATION_SECTIONS: InvitationSection[] = [
+const INVITATION_SECTION_LIST: InvitationSection[] = [
   { id: "isimler", title: "İsimler", text: "Sizin ve eşinizin isimleri", optional: true },
   { id: "aileler", title: "Aileler", text: "Aile adlarını davetiyede gösterin", optional: true },
   { id: "tarih", title: "Tarih", text: "Tarih, saat ve tören bilgileri", optional: true },
@@ -33,8 +36,12 @@ export const INVITATION_SECTIONS: InvitationSection[] = [
   { id: "kapanis", title: "Kapanış", text: "Teşekkür ve kapanış mesajı", optional: true },
 ];
 
+export const INVITATION_SECTIONS = RSVP_FORM_ENABLED
+  ? INVITATION_SECTION_LIST
+  : INVITATION_SECTION_LIST.filter((section) => section.id !== "katilim");
+
 /** /tr/ne-sunuyoruz Davetiye sekmesi */
-export const OFFER_INVITATION = [
+const OFFER_INVITATION_LIST = [
   { title: "Açılış Videosu", text: "Davetiye açılmadan önce kısa bir açılış videosu" },
   { title: "Aile Bilgileri", text: "Aile adlarını davetiyede gösterin" },
   { title: "Etkinlikler", text: "Tarih, saat ve tören bilgileri" },
@@ -51,3 +58,7 @@ export const OFFER_INVITATION = [
   { title: "Anı Duvarı", text: "Misafirlerinizden fotoğraf toplayın", addon: true },
   { title: "Anı Çekimi (Lens)", text: "Misafirler kameralı çerçevelerle anı yakalasın", addon: true },
 ];
+
+export const OFFER_INVITATION = RSVP_FORM_ENABLED
+  ? OFFER_INVITATION_LIST
+  : OFFER_INVITATION_LIST.filter((item) => item.title !== "Katılım Formu");

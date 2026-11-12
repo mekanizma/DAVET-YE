@@ -26,6 +26,7 @@ import {
 import { IvProvider, type InvData } from "./ctx";
 import { getInvitationStyle } from "@/data/invitationStyles";
 import { SAMPLE, sampleDate } from "@/data/sample";
+import { RSVP_FORM_ENABLED } from "@/data/sections";
 import { coverOf, openingVideoOf, type Theme } from "@/data/themes";
 import { useAmbientMusic } from "@/lib/music";
 import { useDraft } from "@/lib/storage";
@@ -91,7 +92,7 @@ export default function InvitationExperience({
     };
   }, [mode, live, info, draft.event, draft.program]);
   const hidden = useMemo(() => new Set(live ? draft.hiddenSections : []), [live, draft.hiddenSections]);
-  const show = (id: string) => !hidden.has(id);
+  const show = (id: string) => (id === "katilim" && !RSVP_FORM_ENABLED ? false : !hidden.has(id));
 
   const open = useCallback(() => {
     if (phase !== "closed") return;

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import icons from "@/data/stage-icons.json";
+import { RSVP_FORM_ENABLED } from "@/data/sections";
 import { useDraft } from "@/lib/storage";
 
 interface TextStyle {
@@ -508,6 +509,7 @@ export default function StageView({
 
   const hidden = useMemo(() => new Set(live ? draft.hiddenSections : []), [live, draft.hiddenSections]);
   const pages = design.pages.filter((p) => {
+    if (!RSVP_FORM_ENABLED && p.kind === "rsvp") return false;
     const key = p.kind ? HIDE[p.kind] : undefined;
     return !key || !hidden.has(key);
   });

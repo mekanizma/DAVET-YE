@@ -6,6 +6,7 @@ import PrintCards from "./PrintCards";
 import { useCatalog } from "@/components/CatalogProvider";
 import { formatIban, formatTL } from "@/lib/format";
 import { saveDraft, type DraftInfo, type DraftProgramItem, type InvitationDraft } from "@/lib/storage";
+import { RSVP_FORM_ENABLED } from "@/data/sections";
 import { INFO_FIELDS, type Errors } from "./validate";
 
 const DEFAULT_OFF = ["hikaye", "kiyafet", "album", "menu", "ani-duvari", "ani-cekimi"];
@@ -173,7 +174,9 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
         <Area label="Menü" optional max={400} value={i.menu} onChange={set("menu")} />
       </Group>
 
-      <Group id="katilim" icon="check" title="Katılım formu" meta="doldurulacak alan yok" missing={0} open={false} enabled={on(draft, "katilim")} onOpen={() => {}} onToggle={(v) => toggle("katilim", v)} />
+      {RSVP_FORM_ENABLED && (
+        <Group id="katilim" icon="check" title="Katılım formu" meta="doldurulacak alan yok" missing={0} open={false} enabled={on(draft, "katilim")} onOpen={() => {}} onToggle={(v) => toggle("katilim", v)} />
+      )}
 
       <AddonGroup
         id="ani-duvari"
