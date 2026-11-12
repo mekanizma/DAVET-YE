@@ -1,7 +1,10 @@
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { supabaseUrl } from "@/lib/supabase/env";
 
 const MAX_BYTES = 5 * 1024 * 1024;
+const BUCKET = "dekont";
 const DIR = process.env.RECEIPT_DIR || path.join(process.cwd(), "data", "runtime", "dekont");
 
 const KINDS = {
@@ -22,6 +25,18 @@ function safeCode(code: string) {
   return /^DV-[A-Z0-9]{4,24}$/.test(clean) ? clean : "";
 }
 
+function storageKey() {
+  return process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+}
+
+function storageAdmin(): SupabaseClient | null {
+  const key = storageKey();
+  if (!key || !process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  return createClient(supabaseUrl(), key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
 export function sniffReceipt(bytes: Uint8Array): ReceiptExt | null {
   if (bytes.byteLength < 8 || bytes.byteLength > MAX_BYTES) return null;
   for (const [ext, kind] of Object.entries(KINDS) as [ReceiptExt, (typeof KINDS)[ReceiptExt]][]) {
@@ -30,29 +45,55 @@ export function sniffReceipt(bytes: Uint8Array): ReceiptExt | null {
   return null;
 }
 
-export async function saveReceipt(code: string, bytes: Uint8Array): Promise<{ ok: true; ext: ReceiptExt } | { ok: false; error: string }> {
-  const id = safeCode(code);
-  const ext = sniffReceipt(bytes);
-  if (!id) return { ok: false, error: "Sipariş kodu geçersiz." };
-  if (!ext) return { ok: false, error: "Dekont JPG, PNG, WEBP veya PDF olmalı ve 5 MB’ı geçmemeli." };
+async function saveLocal(id: string, ext: ReceiptExt, bytes: Uint8Array) {
   await mkdir(DIR, { recursive: true });
   for (const old of Object.keys(KINDS)) {
     if (old !== ext) await unlink(path.join(DIR, `${id}.${old}`)).catch(() => undefined);
   }
   await writeFile(path.join(DIR, `${id}.${ext}`), bytes);
+}
+
+async function saveBucket(admin: SupabaseClient, id: string, ext: ReceiptExt, bytes: Uint8Array) {
+  const stale = (Object.keys(KINDS) as ReceiptExt[]).filter((old) => old !== ext).map((old) => `${id}.${old}`);
+  if (stale.length) await admin.storage.from(BUCKET).remove(stale);
+  const { error } = await admin.storage.from(BUCKET).upload(`${id}.${ext}`, bytes, {
+    contentType: KINDS[ext].mime,
+    upsert: true,
+  });
+  if (error) throw error;
+}
+
+export async function saveReceipt(code: string, bytes: Uint8Array): Promise<{ ok: true; ext: ReceiptExt } | { ok: false; error: string }> {
+  const id = safeCode(code);
+  const ext = sniffReceipt(bytes);
+  if (!id) return { ok: false, error: "Sipariş kodu geçersiz." };
+  if (!ext) return { ok: false, error: "Dekont JPG, PNG, WEBP veya PDF olmalı ve 5 MB’ı geçmemeli." };
+  const admin = storageAdmin();
+  try {
+    if (admin) await saveBucket(admin, id, ext, bytes);
+    else await saveLocal(id, ext, bytes);
+  } catch (error) {
+    console.error(error);
+    return { ok: false, error: "Dekont kaydedilemedi." };
+  }
   return { ok: true, ext };
+}
+
+async function removeLocal(id: string) {
+  for (const ext of Object.keys(KINDS)) {
+    await unlink(path.join(DIR, `${id}.${ext}`)).catch(() => undefined);
+  }
 }
 
 export async function removeReceipt(code: string) {
   const id = safeCode(code);
   if (!id) return;
-  for (const ext of Object.keys(KINDS)) {
-    await unlink(path.join(DIR, `${id}.${ext}`)).catch(() => undefined);
-  }
+  const admin = storageAdmin();
+  if (admin) await admin.storage.from(BUCKET).remove((Object.keys(KINDS) as ReceiptExt[]).map((ext) => `${id}.${ext}`));
+  await removeLocal(id);
 }
-export async function readReceipt(code: string): Promise<{ bytes: Buffer; mime: string; ext: ReceiptExt } | null> {
-  const id = safeCode(code);
-  if (!id) return null;
+
+async function readLocal(id: string): Promise<{ bytes: Buffer; mime: string; ext: ReceiptExt } | null> {
   for (const ext of Object.keys(KINDS) as ReceiptExt[]) {
     try {
       const bytes = await readFile(path.join(DIR, `${id}.${ext}`));
@@ -63,4 +104,23 @@ export async function readReceipt(code: string): Promise<{ bytes: Buffer; mime: 
     }
   }
   return null;
+}
+
+async function readBucket(admin: SupabaseClient, id: string): Promise<{ bytes: Buffer; mime: string; ext: ReceiptExt } | null> {
+  for (const ext of Object.keys(KINDS) as ReceiptExt[]) {
+    const { data, error } = await admin.storage.from(BUCKET).download(`${id}.${ext}`);
+    if (error || !data) continue;
+    const bytes = Buffer.from(await data.arrayBuffer());
+    if (bytes.byteLength < 8) continue;
+    return { bytes, mime: KINDS[ext].mime, ext };
+  }
+  return null;
+}
+
+export async function readReceipt(code: string): Promise<{ bytes: Buffer; mime: string; ext: ReceiptExt } | null> {
+  const id = safeCode(code);
+  if (!id) return null;
+  const admin = storageAdmin();
+  if (!admin) return readLocal(id);
+  return readBucket(admin, id);
 }

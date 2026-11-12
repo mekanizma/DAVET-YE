@@ -21,9 +21,5 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
-      - key: RECEIPT_DIR
-        value: /var/data/dekont
-    disk:
-      name: dekont
-      mountPath: /var/data
-      sizeGB: 1
+      - key: SUPABASE_SECRET_KEY
+        sync: false

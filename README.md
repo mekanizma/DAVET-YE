@@ -36,6 +36,7 @@ Depodaki `render.yaml` Frankfurt bölgesinde bir Node web servisi tanımlar. Ren
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVER_SECRET`
+- `SUPABASE_SECRET_KEY`
 - `ADMIN_PASSWORD`
 
-Servis `npm ci && npm run build` ile derlenir ve `next start` ile `0.0.0.0` üzerinde, Render’ın verdiği `PORT` ile açılır. Sağlık kontrolü `/tr` yoluna bakar. Dekontlar `/var/data` diskine yazılır; bu disk ücretli planda kalıcıdır.
+Servis `npm ci && npm run build` ile derlenir ve `next start` ile `0.0.0.0` üzerinde, Render’ın verdiği `PORT` ile açılır. Sağlık kontrolü `/tr` yoluna bakar. Dekontlar Supabase’te herkese kapalı `dekont` bucket’ına yazılır; bunun için `SUPABASE_SECRET_KEY` gerekir.
