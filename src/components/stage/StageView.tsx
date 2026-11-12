@@ -577,12 +577,86 @@ export default function StageView({
    * typing Ad/Soyad. Lock layout height and turn snap off for the duration of focus.
    */
   useEffect(() => {
+    if (embed) return;
+    const shell = stageRef.current?.closest(".stg-root") as HTMLElement | null;
+    if (!shell) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.overflow;
+    const prevBody = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    const apply = () => {
+      if (shell.classList.contains("is-typing")) return;
+      const vv = window.visualViewport;
+      const h = Math.round(vv?.height || window.innerHeight);
+      const top = Math.round(vv?.offsetTop || 0);
+      shell.style.setProperty("--vvh", `${h}px`);
+      shell.style.setProperty("--vv-top", `${top}px`);
+    };
+    apply();
+    const vv = window.visualViewport;
+    vv?.addEventListener("resize", apply);
+    vv?.addEventListener("scroll", apply);
+    window.addEventListener("orientationchange", apply);
+    return () => {
+      vv?.removeEventListener("resize", apply);
+      vv?.removeEventListener("scroll", apply);
+      window.removeEventListener("orientationchange", apply);
+      html.style.overflow = prevHtml;
+      body.style.overflow = prevBody;
+      shell.style.removeProperty("--vvh");
+      shell.style.removeProperty("--vv-top");
+    };
+  }, [embed]);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    const box = el?.parentElement;
+    if (!el || !box) return;
+    const fit = () => {
+      if (!el.videoWidth || !el.videoHeight) return;
+      const phone = window.matchMedia("(max-width: 600px) and (orientation: portrait)").matches;
+      if (!phone) {
+        el.style.width = "";
+        el.style.height = "";
+        el.style.left = "";
+        el.style.top = "";
+        el.style.right = "";
+        el.style.bottom = "";
+        el.style.transform = "";
+        el.style.maxWidth = "";
+        return;
+      }
+      const scale = Math.max(box.clientWidth / el.videoWidth, box.clientHeight / el.videoHeight);
+      el.style.width = `${Math.ceil(el.videoWidth * scale)}px`;
+      el.style.height = `${Math.ceil(el.videoHeight * scale)}px`;
+      el.style.left = "50%";
+      el.style.top = "50%";
+      el.style.right = "auto";
+      el.style.bottom = "auto";
+      el.style.transform = "translate(-50%, -50%)";
+      el.style.maxWidth = "none";
+      el.style.objectFit = "cover";
+    };
+    el.addEventListener("loadedmetadata", fit);
+    const observer = new ResizeObserver(fit);
+    observer.observe(box);
+    fit();
+    return () => {
+      el.removeEventListener("loadedmetadata", fit);
+      observer.disconnect();
+    };
+  }, [phase, intro?.video]);
+
+  useEffect(() => {
     if (phase !== "open") return;
     const root = scrollRef.current;
     const shell = root?.closest(".stg-root") as HTMLElement | null;
     if (!root || !shell) return;
 
     const lockStage = () => {
+      if (shell.classList.contains("is-typing")) return;
       shell.style.setProperty("--iv-stage-h", `${document.documentElement.clientHeight}px`);
     };
     lockStage();
@@ -719,8 +793,11 @@ export default function StageView({
       if (!viewW || !viewH) return;
       const contain = Math.min(viewW / canvasW, viewH / canvasH);
       const widthFill = viewW / canvasW;
+      const cover = Math.max(viewW / canvasW, viewH / canvasH);
       const fitContent = viewH / (2 * reach);
-      const scale = Math.max(contain, Math.min(widthFill, fitContent));
+      let scale = Math.max(contain, Math.min(widthFill, fitContent));
+      const phone = viewW <= 600 && viewH >= viewW;
+      if (phone && canvasH * scale < viewH - 1) scale = Math.max(scale, cover);
       node.style.setProperty("--stg-art-w", `${(canvasW * scale).toFixed(2)}px`);
       node.style.setProperty("--stg-art-h", `${(canvasH * scale).toFixed(2)}px`);
     };

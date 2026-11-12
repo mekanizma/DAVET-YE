@@ -567,6 +567,19 @@ textarea.stg-form__input {
   background: #111;
   overscroll-behavior: none;
 }
+/* Full-screen invite must cover the visible phone, including the iOS toolbar gap. */
+.stg-root:not([data-embed="1"]) {
+  position: fixed;
+  top: var(--vv-top, 0px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: var(--vvh, 100dvh);
+  min-height: 0;
+  max-height: none;
+  z-index: 30;
+  background: var(--stg-desk, #111);
+}
 .stg-root.is-typing,
 .stg-root:has(.stg-pages:focus-within) {
   /* Keep art scale stable while the soft keyboard is open */
@@ -597,7 +610,8 @@ textarea.stg-form__input {
 @media (max-width: 600px) and (orientation: portrait) {
   .stg-media--screen,
   .stg-video {
-    object-fit: fill;
+    object-fit: cover;
+    object-position: center;
   }
 }
 .stg-gallery {
