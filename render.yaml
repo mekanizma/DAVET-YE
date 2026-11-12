@@ -1,0 +1,29 @@
+# Render Blueprint. GitHub reposunu bağlayınca bu dosya servisi kurar.
+# Gizli değerler burada yok; panel ilk kurulumda sorar.
+services:
+  - type: web
+    name: davetiye
+    runtime: node
+    region: frankfurt
+    plan: starter
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /tr
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVER_SECRET
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: RECEIPT_DIR
+        value: /var/data/dekont
+    disk:
+      name: dekont
+      mountPath: /var/data
+      sizeGB: 1

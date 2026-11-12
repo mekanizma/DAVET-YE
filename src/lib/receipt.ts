@@ -2,7 +2,7 @@ import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const MAX_BYTES = 5 * 1024 * 1024;
-const DIR = path.join(process.cwd(), "data", "runtime", "dekont");
+const DIR = process.env.RECEIPT_DIR || path.join(process.cwd(), "data", "runtime", "dekont");
 
 const KINDS = {
   jpg: { mime: "image/jpeg", magic: (b: Uint8Array) => b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
