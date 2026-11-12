@@ -4,10 +4,13 @@ import Icon from "@/components/Icon";
 import ProductTabs from "@/components/ProductTabs";
 import { HOW_IT_WORKS_INVITATION, HOW_IT_WORKS_NEWSPAPER } from "@/data/site";
 
-export const metadata: Metadata = {
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
   title: "Nasıl çalışır",
-  description: "Tasarım bilgisi gerekmiyor. Her adımda ne yaptığınızı canlı önizlemede görürsünüz.",
-};
+  description: "Dijital davetiyenizi dakikalar içinde hazırlayın. Tasarım bilgisi gerekmez; her adımı canlı önizlemede görürsünüz.",
+  path: "/tr/nasil-calisir",
+});
 
 function Steps({ items }: { items: { title: string; text: string }[] }) {
   return (

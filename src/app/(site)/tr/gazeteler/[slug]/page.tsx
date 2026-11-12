@@ -8,7 +8,9 @@ import SectionHead from "@/components/SectionHead";
 import { getNewspaper, newspapers } from "@/data/newspapers";
 import { NEWSPAPER_FEATURES } from "@/data/site";
 import { applyNewspaper } from "@/lib/catalog";
+import JsonLd from "@/components/JsonLd";
 import { formatTL } from "@/lib/format";
+import { breadcrumbJsonLd, pageMeta, productJsonLd } from "@/lib/seo";
 import { getPublicCatalog } from "@/lib/store";
 
 export function generateStaticParams() {
@@ -18,7 +20,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const p = getNewspaper(slug);
-  return p ? { title: p.title, description: p.eyebrow } : { title: "Gazete bulunamadı" };
+  if (!p) return { title: "Gazete bulunamadı" };
+  return pageMeta({
+    title: `${p.title} düğün gazetesi`,
+    description: p.description,
+    path: `/tr/gazeteler/${p.slug}`,
+    image: p.cover,
+  });
 }
 
 const BENEFITS: { icon: IconName; t: string; d: string }[] = [
@@ -38,6 +46,22 @@ export default async function NewspaperDetail({ params }: { params: Promise<{ sl
 
   return (
     <>
+      <JsonLd
+        data={[
+          productJsonLd({
+            name: `${paper.title} düğün gazetesi`,
+            description: paper.description,
+            path: `/tr/gazeteler/${paper.slug}`,
+            image: paper.cover,
+            price: paper.price,
+          }),
+          breadcrumbJsonLd([
+            { name: "Ana sayfa", path: "/tr" },
+            { name: "Gazeteler", path: "/tr/gazeteler" },
+            { name: paper.title, path: `/tr/gazeteler/${paper.slug}` },
+          ]),
+        ]}
+      />
       <section className="detail">
         <div className="wrap wrap--lg">
           <nav aria-label="Sayfa yolu">

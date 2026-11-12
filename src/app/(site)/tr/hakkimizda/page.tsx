@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ContentPage from "@/components/ContentPage";
 
-export const metadata: Metadata = { title: "Hakkımızda" };
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "Hakkımızda",
+  description: "Davetanisi, düğün, nişan ve kına davetiyelerini Türkiye’de telefonda açılan deneyimlere dönüştürür.",
+  path: "/tr/hakkimizda",
+});
 
 export default function Page() {
   return (

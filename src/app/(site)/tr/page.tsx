@@ -12,12 +12,13 @@ import NewspaperStrip from "@/components/home/NewspaperStrip";
 import { applyTheme } from "@/lib/catalog";
 import { getPublicCatalog } from "@/lib/store";
 import { FEATURED_SLUGS, themes } from "@/data/themes";
+import { HOME_DESCRIPTION, HOME_TITLE, pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: { absolute: "Davetanisi — Dijital davetiye & gazete" },
-  description:
-    "Telefonda açılan zarif dijital davetiyenizi ve hikâyenizi manşete taşıyan gazetenizi dakikalar içinde hazırlayın.",
-};
+export const metadata: Metadata = pageMeta({
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  path: "/tr",
+});
 
 export default async function HomePage() {
   const cat = await getPublicCatalog();

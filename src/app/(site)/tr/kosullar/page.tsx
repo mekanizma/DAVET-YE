@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import ContentPage from "@/components/ContentPage";
 
-export const metadata: Metadata = { title: "Kullanım koşulları" };
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "Kullanım koşulları",
+  description: "Davetanisi dijital davetiye ve gazete hizmetinin kullanım koşulları.",
+  path: "/tr/kosullar",
+  index: false,
+});
 
 export default function Page() {
   return (

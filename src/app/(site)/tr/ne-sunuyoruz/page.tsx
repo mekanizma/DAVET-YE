@@ -5,10 +5,13 @@ import ProductTabs from "@/components/ProductTabs";
 import { NEWSPAPER_FEATURES } from "@/data/site";
 import { OFFER_INVITATION } from "@/data/sections";
 
-export const metadata: Metadata = {
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
   title: "Ne sunuyoruz",
-  description: "Davetiyenizde ve gazetenizde neler olabilir? İsteğe bağlı bölümleri açıp kapatırsınız.",
-};
+  description: "Dijital davetiye ve düğün gazetesinde neler olabilir? Katılım, konum, geri sayım ve anı duvarı gibi bölümleri siz seçersiniz.",
+  path: "/tr/ne-sunuyoruz",
+});
 
 const HEADINGS: Record<string, { title: string; lead: string }> = {
   davetiye: {

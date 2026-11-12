@@ -11,10 +11,13 @@ import { applyTheme, startingPrice } from "@/lib/catalog";
 import { formatTL } from "@/lib/format";
 import { getPublicCatalog } from "@/lib/store";
 
-export const metadata: Metadata = {
-  title: "Fiyatlar",
-  description: "Davetiyenin fiyatı tek seferliktir ve bütün bölümleri kapsar. Eklentileri yalnızca ihtiyacınız varsa alırsınız.",
-};
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "Dijital davetiye fiyatları",
+  description: "Davetiye fiyatı tek seferliktir ve bütün bölümleri kapsar. Abonelik yok; eklentileri yalnızca ihtiyacınız varsa alırsınız.",
+  path: "/tr/fiyatlar",
+});
 
 export default async function PricingPage() {
   const cat = await getPublicCatalog();

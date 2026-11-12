@@ -10,10 +10,13 @@ import { DESIGN_PRICING } from "@/data/pricing";
 import { formatTL } from "@/lib/format";
 import { getPublicCatalog } from "@/lib/store";
 
-export const metadata: Metadata = {
-  title: "KendinTasarla — davetiye kartınızı kendiniz tasarlayın",
-  description: "Hazır bir tasarımdan başlayın ya da boş sayfadan; telefonda ve bilgisayarda düzenleyin, baskıya hazır dosya alın.",
-};
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "Kendin Tasarla — davetiye kartı",
+  description: "Hazır bir tasarımdan başlayın ya da boş sayfadan davetiye kartınızı telefonda ve bilgisayarda düzenleyin.",
+  path: "/tr/tasarim-studyosu",
+});
 
 const CAT_TABS = [{ key: "all", name: "Tümü" }, ...DESIGN_CATEGORIES];
 

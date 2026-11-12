@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ContentPage from "@/components/ContentPage";
 
-export const metadata: Metadata = {
-  title: "Rehber",
-  description: "Dijital davetiye hazırlarken işinize yarayacak kısa rehberler.",
-};
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "Dijital davetiye rehberi",
+  description: "Düğün ve kına davetiyesi hazırlarken işinize yarayacak kısa rehberler.",
+  path: "/tr/rehber",
+});
 
 const GUIDES = [
   {

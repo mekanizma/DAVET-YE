@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import ContentPage from "@/components/ContentPage";
 
-export const metadata: Metadata = { title: "KVKK aydınlatma metni" };
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "KVKK aydınlatma metni",
+  description: "Davetanisi KVKK aydınlatma metni ve kişisel verilerin işlenme amaçları.",
+  path: "/tr/kvkk",
+  index: false,
+});
 
 export default function Page() {
   return (

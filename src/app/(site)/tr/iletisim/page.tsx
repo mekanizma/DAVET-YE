@@ -3,7 +3,13 @@ import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
 import ContentPage from "@/components/ContentPage";
 
-export const metadata: Metadata = { title: "İletişim" };
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "İletişim",
+  description: "Davetanisi destek ve önerileriniz için bize yazın. Dijital davetiye ve düğün gazetesi hakkında yanıtlayalım.",
+  path: "/tr/iletisim",
+});
 
 export default function Page() {
   return (

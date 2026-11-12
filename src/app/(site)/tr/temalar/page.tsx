@@ -3,11 +3,13 @@ import Image from "next/image";
 import ThemeCatalog, { type CatalogInitial } from "@/components/ThemeCatalog";
 import { EVENT_LABELS, type EventType } from "@/data/themes";
 
-export const metadata: Metadata = {
-  title: "Davetiyeler",
-  description:
-    "Hepsi telefon için tasarlandı, hepsi tek bağlantıyla paylaşılır. Davetiyeyi satın almadan tam ekran önizleyin.",
-};
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "Dijital davetiyeler",
+  description: "Düğün, nişan ve kına için telefon ekranına göre hazırlanmış davetiyeler. Satın almadan tam ekran önizleyin, tek bağlantıyla paylaşın.",
+  path: "/tr/temalar",
+});
 
 type SP = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";

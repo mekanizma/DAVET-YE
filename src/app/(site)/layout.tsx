@@ -1,7 +1,9 @@
 import CookieBanner from "@/components/CookieBanner";
+import JsonLd from "@/components/JsonLd";
 import SiteFooter from "@/components/SiteFooter";
 import SiteFrame from "@/components/SiteFrame";
 import SiteHeader, { type HeaderAccount } from "@/components/SiteHeader";
+import { siteGraph } from "@/lib/seo";
 import { supabaseConfigured } from "@/lib/supabase/env";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
@@ -26,6 +28,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       footer={<SiteFooter />}
       banner={<CookieBanner />}
     >
+      <JsonLd data={siteGraph()} />
       {children}
     </SiteFrame>
   );

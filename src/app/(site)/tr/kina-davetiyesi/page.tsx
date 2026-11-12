@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import EventLanding from "@/components/EventLanding";
 
-export const metadata: Metadata = {
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
   title: "Kına davetiyesi",
-  description: "Kına gecesine özel, geleneksel motifli dijital davetiyeler.",
-};
+  description: "Kına gecesine özel, geleneksel motifli dijital davetiyeler. Tek bağlantıyla paylaşın, katılımı telefondan izleyin.",
+  path: "/tr/kina-davetiyesi",
+});
 
 export default function Page() {
   return (

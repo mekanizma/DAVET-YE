@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import localFont from "next/font/local";
 import { CatalogProvider } from "@/components/CatalogProvider";
+import { SITE } from "@/data/site";
+import { GEO, HOME_DESCRIPTION, HOME_TITLE, siteUrl } from "@/lib/seo";
 import { getPublicCatalog } from "@/lib/store";
 import "./globals.css";
 
@@ -61,22 +63,68 @@ const bebas = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: {
-    default: "Davetanisi — Dijital davetiye & gazete",
+    default: HOME_TITLE,
     template: "%s · Davetanisi",
   },
-  description:
-    "Telefonda açılan zarif dijital davetiye ve sayfa çevirmeli gazete. Davetanisi ile davetinizi dakikalar içinde hazırlayın.",
-  robots: { index: false, follow: false },
-  icons: {
-    icon: [{ url: "/icon.png", type: "image/png" }],
+  description: HOME_DESCRIPTION,
+  applicationName: SITE.name,
+  authors: [{ name: SITE.name, url: "/tr" }],
+  creator: SITE.name,
+  publisher: SITE.name,
+  category: "Dijital davetiye",
+  keywords: [
+    "dijital davetiye",
+    "düğün davetiyesi",
+    "kına davetiyesi",
+    "nişan davetiyesi",
+    "online davetiye",
+    "düğün gazetesi",
+    "katılım formu",
+    "Davetanisi",
+    "İstanbul",
+    "Türkiye",
+  ],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
+  openGraph: {
+    type: "website",
+    locale: "tr_TR",
+    siteName: SITE.name,
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: HOME_TITLE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    images: ["/og.jpg"],
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  other: GEO,
+  formatDetection: { telephone: false, email: false, address: false },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#f8f4ec",
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f8f4ec" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d3229" },
+  ],
 };
 
 export const dynamic = "force-dynamic";

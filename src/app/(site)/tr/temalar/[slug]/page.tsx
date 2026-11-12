@@ -10,7 +10,9 @@ import ThemePhonePreview from "@/components/ThemePhonePreview";
 import { INVITATION_SECTIONS } from "@/data/sections";
 import { discountPercent, getTheme, similarThemes, themes } from "@/data/themes";
 import { applyTheme } from "@/lib/catalog";
+import JsonLd from "@/components/JsonLd";
 import { formatTL } from "@/lib/format";
+import { breadcrumbJsonLd, pageMeta, productJsonLd } from "@/lib/seo";
 import { getPublicCatalog } from "@/lib/store";
 
 export function generateStaticParams() {
@@ -25,7 +27,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const t = getTheme(slug);
   if (!t) return {};
-  return { title: `${t.title} davetiyesi`, description: t.eyebrow };
+  return pageMeta({
+    title: `${t.title} dijital davetiyesi`,
+    description: t.description || t.eyebrow,
+    path: `/tr/temalar/${t.slug}`,
+    image: t.heroCover || t.cover,
+  });
 }
 
 const BENEFITS = [
@@ -49,6 +56,22 @@ export default async function ThemeDetailPage({
 
   return (
     <>
+      <JsonLd
+        data={[
+          productJsonLd({
+            name: `${theme.title} dijital davetiyesi`,
+            description: theme.description || theme.eyebrow,
+            path: `/tr/temalar/${theme.slug}`,
+            image: theme.heroCover || theme.cover,
+            price: theme.price,
+          }),
+          breadcrumbJsonLd([
+            { name: "Ana sayfa", path: "/tr" },
+            { name: "Davetiyeler", path: "/tr/temalar" },
+            { name: theme.title, path: `/tr/temalar/${theme.slug}` },
+          ]),
+        ]}
+      />
       <section className="detail">
         <Image src="/img/decor/bouquet-tr.webp" alt="" width={420} height={520} className="detail__decor" aria-hidden="true" />
         <div className="wrap wrap--lg">

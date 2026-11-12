@@ -1,16 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Accordion from "@/components/Accordion";
+import JsonLd from "@/components/JsonLd";
 import { FAQ } from "@/data/faq";
 
-export const metadata: Metadata = {
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
   title: "Sık sorulan sorular",
-  description: "Paylaşım, katılım yanıtları, düzenleme, ödeme ve yayın süresi hakkında merak ettikleriniz.",
-};
+  description: "Dijital davetiye paylaşımı, katılım yanıtları, düzenleme, ödeme ve yayın süresi hakkında sorular.",
+  path: "/tr/sss",
+});
 
 export default function FaqPage() {
   return (
     <section className="section section--tight">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          inLanguage: "tr-TR",
+          mainEntity: FAQ.map((item) => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: { "@type": "Answer", text: item.a },
+          })),
+        }}
+      />
       <div className="wrap wrap--sm">
         <div className="page-title page-title--center">
           <p className="eyebrow">Sıkça sorulan sorular</p>

@@ -8,10 +8,13 @@ import { NEWSPAPER_FEATURES } from "@/data/site";
 import { applyNewspaper } from "@/lib/catalog";
 import { getPublicCatalog } from "@/lib/store";
 
-export const metadata: Metadata = {
-  title: "Gazeteler",
-  description: "Hikâyenizi manşete taşıyın: sayfa çevirmeli, A3/A2 baskıya hazır gazete şablonları.",
-};
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "Düğün gazeteleri",
+  description: "Hikâyenizi manşete taşıyan, sayfa çevirmeli ve A3/A2 baskıya hazır düğün gazetesi şablonları.",
+  path: "/tr/gazeteler",
+});
 
 export default async function NewspapersPage() {
   const cat = await getPublicCatalog();

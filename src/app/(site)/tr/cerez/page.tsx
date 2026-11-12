@@ -2,7 +2,14 @@ import type { Metadata } from "next";
 import ContentPage from "@/components/ContentPage";
 import ConsentButton from "@/components/ConsentButton";
 
-export const metadata: Metadata = { title: "Çerez politikası" };
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "Çerez politikası",
+  description: "Davetanisi çerez ve tarayıcı depolama politikası.",
+  path: "/tr/cerez",
+  index: false,
+});
 
 export default function Page() {
   return (

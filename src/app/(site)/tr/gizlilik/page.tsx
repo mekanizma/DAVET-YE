@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import ContentPage from "@/components/ContentPage";
 
-export const metadata: Metadata = { title: "Gizlilik politikası" };
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "Gizlilik politikası",
+  description: "Davetanisi gizlilik politikası: hesap, davetiye içeriği ve misafir yanıtlarının nasıl işlendiği.",
+  path: "/tr/gizlilik",
+  index: false,
+});
 
 export default function Page() {
   return (
