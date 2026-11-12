@@ -545,17 +545,13 @@ export default function StageView({
   useEffect(() => {
     const root = scrollRef.current;
     if (!root || phase !== "open") return;
-    const allowFreeScroll = () => root.classList.contains("is-typing");
     const stopWheel = (e: WheelEvent) => {
-      if (allowFreeScroll()) return;
       e.preventDefault();
     };
     const stopTouch = (e: TouchEvent) => {
-      if (allowFreeScroll()) return;
       e.preventDefault();
     };
     const stopKeys = (e: KeyboardEvent) => {
-      if (allowFreeScroll()) return;
       const t = e.target as HTMLElement | null;
       if (t?.matches?.("input, textarea, select, [contenteditable='true']")) return;
       if (["PageDown", "PageUp", "ArrowDown", "ArrowUp", "Home", "End", " "].includes(e.key)) {
@@ -573,8 +569,8 @@ export default function StageView({
   }, [phase]);
 
   /**
-   * Mobile keyboard + scroll-snap + 100dvh resize causes the stage to jump while
-   * typing Ad/Soyad. Lock layout height and turn snap off for the duration of focus.
+   * The soft keyboard used to shrink the stage and let scroll-snap jump to another
+   * page. Keep the stage size frozen and slide only the focused page's art.
    */
   useEffect(() => {
     if (embed) return;
@@ -587,7 +583,10 @@ export default function StageView({
     html.style.overflow = "hidden";
     body.style.overflow = "hidden";
     const apply = () => {
-      if (shell.classList.contains("is-typing")) return;
+      const editing =
+        shell.classList.contains("is-typing") ||
+        !!shell.querySelector("input:focus, textarea:focus, select:focus");
+      if (editing) return;
       const vv = window.visualViewport;
       const h = Math.round(vv?.height || window.innerHeight);
       const top = Math.round(vv?.offsetTop || 0);
@@ -655,56 +654,102 @@ export default function StageView({
     const shell = root?.closest(".stg-root") as HTMLElement | null;
     if (!root || !shell) return;
 
-    const lockStage = () => {
-      if (shell.classList.contains("is-typing")) return;
-      shell.style.setProperty("--iv-stage-h", `${document.documentElement.clientHeight}px`);
-    };
-    lockStage();
-
+    let frozen = root.scrollTop;
     let blurTimer = 0;
-    const isField = (el: EventTarget | null) =>
-      el instanceof HTMLElement && el.matches("input, textarea, select");
+    const innerFrozen = new Map<HTMLElement, number>();
+    const isField = (el: EventTarget | null): el is HTMLElement =>
+      el instanceof HTMLElement && !!el.matches("input, textarea, select");
 
-    const onFocusIn = (e: FocusEvent) => {
-      if (!isField(e.target)) return;
+    const holdPage = () => {
+      if (!shell.classList.contains("is-typing")) return;
+      if (Math.abs(root.scrollTop - frozen) > 1) root.scrollTop = frozen;
+      root.querySelectorAll<HTMLElement>(".stg-form, .stg-messages").forEach((el) => {
+        if (!innerFrozen.has(el)) innerFrozen.set(el, el.scrollTop);
+        const want = innerFrozen.get(el) ?? 0;
+        if (Math.abs(el.scrollTop - want) > 1) el.scrollTop = want;
+      });
+    };
+
+    const liftField = (field: HTMLElement) => {
+      const art = field.closest(".stg-art") as HTMLElement | null;
+      const page = field.closest(".stg-page") as HTMLElement | null;
+      if (!art || !page) return;
+      if (Math.abs(page.offsetTop - root.scrollTop) > 2) return;
+      art.style.transition = "none";
+      art.style.transform = "";
+      const vv = window.visualViewport;
+      const top = vv?.offsetTop ?? 0;
+      const limit = top + (vv?.height ?? window.innerHeight) - 16;
+      const rect = field.getBoundingClientRect();
+      const delta = Math.ceil(rect.bottom - limit);
+      art.style.transform = delta > 0 ? `translateY(${-delta}px)` : "";
+    };
+
+    const clearLifts = () => {
+      root.querySelectorAll<HTMLElement>(".stg-art").forEach((art) => {
+        art.style.transition = "";
+        art.style.transform = "";
+      });
+    };
+
+    const begin = (field: HTMLElement) => {
+      const page = field.closest(".stg-page") as HTMLElement | null;
       window.clearTimeout(blurTimer);
+      const pageChanged = !!page && Math.abs(page.offsetTop - frozen) > 2;
+      if (!shell.classList.contains("is-typing") || pageChanged) {
+        frozen = page ? page.offsetTop : root.scrollTop;
+        if (pageChanged) root.scrollTop = frozen;
+        innerFrozen.clear();
+      }
       root.classList.add("is-typing");
       shell.classList.add("is-typing");
+      holdPage();
+      requestAnimationFrame(() => {
+        holdPage();
+        liftField(field);
+      });
+    };
+
+    const onPointerDown = (e: Event) => {
+      if (isField(e.target)) begin(e.target);
+    };
+    const onFocusIn = (e: FocusEvent) => {
+      if (isField(e.target)) begin(e.target);
     };
     const onFocusOut = () => {
       blurTimer = window.setTimeout(() => {
-        if (!isField(document.activeElement) || !root.contains(document.activeElement)) {
-          root.classList.remove("is-typing");
-          shell.classList.remove("is-typing");
-          root.style.removeProperty("--iv-kb");
-        }
-      }, 80);
+        if (isField(document.activeElement) && root.contains(document.activeElement)) return;
+        root.classList.remove("is-typing");
+        shell.classList.remove("is-typing");
+        innerFrozen.clear();
+        clearLifts();
+      }, 140);
+    };
+    const onViewport = () => {
+      holdPage();
+      const active = document.activeElement;
+      if (isField(active) && root.contains(active)) liftField(active);
     };
 
-    const vv = window.visualViewport;
-    const syncKeyboard = () => {
-      if (!vv) return;
-      const covered = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-      root.style.setProperty("--iv-kb", `${covered}px`);
-    };
-
+    root.addEventListener("pointerdown", onPointerDown, true);
     root.addEventListener("focusin", onFocusIn);
     root.addEventListener("focusout", onFocusOut);
-    window.addEventListener("orientationchange", lockStage);
-    vv?.addEventListener("resize", syncKeyboard);
-    vv?.addEventListener("scroll", syncKeyboard);
+    root.addEventListener("scroll", holdPage, true);
+    const vv = window.visualViewport;
+    vv?.addEventListener("resize", onViewport);
+    vv?.addEventListener("scroll", onViewport);
 
     return () => {
       window.clearTimeout(blurTimer);
+      root.removeEventListener("pointerdown", onPointerDown, true);
       root.removeEventListener("focusin", onFocusIn);
       root.removeEventListener("focusout", onFocusOut);
-      window.removeEventListener("orientationchange", lockStage);
-      vv?.removeEventListener("resize", syncKeyboard);
-      vv?.removeEventListener("scroll", syncKeyboard);
+      root.removeEventListener("scroll", holdPage, true);
+      vv?.removeEventListener("resize", onViewport);
+      vv?.removeEventListener("scroll", onViewport);
       root.classList.remove("is-typing");
       shell.classList.remove("is-typing");
-      root.style.removeProperty("--iv-kb");
-      shell.style.removeProperty("--iv-stage-h");
+      clearLifts();
     };
   }, [phase]);
 

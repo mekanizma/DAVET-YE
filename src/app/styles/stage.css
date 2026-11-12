@@ -38,13 +38,13 @@
 .stg-pages::-webkit-scrollbar {
   display: none;
 }
+/* Keep the current page pinned while a field is focused. Free scroll here jumps to the next invite page. */
 .stg-pages.is-typing,
 .stg-pages:focus-within {
-  scroll-snap-type: none;
-  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overflow: hidden;
   overflow-anchor: none;
-  touch-action: pan-y;
-  padding-bottom: max(12px, var(--iv-kb, 0px));
+  touch-action: none;
 }
 .stg-page {
   position: relative;
@@ -53,12 +53,12 @@
   scroll-snap-stop: always;
   overflow: hidden;
 }
-.stg-pages.is-typing .stg-page,
-.stg-pages:focus-within .stg-page {
-  scroll-snap-align: none;
-  scroll-snap-stop: normal;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+.stg-pages.is-typing .stg-form,
+.stg-pages:focus-within .stg-form,
+.stg-pages.is-typing .stg-messages,
+.stg-pages:focus-within .stg-messages {
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 .stg-art {
   position: absolute;
@@ -592,8 +592,8 @@ textarea.stg-form__input {
 }
 .stg-root.is-typing .stg,
 .stg-root:has(.stg-pages:focus-within) .stg {
-  touch-action: pan-y;
-  overscroll-behavior: contain;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 .stg-root .iv__stage {
   width: 100%;
