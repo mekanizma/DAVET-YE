@@ -11,6 +11,7 @@ import { SlotControl } from "@/components/newspaper/SlotControls";
 import { applyNewspaper } from "@/lib/catalog";
 import { getNewspaper, newspaperStyles, newspapers } from "@/data/newspapers";
 import { localizeNewspaper } from "@/i18n/catalog";
+import { editorLabel } from "@/i18n/editorLabel";
 import { lp, withLocaleQuery } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
 import {
@@ -42,8 +43,9 @@ type ToolId = "templates" | "pages" | "text" | "photos" | "order";
 type PageId = string;
 
 type Snap = Pick<NewspaperDraft, "template" | "values" | "contents" | "size" | "style">;
+type EtsySessionInfo = { code: string; slug: string; title: string };
 
-const TOOLS: { id: ToolId; label: string; icon: "sparkle" | "doc" | "type" | "image" | "wallet" }[] = [
+const TOOLS: { id: ToolId; label: string; icon: "sparkle" | "doc" | "type" | "image" | "wallet" | "download" }[] = [
   { id: "templates", label: "Şablonlar", icon: "sparkle" },
   { id: "pages", label: "Sayfalar", icon: "doc" },
   { id: "text", label: "Metin", icon: "type" },
@@ -69,14 +71,28 @@ const TOOL_EN: Record<ToolId, string> = {
   order: "Order",
 };
 
-export default function NewspaperStudio({ initialTemplate }: { initialTemplate?: string }) {
+export default function NewspaperStudio({
+  initialTemplate,
+  access,
+}: {
+  initialTemplate?: string;
+  access?: EtsySessionInfo;
+}) {
   const locale = useLocale();
   const en = locale === "en";
   const tx = useCallback((tr: string, english: string) => (locale === "en" ? english : tr), [locale]);
   const [saved, setSaved] = useLocalJson<NewspaperDraft>(NEWSPAPER_DRAFT, EMPTY_NEWSPAPER_DRAFT);
-  const start = initialTemplate && getNewspaper(initialTemplate) ? initialTemplate : undefined;
+  const [etsy, setEtsy] = useState<EtsySessionInfo | null>(access ?? null);
+  const start =
+    initialTemplate && getNewspaper(initialTemplate)
+      ? initialTemplate
+      : etsy?.slug && getNewspaper(etsy.slug)
+        ? etsy.slug
+        : undefined;
   const appliedStart = useRef<string>("");
-  const [bootSlug, setBootSlug] = useState<string | undefined>(start);
+  const [bootSlug, setBootSlug] = useState<string | undefined>(
+    initialTemplate && getNewspaper(initialTemplate) ? initialTemplate : undefined,
+  );
 
   const draft = useMemo(() => {
     const n = normalizeNewspaperDraft(saved);
@@ -107,9 +123,40 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
   const canUndo = histTick >= 0 && past.current.length > 0;
   const canRedo = histTick >= 0 && future.current.length > 0;
 
+  useEffect(() => {
+    let stop = false;
+    fetch("/api/etsy/oturum")
+      .then((r) => r.json())
+      .then((d) => {
+        if (stop) return;
+        if (!d?.ok) {
+          setEtsy(null);
+          if (access) window.location.assign(lp(locale, "/etsy"));
+          return;
+        }
+        const info = { code: d.code as string, slug: d.slug as string, title: d.title as string };
+        setEtsy(info);
+        if (getNewspaper(info.slug)) setBootSlug(info.slug);
+      })
+      .catch(() => undefined);
+    return () => {
+      stop = true;
+    };
+  }, [access, locale]);
+
+  const etsyMode = Boolean(etsy);
+  const tools = useMemo(() => {
+    const base = etsyMode ? TOOLS.filter((t) => t.id !== "templates") : TOOLS;
+    if (!etsyMode) return base;
+    return base.map((t) => (t.id === "order" ? { ...t, label: "İndir", icon: "download" as const } : t));
+  }, [etsyMode]);
+
   const list = newspapers
     .map((n) => applyNewspaper(n, cat))
-    .filter((n) => !cat.newspapers[n.slug]?.hidden || n.slug === draft.template || n.slug === bootSlug);
+    .filter((n) => {
+      if (etsy?.slug) return n.slug === etsy.slug;
+      return !cat.newspapers[n.slug]?.hidden || n.slug === draft.template || n.slug === bootSlug;
+    });
   const paperSource =
     list.find((n) => n.slug === draft.template) ||
     (bootSlug && list.find((n) => n.slug === bootSlug)) ||
@@ -311,6 +358,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
   }
 
   function chooseTemplate(slug: string) {
+    if (etsy && slug !== etsy.slug) return;
     if (!design && slug !== paper.slug) {
       seededFor.current = "";
     }
@@ -337,10 +385,10 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
     for (const editor of pageEditors) {
       for (const slot of editor.slots) {
         if (slot.kind === "field" && slot.field.required) {
-          if (!(values[slot.field.id] || "").trim()) e[slot.field.id] = en ? `${slot.field.label} is required.` : `${slot.field.label} gerekli.`;
+          if (!(values[slot.field.id] || "").trim()) e[slot.field.id] = en ? `${editorLabel(slot.field.label, locale)} is required.` : `${slot.field.label} gerekli.`;
         }
         if (slot.kind === "image" && slot.required) {
-          if (!(values[slot.fieldId] || "").trim()) e[slot.fieldId] = en ? `${slot.label} is required.` : `${slot.label} gerekli.`;
+          if (!(values[slot.fieldId] || "").trim()) e[slot.fieldId] = en ? `${editorLabel(slot.label, locale)} is required.` : `${slot.label} gerekli.`;
         }
       }
     }
@@ -403,7 +451,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
   }
 
   const titleLine = displayTitleFromValues(values, paper.title);
-  const exitHref = lp(locale, `/gazeteler/${paper.slug}`);
+  const exitHref = etsyMode ? lp(locale, "/etsy") : lp(locale, `/gazeteler/${paper.slug}`);
   const panelTitle =
     tool === "templates"
       ? tx("Hazır gazeteler", "Ready-made newspapers")
@@ -413,7 +461,9 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
           ? tx("Metin alanları", "Text fields")
           : tool === "photos"
             ? tx("Fotoğraflar", "Photos")
-            : tx("Sipariş", "Order");
+            : etsyMode
+              ? tx("İndir / Yazdır", "Download / Print")
+              : tx("Sipariş", "Order");
 
   return (
     <div className="ns-page">
@@ -422,6 +472,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
         data-panel-open={panelOpen ? "1" : "0"}
         data-inspector-open={inspectorOpen ? "1" : "0"}
         data-layout="desktop"
+        data-etsy={etsyMode ? "1" : "0"}
       >
         <header className="ns-top">
           <Link href={exitHref} className="ns-top__exit" aria-label={tx("Gazete stüdyosundan çık", "Leave the newspaper studio")}>
@@ -480,24 +531,34 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
               <Icon name="expand" size={14} />
               <span className="ns-desktop-only">{tx("Önizle", "Preview")}</span>
             </Link>
-            <button
-              type="button"
-              className="ns-btn ns-btn--primary"
-              onClick={() => {
-                openTool("order");
-                if (!payOpen && !draft.orderCode && validate()) setPayOpen(true);
-                else setPayOpen(true);
-              }}
-            >
-              <Icon name="download" size={14} />
-              {tx("Sipariş", "Order")}
-            </button>
+            {etsyMode ? (
+              <Link
+                href={`${lp(locale, "/etsy/yazdir")}?sablon=${encodeURIComponent(paper.slug)}`}
+                className="ns-btn ns-btn--primary"
+              >
+                <Icon name="download" size={14} />
+                {tx("İndir", "Download")}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                className="ns-btn ns-btn--primary"
+                onClick={() => {
+                  openTool("order");
+                  if (!payOpen && !draft.orderCode && validate()) setPayOpen(true);
+                  else setPayOpen(true);
+                }}
+              >
+                <Icon name="download" size={14} />
+                {tx("Sipariş", "Order")}
+              </button>
+            )}
           </div>
         </header>
 
         <div className="ns-body">
           <nav className="ns-rail" aria-label={tx("Gazete araçları", "Newspaper tools")}>
-            {TOOLS.map((t) => (
+            {tools.map((t) => (
               <button
                 key={t.id}
                 type="button"
@@ -506,7 +567,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                 onClick={() => openTool(t.id)}
               >
                 <Icon name={t.icon} size={22} />
-                {en ? TOOL_EN[t.id] : t.label}
+                {en ? (t.id === "order" && etsyMode ? "Download" : TOOL_EN[t.id]) : t.label}
               </button>
             ))}
           </nav>
@@ -525,7 +586,9 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                 <>
                   <p className="ns-hint">{tx("Bir gazete seçin; kapak, hikâye, kareler ve teşekkür alanları otomatik gelir.", "Choose a newspaper; the cover, story, frames and thank-you fields are filled in for you.")}</p>
                   <div className="ns-tgrid" role="list">
-                    {list.map((n) => (
+                    {list.map((n) => {
+                      const view = localizeNewspaper(n, locale);
+                      return (
                       <button
                         key={n.slug}
                         type="button"
@@ -533,17 +596,18 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                         onClick={() => chooseTemplate(n.slug)}
                       >
                         <span className="ns-tcard__thumb">
-                          {n.cover ? (
-                            <Image src={n.cover} alt="" width={160} height={220} sizes="140px" />
+                          {view.cover ? (
+                            <Image src={view.cover} alt="" width={160} height={220} sizes="(max-width: 720px) 42vw, 140px" />
                           ) : (
                             <span className="ns-tcard__ph" style={{ background: n.paper, color: n.ink }}>
-                              {n.headline.slice(0, 1)}
+                              {view.headline.slice(0, 1)}
                             </span>
                           )}
                         </span>
-                        <span className="ns-tcard__name">{localizeNewspaper(n, locale).title}</span>
+                        <span className="ns-tcard__name">{view.title}</span>
                       </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 </>
               ) : null}
@@ -670,33 +734,53 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                       </select>
                     </label>
                   </div>
-                  <p className="ns-hint">{tx("Taslak tarayıcıda saklanır. Ödeme havale / EFT ile alınır.", "The draft is saved in this browser. Payment is by bank transfer.")}</p>
-                  {payOpen || draft.orderCode ? (
-                    <IbanCheckout
-                      kind="gazete"
-                      template={paper.slug}
-                      title={paper.title}
-                      previewTotal={paper.price}
-                      snapshot={{
-                        [en ? "Names" : "İsimler"]: titleLine,
-                        [en ? "Date" : "Tarih"]: values.weddingDate || values.eventDate || "",
-                        [en ? "Venue" : "Mekan"]: values.venue || "",
-                        [en ? "Size" : "Boyut"]: draft.size,
-                        [en ? "Story" : "Hikaye"]: (values.story || "").slice(0, 280),
-                      }}
-                      resume={draft.orderCode && draft.orderEmail ? { code: draft.orderCode, email: draft.orderEmail } : null}
-                      onUpdate={remember}
-                    />
+                  {etsyMode ? (
+                    <>
+                      <p className="ns-hint">
+                        {tx(
+                          `Etsy kodunuz aktif (${etsy?.code}). Havale gerekmez — tasarımı bitirip indirebilirsiniz.`,
+                          `Your Etsy code is active (${etsy?.code}). No bank transfer — finish the design and download.`,
+                        )}
+                      </p>
+                      <Link
+                        href={`${lp(locale, "/etsy/yazdir")}?sablon=${encodeURIComponent(paper.slug)}`}
+                        className="ns-btn ns-btn--primary ns-btn--block"
+                      >
+                        <Icon name="download" size={16} />
+                        {tx("Yazdır / PDF kaydet", "Print / Save PDF")}
+                      </Link>
+                    </>
                   ) : (
-                    <button
-                      type="button"
-                      className="ns-btn ns-btn--primary ns-btn--block"
-                      onClick={() => {
-                        if (validate()) setPayOpen(true);
-                      }}
-                    >
-                      {tx("Havale ile devam et", "Continue with bank transfer")}
-                    </button>
+                    <>
+                      <p className="ns-hint">{tx("Taslak tarayıcıda saklanır. Ödeme havale / EFT ile alınır.", "The draft is saved in this browser. Payment is by bank transfer.")}</p>
+                      {payOpen || draft.orderCode ? (
+                        <IbanCheckout
+                          kind="gazete"
+                          template={paper.slug}
+                          title={paper.title}
+                          previewTotal={paper.price}
+                          snapshot={{
+                            [en ? "Names" : "İsimler"]: titleLine,
+                            [en ? "Date" : "Tarih"]: values.weddingDate || values.eventDate || "",
+                            [en ? "Venue" : "Mekan"]: values.venue || "",
+                            [en ? "Size" : "Boyut"]: draft.size,
+                            [en ? "Story" : "Hikaye"]: (values.story || "").slice(0, 280),
+                          }}
+                          resume={draft.orderCode && draft.orderEmail ? { code: draft.orderCode, email: draft.orderEmail } : null}
+                          onUpdate={remember}
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          className="ns-btn ns-btn--primary ns-btn--block"
+                          onClick={() => {
+                            if (validate()) setPayOpen(true);
+                          }}
+                        >
+                          {tx("Havale ile devam et", "Continue with bank transfer")}
+                        </button>
+                      )}
+                    </>
                   )}
                 </>
               ) : null}

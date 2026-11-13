@@ -99,6 +99,7 @@ export default function DashboardView() {
           <Link href="/yonetim/sablonlar" className="btn btn--outline btn--sm">Şablonlar</Link>
           <Link href="/yonetim/fiyatlar" className="btn btn--outline btn--sm">Fiyatlar</Link>
           <Link href="/yonetim/gazeteler" className="btn btn--outline btn--sm">Gazeteler</Link>
+          <Link href="/yonetim/etsy" className="btn btn--outline btn--sm">Etsy</Link>
         </div>
       </section>
 

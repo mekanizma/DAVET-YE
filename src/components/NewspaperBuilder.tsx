@@ -308,8 +308,8 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                       setPage("baski");
                     }}
                   />
-                  {n.cover ? (
-                    <Image src={n.cover} alt="" width={90} height={127} sizes="90px" />
+                  {localizeNewspaper(n, locale).cover ? (
+                    <Image src={localizeNewspaper(n, locale).cover!} alt="" width={90} height={127} sizes="(max-width: 720px) 28vw, 90px" />
                   ) : (
                     <span className="nb-tpl__ph" style={{ background: n.paper, color: n.ink }} aria-hidden="true">
                       {n.headline.slice(0, 1)}

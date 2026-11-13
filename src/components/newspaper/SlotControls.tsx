@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import Icon from "@/components/Icon";
 import { TextAreaField, TextField } from "@/components/Field";
+import { editorLabel } from "@/i18n/editorLabel";
 import { useLocale } from "@/i18n/provider";
 import {
   fromIsoDate,
@@ -29,12 +30,14 @@ export function SlotControl({
   onImage: (file: File | null) => void;
   onClearImage: () => void;
 }) {
-  const en = useLocale() === "en";
+  const locale = useLocale();
+  const en = locale === "en";
+  const label = editorLabel(slot.kind === "field" ? slot.field.label : slot.label, locale);
   if (slot.kind === "image") {
     return (
       <PhotoSlot
-        label={slot.label + (slot.required ? " *" : "")}
-        help={slot.help}
+        label={label + (slot.required ? " *" : "")}
+        help={slot.help ? editorLabel(slot.help, locale) : slot.help}
         src={value}
         busy={busy}
         onPick={onImage}
@@ -49,7 +52,7 @@ export function SlotControl({
       return (
         <TextAreaField
           id={`ct-${slot.id}`}
-          label={slot.label}
+          label={label}
           rows={3}
           value={value}
           maxLength={slot.maxLength}
@@ -61,7 +64,7 @@ export function SlotControl({
     return (
       <TextField
         id={`ct-${slot.id}`}
-        label={slot.label}
+        label={label}
         value={value}
         maxLength={slot.maxLength}
         hint={hint}
@@ -84,7 +87,10 @@ function FieldControl({
   error?: string;
   onChange: (v: string) => void;
 }) {
-  const en = useLocale() === "en";
+  const locale = useLocale();
+  const en = locale === "en";
+  const label = editorLabel(field.label, locale);
+  const help = field.help ? editorLabel(field.help, locale) : field.help;
   if (field.type === "dateTime" || field.type === "date") {
     const date = fromIsoDate(value);
     const time = fromIsoTime(value) || "19:00";
@@ -93,11 +99,11 @@ function FieldControl({
         <TextField
           id={`tf-${field.id}-d`}
           type="date"
-          label={field.label}
+          label={label}
           required={field.required}
           value={date}
           error={error}
-          hint={field.help}
+          hint={help}
           onChange={(e) => onChange(toIsoLocal(e.target.value, time))}
         />
         {field.type === "dateTime" ? (
@@ -117,12 +123,12 @@ function FieldControl({
     return (
       <TextAreaField
         id={`tf-${field.id}`}
-        label={field.label}
+        label={label}
         required={field.required}
         rows={5}
         value={value}
         error={error}
-        hint={field.help || (field.maxLength ? `${value.length}/${field.maxLength}` : undefined)}
+        hint={help || (field.maxLength ? `${value.length}/${field.maxLength}` : undefined)}
         maxLength={field.maxLength}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -132,11 +138,11 @@ function FieldControl({
   return (
     <TextField
       id={`tf-${field.id}`}
-      label={field.label}
+      label={label}
       required={field.required}
       value={value}
       error={error}
-      hint={field.help}
+      hint={help}
       maxLength={field.maxLength}
       onChange={(e) => onChange(e.target.value)}
     />

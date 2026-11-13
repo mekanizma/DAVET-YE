@@ -8,6 +8,7 @@ import Icon, { type IconName } from "../Icon";
 const LINKS: { href: string; label: string; icon: IconName; exact?: boolean }[] = [
   { href: "/yonetim", label: "Özet", icon: "home", exact: true },
   { href: "/yonetim/siparisler", label: "Siparişler", icon: "wallet" },
+  { href: "/yonetim/etsy", label: "Etsy", icon: "globe" },
   { href: "/yonetim/sablonlar", label: "Şablonlar", icon: "sparkle" },
   { href: "/yonetim/fiyatlar", label: "Fiyatlar", icon: "tag" },
   { href: "/yonetim/gazeteler", label: "Gazeteler", icon: "doc" },

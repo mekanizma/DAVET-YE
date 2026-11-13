@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { LOCALE_COOKIE, localeFromPath, type Locale } from "@/i18n/locale";
-import { isDesignStart, safeReturnPath } from "@/lib/returnTo";
+import { isDesignStart, isEtsyPage, safeReturnPath } from "@/lib/returnTo";
 import { supabaseConfigured } from "@/lib/supabase/env";
 
 function copyCookies(from: NextResponse, to: NextResponse) {
@@ -34,7 +34,8 @@ export async function middleware(req: NextRequest) {
   const adminApi = pathname.startsWith("/api/yonetim");
   const panel = pathname === "/panel" || pathname.startsWith("/panel/");
   const design = isDesignStart(pathname);
-  if (!adminPage && !adminApi && !panel && !design) return pass();
+  const etsyPage = isEtsyPage(pathname);
+  if (!adminPage && !adminApi && !panel && !design && !etsyPage) return pass();
 
   let supabaseResponse = NextResponse.next({ request: { headers: requestHeaders } });
   const openAdmin = pathname === "/yonetim/giris" || pathname === "/api/yonetim/giris" || pathname === "/api/yonetim/cikis";
@@ -43,6 +44,8 @@ export async function middleware(req: NextRequest) {
     pathname === "/panel/kayit" ||
     pathname === "/panel/sifremi-unuttum" ||
     pathname === "/panel/sifre-yenile";
+  // Code entry, studio, and print live under /etsy and check the code cookie themselves.
+  if (etsyPage) return rememberLocale(supabaseResponse, locale, fromPath);
 
   if (!supabaseConfigured()) {
     if (openAdmin || openPanel) return rememberLocale(supabaseResponse, locale, fromPath);

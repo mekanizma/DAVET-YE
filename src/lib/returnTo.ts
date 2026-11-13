@@ -8,8 +8,14 @@ const STARTS = [
   "/en/gazete-olustur",
 ];
 
+const ETSY_PAGES = ["/tr/etsy", "/en/etsy"];
+
 export function isDesignStart(pathname: string) {
   return STARTS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+export function isEtsyPage(pathname: string) {
+  return ETSY_PAGES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
 /** Girişten sonra dönülebilecek yollar: panel ve tasarım başlangıcı. */
@@ -19,6 +25,7 @@ export function safeReturnPath(raw: string | null | undefined) {
   if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\") || value.includes("://")) return PANEL;
   const path = value.split(/[?#]/)[0];
   if (path.includes("//") || path === "/panel/giris" || path === "/panel/kayit") return PANEL;
-  const allowed = path === PANEL || path.startsWith(`${PANEL}/`) || isDesignStart(path);
+  const allowed =
+    path === PANEL || path.startsWith(`${PANEL}/`) || isDesignStart(path) || isEtsyPage(path);
   return allowed ? value.split("#")[0] : PANEL;
 }
