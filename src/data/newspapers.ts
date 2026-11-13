@@ -1,3 +1,5 @@
+import type { Locale } from "@/i18n/locale";
+
 export interface Newspaper {
   slug: string;
   title: string;
@@ -22,6 +24,21 @@ export const NEWSPAPER_STYLES = [
 ] as const;
 
 export type NewspaperStyleId = (typeof NEWSPAPER_STYLES)[number]["id"];
+
+const NEWSPAPER_STYLE_EN: Record<NewspaperStyleId, string> = {
+  original: "Original",
+  sepia: "Aged paper",
+  mono: "Black and white",
+};
+
+/** Turkish labels stay on NEWSPAPER_STYLES. English labels when locale is en. */
+export function newspaperStyles(locale: Locale = "tr") {
+  if (locale !== "en") return NEWSPAPER_STYLES;
+  return NEWSPAPER_STYLES.map((style) => ({
+    ...style,
+    label: NEWSPAPER_STYLE_EN[style.id],
+  }));
+}
 
 export const newspapers: Newspaper[] = [
   {

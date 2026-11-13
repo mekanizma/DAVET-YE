@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
+import { getLocale } from "@/i18n/server";
 
-export default function ContentPage({
+export default async function ContentPage({
   eyebrow,
   title,
   lead,
@@ -14,6 +15,7 @@ export default function ContentPage({
   draft?: boolean;
   children: ReactNode;
 }) {
+  const locale = await getLocale();
   return (
     <section className="section section--tight">
       <div className="wrap wrap--sm">
@@ -24,8 +26,9 @@ export default function ContentPage({
         </header>
         {draft && (
           <p className="alert alert--info" role="note">
-            Bu sayfa bu yerel kopya için hazırlanmış örnek bir metindir; gerçek bir şirketin hukuki metni
-            değildir ve bağlayıcılığı yoktur.
+            {locale === "en"
+              ? "This page is sample text prepared for this local copy. It is not a real company's legal text and it is not binding."
+              : "Bu sayfa bu yerel kopya için hazırlanmış örnek bir metindir; gerçek bir şirketin hukuki metni değildir ve bağlayıcılığı yoktur."}
           </p>
         )}
         <div className="prose">{children}</div>

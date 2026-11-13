@@ -2,14 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "./Icon";
 import { TextAreaField, TextField } from "./Field";
 import TimesReader from "./TimesReader";
 import IbanCheckout, { type PlacedOrder } from "./checkout/IbanCheckout";
 import { useCatalog } from "@/components/CatalogProvider";
 import { applyNewspaper } from "@/lib/catalog";
-import { getNewspaper, newspapers } from "@/data/newspapers";
+import { getNewspaper, newspaperStyles, newspapers } from "@/data/newspapers";
+import { localizeNewspaper } from "@/i18n/catalog";
+import { useLocale } from "@/i18n/provider";
 import {
   EMPTY_NEWSPAPER_DRAFT,
   fileToDraftPhoto,
@@ -43,6 +45,9 @@ import {
 type PageId = string;
 
 export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?: string }) {
+  const locale = useLocale();
+  const en = locale === "en";
+  const tx = useCallback((tr: string, english: string) => (locale === "en" ? english : tr), [locale]);
   const [saved, setSaved] = useLocalJson<NewspaperDraft>(NEWSPAPER_DRAFT, EMPTY_NEWSPAPER_DRAFT);
   /** "Bu Gazeteyle Başla" → ?sablon= applied once on entry (over stale draft) */
   const start = initialTemplate && getNewspaper(initialTemplate) ? initialTemplate : undefined;
@@ -69,11 +74,12 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
   const list = newspapers
     .map((n) => applyNewspaper(n, cat))
     .filter((n) => !cat.newspapers[n.slug]?.hidden || n.slug === draft.template || n.slug === bootSlug);
-  const paper =
+  const paperSource =
     list.find((n) => n.slug === draft.template) ||
     (bootSlug && list.find((n) => n.slug === bootSlug)) ||
     list[0] ||
     applyNewspaper(newspapers[0], cat);
+  const paper = useMemo(() => localizeNewspaper(paperSource, locale), [paperSource, locale]);
 
   const pageEditors = useMemo(() => timesPageEditors(design), [design]);
 
@@ -96,19 +102,19 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
 
   const pages = useMemo(() => {
     const items: { id: PageId; no: string; label: string; hint: string }[] = [
-      { id: "baski", no: "", label: "Şablon", hint: "Gazete seç" },
+      { id: "baski", no: "", label: tx("Şablon", "Template"), hint: tx("Gazete seç", "Choose a newspaper") },
     ];
     pageEditors.forEach((p, i) => {
       items.push({
         id: `p:${p.index}`,
         no: String(i + 1).padStart(2, "0"),
         label: p.name,
-        hint: `${p.slots.length} alan`,
+        hint: en ? `${p.slots.length} ${p.slots.length === 1 ? "field" : "fields"}` : `${p.slots.length} alan`,
       });
     });
-    items.push({ id: "siparis", no: "", label: "Sipariş", hint: "Ödeme" });
+    items.push({ id: "siparis", no: "", label: tx("Sipariş", "Order"), hint: tx("Ödeme", "Payment") });
     return items;
-  }, [pageEditors]);
+  }, [pageEditors, en, tx]);
 
   useEffect(() => {
     let cancelled = false;
@@ -116,7 +122,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
     setDesignErr("");
     fetch(`/api/times/${encodeURIComponent(paper.slug)}`)
       .then(async (r) => {
-        if (!r.ok) throw new Error("Şablon yüklenemedi");
+        if (!r.ok) throw new Error(tx("Şablon yüklenemedi", "The template could not be loaded"));
         return (await r.json()) as TimesReaderData;
       })
       .then((data) => {
@@ -128,12 +134,12 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
         if (cancelled) return;
         setDesign(null);
         setDesignLoading(false);
-        setDesignErr(err instanceof Error ? err.message : "Şablon yüklenemedi");
+        setDesignErr(err instanceof Error ? err.message : tx("Şablon yüklenemedi", "The template could not be loaded"));
       });
     return () => {
       cancelled = true;
     };
-  }, [paper.slug]);
+  }, [paper.slug, locale, tx]);
 
   // Coming from gazeteler "Bu Gazeteyle Başla" → open that newspaper immediately
   useEffect(() => {
@@ -201,10 +207,10 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
     for (const editor of pageEditors) {
       for (const slot of editor.slots) {
         if (slot.kind === "field" && slot.field.required) {
-          if (!(values[slot.field.id] || "").trim()) e[slot.field.id] = `${slot.field.label} gerekli.`;
+          if (!(values[slot.field.id] || "").trim()) e[slot.field.id] = en ? `${slot.field.label} is required.` : `${slot.field.label} gerekli.`;
         }
         if (slot.kind === "image" && slot.required) {
-          if (!(values[slot.fieldId] || "").trim()) e[slot.fieldId] = `${slot.label} gerekli.`;
+          if (!(values[slot.fieldId] || "").trim()) e[slot.fieldId] = en ? `${slot.label} is required.` : `${slot.label} gerekli.`;
         }
       }
     }
@@ -247,7 +253,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
         patch({ values: next });
       }
     } catch (err) {
-      setPhotoErr(err instanceof Error ? err.message : "Görsel yüklenemedi.");
+      setPhotoErr(err instanceof Error ? err.message : tx("Görsel yüklenemedi.", "The image could not be uploaded."));
     } finally {
       setPhotoBusy(null);
     }
@@ -263,12 +269,12 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
     <div className="nb nb--desk">
       <div className="nb__form nb-desk">
         <header className="nb-desk__head">
-          <p className="nb-desk__kicker">Manşet stüdyosu</p>
+          <p className="nb-desk__kicker">{tx("Manşet stüdyosu", "Front-page studio")}</p>
           <h2 className="nb-desk__title">{paper.title}</h2>
-          <p className="nb-desk__sub">Her gazete sayfasındaki metin, künye ve fotoğrafları değiştirin — canlı önizleme sağda.</p>
+          <p className="nb-desk__sub">{tx("Her gazete sayfasındaki metin, künye ve fotoğrafları değiştirin — canlı önizleme sağda.", "Edit the text, masthead and photos on every page — the live preview is on the right.")}</p>
         </header>
 
-        <nav className="nb-pages" aria-label="Gazete sayfaları">
+        <nav className="nb-pages" aria-label={tx("Gazete sayfaları", "Newspaper pages")}>
           {pages.map((p) => (
             <button
               key={p.id}
@@ -285,9 +291,9 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
 
         {page === "baski" && (
           <section className="nb-panel">
-            <h3 className="nb-panel__h">Gazete şablonu</h3>
-            <p className="nb-panel__lede">Şablon seçince tüm sayfa alanları (kapak, hikâye, kareler, teşekkür) buraya gelir.</p>
-            <div className="nb-tpls" role="radiogroup" aria-label="Gazete şablonları">
+            <h3 className="nb-panel__h">{tx("Gazete şablonu", "Newspaper template")}</h3>
+            <p className="nb-panel__lede">{tx("Şablon seçince tüm sayfa alanları (kapak, hikâye, kareler, teşekkür) buraya gelir.", "Choosing a template brings in every page field: cover, story, frames and thanks.")}</p>
+            <div className="nb-tpls" role="radiogroup" aria-label={tx("Gazete şablonları", "Newspaper templates")}>
               {list.map((n) => (
                 <label key={n.slug} className={`nb-tpl${n.slug === paper.slug ? " is-on" : ""}`}>
                   <input
@@ -308,14 +314,14 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                       {n.headline.slice(0, 1)}
                     </span>
                   )}
-                  <span>{n.title}</span>
+                  <span>{localizeNewspaper(n, locale).title}</span>
                 </label>
               ))}
             </div>
             <div className="field-row field-row--2" style={{ marginTop: 16 }}>
               <div className="field">
                 <label className="field__label" htmlFor="np-size">
-                  Baskı boyutu
+                  {tx("Baskı boyutu", "Print size")}
                 </label>
                 <select id="np-size" className="input" value={draft.size} onChange={(e) => patch({ size: e.target.value as "A3" | "A2" })}>
                   <option value="A3">A3</option>
@@ -324,7 +330,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
               </div>
               <div className="field">
                 <label className="field__label" htmlFor="np-style">
-                  Kâğıt görünümü
+                  {tx("Kâğıt görünümü", "Paper look")}
                 </label>
                 <select
                   id="np-style"
@@ -332,13 +338,13 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                   value={draft.style}
                   onChange={(e) => patch({ style: e.target.value as NewspaperDraft["style"] })}
                 >
-                  <option value="original">Orijinal</option>
-                  <option value="sepia">Eski kâğıt</option>
-                  <option value="mono">Siyah beyaz</option>
+                  {newspaperStyles(locale).map((s) => (
+                    <option key={s.id} value={s.id}>{s.label}</option>
+                  ))}
                 </select>
               </div>
             </div>
-            {designLoading ? <p className="field__hint">Sayfa alanları yükleniyor…</p> : null}
+            {designLoading ? <p className="field__hint">{tx("Sayfa alanları yükleniyor…", "Page fields are loading…")}</p> : null}
             {designErr ? (
               <p className="field__error" role="alert">
                 {designErr}
@@ -346,7 +352,9 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
             ) : null}
             {!designLoading && pageEditors.length ? (
               <p className="field__hint">
-                {pageEditors.length} sayfa · {pageEditors.reduce((n, p) => n + p.slots.length, 0)} düzenlenebilir alan
+                {en
+                  ? `${pageEditors.length} ${pageEditors.length === 1 ? "page" : "pages"} · ${pageEditors.reduce((n, p) => n + p.slots.length, 0)} editable fields`
+                  : `${pageEditors.length} sayfa · ${pageEditors.reduce((n, p) => n + p.slots.length, 0)} düzenlenebilir alan`}
               </p>
             ) : null}
           </section>
@@ -357,7 +365,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
             <h3 className="nb-panel__h">
               {String(activeEditor.index + 1).padStart(2, "0")} · {activeEditor.name}
             </h3>
-            <p className="nb-panel__lede">Bu sayfadaki manşet, metin ve fotoğraflar. Değişiklikler tüm gazeteye yansır.</p>
+            <p className="nb-panel__lede">{tx("Bu sayfadaki manşet, metin ve fotoğraflar. Değişiklikler tüm gazeteye yansır.", "The headline, text and photos on this page. Changes apply to the whole newspaper.")}</p>
             {photoErr ? (
               <p className="field__error" role="alert">
                 {photoErr}
@@ -402,19 +410,19 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
 
         {page === "siparis" && (
           <section className="nb-panel">
-            <h3 className="nb-panel__h">Sipariş</h3>
+            <h3 className="nb-panel__h">{tx("Sipariş", "Order")}</h3>
             <div className="nb-recap">
               <p>
                 <strong>{paper.title}</strong>
               </p>
               <p>{titleLine || "—"}</p>
               <p className="field__hint">
-                {values.weddingDate || values.eventDate || draft.date || "Tarih yok"} · {values.venue || "Mekân yok"} ·{" "}
+                {values.weddingDate || values.eventDate || draft.date || tx("Tarih yok", "No date")} · {values.venue || tx("Mekân yok", "No venue")} ·{" "}
                 {draft.size}
               </p>
             </div>
             <div className="nb__summary">
-              <p className="field__hint">Taslak tarayıcıda saklanır. Ödeme havale / EFT ile alınır.</p>
+              <p className="field__hint">{tx("Taslak tarayıcıda saklanır. Ödeme havale / EFT ile alınır.", "The draft is saved in this browser. Payment is by bank transfer.")}</p>
               {payOpen || draft.orderCode ? (
                 <IbanCheckout
                   kind="gazete"
@@ -422,11 +430,11 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                   title={paper.title}
                   previewTotal={paper.price}
                   snapshot={{
-                    İsimler: titleLine,
-                    Tarih: values.weddingDate || values.eventDate || "",
-                    Mekan: values.venue || "",
-                    Boyut: draft.size,
-                    Hikaye: (values.story || "").slice(0, 280),
+                    [en ? "Names" : "İsimler"]: titleLine,
+                    [en ? "Date" : "Tarih"]: values.weddingDate || values.eventDate || "",
+                    [en ? "Venue" : "Mekan"]: values.venue || "",
+                    [en ? "Size" : "Boyut"]: draft.size,
+                    [en ? "Story" : "Hikaye"]: (values.story || "").slice(0, 280),
                   }}
                   resume={draft.orderCode && draft.orderEmail ? { code: draft.orderCode, email: draft.orderEmail } : null}
                   onUpdate={remember}
@@ -439,7 +447,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                     if (validate()) setPayOpen(true);
                   }}
                 >
-                  Havale ile devam et
+                  {tx("Havale ile devam et", "Continue with bank transfer")}
                 </button>
               )}
               <Link
@@ -448,7 +456,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Icon name="expand" size={14} /> Tam ekran gazete
+                <Icon name="expand" size={14} /> {tx("Tam ekran gazete", "Full-screen newspaper")}
               </Link>
             </div>
           </section>
@@ -461,7 +469,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
             disabled={pageIndex <= 0}
             onClick={() => setPage(pages[pageIndex - 1]!.id)}
           >
-            Önceki
+            {tx("Önceki", "Previous")}
           </button>
           <button
             type="button"
@@ -469,16 +477,16 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
             disabled={pageIndex >= pages.length - 1}
             onClick={() => setPage(pages[pageIndex + 1]!.id)}
           >
-            Sonraki
+            {tx("Sonraki", "Next")}
           </button>
         </div>
       </div>
 
-      <div className="nb__preview nb__preview--times" aria-label="Gazete önizlemesi">
+      <div className="nb__preview nb__preview--times" aria-label={tx("Gazete önizlemesi", "Newspaper preview")}>
         {previewData ? (
           <TimesReader key={paper.slug} data={previewData} slug={paper.slug} embedded />
         ) : (
-          <div className="nb__preview-empty">{designLoading ? "Gazete yükleniyor…" : "Şablon bulunamadı"}</div>
+          <div className="nb__preview-empty">{designLoading ? tx("Gazete yükleniyor…", "The newspaper is loading…") : tx("Şablon bulunamadı", "Template not found")}</div>
         )}
       </div>
     </div>
@@ -502,6 +510,7 @@ function SlotControl({
   onImage: (file: File | null) => void;
   onClearImage: () => void;
 }) {
+  const en = useLocale() === "en";
   if (slot.kind === "image") {
     return (
       <PhotoSlot
@@ -524,7 +533,7 @@ function SlotControl({
           rows={3}
           value={value}
           maxLength={slot.maxLength}
-          hint="Sayfa metni"
+          hint={en ? "Page text" : "Sayfa metni"}
           onChange={(e) => onChange(e.target.value)}
         />
       );
@@ -535,7 +544,7 @@ function SlotControl({
         label={slot.label}
         value={value}
         maxLength={slot.maxLength}
-        hint="Sayfa metni"
+        hint={en ? "Page text" : "Sayfa metni"}
         onChange={(e) => onChange(e.target.value)}
       />
     );
@@ -555,6 +564,7 @@ function FieldControl({
   error?: string;
   onChange: (v: string) => void;
 }) {
+  const en = useLocale() === "en";
   if (field.type === "dateTime" || field.type === "date") {
     const date = fromIsoDate(value);
     const time = fromIsoTime(value) || "19:00";
@@ -574,7 +584,7 @@ function FieldControl({
           <TextField
             id={`tf-${field.id}-t`}
             type="time"
-            label="Saat"
+            label={en ? "Time" : "Saat"}
             value={time}
             onChange={(e) => onChange(toIsoLocal(date || new Date().toISOString().slice(0, 10), e.target.value))}
           />
@@ -628,6 +638,7 @@ function PhotoSlot({
   onPick: (file: File | null) => void;
   onClear: () => void;
 }) {
+  const en = useLocale() === "en";
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <div className={`nb-photo${src ? " has-img" : ""}`}>
@@ -638,7 +649,7 @@ function PhotoSlot({
         ) : (
           <span className="nb-photo__empty">
             <Icon name="upload" size={20} />
-            {busy ? "Yükleniyor…" : "Fotoğraf ekle"}
+            {busy ? (en ? "Loading…" : "Yükleniyor…") : en ? "Add a photo" : "Fotoğraf ekle"}
           </span>
         )}
       </div>
@@ -647,10 +658,10 @@ function PhotoSlot({
         {help ? <span className="field__hint">{help}</span> : null}
         <div className="nb-photo__actions">
           <button type="button" className="btn btn--outline btn--xs" disabled={busy} onClick={() => inputRef.current?.click()}>
-            {src ? "Değiştir" : "Yükle"}
+            {src ? (en ? "Change" : "Değiştir") : en ? "Upload" : "Yükle"}
           </button>
           {src ? (
-            <button type="button" className="btn btn--ghost btn--xs" onClick={onClear} aria-label={`${label} kaldır`}>
+            <button type="button" className="btn btn--ghost btn--xs" onClick={onClear} aria-label={en ? `Remove ${label}` : `${label} kaldır`}>
               <Icon name="trash" size={14} />
             </button>
           ) : null}

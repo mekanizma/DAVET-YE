@@ -1,3 +1,5 @@
+import type { Locale } from "@/i18n/locale";
+
 /** Örnek içerik: önizleme ve canlı kartlarda kullanılır (referanstaki Güz Masalı önizlemesinden). */
 export const SAMPLE = {
   partnerA: "Ayşe",
@@ -28,6 +30,33 @@ export const SAMPLE = {
   closing:
     "Hayatımızın en özel gününde sizleri de aramızda görmekten mutluluk duyarız.",
 };
+
+export type SampleContent = typeof SAMPLE;
+
+const SAMPLE_EN: SampleContent = {
+  ...SAMPLE,
+  venue: "Çırağan Palace",
+  address: "Çırağan Avenue No. 32, Beşiktaş / Istanbul",
+  message: "We would be delighted to have you with us.",
+  familyMessage:
+    "With the blessings of our families, we would love to have you with us on this happy day.",
+  program: [
+    { time: "19:00", title: "Welcome", text: "Cocktails and live music" },
+    { time: "20:00", title: "Wedding ceremony", text: "With our loved ones as witnesses" },
+    { time: "20:45", title: "Dinner", text: "" },
+    { time: "22:00", title: "Cake & dancing", text: "The floor opens" },
+  ],
+  wishes: [
+    { name: "Ayşe", text: "Be very happy, together for a lifetime!" },
+    { name: "Mehmet", text: "Congratulations, to many beautiful years." },
+  ],
+  closing: "We would be delighted to have you with us on the most special day of our lives.",
+};
+
+/** Turkish SAMPLE stays the default. English preview copy when the site locale is en. */
+export function sampleFor(locale: Locale = "tr"): SampleContent {
+  return locale === "en" ? SAMPLE_EN : SAMPLE;
+}
 
 export function sampleDate(date = SAMPLE.date, time = SAMPLE.time): Date {
   const [y, m, d] = date.split("-").map(Number);

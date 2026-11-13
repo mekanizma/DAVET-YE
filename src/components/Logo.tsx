@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useLocale, useLp } from "@/i18n/provider";
 
 export default function Logo({
   className = "",
@@ -10,8 +13,10 @@ export default function Logo({
   width?: number;
   priority?: boolean;
 }) {
+  const locale = useLocale();
+  const lp = useLp();
   return (
-    <Link href="/tr" className={`logo ${className}`} aria-label="Davetanisi ana sayfa">
+    <Link href={lp()} className={`logo ${className}`} aria-label={locale === "en" ? "Davetanisi home" : "Davetanisi ana sayfa"}>
       <Image
         src="/img/logo.webp"
         alt="Davetanisi"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { useLocale } from "@/i18n/provider";
 import Icon from "./Icon";
 
 export interface AccordionItem {
@@ -19,6 +20,7 @@ export default function Accordion({
   defaultOpen?: number[];
 }) {
   const uid = useId();
+  const locale = useLocale();
   const [open, setOpen] = useState<number[]>(defaultOpen);
 
   const toggle = (i: number) =>
@@ -60,7 +62,11 @@ export default function Accordion({
             >
               <p>{it.a}</p>
               {it.inferred && (
-                <p className="accordion__flag">Yerel taslak yanıt — referansta açık hâli yakalanmadı.</p>
+                <p className="accordion__flag">
+                  {locale === "en"
+                    ? "Draft answer written for this local copy."
+                    : "Yerel taslak yanıt — referansta açık hâli yakalanmadı."}
+                </p>
               )}
             </div>
           </div>

@@ -1,7 +1,9 @@
 "use client";
 
 import Icon, { type IconName } from "../Icon";
-import { EVENT_DESCRIPTIONS, EVENT_LABELS, getTheme, type EventType } from "@/data/themes";
+import { getTheme, type EventType } from "@/data/themes";
+import { marketing } from "@/i18n/marketing";
+import { useLocale } from "@/i18n/provider";
 import { saveDraft, type InvitationDraft } from "@/lib/storage";
 import type { Errors } from "./validate";
 
@@ -9,14 +11,17 @@ const ICONS: Record<EventType, IconName> = { "nisan-dugun": "ring", kina: "candl
 const ORDER: EventType[] = ["nisan-dugun", "coklu", "kina"];
 
 export default function StepEvent({ draft, errors }: { draft: InvitationDraft; errors: Errors }) {
+  const locale = useLocale();
+  const copy = marketing(locale);
+  const en = locale === "en";
   function choose(ev: EventType) {
     const tpl = draft.template ? getTheme(draft.template) : undefined;
     saveDraft({ event: ev, template: tpl && tpl.eventTypes.includes(ev) ? draft.template : null });
   }
   return (
     <fieldset className="wz-fieldset">
-      <legend className="sr-only">Etkinlik türü</legend>
-      <div className="choice-grid" role="radiogroup" aria-label="Hangi özel gün için davetiye hazırlıyorsunuz?" aria-describedby={errors.event ? "ev-e" : undefined}>
+      <legend className="sr-only">{en ? "Event type" : "Etkinlik türü"}</legend>
+      <div className="choice-grid" role="radiogroup" aria-label={en ? "Which occasion is this invitation for?" : "Hangi özel gün için davetiye hazırlıyorsunuz?"} aria-describedby={errors.event ? "ev-e" : undefined}>
         {ORDER.map((ev) => {
           const on = draft.event === ev;
           return (
@@ -24,8 +29,8 @@ export default function StepEvent({ draft, errors }: { draft: InvitationDraft; e
               <input type="radio" name="event" value={ev} checked={on} onChange={() => choose(ev)} />
               <span className="choice__icon"><Icon name={ICONS[ev]} size={22} /></span>
               <span className="choice__body">
-                <strong>{EVENT_LABELS[ev]}</strong>
-                <small>{EVENT_DESCRIPTIONS[ev]}</small>
+                <strong>{copy.events[ev]}</strong>
+                <small>{copy.eventDescriptions[ev]}</small>
               </span>
               <span className="choice__tick" aria-hidden="true"><Icon name="check" size={14} /></span>
             </label>

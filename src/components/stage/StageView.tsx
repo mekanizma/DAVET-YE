@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import icons from "@/data/stage-icons.json";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
+import type { Locale } from "@/i18n/locale";
+import { useLocale } from "@/i18n/provider";
 import { useDraft } from "@/lib/storage";
 
 interface TextStyle {
@@ -262,15 +264,19 @@ function textCss(style: TextStyle | undefined, canvasW: number): CSSProperties {
   };
 }
 
-function formatField(raw: string, format?: string) {
+function formatField(raw: string, format: string | undefined, locale: Locale) {
   if (!raw) return "";
   if (!/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw;
   const d = new Date(raw);
   if (Number.isNaN(d.getTime())) return raw;
   const zone = "Europe/Istanbul";
-  const fmt = (options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("tr-TR", { timeZone: zone, ...options }).format(d);
+  const loc = locale === "en" ? "en-GB" : "tr-TR";
+  const fmt = (options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(loc, { timeZone: zone, ...options }).format(d);
   const long = fmt({ day: "numeric", month: "long", year: "numeric" });
-  if (format === "time") return `Saat ${fmt({ hour: "2-digit", minute: "2-digit" })}`;
+  if (format === "time") {
+    const clock = fmt({ hour: "2-digit", minute: "2-digit" });
+    return locale === "en" ? clock : `Saat ${clock}`;
+  }
   if (format === "weekday") return fmt({ weekday: "long" });
   if (format === "day") return fmt({ day: "numeric" });
   if (format === "month") return fmt({ month: "long" });
@@ -391,7 +397,7 @@ function countdownFaceStyle(c: NonNullable<StageElement["countdown"]>, canvasW: 
   };
 }
 
-function Countdown({ el, canvasW, iso }: { el: StageElement; canvasW: number; iso?: string }) {
+function Countdown({ el, canvasW, iso, locale }: { el: StageElement; canvasW: number; iso?: string; locale: Locale }) {
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
     setNow(Date.now());
@@ -402,16 +408,17 @@ function Countdown({ el, canvasW, iso }: { el: StageElement; canvasW: number; is
   const c = el.countdown || {};
   const left = now == null ? 0 : Math.max(0, target - now);
   const done = now != null && (!Number.isFinite(target) || left <= 0);
+  const en = locale === "en";
   const parts = [
-    { n: Math.floor(left / 86400000), l: c.daysLabel || "Gün" },
-    { n: Math.floor(left / 3600000) % 24, l: c.hoursLabel || "Saat" },
-    { n: Math.floor(left / 60000) % 60, l: c.minutesLabel || "Dakika" },
-    ...(c.showSeconds === false ? [] : [{ n: Math.floor(left / 1000) % 60, l: c.secondsLabel || "Saniye" }]),
+    { n: Math.floor(left / 86400000), l: c.daysLabel || (en ? "Days" : "Gün") },
+    { n: Math.floor(left / 3600000) % 24, l: c.hoursLabel || (en ? "Hours" : "Saat") },
+    { n: Math.floor(left / 60000) % 60, l: c.minutesLabel || (en ? "Minutes" : "Dakika") },
+    ...(c.showSeconds === false ? [] : [{ n: Math.floor(left / 1000) % 60, l: c.secondsLabel || (en ? "Seconds" : "Saniye") }]),
   ];
   if (done) {
     return (
       <div className="stg-text" style={textCss(c.number || el.style, canvasW)}>
-        <span className="stg-text__c">{c.doneText || "Bugün o gün!"}</span>
+        <span className="stg-text__c">{c.doneText || (en ? "Today is the day!" : "Bugün o gün!")}</span>
       </div>
     );
   }
@@ -449,6 +456,8 @@ export default function StageView({
   embed?: boolean;
   useDraftData?: boolean;
 }) {
+  const locale = useLocale();
+  const en = locale === "en";
   const { design } = stage;
   const canvasW = design.canvas?.width || 390;
   const canvasH = design.canvas?.height || 844;
@@ -808,7 +817,7 @@ export default function StageView({
       const d = new Date(start);
       const stamp = d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
       const end = new Date(d.getTime() + 4 * 3600000).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-      const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:${stamp}\nDTEND:${end}\nSUMMARY:${stage.title || "Davet"}\nLOCATION:${values.f_venueName || ""}\nEND:VEVENT\nEND:VCALENDAR`;
+      const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:${stamp}\nDTEND:${end}\nSUMMARY:${stage.title || (en ? "Invitation" : "Davet")}\nLOCATION:${values.f_venueName || ""}\nEND:VEVENT\nEND:VCALENDAR`;
       const blob = new Blob([ics], { type: "text/calendar" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -900,6 +909,7 @@ export default function StageView({
                           setWishDone(true);
                         }}
                         onAction={onAction}
+                        locale={locale}
                       />
                     ))}
                   </div>
@@ -918,7 +928,7 @@ export default function StageView({
                 {gateImage ? <img className="stg-media stg-media--screen" src={gateImage} alt="" draggable={false} /> : null}
                 <div className="stg-art">
                   {(intro?.gate?.elements || []).filter((el) => !el.hidden).map((el) => (
-                    <Element key={el.id} el={el} canvasW={canvasW} values={values} lists={{}} places={{}} wishes={[]} photos={[]} rsvpDone={false} wishDone={false} onPhotos={() => undefined} onRsvp={() => undefined} onWish={() => undefined} onAction={onAction} />
+                    <Element key={el.id} el={el} canvasW={canvasW} values={values} lists={{}} places={{}} wishes={[]} photos={[]} rsvpDone={false} wishDone={false} onPhotos={() => undefined} onRsvp={() => undefined} onWish={() => undefined} onAction={onAction} locale={locale} />
                   ))}
                 </div>
               </div>
@@ -941,18 +951,18 @@ export default function StageView({
 
           {phase === "video" && intro?.skippable !== false && (
             <button type="button" className="stg-skip" onClick={finish}>
-              {intro?.skipLabel || "Geç"}
+              {intro?.skipLabel || (en ? "Skip" : "Geç")}
             </button>
           )}
 
           <div className="stg-wm" aria-hidden="true">
-            ÖNİZLEME · ÖNİZLEME · ÖNİZLEME
+            {en ? "PREVIEW · PREVIEW · PREVIEW" : "ÖNİZLEME · ÖNİZLEME · ÖNİZLEME"}
           </div>
 
           {stage.music?.src ? (
             <>
               <audio ref={audioRef} src={stage.music.src} loop={stage.music.loop !== false} preload="none" />
-              <button type="button" className="stg-chrome stg-chrome--right" aria-pressed={musicOn} aria-label="Müziği aç/kapat" onClick={toggleMusic}>
+              <button type="button" className="stg-chrome stg-chrome--right" aria-pressed={musicOn} aria-label={en ? "Turn music on or off" : "Müziği aç/kapat"} onClick={toggleMusic}>
                 <StageIcon name={musicOn ? "volume" : "music"} size={1.1} />
               </button>
             </>
@@ -1042,6 +1052,7 @@ function Element({
   onRsvp,
   onWish,
   onAction,
+  locale,
 }: {
   el: StageElement;
   canvasW: number;
@@ -1056,6 +1067,7 @@ function Element({
   onRsvp: () => void;
   onWish: (name: string, text: string) => void;
   onAction: (el: StageElement, node: HTMLElement) => void;
+  locale: Locale;
 }) {
   const style = boxStyle(el, canvasW);
   const anim = el.anim?.kind
@@ -1065,7 +1077,7 @@ function Element({
   let body: ReactNode = null;
   if (el.type === "text" || el.type === "field") {
     const raw = el.type === "field" && el.fieldId ? values[el.fieldId] || "" : el.text || "";
-    body = <TextBlock el={el} canvasW={canvasW} value={el.type === "field" ? formatField(raw, el.format) : raw} />;
+    body = <TextBlock el={el} canvasW={canvasW} value={el.type === "field" ? formatField(raw, el.format, locale) : raw} />;
   } else if (el.type === "image" && el.src) {
     body = (
       <img
@@ -1135,7 +1147,7 @@ function Element({
       </button>
     );
   } else if (el.type === "countdown") {
-    body = <Countdown el={el} canvasW={canvasW} iso={values.f_mainDate} />;
+    body = <Countdown el={el} canvasW={canvasW} iso={values.f_mainDate} locale={locale} />;
   } else if (el.type === "list") {
     body = <StageList el={el} canvasW={canvasW} rows={(el.fieldId ? lists[el.fieldId] : undefined) || []} />;
   } else if (el.type === "map") {
@@ -1150,13 +1162,13 @@ function Element({
           : "";
     body = (
       <div className="stg-map" style={{ borderRadius: el.clipShape === "ellipse" ? "50%" : undefined }}>
-        {src ? <iframe title={q || "Harita"} src={src} loading="eager" referrerPolicy="no-referrer-when-downgrade" /> : <span className="stg-text" style={textCss(el.style, canvasW)}>{q}</span>}
+        {src ? <iframe title={q || (locale === "en" ? "Map" : "Harita")} src={src} loading="eager" referrerPolicy="no-referrer-when-downgrade" /> : <span className="stg-text" style={textCss(el.style, canvasW)}>{q}</span>}
       </div>
     );
   } else if (el.type === "form") {
-    body = <RsvpForm el={el} canvasW={canvasW} done={rsvpDone} onDone={onRsvp} />;
+    body = <RsvpForm el={el} canvasW={canvasW} done={rsvpDone} onDone={onRsvp} locale={locale} />;
   } else if (el.type === "messages") {
-    body = <WishWall el={el} canvasW={canvasW} wishes={wishes} done={wishDone} onWish={onWish} />;
+    body = <WishWall el={el} canvasW={canvasW} wishes={wishes} done={wishDone} onWish={onWish} locale={locale} />;
   } else if (el.type === "memoryWall") {
     body = (
       <div className="stg-memory" style={{ color: el.style?.color }}>
@@ -1168,7 +1180,7 @@ function Element({
         </div>
         <label className="stg-btn" style={{ position: "relative", marginTop: 8, background: el.button?.fill || "#dc690c", color: "#fff", borderRadius: 10, minHeight: 38 }}>
           <StageIcon name={el.button?.icon || "camera"} size={1.1} />
-          <span>{el.text || "Fotoğraf Yükle"}</span>
+          <span>{el.text || (locale === "en" ? "Upload a photo" : "Fotoğraf Yükle")}</span>
           <input
             type="file"
             accept="image/*"
@@ -1220,13 +1232,14 @@ function formVars(el: StageElement, canvasW: number): CSSProperties {
   };
 }
 
-function RsvpForm({ el, canvasW, done, onDone }: { el: StageElement; canvasW: number; done: boolean; onDone: () => void }) {
+function RsvpForm({ el, canvasW, done, onDone, locale }: { el: StageElement; canvasW: number; done: boolean; onDone: () => void; locale: Locale }) {
   const form = el.form || {};
   const s = form.style || {};
+  const en = locale === "en";
   const [attend, setAttend] = useState("Katılıyorum");
   const [guests, setGuests] = useState(1);
   if (done) {
-    return <p className="stg-form__success" style={textCss(el.style, canvasW)}>{form.successText || "Yanıtınız için teşekkür ederiz!"}</p>;
+    return <p className="stg-form__success" style={textCss(el.style, canvasW)}>{form.successText || (en ? "Thank you for your reply!" : "Yanıtınız için teşekkür ederiz!")}</p>;
   }
   return (
     <form
@@ -1279,7 +1292,7 @@ function RsvpForm({ el, canvasW, done, onDone }: { el: StageElement; canvasW: nu
       })}
       <button type="submit" className="stg-form__submit">
         <StageIcon name="envelope" size={1.05} strokeWidth={1.6} />
-        {form.submitLabel || "Gönder"}
+        {form.submitLabel || (en ? "Send" : "Gönder")}
       </button>
     </form>
   );
@@ -1291,13 +1304,16 @@ function WishWall({
   wishes,
   done,
   onWish,
+  locale,
 }: {
   el: StageElement;
   canvasW: number;
   wishes: Array<{ name?: string; text?: string }>;
   done: boolean;
   onWish: (name: string, text: string) => void;
+  locale: Locale;
 }) {
+  const en = locale === "en";
   return (
     <div className="stg-messages">
       <ul className="stg-messages__list">
@@ -1321,10 +1337,10 @@ function WishWall({
             onWish(String(data.get("name") || ""), String(data.get("text") || ""));
           }}
         >
-          <input className="stg-form__input" name="name" required placeholder={el.hint || "Adınız"} aria-label="Adınız" />
-          <textarea className="stg-form__input" name="text" required placeholder="Dileğiniz" rows={3} aria-label="Dileğiniz" />
+          <input className="stg-form__input" name="name" required placeholder={el.hint || (en ? "Your name" : "Adınız")} aria-label={en ? "Your name" : "Adınız"} />
+          <textarea className="stg-form__input" name="text" required placeholder={en ? "Your wish" : "Dileğiniz"} rows={3} aria-label={en ? "Your wish" : "Dileğiniz"} />
           <button type="submit" className="stg-form__submit">
-            {el.form?.submitLabel || "Dileğimi Gönder"}
+            {el.form?.submitLabel || (en ? "Send my wish" : "Dileğimi Gönder")}
           </button>
         </form>
       )}

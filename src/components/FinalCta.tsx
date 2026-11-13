@@ -1,25 +1,36 @@
 import Link from "next/link";
 import Icon from "./Icon";
 import HomeAmbient from "./home/HomeAmbient";
+import { lp } from "@/i18n/locale";
+import { getLocale } from "@/i18n/server";
 import { startingPrice, visibleThemes } from "@/lib/catalog";
+import { formatTL } from "@/lib/format";
 import { getPublicCatalog } from "@/lib/store";
 
 export default async function FinalCta() {
-  const cat = await getPublicCatalog();
+  const [cat, locale] = await Promise.all([getPublicCatalog(), getLocale()]);
+  const en = locale === "en";
   const count = visibleThemes(cat).length;
   const minPrice = startingPrice(cat);
+  const price = formatTL(minPrice, locale);
   return (
     <section className="final-cta" aria-labelledby="final-title">
       <div className="final-cta__wash" aria-hidden="true" />
       <HomeAmbient tone="dark" />
       <div className="wrap wrap--sm final-cta__inner">
-        <p className="eyebrow eyebrow--accent">Hazırsanız</p>
-        <h2 id="final-title">Davetiniz daha başlamadan, ilk izleniminizi bırakın.</h2>
+        <p className="eyebrow eyebrow--accent">{en ? "When you are ready" : "Hazırsanız"}</p>
+        <h2 id="final-title">
+          {en
+            ? "Make a first impression before the celebration begins."
+            : "Davetiniz daha başlamadan, ilk izleniminizi bırakın."}
+        </h2>
         <p className="final-cta__lead">
-          {count} davetiye · {new Intl.NumberFormat("tr-TR").format(minPrice)} TL&apos;den başlayan fiyatlarla · tek seferlik havale
+          {en
+            ? `${count} invitations · prices from ${price} · a one-time bank transfer`
+            : `${count} davetiye · ${price}'den başlayan fiyatlarla · tek seferlik havale`}
         </p>
-        <Link href="/tr/davetiye-olustur" className="btn btn--gold btn--lg">
-          Hemen Başla <Icon name="arrow" size={16} />
+        <Link href={lp(locale, "/davetiye-olustur")} className="btn btn--gold btn--lg">
+          {en ? "Start now" : "Hemen Başla"} <Icon name="arrow" size={16} />
         </Link>
       </div>
     </section>

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import PhoneFrame from "./PhoneFrame";
 import Icon from "./Icon";
+import { localizeTheme } from "@/i18n/catalog";
+import { useLocale, useLp } from "@/i18n/provider";
 import { coverOf, type Theme } from "@/data/themes";
 
 function usePrefersReducedMotion() {
@@ -30,12 +32,17 @@ export default function PhoneCarousel({
   interval?: number;
   onIndexChange?: (i: number) => void;
 }) {
+  const locale = useLocale();
+  const lp = useLp();
+  const en = locale === "en";
   const n = items.length;
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const [hover, setHover] = useState(false);
   const reduced = usePrefersReducedMotion();
   const touch = useRef<{ x: number; y: number } | null>(null);
+  const view = (theme: Theme) => localizeTheme(theme, locale);
+  const slideLabel = (i: number) => (en ? `Preview ${i + 1} of ${n}` : `Önizleme ${i + 1} / ${n}`);
 
   const go = useCallback(
     (i: number) => {
@@ -65,7 +72,7 @@ export default function PhoneCarousel({
       className="pcarousel"
       role="group"
       aria-roledescription="carousel"
-      aria-label="Dijital davetiye önizlemeleri"
+      aria-label={en ? "Digital invitation previews" : "Dijital davetiye önizlemeleri"}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onFocus={() => setHover(true)}
@@ -88,6 +95,7 @@ export default function PhoneCarousel({
     >
       <div className="pcarousel__stage">
         {items.map((t, i) => {
+          const shown = view(t);
           const p = pos(i);
           const active = p === "center";
           return (
@@ -97,13 +105,13 @@ export default function PhoneCarousel({
               data-pos={p}
               role="group"
               aria-roledescription="slide"
-              aria-label={`Önizleme ${i + 1} / ${n}`}
+              aria-label={slideLabel(i)}
               aria-hidden={p === "hidden" ? true : undefined}
             >
               <PhoneFrame>
                 <Image
                   src={coverOf(t)}
-                  alt={t.title}
+                  alt={shown.title}
                   width={360}
                   height={640}
                   sizes="(max-width: 600px) 56vw, 300px"
@@ -111,8 +119,8 @@ export default function PhoneCarousel({
                 />
               </PhoneFrame>
               {active ? (
-                <Link href={`/tr/temalar/${t.slug}`} className="pcarousel__cta">
-                  İncele <span className="sr-only">{t.title}</span>
+                <Link href={lp(`/temalar/${t.slug}`)} className="pcarousel__cta">
+                  {en ? "View" : "İncele"} <span className="sr-only">{shown.title}</span>
                 </Link>
               ) : (
                 p !== "hidden" && (
@@ -120,7 +128,7 @@ export default function PhoneCarousel({
                     type="button"
                     className="pcarousel__side"
                     onClick={() => go(i)}
-                    aria-label={`${t.title} önizlemesine geç`}
+                    aria-label={en ? `Go to the ${shown.title} preview` : `${shown.title} önizlemesine geç`}
                   />
                 )
               )}
@@ -135,7 +143,7 @@ export default function PhoneCarousel({
             key={t.slug}
             type="button"
             className={`pcarousel__dot${i === idx ? " is-active" : ""}`}
-            aria-label={`Önizleme ${i + 1} / ${n}`}
+            aria-label={slideLabel(i)}
             aria-current={i === idx ? "true" : undefined}
             onClick={() => go(i)}
           />
@@ -146,14 +154,18 @@ export default function PhoneCarousel({
             className="pcarousel__pause"
             onClick={() => setPaused((v) => !v)}
             aria-pressed={paused}
-            aria-label={paused ? "Otomatik geçişi başlat" : "Otomatik geçişi durdur"}
+            aria-label={paused
+              ? (en ? "Start automatic playback" : "Otomatik geçişi başlat")
+              : (en ? "Pause automatic playback" : "Otomatik geçişi durdur")}
           >
             <Icon name={paused ? "chevron-right" : "minus"} size={12} />
           </button>
         )}
       </div>
       <p className="sr-only" aria-live="polite">
-        {items[idx].title}, önizleme {idx + 1} / {n}
+        {en
+          ? `${view(items[idx]).title}, preview ${idx + 1} of ${n}`
+          : `${view(items[idx]).title}, önizleme ${idx + 1} / ${n}`}
       </p>
     </div>
   );

@@ -25,7 +25,11 @@ import {
 } from "./InteractiveSections";
 import { IvProvider, type InvData } from "./ctx";
 import { getInvitationStyle } from "@/data/invitationStyles";
-import { SAMPLE, sampleDate } from "@/data/sample";
+import { sampleDate, sampleFor } from "@/data/sample";
+import { localizeInvitationStyle } from "@/i18n/invitation";
+import { themeTitle } from "@/i18n/catalog";
+import { lp } from "@/i18n/locale";
+import { useLocale } from "@/i18n/provider";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
 import { coverOf, openingVideoOf, type Theme } from "@/data/themes";
 import { useAmbientMusic } from "@/lib/music";
@@ -43,9 +47,13 @@ export default function InvitationExperience({
   /** Use the visitor's local wizard draft instead of sample content */
   useDraftData?: boolean;
 }) {
+  const locale = useLocale();
+  const en = locale === "en";
+  const sample = sampleFor(locale);
+  const title = themeTitle(theme, locale);
   const { draft, ready } = useDraft();
   const live = useDraftData && ready;
-  const style = useMemo(() => getInvitationStyle(theme), [theme]);
+  const style = useMemo(() => localizeInvitationStyle(getInvitationStyle(theme), locale), [theme, locale]);
   const reduced = usePrefersReducedMotion();
   const [phase, setPhase] = useState<OpeningPhase>("closed");
   const [photos, setPhotos] = useState<WallPhoto[]>([]);
@@ -69,28 +77,28 @@ export default function InvitationExperience({
     }
     const pick = (v: string, fallback: string) => (live && v.trim() ? v.trim() : fallback);
     return {
-      partnerA: pick(info.partnerA, SAMPLE.partnerA),
-      partnerB: pick(info.partnerB, SAMPLE.partnerB),
-      brideFamily: pick(info.brideFamily, SAMPLE.brideFamily),
-      groomFamily: pick(info.groomFamily, SAMPLE.groomFamily),
+      partnerA: pick(info.partnerA, sample.partnerA),
+      partnerB: pick(info.partnerB, sample.partnerB),
+      brideFamily: pick(info.brideFamily, sample.brideFamily),
+      groomFamily: pick(info.groomFamily, sample.groomFamily),
       date,
       kinaDate: kina,
-      venue: pick(info.venue, SAMPLE.venue),
-      address: pick(info.address, SAMPLE.address),
-      message: pick(info.message, SAMPLE.message),
-      familyMessage: pick(info.story, SAMPLE.familyMessage),
+      venue: pick(info.venue, sample.venue),
+      address: pick(info.address, sample.address),
+      message: pick(info.message, sample.message),
+      familyMessage: pick(info.story, sample.familyMessage),
       program: (() => {
-        if (!live) return SAMPLE.program;
+        if (!live) return sample.program;
         const rows = (draft.program || [])
           .filter((p) => p.time.trim() || p.title.trim())
           .map((p) => ({ time: p.time, title: p.title, text: p.note || "" }));
-        return rows.length ? rows : SAMPLE.program;
+        return rows.length ? rows : sample.program;
       })(),
-      iban: pick(info.iban, SAMPLE.iban),
-      ibanHolder: pick(info.ibanHolder, SAMPLE.ibanHolder),
-      closing: SAMPLE.closing,
+      iban: pick(info.iban, sample.iban),
+      ibanHolder: pick(info.ibanHolder, sample.ibanHolder),
+      closing: sample.closing,
     };
-  }, [mode, live, info, draft.event, draft.program]);
+  }, [mode, live, info, draft.event, draft.program, sample]);
   const hidden = useMemo(() => new Set(live ? draft.hiddenSections : []), [live, draft.hiddenSections]);
   const show = (id: string) => (id === "katilim" && !RSVP_FORM_ENABLED ? false : !hidden.has(id));
 
@@ -221,7 +229,7 @@ export default function InvitationExperience({
             ref={scrollRef}
             className="iv__scroll"
             tabIndex={interactive ? 0 : -1}
-            aria-label={`${theme.title} davetiyesi`}
+            aria-label={en ? `${title} invitation` : `${theme.title} davetiyesi`}
             inert={!interactive}
             aria-hidden={!interactive}
           >
@@ -238,8 +246,8 @@ export default function InvitationExperience({
             {show("iban") && <GiftSection />}
             <ClosingSection
               embed={embed}
-              exitHref={`/tr/temalar/${theme.slug}`}
-              startHref={`/tr/davetiye-olustur?sablon=${theme.slug}`}
+              exitHref={lp(locale, `/temalar/${theme.slug}`)}
+              startHref={lp(locale, `/davetiye-olustur?sablon=${theme.slug}`)}
               onTop={() => scrollRef.current?.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" })}
             />
           </div>
@@ -250,7 +258,7 @@ export default function InvitationExperience({
             type={theme.opening}
             phase={phase}
             cover={cover}
-            title={theme.title}
+            title={title}
             style={style}
             initials={initials}
             video={openingVideo}
@@ -261,7 +269,7 @@ export default function InvitationExperience({
 
           <div className="iv__wm" aria-hidden="true">
             {Array.from({ length: 7 }, (_, i) => (
-              <span key={i}>ÖNİZLEME · ÖNİZLEME · ÖNİZLEME</span>
+              <span key={i}>{en ? "PREVIEW · PREVIEW · PREVIEW" : "ÖNİZLEME · ÖNİZLEME · ÖNİZLEME"}</span>
             ))}
           </div>
 
@@ -270,17 +278,17 @@ export default function InvitationExperience({
             className="iv__music"
             onClick={music.toggle}
             aria-pressed={music.on}
-            aria-label="Müziği aç/kapat"
-            title={music.supported ? "Müziği aç/kapat" : "Bu tarayıcı ses üretimini desteklemiyor"}
+            aria-label={en ? "Turn music on or off" : "Müziği aç/kapat"}
+            title={music.supported ? (en ? "Turn music on or off" : "Müziği aç/kapat") : en ? "This browser cannot play generated sound" : "Bu tarayıcı ses üretimini desteklemiyor"}
             disabled={!music.supported}
           >
             <Icon name={music.on ? "music" : "music-off"} size={18} />
           </button>
 
           {!embed && (
-            <Link href={`/tr/temalar/${theme.slug}`} className="iv__exit" aria-label="Davetiye sayfasına dön">
+            <Link href={lp(locale, `/temalar/${theme.slug}`)} className="iv__exit" aria-label={en ? "Back to the invitation page" : "Davetiye sayfasına dön"}>
               <Icon name="chevron-left" size={18} />
-              <span>{theme.title}</span>
+              <span>{title}</span>
             </Link>
           )}
         </div>

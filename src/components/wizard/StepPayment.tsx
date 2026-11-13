@@ -5,6 +5,7 @@ import Icon from "../Icon";
 import IbanCheckout, { type PlacedOrder } from "../checkout/IbanCheckout";
 import { useCatalog } from "@/components/CatalogProvider";
 import { EVENT_LABELS } from "@/data/themes";
+import { useLocale } from "@/i18n/provider";
 import { priceTotal } from "@/lib/pricing";
 import { getLocalJson, saveDraft, setLocalJson, type InvitationDraft, type StoredOrder } from "@/lib/storage";
 
@@ -27,19 +28,28 @@ function remember(draft: InvitationDraft, title: string, order: PlacedOrder) {
 }
 
 export default function StepPayment({ draft, title }: { draft: InvitationDraft; title: string }) {
+  const locale = useLocale();
+  const en = locale === "en";
   const cat = useCatalog();
-  const total = priceTotal(draft, cat);
+  const total = priceTotal(draft, cat, locale);
   if (draft.order?.status === "test-success") {
     return (
       <div className="pay-done" role="status">
         <span className="pay-done__icon"><Icon name="check" size={28} /></span>
-        <h2>Eski test siparişi</h2>
+        <h2>{en ? "Earlier test order" : "Eski test siparişi"}</h2>
         <p>
-          Sipariş kodu: <strong className="num">{draft.order.code}</strong>. Bu kayıt kart denemesinden kalmıştır; yeni
-          siparişler yalnızca havale ile açılır.
+          {en ? (
+            <>
+              Order code: <strong className="num">{draft.order.code}</strong>. This record is left from a card trial; new orders are opened by bank transfer only.
+            </>
+          ) : (
+            <>
+              Sipariş kodu: <strong className="num">{draft.order.code}</strong>. Bu kayıt kart denemesinden kalmıştır; yeni siparişler yalnızca havale ile açılır.
+            </>
+          )}
         </p>
         <div className="pay-done__cta">
-          <Link href="/panel" className="btn btn--outline btn--lg">Panelime git</Link>
+          <Link href="/panel" className="btn btn--outline btn--lg">{en ? "Go to my account" : "Panelime git"}</Link>
         </div>
       </div>
     );

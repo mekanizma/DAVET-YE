@@ -1,17 +1,27 @@
 import Link from "next/link";
 import Icon, { type IconName } from "./Icon";
 import SectionHead from "./SectionHead";
-import { HOW_IT_WORKS_HOME } from "@/data/site";
+import { lp } from "@/i18n/locale";
+import { getLocale } from "@/i18n/server";
+import { marketing } from "@/i18n/marketing";
 
 const ICONS: IconName[] = ["image", "type", "share"];
 
-export default function HowItWorks() {
+export default async function HowItWorks() {
+  const locale = await getLocale();
+  const en = locale === "en";
+  const copy = marketing(locale);
   return (
     <section className="section" aria-labelledby="how-title">
       <div className="wrap">
-        <SectionHead eyebrow="Nasıl çalışır" id="how-title" title="Davetiyeniz nasıl hazırlanır?" heart />
+        <SectionHead
+          eyebrow={en ? "How it works" : "Nasıl çalışır"}
+          id="how-title"
+          title={en ? "How your invitation is made" : "Davetiyeniz nasıl hazırlanır?"}
+          heart
+        />
         <ol className="how-steps">
-          {HOW_IT_WORKS_HOME.map((s, i) => (
+          {copy.howHome.map((s, i) => (
             <li key={s.title} className="how-step">
               <span className="how-step__icon">
                 <Icon name={ICONS[i]} size={26} />
@@ -24,8 +34,8 @@ export default function HowItWorks() {
           ))}
         </ol>
         <p className="section__more">
-          <Link href="/tr/nasil-calisir" className="link-arrow">
-            Altı adımın tamamını görün <Icon name="arrow" size={14} />
+          <Link href={lp(locale, "/nasil-calisir")} className="link-arrow">
+            {en ? "See all six steps" : "Altı adımın tamamını görün"} <Icon name="arrow" size={14} />
           </Link>
         </p>
       </div>

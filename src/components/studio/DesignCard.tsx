@@ -15,11 +15,13 @@ const FONT_VAR: Record<FontKind, string> = {
 export default function DesignCard({
   design,
   watermark = false,
+  watermarkLabel,
   selected,
   className = "",
 }: {
   design: DesignState;
   watermark?: boolean;
+  watermarkLabel?: string;
   selected?: string | null;
   className?: string;
 }) {
@@ -87,7 +89,7 @@ export default function DesignCard({
       })}
       {watermark && (
         <span className="dcard__wm" aria-hidden="true">
-          ÖRNEK · Davetanisi
+          {watermarkLabel || "ÖRNEK · Davetanisi"}
         </span>
       )}
     </div>

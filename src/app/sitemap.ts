@@ -3,22 +3,30 @@ import { newspapers } from "@/data/newspapers";
 import { themes } from "@/data/themes";
 import { siteUrl } from "@/lib/seo";
 
-const PAGES: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [
-  { path: "/tr", priority: 1, changeFrequency: "weekly" },
-  { path: "/tr/temalar", priority: 0.9, changeFrequency: "weekly" },
-  { path: "/tr/gazeteler", priority: 0.9, changeFrequency: "weekly" },
-  { path: "/tr/dugun-davetiyesi", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/tr/kina-davetiyesi", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/tr/kina-ve-dugun-davetiyesi", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/tr/tasarim-studyosu", priority: 0.8, changeFrequency: "weekly" },
-  { path: "/tr/fiyatlar", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/tr/ne-sunuyoruz", priority: 0.7, changeFrequency: "monthly" },
-  { path: "/tr/nasil-calisir", priority: 0.7, changeFrequency: "monthly" },
-  { path: "/tr/sss", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/tr/rehber", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/tr/hakkimizda", priority: 0.5, changeFrequency: "yearly" },
-  { path: "/tr/iletisim", priority: 0.5, changeFrequency: "yearly" },
+const PATHS = [
+  "",
+  "/temalar",
+  "/gazeteler",
+  "/dugun-davetiyesi",
+  "/kina-davetiyesi",
+  "/kina-ve-dugun-davetiyesi",
+  "/tasarim-studyosu",
+  "/fiyatlar",
+  "/ne-sunuyoruz",
+  "/nasil-calisir",
+  "/sss",
+  "/rehber",
+  "/hakkimizda",
+  "/iletisim",
 ];
+
+const PAGES: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = ["tr", "en"].flatMap((locale) =>
+  PATHS.map((path) => ({
+    path: `/${locale}${path}`,
+    priority: path === "" ? 1 : path === "/temalar" || path === "/gazeteler" ? 0.9 : 0.7,
+    changeFrequency: (path === "" || path === "/temalar" || path === "/gazeteler" || path === "/tasarim-studyosu" ? "weekly" : "monthly") as MetadataRoute.Sitemap[number]["changeFrequency"],
+  })),
+);
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const origin = siteUrl();
@@ -30,17 +38,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: page.changeFrequency,
       priority: page.priority,
     })),
-    ...themes.map((theme) => ({
-      url: `${origin}/tr/temalar/${theme.slug}`,
+    ...["tr", "en"].flatMap((locale) => themes.map((theme) => ({
+      url: `${origin}/${locale}/temalar/${theme.slug}`,
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.7,
-    })),
-    ...newspapers.map((paper) => ({
-      url: `${origin}/tr/gazeteler/${paper.slug}`,
+    }))),
+    ...["tr", "en"].flatMap((locale) => newspapers.map((paper) => ({
+      url: `${origin}/${locale}/gazeteler/${paper.slug}`,
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.7,
-    })),
+    }))),
   ];
 }

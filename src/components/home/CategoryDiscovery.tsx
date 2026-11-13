@@ -1,27 +1,31 @@
 import Link from "next/link";
 import Icon from "../Icon";
 import SectionHead from "../SectionHead";
-import { CATEGORIES } from "@/data/site";
+import { getLocale } from "@/i18n/server";
+import { marketing } from "@/i18n/marketing";
 
-const MINI: Record<string, { text: string; tone: string }> = {
-  "Nişan & Düğün": { text: "A & M", tone: "ivory" },
-  "Çoklu Etkinlik": { text: "İki Gün", tone: "ivory" },
-  Kına: { text: "Kına", tone: "wine" },
-};
-
-export default function CategoryDiscovery() {
+export default async function CategoryDiscovery() {
+  const locale = await getLocale();
+  const en = locale === "en";
+  const categories = marketing(locale).categories;
+  const miniFor = (slug: string) => {
+    if (slug === "barok-kapi") return { text: "A & M", tone: "ivory" };
+    if (slug === "guz-masali") return { text: en ? "Two days" : "İki Gün", tone: "ivory" };
+    if (slug === "tavuslu-cini") return { text: en ? "Henna" : "Kına", tone: "wine" };
+    return null;
+  };
   return (
     <section className="section section--tight" aria-labelledby="cat-title">
       <div className="wrap">
         <SectionHead
           id="cat-title"
-          title="Kategorilere göre keşfedin"
-          lead="Her kutlamanın ruhuna uygun, özenle hazırlanmış tasarımlar."
+          title={en ? "Discover by category" : "Kategorilere göre keşfedin"}
+          lead={en ? "Designs made with care for the feeling of each celebration." : "Her kutlamanın ruhuna uygun, özenle hazırlanmış tasarımlar."}
           heart
         />
         <ul className="cat-grid">
-          {CATEGORIES.map((c, i) => {
-            const mini = MINI[c.label];
+          {categories.map((c, i) => {
+            const mini = miniFor(c.slug);
             return (
               <li key={c.href}>
                 <Link href={c.href} className={`cat-card cat-card--${i}`} title={c.text}>

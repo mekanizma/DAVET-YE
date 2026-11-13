@@ -3,8 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Icon from "../Icon";
+import { getNewspaper } from "@/data/newspapers";
 import { getTheme } from "@/data/themes";
-import { downloadBlob, formatTL } from "@/lib/format";
+import { localizeNewspaper, themeTitle } from "@/i18n/catalog";
+import { lp, type Locale } from "@/i18n/locale";
+import { statusLabel } from "@/i18n/product";
+import { useLocale } from "@/i18n/provider";
+import { downloadBlob, formatTL, longDate } from "@/lib/format";
 import { STATUS_LABEL } from "@/lib/orderStatus";
 import { EMPTY_NEWSPAPER_DRAFT, normalizeNewspaperDraft } from "@/lib/newspaperDraft";
 import type { OrderRecord } from "@/lib/orderTypes";
@@ -15,6 +20,10 @@ import DraftCard from "./DraftCard";
 
 interface RsvpRow extends Rsvp {
   slug: string;
+}
+
+function tx(locale: Locale, tr: string, en: string) {
+  return locale === "en" ? en : tr;
 }
 
 function readRsvps(): RsvpRow[] {
@@ -40,16 +49,36 @@ function csvCell(v: string | number | boolean) {
 
 const RANK: Record<string, number> = { onaylandi: 0, bildirildi: 1, bekliyor: 2, reddedildi: 3 };
 
-function orderLink(order: OrderRecord) {
+function orderLink(order: OrderRecord, locale: Locale) {
+  const again = order.status === "reddedildi";
+  const pay = again ? tx(locale, "Yeniden bildir", "Send again") : tx(locale, "Ödemeye dön", "Back to payment");
   if (order.status === "onaylandi") {
-    if (order.kind === "davetiye" && order.template) return { href: `/onizleme/tema/${order.template}?taslak=1`, label: "Davetiyeyi aç" };
-    return { href: "/tr/gazete-tasarla", label: "Gazeteyi aç" };
+    if (order.kind === "davetiye" && order.template) return { href: `/onizleme/tema/${order.template}?taslak=1`, label: tx(locale, "Davetiyeyi aç", "Open the invitation") };
+    return { href: lp(locale, "/gazete-tasarla"), label: tx(locale, "Gazeteyi aç", "Open the newspaper") };
   }
-  if (order.kind === "gazete") return { href: "/tr/gazete-tasarla", label: order.status === "reddedildi" ? "Yeniden bildir" : "Ödemeye dön" };
-  return { href: "/tr/davetiye-olustur/odeme", label: order.status === "reddedildi" ? "Yeniden bildir" : "Ödemeye dön" };
+  if (order.kind === "gazete") return { href: lp(locale, "/gazete-tasarla"), label: pay };
+  return { href: lp(locale, "/davetiye-olustur/odeme"), label: pay };
+}
+
+function themeName(slug: string, locale: Locale) {
+  const theme = getTheme(slug);
+  return theme ? themeTitle(theme, locale) : slug;
+}
+
+function orderTitle(order: OrderRecord, locale: Locale) {
+  if (order.kind === "davetiye" && order.template) {
+    const theme = getTheme(order.template);
+    if (theme) return themeTitle(theme, locale);
+  }
+  if (order.kind === "gazete" && order.template) {
+    const paper = getNewspaper(order.template);
+    if (paper) return localizeNewspaper(paper, locale).title;
+  }
+  return order.title;
 }
 
 export default function Dashboard() {
+  const locale = useLocale();
   const { account, failed } = useAccount();
   const { draft } = useDraft();
   const [paper] = useLocalJson(NEWSPAPER_DRAFT, EMPTY_NEWSPAPER_DRAFT);
@@ -94,19 +123,19 @@ export default function Dashboard() {
     };
   }, [draft.order?.code, draft.order?.email, newspaper.orderCode, newspaper.orderEmail]);
 
-  if (!mounted || (!account && !failed)) return <p className="wz-loading" role="status">Yükleniyor…</p>;
+  if (!mounted || (!account && !failed)) return <p className="wz-loading" role="status">{tx(locale, "Yükleniyor…", "Loading…")}</p>;
 
   if (!account) {
     return (
       <div className="auth-card">
-        <h1>Panel</h1>
-        <p>Hesap bilgisi alınamadı.</p>
-        <Link href="/panel/giris" className="btn btn--dark btn--lg btn--block">Giriş yap</Link>
+        <h1>{tx(locale, "Panel", "Account")}</h1>
+        <p>{tx(locale, "Hesap bilgisi alınamadı.", "We couldn’t load the account.")}</p>
+        <Link href="/panel/giris" className="btn btn--dark btn--lg btn--block">{tx(locale, "Giriş yap", "Sign in")}</Link>
       </div>
     );
   }
 
-  const hello = account.name.trim().split(/\s+/)[0] || "Merhaba";
+  const hello = account.name.trim().split(/\s+/)[0] || "";
   const orders = [...account.orders];
   for (const extra of deviceOrders) {
     if (!orders.some((order) => order.code === extra.code)) orders.push(extra);
@@ -114,21 +143,36 @@ export default function Dashboard() {
   orders.sort((a, b) => (RANK[a.status] ?? 9) - (RANK[b.status] ?? 9) || b.createdAt.localeCompare(a.createdAt));
 
   function exportCsv() {
-    const head = ["Davetiye", "Ad", "Katılım", "Kişi", "Not", "Tarih"];
+    const head = locale === "en"
+      ? ["Invitation", "Name", "RSVP", "Guests", "Note", "Date"]
+      : ["Davetiye", "Ad", "Katılım", "Kişi", "Not", "Tarih"];
     const lines = [head.map(csvCell).join(",")].concat(
-      rsvps.map((r) =>
-        [getTheme(r.slug)?.title ?? r.slug, r.name, r.attending ? "Katılıyor" : "Katılmıyor", r.count, r.note, r.at].map(csvCell).join(","),
-      ),
+      rsvps.map((r) => {
+        const attending = r.attending ? tx(locale, "Katılıyor", "Attending") : tx(locale, "Katılmıyor", "Not attending");
+        const when = Number.isNaN(Date.parse(r.at)) ? r.at : longDate(new Date(r.at), locale);
+        return [themeName(r.slug, locale), r.name, attending, r.count, r.note, when].map(csvCell).join(",");
+      }),
     );
-    downloadBlob("katilim-yanitlari.csv", new Blob(["\ufeff" + lines.join("\n")], { type: "text/csv;charset=utf-8" }));
+    downloadBlob(locale === "en" ? "rsvp-replies.csv" : "katilim-yanitlari.csv", new Blob(["\ufeff" + lines.join("\n")], { type: "text/csv;charset=utf-8" }));
   }
+
+  const replyCount = rsvps.length === 0
+    ? tx(locale, "Henüz yanıt yok", "No replies yet")
+    : rsvps.length === 1
+      ? tx(locale, "1 yanıt", "1 reply")
+      : tx(locale, `${rsvps.length} yanıt`, `${rsvps.length} replies`);
+  const orderCount = orders.length === 0
+    ? tx(locale, "Sipariş yok", "No orders")
+    : orders.length === 1
+      ? tx(locale, "1 sipariş", "1 order")
+      : tx(locale, `${orders.length} sipariş`, `${orders.length} orders`);
 
   return (
     <div className="dash">
       <header className="dash__head">
         <div>
-          <p className="eyebrow">Panel</p>
-          <h1>{account.name.trim() ? `Merhaba, ${hello}` : "Merhaba"}</h1>
+          <p className="eyebrow">{tx(locale, "Panel", "Account")}</p>
+          <h1>{hello ? tx(locale, `Merhaba, ${hello}`, `Hello, ${hello}`) : tx(locale, "Merhaba", "Hello")}</h1>
           <p className="dash__mail">{account.email}</p>
         </div>
       </header>
@@ -136,39 +180,40 @@ export default function Dashboard() {
       <div className="desk-tiles">
         <Link href="/panel/tasarimlar" className="desk-tile">
           <Icon name="sparkle" size={18} />
-          <strong>Tasarımlarım</strong>
-          <span>Davetiye taslağınız</span>
+          <strong>{tx(locale, "Tasarımlarım", "My designs")}</strong>
+          <span>{tx(locale, "Davetiye taslağınız", "Your invitation draft")}</span>
         </Link>
         <a href="#katilim" className="desk-tile">
           <Icon name="heart" size={18} />
-          <strong>Katılım yanıtları</strong>
-          <span>{rsvps.length === 0 ? "Henüz yanıt yok" : `${rsvps.length} yanıt`}</span>
+          <strong>{tx(locale, "Katılım yanıtları", "RSVPs")}</strong>
+          <span>{replyCount}</span>
         </a>
         <a href="#siparisler" className="desk-tile">
           <Icon name="wallet" size={18} />
-          <strong>Siparişler</strong>
-          <span>{orders.length === 0 ? "Sipariş yok" : `${orders.length} sipariş`}</span>
+          <strong>{tx(locale, "Siparişler", "Orders")}</strong>
+          <span>{orderCount}</span>
         </a>
       </div>
 
       <DraftCard hideEmpty />
 
       <section className="dash__card" id="siparisler" aria-labelledby="d-orders">
-        <h2 id="d-orders">Siparişler</h2>
+        <h2 id="d-orders">{tx(locale, "Siparişler", "Orders")}</h2>
         {orders.length === 0 ? (
-          <p>Bu hesaba bağlı sipariş yok. Ödeme onaylanınca sipariş burada görünür.</p>
+          <p>{tx(locale, "Bu hesaba bağlı sipariş yok. Ödeme onaylanınca sipariş burada görünür.", "There are no orders on this account. An order appears here once the payment is confirmed.")}</p>
         ) : (
           <ul className="dash__list">
             {orders.map((o) => {
-              const action = orderLink(o);
+              const action = orderLink(o, locale);
+              const created = Number.isNaN(Date.parse(o.createdAt)) ? o.createdAt : longDate(new Date(o.createdAt), locale);
               return (
                 <li key={o.code}>
                   <div>
-                    <strong>{o.title}</strong>
-                    <small className="num">{o.code} · {new Date(o.createdAt).toLocaleDateString("tr-TR")}</small>
-                    <span className={`pill pill--${o.status}`}>{STATUS_LABEL[o.status] || o.status}</span>
+                    <strong>{orderTitle(o, locale)}</strong>
+                    <small className="num">{o.code} · {created}</small>
+                    <span className={`pill pill--${o.status}`}>{statusLabel(o.status, locale, STATUS_LABEL[o.status] ?? o.status)}</span>
                   </div>
-                  <span className="num">{formatTL(o.total)}</span>
+                  <span className="num">{formatTL(o.total, locale)}</span>
                   <div className="dash__actions">
                     <Link href={action.href} className="btn btn--outline btn--sm">{action.label}</Link>
                   </div>
@@ -180,31 +225,36 @@ export default function Dashboard() {
       </section>
 
       <section className="dash__card" id="katilim" aria-labelledby="d-rsvp">
-        <h2 id="d-rsvp">Katılım yanıtları</h2>
+        <h2 id="d-rsvp">{tx(locale, "Katılım yanıtları", "RSVPs")}</h2>
         {rsvps.length === 0 ? (
-          <p>Önizlemedeki katılım formunu doldurduğunuzda yanıtlar bu cihazda listelenir.</p>
+          <p>{tx(locale, "Önizlemedeki katılım formunu doldurduğunuzda yanıtlar bu cihazda listelenir.", "When someone fills in the RSVP form on the preview, the replies are listed on this device.")}</p>
         ) : (
           <>
             <div className="table-wrap">
               <table className="table">
-                <caption className="sr-only">Katılım yanıtları</caption>
+                <caption className="sr-only">{tx(locale, "Katılım yanıtları", "RSVPs")}</caption>
                 <thead>
-                  <tr><th scope="col">Ad</th><th scope="col">Durum</th><th scope="col">Kişi</th><th scope="col">Davetiye</th></tr>
+                  <tr>
+                    <th scope="col">{tx(locale, "Ad", "Name")}</th>
+                    <th scope="col">{tx(locale, "Durum", "Status")}</th>
+                    <th scope="col">{tx(locale, "Kişi", "Guests")}</th>
+                    <th scope="col">{tx(locale, "Davetiye", "Invitation")}</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {rsvps.map((r, i) => (
                     <tr key={`${r.slug}-${r.at}-${i}`}>
                       <th scope="row">{r.name}</th>
-                      <td>{r.attending ? "Katılıyor" : "Katılmıyor"}</td>
+                      <td>{r.attending ? tx(locale, "Katılıyor", "Attending") : tx(locale, "Katılmıyor", "Not attending")}</td>
                       <td className="num">{r.attending ? r.count : "—"}</td>
-                      <td>{getTheme(r.slug)?.title ?? r.slug}</td>
+                      <td>{themeName(r.slug, locale)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
             <button type="button" className="btn btn--outline btn--sm" onClick={exportCsv}>
-              <Icon name="download" size={14} /> CSV indir
+              <Icon name="download" size={14} /> {tx(locale, "CSV indir", "Download CSV")}
             </button>
           </>
         )}

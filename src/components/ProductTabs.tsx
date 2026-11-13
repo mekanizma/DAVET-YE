@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useLocale } from "@/i18n/provider";
 
 export interface TabDef {
   id: string;
@@ -10,7 +11,9 @@ export interface TabDef {
   panel: ReactNode;
 }
 
-export default function ProductTabs({ tabs, label = "Ürün" }: { tabs: TabDef[]; label?: string }) {
+export default function ProductTabs({ tabs, label }: { tabs: TabDef[]; label?: string }) {
+  const locale = useLocale();
+  const name = locale === "en" && (!label || label === "Ürün") ? "Product" : (label ?? "Ürün");
   const uid = useId();
   const [active, setActive] = useState(tabs[0].id);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -29,7 +32,7 @@ export default function ProductTabs({ tabs, label = "Ürün" }: { tabs: TabDef[]
 
   return (
     <>
-      <div className="tabs" role="tablist" aria-label={label}>
+      <div className="tabs" role="tablist" aria-label={name}>
         {tabs.map((t, i) => (
           <button
             key={t.id}

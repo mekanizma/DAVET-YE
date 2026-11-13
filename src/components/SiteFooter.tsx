@@ -1,17 +1,23 @@
+"use client";
+
 import Link from "next/link";
 import Icon from "./Icon";
 import Logo from "./Logo";
 import ConsentButton from "./ConsentButton";
-import { FOOTER_GROUPS, INVITATION_TYPE_LINKS, SITE } from "@/data/site";
+import { SITE } from "@/data/site";
+import { marketing } from "@/i18n/marketing";
+import { useLocale } from "@/i18n/provider";
 
 export default function SiteFooter() {
+  const locale = useLocale();
+  const copy = marketing(locale);
   return (
     <footer className="site-footer">
       <div className="wrap wrap--lg">
         <div className="site-footer__grid">
           <div className="site-footer__brand">
             <Logo width={140} />
-            <p>{SITE.tagline}</p>
+            <p>{copy.tagline}</p>
             <a
               className="social"
               href={SITE.instagram}
@@ -23,7 +29,7 @@ export default function SiteFooter() {
               <span className="sr-only">@{SITE.instagramHandle}</span>
             </a>
           </div>
-          {FOOTER_GROUPS.map((g) => (
+          {copy.footer.map((g) => (
             <div key={g.title}>
               <p className="site-footer__title">{g.title}</p>
               <ul className="site-footer__list">
@@ -37,10 +43,10 @@ export default function SiteFooter() {
           ))}
         </div>
 
-        <nav className="site-footer__types" aria-label="Davetiye türleri">
-          <p className="site-footer__title">Davetiye türleri</p>
+        <nav className="site-footer__types" aria-label={copy.typesTitle}>
+          <p className="site-footer__title">{copy.typesTitle}</p>
           <ul>
-            {INVITATION_TYPE_LINKS.map((l) => (
+            {copy.types.map((l) => (
               <li key={l.href}>
                 <Link href={l.href}>{l.label}</Link>
               </li>

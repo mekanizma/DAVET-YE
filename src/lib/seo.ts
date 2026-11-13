@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { SITE } from "@/data/site";
+import { HOME_DESCRIPTION_EN } from "@/i18n/marketing";
+import type { Locale } from "@/i18n/locale";
 
 const FALLBACK_ORIGIN = "https://davetanisii.onrender.com";
 
@@ -33,19 +35,29 @@ export function pageMeta(opts: {
   const full = opts.title.includes("Davetanisi") ? opts.title : `${opts.title} · Davetanisi`;
   const image = opts.image || "/og.jpg";
   const index = opts.index !== false;
+  const locale: Locale = opts.path.startsWith("/en") ? "en" : "tr";
+  const trPath = opts.path.replace(/^\/(en|tr)/, "/tr");
+  const enPath = opts.path.replace(/^\/(en|tr)/, "/en");
   return {
     title: { absolute: full },
     description: opts.description,
     alternates: {
       canonical: opts.path,
-      languages: { "tr-TR": opts.path },
+      languages: { "tr-TR": trPath, en: enPath, "x-default": trPath },
+    },
+    keywords: locale === "en"
+      ? ["digital invitation", "wedding invitation", "henna night invitation", "engagement invitation", "online invitation", "wedding newspaper", "RSVP form", "Davetanisi", "Istanbul", "Turkey"]
+      : ["dijital davetiye", "düğün davetiyesi", "kına davetiyesi", "nişan davetiyesi", "online davetiye", "düğün gazetesi", "katılım formu", "Davetanisi", "İstanbul", "Türkiye"],
+    other: {
+      "content-language": locale === "en" ? "en" : "tr-TR",
     },
     robots: index
       ? { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } }
       : { index: false, follow: false },
     openGraph: {
       type: "website",
-      locale: "tr_TR",
+      locale: locale === "en" ? "en_GB" : "tr_TR",
+      alternateLocale: locale === "en" ? ["tr_TR"] : ["en_GB"],
       url: opts.path,
       siteName: SITE.name,
       title: full,
@@ -61,8 +73,10 @@ export function pageMeta(opts: {
   };
 }
 
-export function siteGraph() {
+export function siteGraph(locale: Locale = "tr") {
   const origin = siteUrl();
+  const home = `${origin}/${locale}`;
+  const description = locale === "en" ? HOME_DESCRIPTION_EN : HOME_DESCRIPTION;
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -70,7 +84,7 @@ export function siteGraph() {
         "@type": "Organization",
         "@id": `${origin}/#organization`,
         name: SITE.name,
-        url: `${origin}/tr`,
+        url: home,
         logo: {
           "@type": "ImageObject",
           url: `${origin}/icon-512.png`,
@@ -79,7 +93,7 @@ export function siteGraph() {
         },
         image: `${origin}/og.jpg`,
         areaServed: [
-          { "@type": "Country", name: "Türkiye" },
+          { "@type": "Country", name: locale === "en" ? "Turkey" : "Türkiye" },
           { "@type": "City", name: "İstanbul" },
         ],
         address: {
@@ -92,10 +106,10 @@ export function siteGraph() {
       {
         "@type": "WebSite",
         "@id": `${origin}/#website`,
-        url: `${origin}/tr`,
+        url: home,
         name: SITE.name,
-        description: HOME_DESCRIPTION,
-        inLanguage: "tr-TR",
+        description,
+        inLanguage: locale === "en" ? "en" : "tr-TR",
         publisher: { "@id": `${origin}/#organization` },
       },
     ],
@@ -111,7 +125,7 @@ export function productJsonLd(opts: { name: string; description: string; path: s
     description: opts.description,
     image: opts.image ? new URL(opts.image, origin).toString() : `${origin}/og.jpg`,
     brand: { "@type": "Brand", name: SITE.name },
-    areaServed: { "@type": "Country", name: "Türkiye" },
+    areaServed: { "@type": "Country", name: opts.path.startsWith("/en") ? "Turkey" : "Türkiye" },
     offers: {
       "@type": "Offer",
       url: new URL(opts.path, origin).toString(),

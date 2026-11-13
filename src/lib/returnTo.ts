@@ -1,5 +1,12 @@
 const PANEL = "/panel";
-const STARTS = ["/tr/davetiye-olustur", "/tr/gazete-tasarla", "/tr/gazete-olustur"];
+const STARTS = [
+  "/tr/davetiye-olustur",
+  "/en/davetiye-olustur",
+  "/tr/gazete-tasarla",
+  "/en/gazete-tasarla",
+  "/tr/gazete-olustur",
+  "/en/gazete-olustur",
+];
 
 export function isDesignStart(pathname: string) {
   return STARTS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));

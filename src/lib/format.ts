@@ -1,7 +1,7 @@
-const nf = new Intl.NumberFormat("tr-TR");
+import type { Locale } from "@/i18n/locale";
 
-export function formatTL(n: number): string {
-  return `${nf.format(n)} TL`;
+export function formatTL(n: number, locale: Locale = "tr"): string {
+  return `${new Intl.NumberFormat(locale === "en" ? "en-GB" : "tr-TR").format(n)} TL`;
 }
 
 export function foldTr(s: string): string {
@@ -97,6 +97,14 @@ export const TR_DAYS = [
   "Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi",
 ];
 
-export function longDate(d: Date): string {
-  return `${d.getDate()} ${TR_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+export function longDate(d: Date, locale: Locale = "tr"): string {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "tr-TR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(d);
+}
+
+export function weekdayName(d: Date, locale: Locale = "tr"): string {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "tr-TR", { weekday: "long" }).format(d);
 }

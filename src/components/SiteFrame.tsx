@@ -16,7 +16,7 @@ export default function SiteFrame({
   children: ReactNode;
 }) {
   const path = usePathname() || "";
-  if (path.startsWith("/tr/davetiye-olustur")) {
+  if (/^\/(tr|en)\/davetiye-olustur/.test(path)) {
     return <div className="studio-root">{children}</div>;
   }
   return (

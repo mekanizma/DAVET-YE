@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import Icon from "@/components/Icon";
 import { TextAreaField, TextField } from "@/components/Field";
+import { useLocale } from "@/i18n/provider";
 import {
   fromIsoDate,
   fromIsoTime,
@@ -28,6 +29,7 @@ export function SlotControl({
   onImage: (file: File | null) => void;
   onClearImage: () => void;
 }) {
+  const en = useLocale() === "en";
   if (slot.kind === "image") {
     return (
       <PhotoSlot
@@ -42,6 +44,7 @@ export function SlotControl({
   }
 
   if (slot.kind === "content") {
+    const hint = en ? "Page text" : "Sayfa metni";
     if (slot.multiline) {
       return (
         <TextAreaField
@@ -50,7 +53,7 @@ export function SlotControl({
           rows={3}
           value={value}
           maxLength={slot.maxLength}
-          hint="Sayfa metni"
+          hint={hint}
           onChange={(e) => onChange(e.target.value)}
         />
       );
@@ -61,7 +64,7 @@ export function SlotControl({
         label={slot.label}
         value={value}
         maxLength={slot.maxLength}
-        hint="Sayfa metni"
+        hint={hint}
         onChange={(e) => onChange(e.target.value)}
       />
     );
@@ -81,6 +84,7 @@ function FieldControl({
   error?: string;
   onChange: (v: string) => void;
 }) {
+  const en = useLocale() === "en";
   if (field.type === "dateTime" || field.type === "date") {
     const date = fromIsoDate(value);
     const time = fromIsoTime(value) || "19:00";
@@ -100,7 +104,7 @@ function FieldControl({
           <TextField
             id={`tf-${field.id}-t`}
             type="time"
-            label="Saat"
+            label={en ? "Time" : "Saat"}
             value={time}
             onChange={(e) => onChange(toIsoLocal(date || new Date().toISOString().slice(0, 10), e.target.value))}
           />
@@ -154,6 +158,7 @@ function PhotoSlot({
   onPick: (file: File | null) => void;
   onClear: () => void;
 }) {
+  const en = useLocale() === "en";
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <div className={`ns-photo${src ? " has-img" : ""}`}>
@@ -164,7 +169,7 @@ function PhotoSlot({
         ) : (
           <span className="ns-photo__empty">
             <Icon name="upload" size={20} />
-            {busy ? "Yükleniyor…" : "Fotoğraf ekle"}
+            {busy ? (en ? "Loading…" : "Yükleniyor…") : en ? "Add a photo" : "Fotoğraf ekle"}
           </span>
         )}
       </div>
@@ -173,10 +178,10 @@ function PhotoSlot({
         {help ? <span className="field__hint">{help}</span> : null}
         <div className="ns-photo__actions">
           <button type="button" className="btn btn--outline btn--xs" disabled={busy} onClick={() => inputRef.current?.click()}>
-            {src ? "Değiştir" : "Yükle"}
+            {src ? (en ? "Change" : "Değiştir") : en ? "Upload" : "Yükle"}
           </button>
           {src ? (
-            <button type="button" className="btn btn--ghost btn--xs" onClick={onClear} aria-label={`${label} kaldır`}>
+            <button type="button" className="btn btn--ghost btn--xs" onClick={onClear} aria-label={en ? `Remove ${label}` : `${label} kaldır`}>
               <Icon name="trash" size={14} />
             </button>
           ) : null}

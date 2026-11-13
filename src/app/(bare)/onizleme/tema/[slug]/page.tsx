@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import InvitationExperience from "@/components/invitation/InvitationExperience";
 import StageView from "@/components/stage/StageView";
+import { themeTitle } from "@/i18n/catalog";
+import { getLocale } from "@/i18n/server";
 import { getTheme, themes } from "@/data/themes";
 
 function loadStage(slug: string) {
@@ -22,9 +24,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const locale = await getLocale();
   const t = getTheme(slug);
   return {
-    title: t ? `${t.title} — önizleme` : "Önizleme",
+    title: t ? `${themeTitle(t, locale)} — ${locale === "en" ? "preview" : "önizleme"}` : locale === "en" ? "Preview" : "Önizleme",
     robots: { index: false, follow: false },
   };
 }

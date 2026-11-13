@@ -3,6 +3,7 @@ import JsonLd from "@/components/JsonLd";
 import SiteFooter from "@/components/SiteFooter";
 import SiteFrame from "@/components/SiteFrame";
 import SiteHeader, { type HeaderAccount } from "@/components/SiteHeader";
+import { getLocale } from "@/i18n/server";
 import { siteGraph } from "@/lib/seo";
 import { supabaseConfigured } from "@/lib/supabase/env";
 import { createSupabaseServer } from "@/lib/supabase/server";
@@ -21,14 +22,14 @@ async function headerAccount(): Promise<HeaderAccount> {
 }
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const account = await headerAccount();
+  const [account, locale] = await Promise.all([headerAccount(), getLocale()]);
   return (
     <SiteFrame
       header={<SiteHeader account={account} />}
       footer={<SiteFooter />}
       banner={<CookieBanner />}
     >
-      <JsonLd data={siteGraph()} />
+      <JsonLd data={siteGraph(locale)} />
       {children}
     </SiteFrame>
   );

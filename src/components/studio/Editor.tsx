@@ -16,11 +16,40 @@ import {
   type FontKind,
   type FrameKind,
 } from "@/data/designs";
-import { downloadBlob } from "@/lib/format";
+import { downloadBlob, formatTL } from "@/lib/format";
+import { studioCategory, studioName } from "@/i18n/catalog";
+import { lp } from "@/i18n/locale";
+import { useLocale } from "@/i18n/provider";
 import { getLocalJson, setLocalJson } from "@/lib/storage";
 
 const KEY = "studio-draft";
-const FRAMES: Record<FrameKind, string> = { none: "Çerçevesiz", single: "Tek çizgi", double: "Çift çizgi", ornate: "Süslü köşeli" };
+const FRAMES_TR: Record<FrameKind, string> = { none: "Çerçevesiz", single: "Tek çizgi", double: "Çift çizgi", ornate: "Süslü köşeli" };
+const FRAMES_EN: Record<FrameKind, string> = { none: "No frame", single: "Single line", double: "Double line", ornate: "Ornate corners" };
+const FONT_EN: Record<FontKind, string> = {
+  script: "Script (Great Vibes)",
+  display: "Display (Cinzel)",
+  condensed: "Condensed (Bebas)",
+  serif: "Elegant (Cormorant)",
+  body: "Plain (Inter)",
+};
+const RATIO_EN: Record<keyof typeof RATIOS, string> = {
+  story: "Phone (9:16)",
+  portrait: "Print (5×7)",
+  square: "Square (1:1)",
+};
+
+function blockLabel(label: string, en: boolean) {
+  if (!en) return label;
+  const numbered = /^Metin (\d+)$/.exec(label);
+  if (numbered) return `Text ${numbered[1]}`;
+  const named: Record<string, string> = {
+    "Üst başlık": "Top line",
+    İsimler: "Names",
+    Tarih: "Date",
+    Mekân: "Venue",
+  };
+  return named[label] ?? label;
+}
 
 function fontCss(kind: FontKind): { family: string; weight: number } {
   const cs = getComputedStyle(document.documentElement);
@@ -58,7 +87,7 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxW: number): s
   return out;
 }
 
-async function renderPng(d: DesignState, watermark: boolean): Promise<Blob | null> {
+async function renderPng(d: DesignState, watermarkText: string | null): Promise<Blob | null> {
   const { w: W, h: H } = RATIOS[d.ratio];
   const canvas = document.createElement("canvas");
   canvas.width = W;
@@ -195,7 +224,7 @@ async function renderPng(d: DesignState, watermark: boolean): Promise<Blob | nul
     lines.forEach((ln, i) => ctx.fillText(ln, anchorX, top + i * lh));
   }
 
-  if (watermark) {
+  if (watermarkText) {
     ctx.save();
     ctx.translate(W / 2, H / 2);
     ctx.rotate(-Math.PI / 6);
@@ -204,13 +233,16 @@ async function renderPng(d: DesignState, watermark: boolean): Promise<Blob | nul
     ctx.font = `700 ${W * 0.1}px sans-serif`;
     const c = ctx as CanvasRenderingContext2D & { letterSpacing?: string };
     if ("letterSpacing" in c) c.letterSpacing = "0px";
-    ctx.fillText("ÖRNEK · Davetanisi", 0, 0);
+    ctx.fillText(watermarkText, 0, 0);
     ctx.restore();
   }
   return new Promise((res) => canvas.toBlob((b) => res(b), "image/png"));
 }
 
 export default function Editor({ initialPreset }: { initialPreset?: string }) {
+  const locale = useLocale();
+  const en = locale === "en";
+  const frames = en ? FRAMES_EN : FRAMES_TR;
   const [d, setD] = useState<DesignState>(() =>
     initialPreset === "bos" ? blankState() : stateFromPreset(getPreset(initialPreset)),
   );
@@ -269,12 +301,12 @@ export default function Editor({ initialPreset }: { initialPreset?: string }) {
     setBusy(true);
     setMsg("");
     try {
-      const blob = await renderPng(d, true);
+      const blob = await renderPng(d, en ? "SAMPLE · Davetanisi" : "ÖRNEK · Davetanisi");
       if (!blob) throw new Error("canvas");
       downloadBlob(`davetiye-karti-${d.presetId}.png`, blob);
-      setMsg("PNG indirildi (filigranlı).");
+      setMsg(en ? "PNG downloaded (watermarked)." : "PNG indirildi (filigranlı).");
     } catch {
-      setMsg("Görsel oluşturulamadı. Tarayıcınız canvas desteklemiyor olabilir.");
+      setMsg(en ? "The image could not be created. Your browser may not support canvas." : "Görsel oluşturulamadı. Tarayıcınız canvas desteklemiyor olabilir.");
     } finally {
       setBusy(false);
     }
@@ -292,29 +324,29 @@ export default function Editor({ initialPreset }: { initialPreset?: string }) {
           onPointerUp={onUp}
           onPointerCancel={onUp}
         >
-          <DesignCard design={d} watermark selected={selected} />
+          <DesignCard design={d} watermark watermarkLabel={en ? "SAMPLE · Davetanisi" : "ÖRNEK · Davetanisi"} selected={selected} />
         </div>
-        <p className="editor__tip">Metni parmağınızla ya da fareyle sürükleyebilir ya da aşağıdaki kaydırıcıları kullanabilirsiniz.</p>
+        <p className="editor__tip">{en ? "Drag the text with your finger or the mouse, or use the sliders below." : "Metni parmağınızla ya da fareyle sürükleyebilir ya da aşağıdaki kaydırıcıları kullanabilirsiniz."}</p>
       </div>
 
       <div className="editor__panel">
         <section className="editor__sec" aria-labelledby="e-start">
-          <h2 id="e-start">Başlangıç</h2>
+          <h2 id="e-start">{en ? "Start" : "Başlangıç"}</h2>
           <div className="field">
-            <label className="field__label" htmlFor="e-preset">Tasarım</label>
+            <label className="field__label" htmlFor="e-preset">{en ? "Design" : "Tasarım"}</label>
             <select id="e-preset" className="select" value={d.presetId} onChange={(e) => choosePreset(e.target.value)}>
-              <option value="bos">Boş sayfa</option>
-              {designPresets.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.category}</option>)}
+              <option value="bos">{en ? "Blank page" : "Boş sayfa"}</option>
+              {designPresets.map((p) => <option key={p.id} value={p.id}>{studioName(p.id, p.name, locale)} · {studioCategory(p.categoryKey || "", p.category, locale)}</option>)}
             </select>
-            <p className="field__hint">Tasarım değiştirince metin ve renkler o tasarımın ayarlarına döner.</p>
+            <p className="field__hint">{en ? "Changing the design restores that design's text and colours." : "Tasarım değiştirince metin ve renkler o tasarımın ayarlarına döner."}</p>
           </div>
           <fieldset className="editor__fs">
-            <legend className="field__label">Ölçü</legend>
+            <legend className="field__label">{en ? "Size" : "Ölçü"}</legend>
             <div className="seg" role="radiogroup">
               {(Object.keys(RATIOS) as (keyof typeof RATIOS)[]).map((k) => (
                 <label key={k} className={`seg__opt${d.ratio === k ? " is-on" : ""}`}>
                   <input type="radio" name="ratio" checked={d.ratio === k} onChange={() => patch({ ratio: k })} />
-                  {RATIOS[k].label}
+                  {en ? RATIO_EN[k] : RATIOS[k].label}
                 </label>
               ))}
             </div>
@@ -322,12 +354,12 @@ export default function Editor({ initialPreset }: { initialPreset?: string }) {
         </section>
 
         <section className="editor__sec" aria-labelledby="e-text">
-          <h2 id="e-text">Metinler</h2>
+          <h2 id="e-text">{en ? "Text" : "Metinler"}</h2>
           {d.blocks.map((b) => (
             <fieldset key={b.id} className={`editor__block${selected === b.id ? " is-sel" : ""}`} onFocus={() => setSelected(b.id)}>
-              <legend>{b.label}</legend>
+              <legend>{blockLabel(b.label, en)}</legend>
               <div className="field">
-                <label className="field__label" htmlFor={`t-${b.id}`}>Metin</label>
+                <label className="field__label" htmlFor={`t-${b.id}`}>{en ? "Text" : "Metin"}</label>
                 {b.text.includes("\n") || b.text.length > 48 || b.size < 5 ? (
                   <textarea id={`t-${b.id}`} className="textarea" rows={Math.min(5, Math.max(2, b.text.split("\n").length + 1))} value={b.text} onChange={(e) => patchBlock(b.id, { text: e.target.value })} maxLength={280} />
                 ) : (
@@ -336,26 +368,26 @@ export default function Editor({ initialPreset }: { initialPreset?: string }) {
               </div>
               <div className="field-row field-row--2">
                 <div className="field">
-                  <label className="field__label" htmlFor={`s-${b.id}`}>Boyut <span className="num">{b.size}</span></label>
+                  <label className="field__label" htmlFor={`s-${b.id}`}>{en ? "Size" : "Boyut"} <span className="num">{b.size}</span></label>
                   <input id={`s-${b.id}`} type="range" min={2} max={24} step={0.2} value={b.size} onChange={(e) => patchBlock(b.id, { size: Number(e.target.value) })} />
                 </div>
                 <div className="field">
-                  <label className="field__label" htmlFor={`y-${b.id}`}>Dikey konum <span className="num">%{Math.round(b.y)}</span></label>
+                  <label className="field__label" htmlFor={`y-${b.id}`}>{en ? "Vertical position" : "Dikey konum"} <span className="num">%{Math.round(b.y)}</span></label>
                   <input id={`y-${b.id}`} type="range" min={4} max={96} step={0.5} value={b.y} onChange={(e) => patchBlock(b.id, { y: Number(e.target.value) })} />
                 </div>
               </div>
               <div className="field-row field-row--2">
                 <div className="field">
-                  <label className="field__label" htmlFor={`f-${b.id}`}>Yazı tipi</label>
+                  <label className="field__label" htmlFor={`f-${b.id}`}>{en ? "Font" : "Yazı tipi"}</label>
                   <select id={`f-${b.id}`} className="select" value={b.font} onChange={(e) => patchBlock(b.id, { font: e.target.value as FontKind })}>
-                    {(Object.keys(FONT_LABELS) as FontKind[]).map((k) => <option key={k} value={k}>{FONT_LABELS[k]}</option>)}
+                    {(Object.keys(FONT_LABELS) as FontKind[]).map((k) => <option key={k} value={k}>{en ? FONT_EN[k] : FONT_LABELS[k]}</option>)}
                   </select>
                 </div>
                 <div className="field">
-                  <label className="field__label" htmlFor={`c-${b.id}`}>Renk</label>
+                  <label className="field__label" htmlFor={`c-${b.id}`}>{en ? "Colour" : "Renk"}</label>
                   <select id={`c-${b.id}`} className="select" value={b.tone} onChange={(e) => patchBlock(b.id, { tone: e.target.value as Block["tone"] })}>
-                    <option value="ink">Metin rengi</option>
-                    <option value="accent">Vurgu rengi</option>
+                    <option value="ink">{en ? "Text colour" : "Metin rengi"}</option>
+                    <option value="accent">{en ? "Accent colour" : "Vurgu rengi"}</option>
                   </select>
                 </div>
               </div>
@@ -364,13 +396,13 @@ export default function Editor({ initialPreset }: { initialPreset?: string }) {
         </section>
 
         <section className="editor__sec" aria-labelledby="e-color">
-          <h2 id="e-color">Renkler ve çerçeve</h2>
+          <h2 id="e-color">{en ? "Colours and frame" : "Renkler ve çerçeve"}</h2>
           <div className="editor__colors">
             {([
-              ["bg", "Arka plan"],
-              ["bg2", "Arka plan (alt)"],
-              ["ink", "Metin"],
-              ["accent", "Vurgu"],
+              ["bg", en ? "Background" : "Arka plan"],
+              ["bg2", en ? "Background (bottom)" : "Arka plan (alt)"],
+              ["ink", en ? "Text" : "Metin"],
+              ["accent", en ? "Accent" : "Vurgu"],
             ] as const).map(([k, label]) => (
               <label key={k} className="color-pick">
                 <input type="color" value={d[k]} onChange={(e) => patch({ [k]: e.target.value } as Partial<DesignState>)} />
@@ -380,29 +412,31 @@ export default function Editor({ initialPreset }: { initialPreset?: string }) {
             ))}
           </div>
           <div className="field">
-            <label className="field__label" htmlFor="e-frame">Çerçeve</label>
+            <label className="field__label" htmlFor="e-frame">{en ? "Frame" : "Çerçeve"}</label>
             <select id="e-frame" className="select" value={d.frame} onChange={(e) => patch({ frame: e.target.value as FrameKind })}>
-              {(Object.keys(FRAMES) as FrameKind[]).map((k) => <option key={k} value={k}>{FRAMES[k]}</option>)}
+              {(Object.keys(frames) as FrameKind[]).map((k) => <option key={k} value={k}>{frames[k]}</option>)}
             </select>
           </div>
         </section>
 
         <section className="editor__sec" aria-labelledby="e-dl">
-          <h2 id="e-dl">İndir</h2>
+          <h2 id="e-dl">{en ? "Download" : "İndir"}</h2>
           <div className="editor__actions">
             <button type="button" className="btn btn--dark btn--lg btn--block" onClick={download} disabled={busy} aria-busy={busy}>
-              <Icon name="download" size={16} /> {busy ? "Hazırlanıyor…" : "PNG indir (filigranlı, ücretsiz)"}
+              <Icon name="download" size={16} /> {busy ? (en ? "Preparing…" : "Hazırlanıyor…") : en ? "Download PNG (watermarked, free)" : "PNG indir (filigranlı, ücretsiz)"}
             </button>
             <button type="button" className="btn btn--outline btn--block" disabled aria-describedby="e-paid-note">
-              Filigransız indir · 99 TL
+              {en ? `Download without watermark · ${formatTL(99, locale)}` : "Filigransız indir · 99 TL"}
             </button>
           </div>
           <p id="e-paid-note" className="field__hint">
-            Filigransız indirme ve PDF çıktısı bu yerel kopyada yoktur (ödeme akışı test modundadır).
+            {en
+              ? "A download without the watermark, and PDF export, are not in this local copy (payments are in test mode)."
+              : "Filigransız indirme ve PDF çıktısı bu yerel kopyada yoktur (ödeme akışı test modundadır)."}
           </p>
           <p className="field__hint" role="status">{msg}</p>
-          <button type="button" className="link-btn" onClick={() => choosePreset(d.presetId)}>Bu tasarımı sıfırla</button>
-          <p className="field__hint">Taslağınız bu tarayıcıda otomatik kaydedilir. <Link href="/tr/tasarim-studyosu">Hazır tasarımlara dön</Link></p>
+          <button type="button" className="link-btn" onClick={() => choosePreset(d.presetId)}>{en ? "Reset this design" : "Bu tasarımı sıfırla"}</button>
+          <p className="field__hint">{en ? "Your draft is saved in this browser automatically." : "Taslağınız bu tarayıcıda otomatik kaydedilir."} <Link href={lp(locale, "/tasarim-studyosu")}>{en ? "Back to ready-made designs" : "Hazır tasarımlara dön"}</Link></p>
         </section>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import Icon from "../Icon";
 import type { InvitationStyle } from "@/data/invitationStyles";
 import type { OpeningType } from "@/data/themes";
+import { useLocale } from "@/i18n/provider";
 
 export type OpeningPhase = "closed" | "opening" | "done";
 
@@ -39,6 +40,8 @@ export default function OpeningScreen({
   onOpened: () => void;
   onSkip: () => void;
 }) {
+  const locale = useLocale();
+  const en = locale === "en";
   const videoRef = useRef<HTMLVideoElement>(null);
   const opening = phase === "opening";
   const useVideo = Boolean(video);
@@ -66,7 +69,7 @@ export default function OpeningScreen({
       className={`iv-open iv-open--${type}${opening ? " is-opening" : ""}${useVideo ? " iv-open--video" : ""}`}
       role="dialog"
       aria-modal="false"
-      aria-label={`${title} davetiyesi açılış ekranı`}
+      aria-label={en ? `${title} invitation opening` : `${title} davetiyesi açılış ekranı`}
     >
       {useVideo ? (
         <>
@@ -82,7 +85,7 @@ export default function OpeningScreen({
               preload="auto"
               onEnded={onOpened}
               onError={onOpened}
-              aria-label="Açılış animasyonu"
+              aria-label={en ? "Opening animation" : "Açılış animasyonu"}
             />
           )}
         </>
@@ -120,7 +123,7 @@ export default function OpeningScreen({
 
       {opening && (
         <button type="button" className="iv-open__skip" onClick={onSkip}>
-          Geç
+          {en ? "Skip" : "Geç"}
         </button>
       )}
     </div>

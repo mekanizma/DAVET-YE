@@ -2,14 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import TimesReader from "@/components/TimesReader";
 import IbanCheckout, { type PlacedOrder } from "@/components/checkout/IbanCheckout";
 import { useCatalog } from "@/components/CatalogProvider";
 import { SlotControl } from "@/components/newspaper/SlotControls";
 import { applyNewspaper } from "@/lib/catalog";
-import { getNewspaper, newspapers } from "@/data/newspapers";
+import { getNewspaper, newspaperStyles, newspapers } from "@/data/newspapers";
+import { localizeNewspaper } from "@/i18n/catalog";
+import { lp } from "@/i18n/locale";
+import { useLocale } from "@/i18n/provider";
 import {
   EMPTY_NEWSPAPER_DRAFT,
   fileToDraftPhoto,
@@ -58,7 +61,18 @@ function snapOf(d: NewspaperDraft): Snap {
   };
 }
 
+const TOOL_EN: Record<ToolId, string> = {
+  templates: "Templates",
+  pages: "Pages",
+  text: "Text",
+  photos: "Photos",
+  order: "Order",
+};
+
 export default function NewspaperStudio({ initialTemplate }: { initialTemplate?: string }) {
+  const locale = useLocale();
+  const en = locale === "en";
+  const tx = useCallback((tr: string, english: string) => (locale === "en" ? english : tr), [locale]);
   const [saved, setSaved] = useLocalJson<NewspaperDraft>(NEWSPAPER_DRAFT, EMPTY_NEWSPAPER_DRAFT);
   const start = initialTemplate && getNewspaper(initialTemplate) ? initialTemplate : undefined;
   const appliedStart = useRef<string>("");
@@ -96,11 +110,12 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
   const list = newspapers
     .map((n) => applyNewspaper(n, cat))
     .filter((n) => !cat.newspapers[n.slug]?.hidden || n.slug === draft.template || n.slug === bootSlug);
-  const paper =
+  const paperSource =
     list.find((n) => n.slug === draft.template) ||
     (bootSlug && list.find((n) => n.slug === bootSlug)) ||
     list[0] ||
     applyNewspaper(newspapers[0], cat);
+  const paper = useMemo(() => localizeNewspaper(paperSource, locale), [paperSource, locale]);
 
   const pageEditors = useMemo(() => timesPageEditors(design), [design]);
   const values = useMemo(() => ({ ...legacyDraftToTimesValues(draft), ...(draft.values || {}) }), [draft]);
@@ -118,11 +133,11 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
       id: `p:${p.index}` as PageId,
       no: String(i + 1).padStart(2, "0"),
       label: p.name,
-      hint: `${p.slots.length} alan`,
+      hint: en ? `${p.slots.length} ${p.slots.length === 1 ? "field" : "fields"}` : `${p.slots.length} alan`,
       slots: p.slots,
       index: p.index,
     }));
-  }, [pageEditors]);
+  }, [pageEditors, en]);
 
   const active = pages.find((p) => p.id === page) || pages[0];
   const textSlots = active?.slots.filter((s) => s.kind === "field" || s.kind === "content") || [];
@@ -134,7 +149,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
     setDesignErr("");
     fetch(`/api/times/${encodeURIComponent(paper.slug)}`)
       .then(async (r) => {
-        if (!r.ok) throw new Error("Şablon yüklenemedi");
+        if (!r.ok) throw new Error(tx("Şablon yüklenemedi", "The template could not be loaded"));
         return (await r.json()) as TimesReaderData;
       })
       .then((data) => {
@@ -146,12 +161,12 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
         if (cancelled) return;
         setDesign(null);
         setDesignLoading(false);
-        setDesignErr(err instanceof Error ? err.message : "Şablon yüklenemedi");
+        setDesignErr(err instanceof Error ? err.message : tx("Şablon yüklenemedi", "The template could not be loaded"));
       });
     return () => {
       cancelled = true;
     };
-  }, [paper.slug]);
+  }, [paper.slug, locale, tx]);
 
   useEffect(() => {
     if (!start || !design) return;
@@ -322,10 +337,10 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
     for (const editor of pageEditors) {
       for (const slot of editor.slots) {
         if (slot.kind === "field" && slot.field.required) {
-          if (!(values[slot.field.id] || "").trim()) e[slot.field.id] = `${slot.field.label} gerekli.`;
+          if (!(values[slot.field.id] || "").trim()) e[slot.field.id] = en ? `${slot.field.label} is required.` : `${slot.field.label} gerekli.`;
         }
         if (slot.kind === "image" && slot.required) {
-          if (!(values[slot.fieldId] || "").trim()) e[slot.fieldId] = `${slot.label} gerekli.`;
+          if (!(values[slot.fieldId] || "").trim()) e[slot.fieldId] = en ? `${slot.label} is required.` : `${slot.label} gerekli.`;
         }
       }
     }
@@ -371,7 +386,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
         patch({ values: next });
       }
     } catch (err) {
-      setPhotoErr(err instanceof Error ? err.message : "Görsel yüklenemedi.");
+      setPhotoErr(err instanceof Error ? err.message : tx("Görsel yüklenemedi.", "The image could not be uploaded."));
     } finally {
       setPhotoBusy(null);
     }
@@ -388,17 +403,17 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
   }
 
   const titleLine = displayTitleFromValues(values, paper.title);
-  const exitHref = `/tr/gazeteler/${paper.slug}`;
+  const exitHref = lp(locale, `/gazeteler/${paper.slug}`);
   const panelTitle =
     tool === "templates"
-      ? "Hazır gazeteler"
+      ? tx("Hazır gazeteler", "Ready-made newspapers")
       : tool === "pages"
-        ? "Sayfalar"
+        ? tx("Sayfalar", "Pages")
         : tool === "text"
-          ? "Metin alanları"
+          ? tx("Metin alanları", "Text fields")
           : tool === "photos"
-            ? "Fotoğraflar"
-            : "Sipariş";
+            ? tx("Fotoğraflar", "Photos")
+            : tx("Sipariş", "Order");
 
   return (
     <div className="ns-page">
@@ -409,9 +424,9 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
         data-layout="desktop"
       >
         <header className="ns-top">
-          <Link href={exitHref} className="ns-top__exit" aria-label="Gazete stüdyosundan çık">
+          <Link href={exitHref} className="ns-top__exit" aria-label={tx("Gazete stüdyosundan çık", "Leave the newspaper studio")}>
             <Icon name="chevron-left" size={16} />
-            <span className="ns-desktop-only">Çıkış</span>
+            <span className="ns-desktop-only">{tx("Çıkış", "Exit")}</span>
           </Link>
 
           <div className="ns-top__doc">
@@ -419,35 +434,35 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
               className="ns-top__title"
               value={paper.title}
               readOnly
-              aria-label="Gazete adı"
+              aria-label={tx("Gazete adı", "Newspaper name")}
               title={paper.title}
             />
             <span className="ns-status" role="status" data-state={status}>
-              {status === "saved" ? "Kaydedildi" : "Taslak"}
+              {status === "saved" ? tx("Kaydedildi", "Saved") : tx("Taslak", "Draft")}
             </span>
           </div>
 
-          <div className="ns-top__group" role="group" aria-label="Düzenleme">
-            <button type="button" className="ns-iconbtn" aria-label="Geri al" title="Geri al (Ctrl+Z)" disabled={!canUndo} onClick={undo}>
+          <div className="ns-top__group" role="group" aria-label={tx("Düzenleme", "Editing")}>
+            <button type="button" className="ns-iconbtn" aria-label={tx("Geri al", "Undo")} title={tx("Geri al (Ctrl+Z)", "Undo (Ctrl+Z)")} disabled={!canUndo} onClick={undo}>
               <Icon name="chevron-left" size={18} />
             </button>
-            <button type="button" className="ns-iconbtn" aria-label="Yinele" title="Yinele (Ctrl+Y)" disabled={!canRedo} onClick={redo}>
+            <button type="button" className="ns-iconbtn" aria-label={tx("Yinele", "Redo")} title={tx("Yinele (Ctrl+Y)", "Redo (Ctrl+Y)")} disabled={!canRedo} onClick={redo}>
               <Icon name="chevron-right" size={18} />
             </button>
           </div>
 
-          <div className="ns-top__group ns-desktop-only" role="group" aria-label="Yakınlaştırma">
-            <button type="button" className="ns-iconbtn" aria-label="Uzaklaştır" onClick={() => setZoom((z) => Math.max(0.5, Math.round((z - 0.1) * 10) / 10))}>
+          <div className="ns-top__group ns-desktop-only" role="group" aria-label={tx("Yakınlaştırma", "Zoom")}>
+            <button type="button" className="ns-iconbtn" aria-label={tx("Uzaklaştır", "Zoom out")} onClick={() => setZoom((z) => Math.max(0.5, Math.round((z - 0.1) * 10) / 10))}>
               <Icon name="minus" size={16} />
             </button>
-            <button type="button" className="ns-zoom__value" aria-label={`Yakınlaştırma %${Math.round(zoom * 100)}`} onClick={() => setZoom(1)}>
+            <button type="button" className="ns-zoom__value" aria-label={tx(`Yakınlaştırma %${Math.round(zoom * 100)}`, `Zoom ${Math.round(zoom * 100)}%`)} onClick={() => setZoom(1)}>
               %{Math.round(zoom * 100)}
             </button>
-            <button type="button" className="ns-iconbtn" aria-label="Yakınlaştır" onClick={() => setZoom((z) => Math.min(1.6, Math.round((z + 0.1) * 10) / 10))}>
+            <button type="button" className="ns-iconbtn" aria-label={tx("Yakınlaştır", "Zoom in")} onClick={() => setZoom((z) => Math.min(1.6, Math.round((z + 0.1) * 10) / 10))}>
               <Icon name="plus" size={16} />
             </button>
             <button type="button" className="ns-btn ns-btn--ghost ns-btn--sm" onClick={() => setFitTick((n) => n + 1)}>
-              Sığdır
+              {tx("Sığdır", "Fit")}
             </button>
           </div>
 
@@ -455,15 +470,15 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
             type="button"
             className="ns-chip ns-desktop-only"
             onClick={() => patch({ size: draft.size === "A3" ? "A2" : "A3" })}
-            aria-label={`Baskı boyutu: ${draft.size}`}
+            aria-label={tx(`Baskı boyutu: ${draft.size}`, `Print size: ${draft.size}`)}
           >
-            {draft.size} baskı
+            {draft.size} {tx("baskı", "print")}
           </button>
 
           <div className="ns-top__end">
             <Link href={`/times/sablon/${paper.slug}`} className="ns-btn ns-btn--ghost ns-btn--sm" target="_blank" rel="noopener noreferrer">
               <Icon name="expand" size={14} />
-              <span className="ns-desktop-only">Önizle</span>
+              <span className="ns-desktop-only">{tx("Önizle", "Preview")}</span>
             </Link>
             <button
               type="button"
@@ -475,13 +490,13 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
               }}
             >
               <Icon name="download" size={14} />
-              Sipariş
+              {tx("Sipariş", "Order")}
             </button>
           </div>
         </header>
 
         <div className="ns-body">
-          <nav className="ns-rail" aria-label="Gazete araçları">
+          <nav className="ns-rail" aria-label={tx("Gazete araçları", "Newspaper tools")}>
             {TOOLS.map((t) => (
               <button
                 key={t.id}
@@ -491,7 +506,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                 onClick={() => openTool(t.id)}
               >
                 <Icon name={t.icon} size={22} />
-                {t.label}
+                {en ? TOOL_EN[t.id] : t.label}
               </button>
             ))}
           </nav>
@@ -501,14 +516,14 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
               <h2 className="ns-panelhost__title" id="ns-panel-title">
                 {panelTitle}
               </h2>
-              <button type="button" className="ns-iconbtn" aria-label="Paneli kapat" onClick={() => setPanelOpen(false)}>
+              <button type="button" className="ns-iconbtn" aria-label={tx("Paneli kapat", "Close the panel")} onClick={() => setPanelOpen(false)}>
                 <Icon name="close" size={16} />
               </button>
             </header>
             <div className="ns-panelhost__body">
               {tool === "templates" ? (
                 <>
-                  <p className="ns-hint">Bir gazete seçin; kapak, hikâye, kareler ve teşekkür alanları otomatik gelir.</p>
+                  <p className="ns-hint">{tx("Bir gazete seçin; kapak, hikâye, kareler ve teşekkür alanları otomatik gelir.", "Choose a newspaper; the cover, story, frames and thank-you fields are filled in for you.")}</p>
                   <div className="ns-tgrid" role="list">
                     {list.map((n) => (
                       <button
@@ -526,7 +541,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                             </span>
                           )}
                         </span>
-                        <span className="ns-tcard__name">{n.title}</span>
+                        <span className="ns-tcard__name">{localizeNewspaper(n, locale).title}</span>
                       </button>
                     ))}
                   </div>
@@ -535,7 +550,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
 
               {tool === "pages" ? (
                 <>
-                  <p className="ns-hint">Düzenlemek istediğiniz gazete sayfasını seçin.</p>
+                  <p className="ns-hint">{tx("Düzenlemek istediğiniz gazete sayfasını seçin.", "Choose the newspaper page you want to edit.")}</p>
                   <div className="ns-pagelist">
                     {pages.map((p) => (
                       <button
@@ -562,9 +577,9 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
               {tool === "text" ? (
                 <>
                   <p className="ns-hint">
-                    {active ? `${active.no} · ${active.label}` : "Sayfa yükleniyor…"} — metinler canlı gazeteye yazılır.
+                    {active ? `${active.no} · ${active.label}` : tx("Sayfa yükleniyor…", "The page is loading…")} — {tx("metinler canlı gazeteye yazılır.", "text is written onto the live newspaper.")}
                   </p>
-                  {designLoading ? <p className="ns-hint">Alanlar yükleniyor…</p> : null}
+                  {designLoading ? <p className="ns-hint">{tx("Alanlar yükleniyor…", "Fields are loading…")}</p> : null}
                   {designErr ? (
                     <p className="field__error" role="alert">
                       {designErr}
@@ -591,14 +606,14 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                         onClearImage={() => undefined}
                       />
                     ))}
-                    {!designLoading && !textSlots.length ? <p className="ns-hint">Bu sayfada metin alanı yok.</p> : null}
+                    {!designLoading && !textSlots.length ? <p className="ns-hint">{tx("Bu sayfada metin alanı yok.", "This page has no text fields.")}</p> : null}
                   </div>
                 </>
               ) : null}
 
               {tool === "photos" ? (
                 <>
-                  <p className="ns-hint">Sayfa fotoğraflarını yükleyin; önizleme anında güncellenir.</p>
+                  <p className="ns-hint">{tx("Sayfa fotoğraflarını yükleyin; önizleme anında güncellenir.", "Upload the page photos; the preview updates straight away.")}</p>
                   {photoErr ? (
                     <p className="field__error" role="alert">
                       {photoErr}
@@ -619,7 +634,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                         />
                       ) : null,
                     )}
-                    {!photoSlots.length ? <p className="ns-hint">Bu sayfada fotoğraf alanı yok. Başka sayfa seçin.</p> : null}
+                    {!photoSlots.length ? <p className="ns-hint">{tx("Bu sayfada fotoğraf alanı yok. Başka sayfa seçin.", "This page has no photo fields. Choose another page.")}</p> : null}
                   </div>
                 </>
               ) : null}
@@ -630,32 +645,32 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                     <strong>{paper.title}</strong>
                     <span>{titleLine || "—"}</span>
                     <span className="field__hint">
-                      {values.weddingDate || values.eventDate || draft.date || "Tarih yok"} · {values.venue || "Mekân yok"} ·{" "}
+                      {values.weddingDate || values.eventDate || draft.date || tx("Tarih yok", "No date")} · {values.venue || tx("Mekân yok", "No venue")} ·{" "}
                       {draft.size}
                     </span>
                   </div>
                   <div className="ns-fields" style={{ marginBottom: 12 }}>
                     <label className="field">
-                      <span className="field__label">Baskı boyutu</span>
+                      <span className="field__label">{tx("Baskı boyutu", "Print size")}</span>
                       <select className="input" value={draft.size} onChange={(e) => patch({ size: e.target.value as "A3" | "A2" })}>
                         <option value="A3">A3</option>
                         <option value="A2">A2</option>
                       </select>
                     </label>
                     <label className="field">
-                      <span className="field__label">Kâğıt görünümü</span>
+                      <span className="field__label">{tx("Kâğıt görünümü", "Paper look")}</span>
                       <select
                         className="input"
                         value={draft.style}
                         onChange={(e) => patch({ style: e.target.value as NewspaperDraft["style"] })}
                       >
-                        <option value="original">Orijinal</option>
-                        <option value="sepia">Eski kâğıt</option>
-                        <option value="mono">Siyah beyaz</option>
+                        {newspaperStyles(locale).map((s) => (
+                          <option key={s.id} value={s.id}>{s.label}</option>
+                        ))}
                       </select>
                     </label>
                   </div>
-                  <p className="ns-hint">Taslak tarayıcıda saklanır. Ödeme havale / EFT ile alınır.</p>
+                  <p className="ns-hint">{tx("Taslak tarayıcıda saklanır. Ödeme havale / EFT ile alınır.", "The draft is saved in this browser. Payment is by bank transfer.")}</p>
                   {payOpen || draft.orderCode ? (
                     <IbanCheckout
                       kind="gazete"
@@ -663,11 +678,11 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                       title={paper.title}
                       previewTotal={paper.price}
                       snapshot={{
-                        İsimler: titleLine,
-                        Tarih: values.weddingDate || values.eventDate || "",
-                        Mekan: values.venue || "",
-                        Boyut: draft.size,
-                        Hikaye: (values.story || "").slice(0, 280),
+                        [en ? "Names" : "İsimler"]: titleLine,
+                        [en ? "Date" : "Tarih"]: values.weddingDate || values.eventDate || "",
+                        [en ? "Venue" : "Mekan"]: values.venue || "",
+                        [en ? "Size" : "Boyut"]: draft.size,
+                        [en ? "Story" : "Hikaye"]: (values.story || "").slice(0, 280),
                       }}
                       resume={draft.orderCode && draft.orderEmail ? { code: draft.orderCode, email: draft.orderEmail } : null}
                       onUpdate={remember}
@@ -680,7 +695,7 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                         if (validate()) setPayOpen(true);
                       }}
                     >
-                      Havale ile devam et
+                      {tx("Havale ile devam et", "Continue with bank transfer")}
                     </button>
                   )}
                 </>
@@ -688,36 +703,36 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
             </div>
           </section>
 
-          <main className="ns-center" aria-label="Gazete tasarım alanı">
+          <main className="ns-center" aria-label={tx("Gazete tasarım alanı", "Newspaper canvas")}>
             <div className="ns-canvas" style={{ transform: `scale(${zoom})` }}>
               <div className="ns-canvas__stage">
                 {previewData ? (
                   <TimesReader key={paper.slug} data={previewData} slug={paper.slug} embedded />
                 ) : (
-                  <div className="ns-canvas__empty">{designLoading ? "Gazete yükleniyor…" : "Şablon bulunamadı"}</div>
+                  <div className="ns-canvas__empty">{designLoading ? tx("Gazete yükleniyor…", "The newspaper is loading…") : tx("Şablon bulunamadı", "Template not found")}</div>
                 )}
               </div>
             </div>
             <div className="ns-fab">
               <button type="button" className="ns-btn ns-btn--ghost ns-btn--sm" onClick={() => setInspectorOpen((v) => !v)}>
-                <Icon name="sliders" size={14} /> Düzenle
+                <Icon name="sliders" size={14} /> {tx("Düzenle", "Edit")}
               </button>
             </div>
           </main>
 
-          <aside className="ns-inspector" aria-label="Düzenle">
+          <aside className="ns-inspector" aria-label={tx("Düzenle", "Edit")}>
             <header className="ns-inspector__head">
-              <h2>{active ? active.label : "Gazete"}</h2>
+              <h2>{active ? active.label : tx("Gazete", "Newspaper")}</h2>
               <p>
                 {draft.size} · {paper.title}
-                {active ? ` · ${active.slots.length} alan` : ""}
+                {active ? ` · ${active.slots.length} ${en ? (active.slots.length === 1 ? "field" : "fields") : "alan"}` : ""}
               </p>
               <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
                 <button type="button" className="ns-btn ns-btn--ghost ns-btn--sm" onClick={() => openTool("text")}>
-                  Metin
+                  {tx("Metin", "Text")}
                 </button>
                 <button type="button" className="ns-btn ns-btn--ghost ns-btn--sm" onClick={() => openTool("photos")}>
-                  Fotoğraf
+                  {tx("Fotoğraf", "Photo")}
                 </button>
                 <button
                   type="button"
@@ -727,12 +742,12 @@ export default function NewspaperStudio({ initialTemplate }: { initialTemplate?:
                     if (i >= 0 && i < pages.length - 1) setPage(pages[i + 1]!.id);
                   }}
                 >
-                  Sonraki sayfa
+                  {tx("Sonraki sayfa", "Next page")}
                 </button>
               </div>
             </header>
             <div className="ns-inspector__body">
-              <p className="ns-hint">Seçili sayfadaki alanlar. Değişiklikler ortadaki gazeteye anında yansır.</p>
+              <p className="ns-hint">{tx("Seçili sayfadaki alanlar. Değişiklikler ortadaki gazeteye anında yansır.", "Fields on the selected page. Changes appear on the newspaper straight away.")}</p>
               {photoErr ? (
                 <p className="field__error" role="alert">
                   {photoErr}

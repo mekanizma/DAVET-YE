@@ -5,6 +5,9 @@ import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import Icon from "../Icon";
 import { TextField } from "../Field";
+import { useLocale } from "@/i18n/provider";
+import type { Locale } from "@/i18n/locale";
+import { localizeError } from "@/i18n/product";
 import { isEmail } from "@/lib/format";
 import { isDesignStart, safeReturnPath } from "@/lib/returnTo";
 import { authErrorMessage } from "@/lib/supabase/errors";
@@ -12,26 +15,32 @@ import { createSupabaseBrowser } from "@/lib/supabase/browser";
 
 type Mode = "giris" | "kayit" | "sifre";
 
+function tx(locale: Locale, tr: string, en: string) {
+  return locale === "en" ? en : tr;
+}
+
 function withNext(path: string, next: string) {
   if (next === "/panel") return path;
   return `${path}?next=${encodeURIComponent(next)}`;
 }
 
-const COPY: Record<Mode, { title: string; cta: string; busy: string }> = {
-  giris: { title: "Giriş yap", cta: "Giriş yap", busy: "Giriş yapılıyor…" },
-  kayit: { title: "Hesap oluştur", cta: "Hesap oluştur", busy: "Hesap oluşturuluyor…" },
-  sifre: { title: "Şifremi unuttum", cta: "Bağlantı gönder", busy: "Gönderiliyor…" },
-};
+function copyFor(mode: Mode, locale: Locale) {
+  if (mode === "giris") return { title: tx(locale, "Giriş yap", "Sign in"), cta: tx(locale, "Giriş yap", "Sign in"), busy: tx(locale, "Giriş yapılıyor…", "Signing in…") };
+  if (mode === "kayit") return { title: tx(locale, "Hesap oluştur", "Create account"), cta: tx(locale, "Hesap oluştur", "Create account"), busy: tx(locale, "Hesap oluşturuluyor…", "Creating the account…") };
+  return { title: tx(locale, "Şifremi unuttum", "Forgot password"), cta: tx(locale, "Bağlantı gönder", "Send the link"), busy: tx(locale, "Gönderiliyor…", "Sending…") };
+}
 
 export default function AuthForm({ mode }: { mode: Mode }) {
+  const locale = useLocale();
   return (
-    <Suspense fallback={<div className="auth-card" aria-busy="true"><p className="muted">Yükleniyor…</p></div>}>
+    <Suspense fallback={<div className="auth-card" aria-busy="true"><p className="muted">{tx(locale, "Yükleniyor…", "Loading…")}</p></div>}>
       <AuthFields mode={mode} />
     </Suspense>
   );
 }
 
 function AuthFields({ mode }: { mode: Mode }) {
+  const locale = useLocale();
   const params = useSearchParams();
   const next = safeReturnPath(params.get("next"));
   const designing = isDesignStart(next.split("?")[0]);
@@ -43,10 +52,11 @@ function AuthFields({ mode }: { mode: Mode }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
+  const copy = copyFor(mode, locale);
 
   useEffect(() => {
     const hata = new URLSearchParams(window.location.search).get("hata");
-    if (hata === "dogrulama") setErrors({ form: "Doğrulama bağlantısı geçersiz veya süresi dolmuş. Yeniden deneyin." });
+    if (hata === "dogrulama") setErrors({ form: tx(locale, "Doğrulama bağlantısı geçersiz veya süresi dolmuş. Yeniden deneyin.", "The confirmation link is invalid or has expired. Please try again.") });
     const sync = () => {
       const emailEl = document.getElementById("a-email") as HTMLInputElement | null;
       const pwEl = document.getElementById("a-pw") as HTMLInputElement | null;
@@ -56,7 +66,7 @@ function AuthFields({ mode }: { mode: Mode }) {
     sync();
     const timer = window.setTimeout(sync, 400);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [locale]);
 
   function fieldValue(id: string, fallback: string) {
     const el = document.getElementById(id) as HTMLInputElement | null;
@@ -74,10 +84,10 @@ function AuthFields({ mode }: { mode: Mode }) {
     setPw(pwNow);
     setPw2(pw2Now);
     const er: Record<string, string> = {};
-    if (mode === "kayit" && nameNow.trim().length < 2) er.name = "Adınızı yazın.";
-    if (!isEmail(emailNow.trim())) er.email = "Geçerli bir e-posta adresi yazın.";
-    if (mode !== "sifre" && pwNow.length < 8) er.pw = "Şifre en az 8 karakter olmalı.";
-    if (mode === "kayit" && pw2Now !== pwNow) er.pw2 = "Şifreler eşleşmiyor.";
+    if (mode === "kayit" && nameNow.trim().length < 2) er.name = tx(locale, "Adınızı yazın.", "Enter your name.");
+    if (!isEmail(emailNow.trim())) er.email = localizeError("Geçerli bir e-posta yazın.", locale);
+    if (mode !== "sifre" && pwNow.length < 8) er.pw = localizeError("Şifre en az 8 karakter olmalı.", locale);
+    if (mode === "kayit" && pw2Now !== pwNow) er.pw2 = tx(locale, "Şifreler eşleşmiyor.", "The passwords do not match.");
     setErrors(er);
     setInfo("");
     if (Object.keys(er).length) return;
@@ -91,10 +101,10 @@ function AuthFields({ mode }: { mode: Mode }) {
           redirectTo: `${origin}/auth/callback?next=/panel/sifre-yenile`,
         });
         if (error) {
-          setErrors({ form: authErrorMessage(error.message) });
+          setErrors({ form: authErrorMessage(error.message, locale) });
           return;
         }
-        setInfo("Hesap varsa sıfırlama bağlantısı e-postanıza gönderildi. Gelen kutunuzu ve istenmeyen klasörünü kontrol edin.");
+        setInfo(tx(locale, "Hesap varsa sıfırlama bağlantısı e-postanıza gönderildi. Gelen kutunuzu ve istenmeyen klasörünü kontrol edin.", "If an account exists, a reset link has been sent to your email. Check your inbox and the spam folder."));
         return;
       }
       if (mode === "kayit") {
@@ -107,11 +117,11 @@ function AuthFields({ mode }: { mode: Mode }) {
           },
         });
         if (error) {
-          setErrors({ form: authErrorMessage(error.message) });
+          setErrors({ form: authErrorMessage(error.message, locale) });
           return;
         }
         if (!data.session) {
-          setInfo("Hesabınız oluşturuldu. Giriş yapmadan önce e-postanızdaki doğrulama bağlantısına tıklayın.");
+          setInfo(tx(locale, "Hesabınız oluşturuldu. Giriş yapmadan önce e-postanızdaki doğrulama bağlantısına tıklayın.", "Your account has been created. Before you sign in, open the confirmation link in your email."));
           return;
         }
         window.location.assign(next);
@@ -122,48 +132,48 @@ function AuthFields({ mode }: { mode: Mode }) {
         password: pwNow,
       });
       if (error) {
-        setErrors({ form: authErrorMessage(error.message) });
+        setErrors({ form: authErrorMessage(error.message, locale) });
         return;
       }
       window.location.assign(next);
       return;
     } catch (err) {
-      setErrors({ form: authErrorMessage(err instanceof Error ? err.message : "network") });
+      setErrors({ form: authErrorMessage(err instanceof Error ? err.message : "network", locale) });
     } finally {
       setBusy(false);
     }
   }
 
+  const lead = designing && mode === "kayit"
+    ? tx(locale, "Tasarıma başlamak için hesap oluşturun. Hesabınız varsa giriş yapın.", "Create an account to start designing. If you already have one, sign in.")
+    : designing && mode === "giris"
+      ? tx(locale, "Tasarıma başlamak için giriş yapın. Hesabınız yoksa kayıt olabilirsiniz.", "Sign in to start designing. If you do not have an account, you can create one.")
+      : mode === "kayit"
+        ? tx(locale, "Davetiyeleriniz ve siparişleriniz bu hesapta durur.", "Your invitations and orders stay on this account.")
+        : mode === "sifre"
+          ? tx(locale, "Kayıtlı e-postanıza şifre sıfırlama bağlantısı gönderilir.", "A password reset link is sent to the email you registered with.")
+          : tx(locale, "Kayıt olduğunuz e-posta ve şifreyle devam edin.", "Continue with the email and password you registered with.");
+
   return (
     <form className="auth-card" onSubmit={onSubmit} noValidate>
-      <h1>{COPY[mode].title}</h1>
-      <p className="muted" style={{ margin: "0 0 16px" }}>
-        {designing && mode === "kayit"
-          ? "Tasarıma başlamak için hesap oluşturun. Hesabınız varsa giriş yapın."
-          : designing && mode === "giris"
-            ? "Tasarıma başlamak için giriş yapın. Hesabınız yoksa kayıt olabilirsiniz."
-            : mode === "kayit"
-              ? "Davetiyeleriniz ve siparişleriniz bu hesapta durur."
-              : mode === "sifre"
-                ? "Kayıtlı e-postanıza şifre sıfırlama bağlantısı gönderilir."
-                : "Kayıt olduğunuz e-posta ve şifreyle devam edin."}
-      </p>
+      <h1>{copy.title}</h1>
+      <p className="muted" style={{ margin: "0 0 16px" }}>{lead}</p>
 
       {mode === "kayit" && (
-        <TextField id="a-name" name="name" label="Ad soyad" required value={name} onChange={(e) => setName(e.target.value)} error={errors.name} autoComplete="name" />
+        <TextField id="a-name" name="name" label={tx(locale, "Ad soyad", "Full name")} required value={name} onChange={(e) => setName(e.target.value)} error={errors.name} autoComplete="name" />
       )}
-      <TextField id="a-email" name="email" type="email" label="E-posta" required value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} autoComplete={mode === "giris" ? "username" : "email"} inputMode="email" />
+      <TextField id="a-email" name="email" type="email" label={tx(locale, "E-posta", "Email")} required value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} autoComplete={mode === "giris" ? "username" : "email"} inputMode="email" />
       {mode !== "sifre" && (
         <div className="field-pw">
-          <TextField id="a-pw" name="password" type={show ? "text" : "password"} label="Şifre" required value={pw} onChange={(e) => setPw(e.target.value)} error={errors.pw} autoComplete={mode === "kayit" ? "new-password" : "current-password"} />
+          <TextField id="a-pw" name="password" type={show ? "text" : "password"} label={tx(locale, "Şifre", "Password")} required value={pw} onChange={(e) => setPw(e.target.value)} error={errors.pw} autoComplete={mode === "kayit" ? "new-password" : "current-password"} />
           <label className="check check--sm">
             <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />
-            <span>Şifreyi göster</span>
+            <span>{show ? tx(locale, "Şifreyi gizle", "Hide password") : tx(locale, "Şifreyi göster", "Show password")}</span>
           </label>
         </div>
       )}
       {mode === "kayit" && (
-        <TextField id="a-pw2" name="password-confirm" type={show ? "text" : "password"} label="Şifre (tekrar)" required value={pw2} onChange={(e) => setPw2(e.target.value)} error={errors.pw2} autoComplete="new-password" />
+        <TextField id="a-pw2" name="password-confirm" type={show ? "text" : "password"} label={tx(locale, "Şifre (tekrar)", "Password (again)")} required value={pw2} onChange={(e) => setPw2(e.target.value)} error={errors.pw2} autoComplete="new-password" />
       )}
 
       {errors.form && (
@@ -175,18 +185,18 @@ function AuthFields({ mode }: { mode: Mode }) {
       {info && <p className="alert alert--success" role="status">{info}</p>}
 
       <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={busy} aria-busy={busy}>
-        {busy ? COPY[mode].busy : COPY[mode].cta}
+        {busy ? copy.busy : copy.cta}
       </button>
 
       <p className="auth-card__links">
         {mode === "giris" && (
           <>
-            <Link href={withNext("/panel/sifremi-unuttum", next)}>Şifremi unuttum</Link>
-            <span>Hesabınız yok mu? <Link href={withNext("/panel/kayit", next)}>Kayıt olun</Link></span>
+            <Link href={withNext("/panel/sifremi-unuttum", next)}>{tx(locale, "Şifremi unuttum", "Forgot password")}</Link>
+            <span>{tx(locale, "Hesabınız yok mu?", "No account yet?")} <Link href={withNext("/panel/kayit", next)}>{tx(locale, "Kayıt olun", "Create one")}</Link></span>
           </>
         )}
-        {mode === "kayit" && <span>Zaten hesabınız var mı? <Link href={withNext("/panel/giris", next)}>Giriş yapın</Link></span>}
-        {mode === "sifre" && <Link href={withNext("/panel/giris", next)}>Girişe dön</Link>}
+        {mode === "kayit" && <span>{tx(locale, "Zaten hesabınız var mı?", "Already have an account?")} <Link href={withNext("/panel/giris", next)}>{tx(locale, "Giriş yapın", "Sign in")}</Link></span>}
+        {mode === "sifre" && <Link href={withNext("/panel/giris", next)}>{tx(locale, "Girişe dön", "Back to sign in")}</Link>}
       </p>
     </form>
   );

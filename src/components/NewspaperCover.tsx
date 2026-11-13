@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import type { Newspaper } from "@/data/newspapers";
+import { useLocale } from "@/i18n/provider";
 
 /** Kapak: manşet + künye + opsiyonel kapak fotoğrafı */
 export default function NewspaperCover({
@@ -31,15 +34,19 @@ export default function NewspaperCover({
   scriptNote?: string;
   inviteNote?: string;
 }) {
-  const topLeft = kicker || "ÖZEL SAYI";
-  const topRight = edition || dateLabel || "—";
+  const en = useLocale() === "en";
+  const special = en ? "SPECIAL EDITION" : "ÖZEL SAYI";
+  const editionLabel = !edition || edition === "ÖZEL SAYI" ? special : edition;
+  const topLeft = kicker || special;
+  const topRight = editionLabel || dateLabel || "—";
+  const coverLabel = en ? `${paper.title} newspaper cover` : `${paper.title} gazete kapağı`;
 
   if (coverPhoto) {
     return (
       <div
         className="np-css-cover np-css-cover--photo"
         role="img"
-        aria-label={`${paper.title} gazete kapağı`}
+        aria-label={coverLabel}
         style={{
           background: paper.paper,
           color: paper.ink,
@@ -108,7 +115,7 @@ export default function NewspaperCover({
     <div
       className="np-css-cover"
       role="img"
-      aria-label={`${paper.title} gazete kapağı`}
+      aria-label={coverLabel}
       style={{
         background: paper.paper,
         color: paper.ink,

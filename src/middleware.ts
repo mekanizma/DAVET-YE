@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { LOCALE_COOKIE, localeFromPath, type Locale } from "@/i18n/locale";
 import { isDesignStart, safeReturnPath } from "@/lib/returnTo";
 import { supabaseConfigured } from "@/lib/supabase/env";
 
@@ -10,15 +11,32 @@ function copyCookies(from: NextResponse, to: NextResponse) {
   return to;
 }
 
+function localeHeaders(req: NextRequest) {
+  const fromPath = localeFromPath(req.nextUrl.pathname);
+  const cookie = req.cookies.get(LOCALE_COOKIE)?.value;
+  const locale: Locale = fromPath ?? (cookie === "en" ? "en" : "tr");
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-locale", locale);
+  return { locale, fromPath, requestHeaders };
+}
+
+function rememberLocale(res: NextResponse, locale: Locale, fromPath: Locale | null) {
+  if (!fromPath) return res;
+  res.cookies.set(LOCALE_COOKIE, locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+  return res;
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const { locale, fromPath, requestHeaders } = localeHeaders(req);
+  const pass = () => rememberLocale(NextResponse.next({ request: { headers: requestHeaders } }), locale, fromPath);
   const adminPage = pathname === "/yonetim" || pathname.startsWith("/yonetim/");
   const adminApi = pathname.startsWith("/api/yonetim");
   const panel = pathname === "/panel" || pathname.startsWith("/panel/");
   const design = isDesignStart(pathname);
-  if (!adminPage && !adminApi && !panel && !design) return NextResponse.next();
+  if (!adminPage && !adminApi && !panel && !design) return pass();
 
-  let supabaseResponse = NextResponse.next({ request: req });
+  let supabaseResponse = NextResponse.next({ request: { headers: requestHeaders } });
   const openAdmin = pathname === "/yonetim/giris" || pathname === "/api/yonetim/giris" || pathname === "/api/yonetim/cikis";
   const openPanel =
     pathname === "/panel/giris" ||
@@ -27,7 +45,7 @@ export async function middleware(req: NextRequest) {
     pathname === "/panel/sifre-yenile";
 
   if (!supabaseConfigured()) {
-    if (openAdmin || openPanel) return supabaseResponse;
+    if (openAdmin || openPanel) return rememberLocale(supabaseResponse, locale, fromPath);
     if (adminApi) return NextResponse.json({ error: "Giriş gerekli." }, { status: 401 });
     const url = req.nextUrl.clone();
     url.pathname = adminPage ? "/yonetim/giris" : "/panel/giris";
@@ -43,7 +61,7 @@ export async function middleware(req: NextRequest) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
-        supabaseResponse = NextResponse.next({ request: req });
+        supabaseResponse = NextResponse.next({ request: { headers: requestHeaders } });
         cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options));
       },
     },
@@ -64,9 +82,9 @@ export async function middleware(req: NextRequest) {
         url.search = "";
         return copyCookies(supabaseResponse, NextResponse.redirect(url));
       }
-      return supabaseResponse;
+      return rememberLocale(supabaseResponse, locale, fromPath);
     }
-    if (admin) return supabaseResponse;
+    if (admin) return rememberLocale(supabaseResponse, locale, fromPath);
     if (adminApi) return copyCookies(supabaseResponse, NextResponse.json({ error: "Giriş gerekli." }, { status: 401 }));
     const url = req.nextUrl.clone();
     url.pathname = "/yonetim/giris";
@@ -79,10 +97,10 @@ export async function middleware(req: NextRequest) {
       const dest = new URL(safeReturnPath(req.nextUrl.searchParams.get("next")), req.nextUrl.origin);
       return copyCookies(supabaseResponse, NextResponse.redirect(dest));
     }
-    return supabaseResponse;
+    return rememberLocale(supabaseResponse, locale, fromPath);
   }
 
-  if (user) return supabaseResponse;
+  if (user) return rememberLocale(supabaseResponse, locale, fromPath);
   const url = req.nextUrl.clone();
   url.pathname = "/panel/giris";
   url.search = "";
@@ -92,16 +110,10 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/yonetim",
-    "/yonetim/:path*",
+    "/((?!_next/static|_next/image|favicon|icon-|apple-touch|img/|fonts/|media/|api/).*)",
     "/api/yonetim/:path*",
-    "/panel",
-    "/panel/:path*",
-    "/tr/davetiye-olustur",
-    "/tr/davetiye-olustur/:path*",
-    "/tr/gazete-tasarla",
-    "/tr/gazete-tasarla/:path*",
-    "/tr/gazete-olustur",
-    "/tr/gazete-olustur/:path*",
+    "/api/siparis",
+    "/api/siparis/:path*",
+    "/api/hesap",
   ],
 };

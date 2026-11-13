@@ -2,29 +2,40 @@ import Link from "next/link";
 import Icon, { type IconName } from "./Icon";
 import FeaturesDemo from "./home/FeaturesDemo";
 import FeaturesFloral from "./home/FeaturesFloral";
-import { OFFER_FEATURES_HOME } from "@/data/site";
+import { lp } from "@/i18n/locale";
+import { getLocale } from "@/i18n/server";
+import { marketing } from "@/i18n/marketing";
 import type { Theme } from "@/data/themes";
 
-export default function Features({ themes = [] }: { themes?: Theme[] }) {
+export default async function Features({ themes = [] }: { themes?: Theme[] }) {
+  const locale = await getLocale();
+  const en = locale === "en";
+  const copy = marketing(locale);
   return (
     <section className="features" aria-labelledby="feat-offer-title">
       <div className="features__wash" aria-hidden="true" />
       <FeaturesFloral />
       <div className="wrap wrap--lg features__grid">
         <div className="features__copy">
-          <p className="eyebrow eyebrow--accent">Size ne sunuyoruz</p>
+          <p className="eyebrow eyebrow--accent">{en ? "What we offer" : "Size ne sunuyoruz"}</p>
           <h2 id="feat-offer-title">
-            Sadece bir davetiye değil, <em>eksiksiz bir dijital deneyim.</em>
+            {en ? (
+              <>More than an invitation. <em>A complete digital experience.</em></>
+            ) : (
+              <>Sadece bir davetiye değil, <em>eksiksiz bir dijital deneyim.</em></>
+            )}
           </h2>
           <p className="features__lead">
-            Misafirleriniz için gereken her şey tek, zarif ve kolay kullanılan bir bağlantıda.
+            {en
+              ? "Everything your guests need, on one elegant link that is simple to use."
+              : "Misafirleriniz için gereken her şey tek, zarif ve kolay kullanılan bir bağlantıda."}
           </p>
           <div className="features__actions">
-            <Link href="/tr/temalar" className="btn btn--cream">
-              Davetiyeleri Keşfet <Icon name="arrow" size={14} />
+            <Link href={lp(locale, "/temalar")} className="btn btn--cream">
+              {en ? "Browse invitations" : "Davetiyeleri Keşfet"} <Icon name="arrow" size={14} />
             </Link>
-            <Link href="/tr/ne-sunuyoruz" className="btn btn--ghost-light">
-              Tüm özellikler
+            <Link href={lp(locale, "/ne-sunuyoruz")} className="btn btn--ghost-light">
+              {en ? "All the features" : "Tüm özellikler"}
             </Link>
           </div>
         </div>
@@ -32,7 +43,7 @@ export default function Features({ themes = [] }: { themes?: Theme[] }) {
         <FeaturesDemo themes={themes} />
 
         <ul className="features__list">
-          {OFFER_FEATURES_HOME.map((f) => (
+          {copy.offerHome.map((f) => (
             <li key={f.title} className="feature">
               <span className="feature__icon">
                 <Icon name={f.icon as IconName} size={18} />
@@ -40,7 +51,7 @@ export default function Features({ themes = [] }: { themes?: Theme[] }) {
               <div>
                 <h3>
                   {f.title}
-                  {"addon" in f && f.addon && <span className="tag-addon">EKLENTİ</span>}
+                  {"addon" in f && f.addon && <span className="tag-addon">{copy.addonTag}</span>}
                 </h3>
                 <p>{f.text}</p>
               </div>

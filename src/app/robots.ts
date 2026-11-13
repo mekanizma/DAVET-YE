@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/yonetim", "/panel", "/onizleme", "/api/", "/times", "/tr/tasarla", "/tr/davetiye-olustur", "/tr/gazete-tasarla", "/tr/gazete-olustur"],
+      disallow: ["/yonetim", "/panel", "/onizleme", "/api/", "/times", "/tr/tasarla", "/en/tasarla", "/tr/davetiye-olustur", "/en/davetiye-olustur", "/tr/gazete-tasarla", "/en/gazete-tasarla", "/tr/gazete-olustur", "/en/gazete-olustur"],
     },
     sitemap: `${siteUrl()}/sitemap.xml`,
     host: siteUrl(),

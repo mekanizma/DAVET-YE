@@ -5,9 +5,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import Icon from "../Icon";
 import { Divider } from "./Decor";
 import { useIv } from "./ctx";
-import { TR_DAYS, TR_MONTHS, buildIcs, downloadBlob, longDate, pad2 } from "@/lib/format";
+import { useLocale } from "@/i18n/provider";
+import { TR_DAYS, TR_MONTHS, buildIcs, downloadBlob, longDate, pad2, weekdayName } from "@/lib/format";
 
-/** Section wrapper: full-height page with themed backdrop + "Sayfa geçişi" button. */
+/** Section wrapper: full-height page with themed backdrop + next-page button. */
 export function Sec({
   id,
   title,
@@ -25,6 +26,8 @@ export function Sec({
   cardClass?: string;
 }) {
   const { reduced } = useIv();
+  const locale = useLocale();
+  const en = locale === "en";
   return (
     <section id={`iv-${id}`} className="iv-sec" aria-label={title} data-sec={id}>
       <div className={bare ? "iv-sec__bare" : `iv-card ${cardClass}`}>{children}</div>
@@ -32,7 +35,7 @@ export function Sec({
         <button
           type="button"
           className="iv-next"
-          aria-label="Sayfa geçişi"
+          aria-label={en ? "Next page" : "Sayfa geçişi"}
           onClick={(e) => {
             const sec = (e.currentTarget as HTMLElement).closest("section");
             sec?.nextElementSibling?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
@@ -47,16 +50,18 @@ export function Sec({
 
 export function NamesSection() {
   const { data, style } = useIv();
+  const locale = useLocale();
+  const en = locale === "en";
   return (
-    <Sec id="isimler" title="İsimler" bare>
+    <Sec id="isimler" title={en ? "Names" : "İsimler"} bare>
       <p className="iv-lead">{style.lead}</p>
       <h2 className={`iv-names iv-names--${style.nameFont}`}>
         <span>{data.partnerA}</span>
         <span className="iv-names__amp" aria-hidden="true">&amp;</span>
-        <span className="sr-only"> ve </span>
+        <span className="sr-only">{en ? " and " : " ve "}</span>
         <span>{data.partnerB}</span>
       </h2>
-      <p className="iv-date-line">{longDate(data.date)}</p>
+      <p className="iv-date-line">{longDate(data.date, locale)}</p>
       <p className="iv-msg">{data.message}</p>
     </Sec>
   );
@@ -64,17 +69,19 @@ export function NamesSection() {
 
 export function FamiliesSection() {
   const { data, style } = useIv();
+  const locale = useLocale();
+  const en = locale === "en";
   return (
-    <Sec id="aileler" title="Aileler">
-      <p className="iv-kicker">Ailelerimiz</p>
+    <Sec id="aileler" title={en ? "Families" : "Aileler"}>
+      <p className="iv-kicker">{en ? "Our families" : "Ailelerimiz"}</p>
       <Divider kind={style.ornament} />
       <div className="iv-families">
         <div>
-          <h3>Gelinin Ailesi</h3>
+          <h3>{en ? "The bride's family" : "Gelinin Ailesi"}</h3>
           <p>{data.brideFamily}</p>
         </div>
         <div>
-          <h3>Damadın Ailesi</h3>
+          <h3>{en ? "The groom's family" : "Damadın Ailesi"}</h3>
           <p>{data.groomFamily}</p>
         </div>
       </div>
@@ -85,6 +92,8 @@ export function FamiliesSection() {
 
 function CalendarButton({ label, date, title }: { label: string; date: Date; title: string }) {
   const { data } = useIv();
+  const locale = useLocale();
+  const en = locale === "en";
   const [done, setDone] = useState(false);
   return (
     <button
@@ -95,47 +104,59 @@ function CalendarButton({ label, date, title }: { label: string; date: Date; tit
           title,
           start: date,
           location: `${data.venue}, ${data.address}`,
-          description: `${data.partnerA} & ${data.partnerB} davetiyesi`,
+          description: en
+            ? `${data.partnerA} & ${data.partnerB} invitation`
+            : `${data.partnerA} & ${data.partnerB} davetiyesi`,
         });
-        downloadBlob("davetiye.ics", new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+        downloadBlob(
+          en ? "invitation.ics" : "davetiye.ics",
+          new Blob([ics], { type: "text/calendar;charset=utf-8" }),
+        );
         setDone(true);
         setTimeout(() => setDone(false), 2500);
       }}
     >
-      <Icon name={done ? "check" : "calendar"} size={16} /> {done ? "Takvim dosyası indirildi" : label}
+      <Icon name={done ? "check" : "calendar"} size={16} /> {done ? (en ? "Calendar file downloaded" : "Takvim dosyası indirildi") : label}
     </button>
   );
 }
 
+function dayLine(date: Date, en: boolean) {
+  if (en) return `${weekdayName(date, "en")}, ${longDate(date, "en")}`;
+  return `${date.getDate()} ${TR_MONTHS[date.getMonth()]} ${TR_DAYS[date.getDay()]}`;
+}
+
 function DateBlock({ date, caption, label }: { date: Date; caption?: string; label: string }) {
   const { data } = useIv();
+  const locale = useLocale();
+  const en = locale === "en";
   return (
     <div className="iv-dateblock">
       {caption && <p className="iv-dateblock__cap">{caption}</p>}
-      <p className="iv-dateblock__day">
-        {date.getDate()} {TR_MONTHS[date.getMonth()]} {TR_DAYS[date.getDay()]}
-      </p>
+      <p className="iv-dateblock__day">{dayLine(date, en)}</p>
       <p className="iv-dateblock__time">
-        Saat <strong className="num">{pad2(date.getHours())}:{pad2(date.getMinutes())}</strong>
+        {en ? "at" : "Saat"} <strong className="num">{pad2(date.getHours())}:{pad2(date.getMinutes())}</strong>
       </p>
-      <CalendarButton label="Takvime Ekle" date={date} title={`${label} — ${data.partnerA} & ${data.partnerB}`} />
+      <CalendarButton label={en ? "Add to calendar" : "Takvime Ekle"} date={date} title={`${label} — ${data.partnerA} & ${data.partnerB}`} />
     </div>
   );
 }
 
 export function DateSection() {
   const { data, style } = useIv();
+  const locale = useLocale();
+  const en = locale === "en";
   return (
-    <Sec id="tarih" title="Tarih">
-      <p className="iv-kicker">Tarih</p>
+    <Sec id="tarih" title={en ? "Date" : "Tarih"}>
+      <p className="iv-kicker">{en ? "Date" : "Tarih"}</p>
       <Divider kind={style.ornament} />
       {data.kinaDate ? (
         <div className="iv-dates">
-          <DateBlock date={data.kinaDate} caption="Kına Gecesi" label="Kına Gecesi" />
-          <DateBlock date={data.date} caption="Düğün" label="Düğün" />
+          <DateBlock date={data.kinaDate} caption={en ? "Henna night" : "Kına Gecesi"} label={en ? "Henna night" : "Kına Gecesi"} />
+          <DateBlock date={data.date} caption={en ? "Wedding" : "Düğün"} label={en ? "Wedding" : "Düğün"} />
         </div>
       ) : (
-        <DateBlock date={data.date} label="Düğün" />
+        <DateBlock date={data.date} label={en ? "Wedding" : "Düğün"} />
       )}
     </Sec>
   );
@@ -143,13 +164,15 @@ export function DateSection() {
 
 export function LocationSection() {
   const { data, style } = useIv();
+  const locale = useLocale();
+  const en = locale === "en";
   const q = encodeURIComponent(`${data.venue} ${data.address}`);
   return (
-    <Sec id="konum" title="Konum">
-      <p className="iv-kicker">Konum</p>
+    <Sec id="konum" title={en ? "Location" : "Konum"}>
+      <p className="iv-kicker">{en ? "Location" : "Konum"}</p>
       <Divider kind={style.ornament} />
       {/* Static, locally drawn map placeholder: no third-party embed or tracking. */}
-      <div className="iv-map" role="img" aria-label={`${data.venue} konumu`}>
+      <div className="iv-map" role="img" aria-label={en ? `${data.venue} location` : `${data.venue} konumu`}>
         <span className="iv-map__road iv-map__road--a" />
         <span className="iv-map__road iv-map__road--b" />
         <span className="iv-map__road iv-map__road--c" />
@@ -164,7 +187,7 @@ export function LocationSection() {
         target="_blank"
         rel="noopener noreferrer"
       >
-        <Icon name="route" size={16} /> Yol Tarifi
+        <Icon name="route" size={16} /> {en ? "Get directions" : "Yol Tarifi"}
       </a>
     </Sec>
   );
@@ -184,6 +207,8 @@ function diff(target: Date, now: Date) {
 
 export function CountdownSection() {
   const { data, style } = useIv();
+  const locale = useLocale();
+  const en = locale === "en";
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     setNow(new Date());
@@ -191,37 +216,39 @@ export function CountdownSection() {
     return () => clearInterval(t);
   }, []);
   const r = now ? diff(data.date, now) : null;
-  const cells: [string, number | null][] = [
-    ["Gün", r ? r.d : null],
-    ["Saat", r ? r.h : null],
-    ["Dakika", r ? r.m : null],
-    ["Saniye", r ? r.s : null],
+  const cells: { key: string; label: string; value: number | null; pad: boolean }[] = [
+    { key: "d", label: en ? "Days" : "Gün", value: r ? r.d : null, pad: false },
+    { key: "h", label: en ? "Hours" : "Saat", value: r ? r.h : null, pad: true },
+    { key: "m", label: en ? "Minutes" : "Dakika", value: r ? r.m : null, pad: true },
+    { key: "s", label: en ? "Seconds" : "Saniye", value: r ? r.s : null, pad: true },
   ];
   return (
-    <Sec id="geri-sayim" title="Geri sayım">
-      <p className="iv-kicker">Büyük Güne Kalan Zaman</p>
+    <Sec id="geri-sayim" title={en ? "Countdown" : "Geri sayım"}>
+      <p className="iv-kicker">{en ? "Time until the big day" : "Büyük Güne Kalan Zaman"}</p>
       <Divider kind={style.ornament} />
       <div className="iv-count" role="timer" aria-live="off">
-        {cells.map(([label, v]) => (
-          <div key={label} className="iv-count__cell">
-            <strong className="num">{v === null ? "--" : label === "Gün" ? v : pad2(v)}</strong>
-            <span>{label}</span>
+        {cells.map((cell) => (
+          <div key={cell.key} className="iv-count__cell">
+            <strong className="num">{cell.value === null ? "--" : cell.pad ? pad2(cell.value) : cell.value}</strong>
+            <span>{cell.label}</span>
           </div>
         ))}
       </div>
       <p className="iv-date-line">
-        {longDate(data.date)} {TR_DAYS[data.date.getDay()]}
+        {longDate(data.date, locale)} {weekdayName(data.date, locale)}
       </p>
-      {r?.over && <p className="iv-msg">Büyük gün geldi!</p>}
+      {r?.over && <p className="iv-msg">{en ? "The big day is here!" : "Büyük gün geldi!"}</p>}
     </Sec>
   );
 }
 
 export function ProgramSection() {
   const { data, style } = useIv();
+  const locale = useLocale();
+  const en = locale === "en";
   return (
-    <Sec id="program" title="Program akışı">
-      <p className="iv-kicker">Program</p>
+    <Sec id="program" title={en ? "Programme" : "Program akışı"}>
+      <p className="iv-kicker">{en ? "Programme" : "Program"}</p>
       <Divider kind={style.ornament} />
       <ol className="iv-timeline">
         {data.program.map((p) => (
@@ -250,9 +277,11 @@ export function ClosingSection({
   onTop: () => void;
 }) {
   const { data, style } = useIv();
+  const locale = useLocale();
+  const en = locale === "en";
   return (
-    <Sec id="kapanis" title="Kapanış" last>
-      <p className="iv-kicker">Teşekkürler</p>
+    <Sec id="kapanis" title={en ? "Closing" : "Kapanış"} last>
+      <p className="iv-kicker">{en ? "Thank you" : "Teşekkürler"}</p>
       <Divider kind={style.ornament} />
       <p className="iv-msg">{data.closing}</p>
       <p className="iv-signoff">
@@ -260,15 +289,15 @@ export function ClosingSection({
       </p>
       <div className="iv-actions">
         <button type="button" className="iv-btn" onClick={onTop}>
-          <Icon name="chevron-up" size={16} /> Başa dön
+          <Icon name="chevron-up" size={16} /> {en ? "Back to the top" : "Başa dön"}
         </button>
         {!embed && (
           <>
             <Link className="iv-btn iv-btn--solid" href={startHref}>
-              Bu davetiyeyle başla
+              {en ? "Start with this invitation" : "Bu davetiyeyle başla"}
             </Link>
             <Link className="iv-btn" href={exitHref}>
-              Önizlemeden çık
+              {en ? "Leave the preview" : "Önizlemeden çık"}
             </Link>
           </>
         )}

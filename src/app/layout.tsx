@@ -3,6 +3,9 @@ import { Inter, Playfair_Display } from "next/font/google";
 import localFont from "next/font/local";
 import { CatalogProvider } from "@/components/CatalogProvider";
 import { SITE } from "@/data/site";
+import { LocaleProvider } from "@/i18n/provider";
+import { htmlLang } from "@/i18n/locale";
+import { getLocale } from "@/i18n/server";
 import { GEO, HOME_DESCRIPTION, HOME_TITLE, siteUrl } from "@/lib/seo";
 import { getPublicCatalog } from "@/lib/store";
 import "./globals.css";
@@ -134,14 +137,16 @@ export const dynamic = "force-dynamic";
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const catalog = await getPublicCatalog();
+  const [catalog, locale] = await Promise.all([getPublicCatalog(), getLocale()]);
   return (
     <html
-      lang="tr"
+      lang={htmlLang(locale)}
       className={`${playfair.variable} ${inter.variable} ${allura.variable} ${fraunces.variable} ${cinzel.variable} ${greatVibes.variable} ${cormorant.variable} ${bebas.variable}`}
     >
       <body>
-        <CatalogProvider catalog={catalog}>{children}</CatalogProvider>
+        <LocaleProvider locale={locale}>
+          <CatalogProvider catalog={catalog}>{children}</CatalogProvider>
+        </LocaleProvider>
       </body>
     </html>
   );
