@@ -21,8 +21,11 @@ export async function GET(_req: Request, ctx: { params: Promise<{ code: string }
   const pdf = buildEtsyGuidePdf({
     code: item.code,
     newspaperTitle: english?.title || item.newspaperTitle,
-    description: english?.description || "",
-    headline: english?.headline || "",
+    description: english?.description || paper?.description || "",
+    headline: english?.headline || paper?.headline || "",
+    coverPath: english?.cover || paper?.cover,
+    accent: paper?.accent,
+    ink: paper?.ink,
   });
 
   return new NextResponse(new Uint8Array(pdf), {

@@ -1,6 +1,30 @@
+import { existsSync, readFileSync } from "fs";
+import path from "path";
 import { siteUrl } from "@/lib/seo";
 
-/** Minimal multi-page PDF (Helvetica, WinAnsi). No dependencies. */
+/** Editorial A4 guide: the purchased newspaper cover, plus how to design and download it. */
+
+const W = 595;
+const H = 842;
+
+type RGB = [number, number, number];
+
+type Jpeg = { width: number; height: number; data: Buffer; space: "DeviceRGB" | "DeviceGray" | "DeviceCMYK" };
+
+const INK: RGB = [0.11, 0.09, 0.08];
+const CREAM: RGB = [0.965, 0.945, 0.91];
+const CARD: RGB = [0.995, 0.988, 0.97];
+const MUTED: RGB = [0.43, 0.39, 0.35];
+const GOLD: RGB = [0.68, 0.5, 0.28];
+const WHITE: RGB = [1, 1, 1];
+const LINE: RGB = [0.86, 0.82, 0.75];
+
+function n(v: number) {
+  return (Math.round(v * 1000) / 1000).toString();
+}
+function r(v: number) {
+  return (Math.round(v * 10) / 10).toString();
+}
 
 function escapePdf(text: string) {
   return text.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
@@ -17,80 +41,428 @@ function toWinAnsi(text: string) {
     .replace(/[^\x20-\x7E]/g, "");
 }
 
-type Line = { text: string; size: number; gap?: number; bold?: boolean };
-
-function pageStream(lines: Line[], startY = 750) {
-  const parts: string[] = ["BT", "/F1 11 Tf", "50 " + startY + " Td"];
-  let first = true;
-  for (const line of lines) {
-    const size = line.size;
-    const gap = line.gap ?? size + 6;
-    const font = line.bold ? "/F2" : "/F1";
-    if (first) {
-      parts.push(`${font} ${size} Tf`);
-      first = false;
-    } else {
-      parts.push(`0 -${gap} Td`, `${font} ${size} Tf`);
-    }
-    parts.push(`(${escapePdf(toWinAnsi(line.text))}) Tj`);
-  }
-  parts.push("ET");
-  return parts.join("\n");
-}
-
 function wrap(text: string, width: number): string[] {
-  const words = text.split(/\s+/).filter(Boolean);
+  const words = text.replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
   const out: string[] = [];
   let row = "";
-  for (const w of words) {
-    const next = row ? `${row} ${w}` : w;
+  for (const word of words) {
+    const next = row ? `${row} ${word}` : word;
     if (next.length > width) {
       if (row) out.push(row);
-      row = w.length > width ? w.slice(0, width) : w;
-    } else {
-      row = next;
-    }
+      row = word.length > width ? word.slice(0, width) : word;
+    } else row = next;
   }
   if (row) out.push(row);
-  return out.length ? out : [""];
+  return out.length ? out : [];
 }
 
-function buildPdf(pages: string[]): Buffer {
-  const objects: string[] = [];
-  objects.push("<< /Type /Catalog /Pages 2 0 R >>");
+function charsFor(width: number, size: number) {
+  return Math.max(12, Math.floor(width / (size * 0.5)));
+}
 
+function hexToRgb(hex: string | undefined, fallback: RGB): RGB {
+  if (!hex) return fallback;
+  const raw = hex.trim().replace("#", "");
+  const full = raw.length === 3 ? raw.split("").map((c) => c + c).join("") : raw;
+  if (!/^[0-9a-fA-F]{6}$/.test(full)) return fallback;
+  const num = Number.parseInt(full, 16);
+  return [((num >> 16) & 255) / 255, ((num >> 8) & 255) / 255, (num & 255) / 255];
+}
+
+function luminance(c: RGB) {
+  return 0.3 * c[0] + 0.55 * c[1] + 0.15 * c[2];
+}
+
+function jpegInfo(data: Buffer): Jpeg | null {
+  if (data.length < 4 || data[0] !== 0xff || data[1] !== 0xd8) return null;
+  let i = 2;
+  while (i + 9 < data.length) {
+    if (data[i] !== 0xff) {
+      i += 1;
+      continue;
+    }
+    const marker = data[i + 1]!;
+    if (marker === 0xd8 || marker === 0xd9) {
+      i += 2;
+      continue;
+    }
+    if (i + 3 >= data.length) return null;
+    const len = data.readUInt16BE(i + 2);
+    if (marker >= 0xc0 && marker <= 0xc2) {
+      const height = data.readUInt16BE(i + 5);
+      const width = data.readUInt16BE(i + 7);
+      const components = data[i + 9];
+      const space = components === 1 ? "DeviceGray" : components === 4 ? "DeviceCMYK" : "DeviceRGB";
+      if (!width || !height) return null;
+      return { width, height, data, space };
+    }
+    i += 2 + len;
+  }
+  return null;
+}
+
+function loadCover(publicPath?: string): Jpeg | null {
+  if (!publicPath || !publicPath.startsWith("/") || publicPath.includes("..")) return null;
+  const abs = path.join(process.cwd(), "public", publicPath.replace(/^\//, ""));
+  if (!existsSync(abs) || !abs.toLowerCase().endsWith(".jpg") && !abs.toLowerCase().endsWith(".jpeg")) return null;
+  try {
+    return jpegInfo(readFileSync(abs));
+  } catch {
+    return null;
+  }
+}
+
+function fit(srcW: number, srcH: number, maxW: number, maxH: number) {
+  const scale = Math.min(maxW / srcW, maxH / srcH);
+  return { w: srcW * scale, h: srcH * scale };
+}
+
+class Page {
+  private ops: string[] = [];
+
+  fill(c: RGB) {
+    this.ops.push(`${n(c[0])} ${n(c[1])} ${n(c[2])} rg`);
+  }
+  strokeColor(c: RGB) {
+    this.ops.push(`${n(c[0])} ${n(c[1])} ${n(c[2])} RG`);
+  }
+  rect(x: number, y: number, w: number, h: number) {
+    this.ops.push(`${r(x)} ${r(y)} ${r(w)} ${r(h)} re f`);
+  }
+  roundedRect(x: number, y: number, w: number, h: number) {
+    this.rect(x, y, w, h);
+  }
+  line(x1: number, y1: number, x2: number, y2: number, width = 0.6) {
+    this.ops.push(`${width} w ${r(x1)} ${r(y1)} m ${r(x2)} ${r(y2)} l S`);
+  }
+  frame(x: number, y: number, w: number, h: number, width = 0.8) {
+    this.ops.push(`${width} w ${r(x)} ${r(y)} ${r(w)} ${r(h)} re S`);
+  }
+  image(name: string, x: number, y: number, w: number, h: number) {
+    this.ops.push(`q ${r(w)} 0 0 ${r(h)} ${r(x)} ${r(y)} cm /${name} Do Q`);
+  }
+  text(x: number, y: number, text: string, size: number, bold: boolean, color: RGB) {
+    const safe = escapePdf(toWinAnsi(text));
+    if (!safe) return;
+    const font = bold ? "F2" : "F1";
+    this.ops.push(`BT /${font} ${size} Tf ${n(color[0])} ${n(color[1])} ${n(color[2])} rg ${r(x)} ${r(y)} Td (${safe}) Tj ET`);
+  }
+  paragraph(x: number, y: number, text: string, width: number, size: number, bold: boolean, color: RGB, leading: number) {
+    const lines = wrap(text, charsFor(width, size));
+    let yy = y;
+    for (const line of lines) {
+      this.text(x, yy, line, size, bold, color);
+      yy -= leading;
+    }
+    return yy;
+  }
+  body() {
+    return this.ops.join("\n");
+  }
+}
+
+function paintPage(p: Page) {
+  p.fill(CREAM);
+  p.rect(0, 0, W, H);
+}
+
+function header(p: Page, ink: RGB, gold: RGB, pageNo: number) {
+  p.fill(ink);
+  p.rect(0, H - 56, W, 56);
+  p.fill(gold);
+  p.rect(0, H - 60, W, 4);
+  p.text(36, H - 28, "DAVETANISI", 13, true, WHITE);
+  p.text(36, H - 44, "Newspaper studio", 8, false, gold);
+  p.text(W - 78, H - 34, `0${pageNo}  /  04`, 9, false, [0.93, 0.9, 0.84]);
+}
+
+function footer(p: Page, code: string) {
+  p.strokeColor(LINE);
+  p.line(36, 30, W - 36, 30, 0.6);
+  p.text(36, 16, `Access code  ${code}`, 8, false, MUTED);
+  p.text(W - 168, 16, "davetanisi.com", 8, false, MUTED);
+}
+
+function framedImage(p: Page, jpeg: Jpeg | null, name: string, x: number, y: number, maxW: number, maxH: number, gold: RGB) {
+  if (!jpeg) {
+    p.fill(CARD);
+    p.rect(x, y, maxW, maxH);
+    p.strokeColor(gold);
+    p.frame(x, y, maxW, maxH, 1);
+    p.text(x + 16, y + maxH / 2, "Your newspaper", 11, true, INK);
+    return { w: maxW, h: maxH };
+  }
+  const box = fit(jpeg.width, jpeg.height, maxW, maxH);
+  const ix = x + (maxW - box.w) / 2;
+  const iy = y + (maxH - box.h) / 2;
+  p.fill([0.82, 0.78, 0.7]);
+  p.rect(ix + 5, iy - 5, box.w, box.h);
+  p.fill(WHITE);
+  p.rect(ix - 4, iy - 4, box.w + 8, box.h + 8);
+  p.image(name, ix, iy, box.w, box.h);
+  p.strokeColor(gold);
+  p.frame(ix - 4, iy - 4, box.w + 8, box.h + 8, 1.1);
+  return box;
+}
+
+function coverPage(input: GuideInput, jpeg: Jpeg | null, gold: RGB, ink: RGB) {
+  const p = new Page();
+  paintPage(p);
+  header(p, ink, gold, 1);
+  footer(p, input.code);
+
+  p.text(36, 756, "THE DESIGN YOU PURCHASED", 8, true, gold);
+  let y = 726;
+  const titleLines = wrap(input.newspaperTitle, charsFor(520, 24)).slice(0, 2);
+  for (const line of titleLines) {
+    p.text(36, y, line, 24, true, ink);
+    y -= 28;
+  }
+  if (input.headline) {
+    p.text(36, y - 2, input.headline, 11, false, gold);
+    y -= 18;
+  }
+
+  const frameTop = y - 12;
+  const frameBottom = 168;
+  const frameH = Math.max(180, frameTop - frameBottom);
+  framedImage(p, jpeg, "Im1", 147, frameBottom, 300, frameH, gold);
+
+  p.fill(ink);
+  p.rect(36, 42, W - 72, 112);
+  p.fill(gold);
+  p.rect(36, 150, W - 72, 4);
+  p.text(52, 128, "YOUR ACCESS CODE", 8, true, gold);
+  p.text(52, 98, input.code, 22, true, WHITE);
+  p.text(52, 74, "Open this address, enter the code, then design and download.", 9, false, [0.93, 0.9, 0.84]);
+  p.text(52, 58, input.url, 9, false, WHITE);
+  return p.body();
+}
+
+function aboutPage(input: GuideInput, jpeg: Jpeg | null, gold: RGB, ink: RGB) {
+  const p = new Page();
+  paintPage(p);
+  header(p, ink, gold, 2);
+  footer(p, input.code);
+
+  p.text(36, 756, "INSIDE THIS NEWSPAPER", 8, true, gold);
+  p.text(36, 730, "What you are designing", 20, true, ink);
+
+  framedImage(p, jpeg, "Im1", 36, 470, 168, 240, gold);
+
+  const about =
+    input.description.trim() ||
+    `${input.newspaperTitle} is a four-page newspaper. You replace the sample words and photos, then save or print it.`;
+  p.paragraph(222, 694, about, 336, 10, false, INK, 14);
+
+  const cards: { no: string; title: string; text: string }[] = [
+    { no: "01", title: "Cover", text: "The front page: headline, date, place and the photograph that opens the story." },
+    { no: "02", title: "Story", text: "The inside story and timeline. Replace the sample sentences with your own." },
+    { no: "03", title: "Photographs", text: "Frames waiting for your pictures. Upload one clear photo for each frame." },
+    { no: "04", title: "Closing", text: "The last page: a thank-you, a note, or the detail you want guests to keep." },
+  ];
+  cards.forEach((card, i) => {
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const x = 36 + col * 268;
+    const y = 300 - row * 118;
+    p.fill(CARD);
+    p.rect(x, y, 252, 104);
+    p.strokeColor(LINE);
+    p.frame(x, y, 252, 104, 0.7);
+    p.fill(gold);
+    p.rect(x, y + 100, 252, 4);
+    p.text(x + 14, y + 74, card.no, 9, true, gold);
+    p.text(x + 44, y + 74, card.title, 12, true, ink);
+    p.paragraph(x + 14, y + 54, card.text, 222, 9, false, MUTED, 12);
+  });
+  return p.body();
+}
+
+function howPage(input: GuideInput, gold: RGB, ink: RGB) {
+  const p = new Page();
+  paintPage(p);
+  header(p, ink, gold, 3);
+  footer(p, input.code);
+
+  p.text(36, 756, "HOW TO DESIGN IT", 8, true, gold);
+  p.text(36, 730, "Six steps in the studio", 20, true, ink);
+
+  p.fill(CARD);
+  p.rect(36, 560, 523, 150);
+  p.strokeColor(LINE);
+  p.frame(36, 560, 523, 150, 0.7);
+  p.fill([0.94, 0.91, 0.86]);
+  p.rect(48, 572, 86, 126);
+  for (const [i, label] of ["Pages", "Text", "Photos", "Download"].entries()) {
+    const by = 666 - i * 28;
+    p.fill(i === 3 ? ink : WHITE);
+    p.rect(56, by, 70, 22);
+    p.text(64, by + 7, label, 8, true, i === 3 ? WHITE : ink);
+  }
+  p.fill(WHITE);
+  p.rect(150, 578, 92, 114);
+  p.strokeColor(gold);
+  p.frame(150, 578, 92, 114, 1);
+  p.fill(ink);
+  p.rect(156, 674, 80, 8);
+  p.fill([0.9, 0.86, 0.8]);
+  p.rect(156, 620, 80, 46);
+  p.fill(LINE);
+  p.rect(156, 600, 54, 4);
+  p.rect(156, 592, 40, 4);
+  p.text(258, 662, "Your newspaper is already selected.", 11, true, ink);
+  p.paragraph(258, 644, "You do not choose another template. Edit the words and photos on this design, page by page.", 280, 9, false, MUTED, 12);
+
+  const steps = [
+    ["Open the link", `On your phone or computer, go to ${input.url}`],
+    ["Enter the code", "Type the access code from the first page. Then tap Open studio."],
+    ["Edit the words", "Use Pages to move, then Text. Replace the headline, names, date, place and story."],
+    ["Add photographs", "Open Photos and upload a picture for each frame. Clear, large photos print best."],
+    ["Set the finish", "Choose A3 or A2, and a paper look: original, aged paper, or black and white."],
+    ["Download", "Tap Download, then Print / Save PDF. Choose Save as PDF, or send it to a printer."],
+  ];
+  steps.forEach((step, i) => {
+    const y = 520 - i * 78;
+    p.fill(ink);
+    p.rect(36, y - 4, 28, 28);
+    p.text(44, y + 5, String(i + 1), 12, true, WHITE);
+    p.text(76, y + 8, step[0]!, 12, true, ink);
+    p.paragraph(76, y - 10, step[1]!, 470, 9, false, MUTED, 12);
+  });
+  return p.body();
+}
+
+function savePage(input: GuideInput, gold: RGB, ink: RGB) {
+  const p = new Page();
+  paintPage(p);
+  header(p, ink, gold, 4);
+  footer(p, input.code);
+
+  p.text(36, 756, "SAVE OR PRINT", 8, true, gold);
+  p.text(36, 730, "Take the finished paper with you", 20, true, ink);
+  p.paragraph(36, 702, "When the pages look right, open Download in the studio. The print window is where the file is created.", 520, 10, false, MUTED, 14);
+
+  const choices = [
+    ["Save as PDF", "In the print window, set the destination to Save as PDF. You get a file you can send, post or keep."],
+    ["Print on paper", "Choose A3 for a table newspaper, or A2 for a larger keepsake. Print in colour so the photographs stay rich."],
+  ];
+  choices.forEach((choice, i) => {
+    const x = 36 + i * 268;
+    p.fill(i === 0 ? ink : CARD);
+    p.rect(x, 520, 252, 150);
+    if (i === 1) {
+      p.strokeColor(LINE);
+      p.frame(x, 520, 252, 150, 0.7);
+    }
+    p.text(x + 16, 632, choice[0]!, 14, true, i === 0 ? WHITE : ink);
+    p.paragraph(x + 16, 608, choice[1]!, 220, 10, false, i === 0 ? [0.93, 0.9, 0.84] : MUTED, 13);
+  });
+
+  p.text(36, 492, "PAPER LOOK", 8, true, gold);
+  const looks = [
+    ["Original", "The colours of this design, as you see them in the studio."],
+    ["Aged paper", "A warm, slightly faded newsprint tone."],
+    ["Black and white", "A classic newspaper, without colour."],
+  ];
+  looks.forEach((look, i) => {
+    const x = 36 + i * 178;
+    p.fill(CARD);
+    p.rect(x, 390, 168, 88);
+    p.fill(gold);
+    p.rect(x, 474, 168, 4);
+    p.text(x + 12, 448, look[0]!, 11, true, ink);
+    p.paragraph(x + 12, 430, look[1]!, 144, 8, false, MUTED, 11);
+  });
+
+  p.fill(CARD);
+  p.rect(36, 78, 523, 286);
+  p.strokeColor(LINE);
+  p.frame(36, 78, 523, 286, 0.7);
+  p.text(52, 332, "Before you send it", 14, true, ink);
+  const notes = [
+    "Write short headlines. A newspaper reads better in short lines.",
+    "Keep faces near the centre of each photo frame.",
+    "Check every name and the date before you download.",
+    "Your draft stays in this browser. Come back on the same phone or computer to keep your text and photos.",
+    "The same code opens the studio again. Do not share it.",
+  ];
+  let ny = 308;
+  for (const note of notes) {
+    p.fill(gold);
+    p.rect(52, ny + 2, 5, 5);
+    ny = p.paragraph(66, ny, note, 470, 10, false, INK, 13) - 8;
+  }
+  p.text(52, 100, `Code  ${input.code}`, 12, true, ink);
+  p.text(52, 84, input.url, 9, false, MUTED);
+  return p.body();
+}
+
+type GuideInput = {
+  code: string;
+  newspaperTitle: string;
+  description: string;
+  headline: string;
+  url: string;
+};
+
+function buildPdf(pages: string[], image: Jpeg | null): Buffer {
+  const objects: (string | Buffer)[] = [];
+  objects[0] = "<< /Type /Catalog /Pages 2 0 R >>";
   const kids = pages.map((_, i) => `${3 + i * 2} 0 R`).join(" ");
-  objects.push(`<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`);
+  objects[1] = `<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`;
 
-  for (let i = 0; i < pages.length; i++) {
-    const pageObj = 3 + i * 2;
-    const contentObj = pageObj + 1;
+  const font1 = 3 + pages.length * 2;
+  const font2 = font1 + 1;
+  const imageObj = font2 + 1;
+  const xobj = image ? `/XObject << /Im1 ${imageObj} 0 R >>` : "";
+
+  pages.forEach((stream, i) => {
+    const contentObj = 4 + i * 2;
     objects.push(
-      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents ${contentObj} 0 R /Resources << /Font << /F1 ${3 + pages.length * 2} 0 R /F2 ${4 + pages.length * 2} 0 R >> >> >>`,
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Contents ${contentObj} 0 R /Resources << /Font << /F1 ${font1} 0 R /F2 ${font2} 0 R >> ${xobj} >> >>`,
     );
-    const stream = pages[i]!;
-    objects.push(`<< /Length ${Buffer.byteLength(stream, "utf8")} >>\nstream\n${stream}\nendstream`);
+    objects.push(
+      Buffer.concat([
+        Buffer.from(`<< /Length ${Buffer.byteLength(stream, "utf8")} >>\nstream\n`),
+        Buffer.from(stream, "utf8"),
+        Buffer.from("\nendstream"),
+      ]),
+    );
+  });
+
+  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
+  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
+  if (image) {
+    objects.push(
+      Buffer.concat([
+        Buffer.from(
+          `<< /Type /XObject /Subtype /Image /Width ${image.width} /Height ${image.height} /ColorSpace /${image.space} /BitsPerComponent 8 /Filter /DCTDecode /Length ${image.data.length} >>\nstream\n`,
+        ),
+        image.data,
+        Buffer.from("\nendstream"),
+      ]),
+    );
   }
 
-  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
-  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
-
-  let body = "%PDF-1.4\n";
+  const chunks: Buffer[] = [Buffer.from("%PDF-1.4\n")];
   const offsets: number[] = [0];
-  for (let i = 0; i < objects.length; i++) {
-    offsets.push(Buffer.byteLength(body, "utf8"));
-    body += `${i + 1} 0 obj\n${objects[i]}\nendobj\n`;
-  }
-  const xref = Buffer.byteLength(body, "utf8");
-  let xrefBlock = `xref\n0 ${objects.length + 1}\n`;
-  xrefBlock += "0000000000 65535 f \n";
-  for (let i = 1; i < offsets.length; i++) {
-    xrefBlock += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
-  }
-  body += xrefBlock;
-  body += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\n`;
-  body += `startxref\n${xref}\n%%EOF`;
-  return Buffer.from(body, "utf8");
+  let cursor = chunks[0]!.length;
+  objects.forEach((obj, index) => {
+    offsets.push(cursor);
+    const head = Buffer.from(`${index + 1} 0 obj\n`);
+    const body = typeof obj === "string" ? Buffer.from(obj) : obj;
+    const tail = Buffer.from("\nendobj\n");
+    chunks.push(head, body, tail);
+    cursor += head.length + body.length + tail.length;
+  });
+  const xrefAt = cursor;
+  let xref = `xref\n0 ${objects.length + 1}\n`;
+  xref += "0000000000 65535 f \n";
+  for (let i = 1; i < offsets.length; i++) xref += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
+  xref += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefAt}\n%%EOF`;
+  chunks.push(Buffer.from(xref));
+  return Buffer.concat(chunks);
 }
 
 export function buildEtsyGuidePdf(input: {
@@ -98,103 +470,24 @@ export function buildEtsyGuidePdf(input: {
   newspaperTitle: string;
   description: string;
   headline: string;
+  coverPath?: string;
+  accent?: string;
+  ink?: string;
 }): Buffer {
-  const origin = siteUrl();
-  const redeemUrl = `${origin}/en/etsy`;
-  const about = input.description.trim() || `${input.newspaperTitle} is a four-page newspaper you edit in the browser and then save as a PDF or print.`;
-
-  const page1: Line[] = [
-    { text: "DAVETANISI", size: 11, bold: true, gap: 18 },
-    { text: "Your newspaper design guide", size: 20, bold: true, gap: 26 },
-    { text: "Thank you for your Etsy purchase.", size: 12, gap: 16 },
-    { text: input.newspaperTitle, size: 16, bold: true, gap: 18 },
-    ...(input.headline
-      ? [{ text: `Front-page headline: ${input.headline}`, size: 11, gap: 16 }]
-      : []),
-    { text: "Your access code", size: 11, gap: 14 },
-    { text: input.code, size: 26, bold: true, gap: 26 },
-    { text: "Open this address and enter the code:", size: 11, gap: 14 },
-    { text: redeemUrl, size: 11, gap: 20 },
-    { text: "The code opens only this newspaper. You design it in the", size: 11, gap: 14 },
-    { text: "studio, then download or print the finished pages. Keep this PDF.", size: 11, gap: 8 },
-  ];
-
-  const aboutLines = [
-    "About this design",
-    "",
-    ...wrap(about, 86),
-    "",
-    "The studio is in English when you open the link above. Your",
-    "purchased newspaper is already selected. You edit four pages:",
-    "the cover, the story inside, the photo pages, and the closing",
-    "note. Sample words are there so you can see the layout; replace",
-    "them with your own names, date, place, and story.",
-  ];
-
-  const howTo = [
-    "How to design and download",
-    "",
-    "1. On your phone or computer, open the sign-in page above.",
-    "2. Type the access code. Upper or lower case both work.",
-    "   Then tap Open studio.",
-    "3. Pages — choose the page you want to change.",
-    "4. Text — replace headlines, names, the date, the venue,",
-    "   and the story. The newspaper updates as you type.",
-    "5. Photos — upload a picture for each frame on that page.",
-    "   Use clear, high-resolution photos.",
-    "6. Download — choose A3 or A2, and a paper look:",
-    "   original, aged paper, or black and white.",
-    "7. Tap Print / Save PDF. In the print dialog choose",
-    "   Save as PDF, or send the pages to your printer.",
-    "",
-    "Sign in again later with the same code. The draft stays in",
-    "the browser you designed in, so use that device to keep your",
-    "text and photos. Do not share the code.",
-  ];
-
-  const page2: Line[] = howTo.flatMap((t) => {
-    if (!t) return [{ text: " ", size: 8, gap: 10 }];
-    if (t.startsWith("How to") || t.startsWith("Step ")) {
-      return [{ text: t, size: t.startsWith("How") ? 14 : 12, bold: true, gap: 16 }];
-    }
-    return wrap(t, 78).map((line) => ({ text: line, size: 11, gap: 13 }));
-  });
-
-  const tips = [
-    "Tips for a beautiful result",
-    "",
-    "- Write short, clear headlines. Newspaper columns read best",
-    "  with concise lines.",
-    "- Keep important faces near the centre of photo frames.",
-    "- Check spelling of names and dates before you print.",
-    "- On mobile, rotate to landscape for a larger preview, or",
-    "  finish fine edits on a laptop.",
-    "- Drafts are saved in this browser. Use the same device when",
-    "  you come back, or keep the code handy to unlock again.",
-    "",
-    "Sign-in page:",
-    redeemUrl,
-    "",
-    "Need help? Reply to your Etsy order message and include your",
-    `access code (${input.code}).`,
-    "",
-    "Davetanisi — digital invitations & wedding newspapers",
-    origin,
-  ];
-
-  const page3: Line[] = tips.flatMap((t) => {
-    if (!t) return [{ text: " ", size: 8, gap: 10 }];
-    if (t.startsWith("Tips") || t.startsWith("Studio") || t.startsWith("Need") || t.startsWith("Davetanisi")) {
-      return [{ text: t, size: t.startsWith("Tips") ? 14 : 11, bold: t.startsWith("Tips") || t.startsWith("Davetanisi"), gap: 15 }];
-    }
-    return wrap(t, 78).map((line) => ({ text: line, size: 11, gap: 13 }));
-  });
-
-  const pageAbout: Line[] = aboutLines.flatMap((t) => {
-    if (!t) return [{ text: " ", size: 8, gap: 10 }];
-    if (t === "About this design") return [{ text: t, size: 14, bold: true, gap: 18 }];
-    return wrap(t, 86).map((line) => ({ text: line, size: 11, gap: 14 }));
-  });
-
-  return buildPdf([pageStream(page1), pageStream(pageAbout), pageStream(page2), pageStream(page3)]);
+  const guide: GuideInput = {
+    code: input.code,
+    newspaperTitle: input.newspaperTitle || "Your newspaper",
+    description: input.description,
+    headline: input.headline,
+    url: `${siteUrl()}/en/etsy`,
+  };
+  const jpeg = loadCover(input.coverPath);
+  const accent = hexToRgb(input.accent, GOLD);
+  const gold = luminance(accent) > 0.72 ? GOLD : accent;
+  const ink = hexToRgb(input.ink, INK);
+  const safeInk = luminance(ink) > 0.45 ? INK : ink;
+  return buildPdf(
+    [coverPage(guide, jpeg, gold, safeInk), aboutPage(guide, jpeg, gold, safeInk), howPage(guide, gold, safeInk), savePage(guide, gold, safeInk)],
+    jpeg,
+  );
 }
