@@ -26,7 +26,23 @@ function rememberLocale(res: NextResponse, locale: Locale, fromPath: Locale | nu
   return res;
 }
 
+const CANONICAL_HOST = "www.davetanisi.com";
+
+function redirectToCanonical(req: NextRequest) {
+  const raw = (req.headers.get("x-forwarded-host") || req.headers.get("host") || "").split(",")[0]?.trim() ?? "";
+  const host = raw.split(":")[0]?.toLowerCase() ?? "";
+  if (!host || host === CANONICAL_HOST || host === "localhost" || host === "127.0.0.1") return null;
+  if (host !== "davetanisi.com" && !host.endsWith(".onrender.com")) return null;
+  const url = req.nextUrl.clone();
+  url.protocol = "https:";
+  url.hostname = CANONICAL_HOST;
+  url.port = "";
+  return NextResponse.redirect(url, 308);
+}
+
 export async function middleware(req: NextRequest) {
+  const canonical = redirectToCanonical(req);
+  if (canonical) return canonical;
   const { pathname } = req.nextUrl;
   const { locale, fromPath, requestHeaders } = localeHeaders(req);
   const pass = () => rememberLocale(NextResponse.next({ request: { headers: requestHeaders } }), locale, fromPath);

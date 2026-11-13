@@ -176,11 +176,17 @@ function header(p: Page, ink: RGB, gold: RGB, pageNo: number) {
   p.text(W - 78, H - 34, `0${pageNo}  /  04`, 9, false, [0.93, 0.9, 0.84]);
 }
 
-function footer(p: Page, code: string) {
+function footer(p: Page, code: string, url: string) {
+  let host = "www.davetanisi.com";
+  try {
+    host = new URL(url).host;
+  } catch {
+    /* keep the public site */
+  }
   p.strokeColor(LINE);
   p.line(36, 30, W - 36, 30, 0.6);
   p.text(36, 16, `Access code  ${code}`, 8, false, MUTED);
-  p.text(W - 168, 16, "davetanisi.com", 8, false, MUTED);
+  p.text(W - 36 - host.length * 4.4, 16, host, 8, false, MUTED);
 }
 
 function framedImage(p: Page, jpeg: Jpeg | null, name: string, x: number, y: number, maxW: number, maxH: number, gold: RGB) {
@@ -209,7 +215,7 @@ function coverPage(input: GuideInput, jpeg: Jpeg | null, gold: RGB, ink: RGB) {
   const p = new Page();
   paintPage(p);
   header(p, ink, gold, 1);
-  footer(p, input.code);
+  footer(p, input.code, input.url);
 
   p.text(36, 756, "THE DESIGN YOU PURCHASED", 8, true, gold);
   let y = 726;
@@ -243,7 +249,7 @@ function aboutPage(input: GuideInput, jpeg: Jpeg | null, gold: RGB, ink: RGB) {
   const p = new Page();
   paintPage(p);
   header(p, ink, gold, 2);
-  footer(p, input.code);
+  footer(p, input.code, input.url);
 
   p.text(36, 756, "INSIDE THIS NEWSPAPER", 8, true, gold);
   p.text(36, 730, "What you are designing", 20, true, ink);
@@ -283,7 +289,7 @@ function howPage(input: GuideInput, gold: RGB, ink: RGB) {
   const p = new Page();
   paintPage(p);
   header(p, ink, gold, 3);
-  footer(p, input.code);
+  footer(p, input.code, input.url);
 
   p.text(36, 756, "HOW TO DESIGN IT", 8, true, gold);
   p.text(36, 730, "Six steps in the studio", 20, true, ink);
@@ -337,7 +343,7 @@ function savePage(input: GuideInput, gold: RGB, ink: RGB) {
   const p = new Page();
   paintPage(p);
   header(p, ink, gold, 4);
-  footer(p, input.code);
+  footer(p, input.code, input.url);
 
   p.text(36, 756, "SAVE OR PRINT", 8, true, gold);
   p.text(36, 730, "Take the finished paper with you", 20, true, ink);
