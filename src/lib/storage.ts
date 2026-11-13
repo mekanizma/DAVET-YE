@@ -348,6 +348,8 @@ export interface NewspaperDraft {
   };
   size: "A3" | "A2";
   style: "original" | "sepia" | "mono";
+  /** Language the draft text was seeded in. Etsy English does not reuse a Turkish draft. */
+  locale?: "tr" | "en";
   updatedAt: string;
   orderCode?: string;
   orderEmail?: string;

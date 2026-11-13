@@ -49,7 +49,17 @@ function redirectToCanonical(req: NextRequest) {
   return NextResponse.redirect(url, 308);
 }
 
+function redirectEtsyEnglish(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  if (pathname !== "/tr/etsy" && !pathname.startsWith("/tr/etsy/")) return null;
+  const url = req.nextUrl.clone();
+  url.pathname = `/en${pathname.slice(3)}`;
+  return NextResponse.redirect(url, 307);
+}
+
 export async function middleware(req: NextRequest) {
+  const etsyEnglish = redirectEtsyEnglish(req);
+  if (etsyEnglish) return etsyEnglish;
   const canonical = redirectToCanonical(req);
   if (canonical) return canonical;
   const { pathname } = req.nextUrl;

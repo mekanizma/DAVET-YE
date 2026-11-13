@@ -221,14 +221,16 @@ export default function NewspaperStudio({
     appliedStart.current = start;
     seededFor.current = start;
     const sameTemplate = saved.template === start;
-    const keepValues = sameTemplate ? { ...(saved.values || {}) } : {};
-    const keepContents = sameTemplate ? { ...(saved.contents || {}) } : {};
+    const reuseDraft = sameTemplate && (!access || saved.locale === locale);
+    const keepValues = reuseDraft ? { ...(saved.values || {}) } : {};
+    const keepContents = reuseDraft ? { ...(saved.contents || {}) } : {};
     setBootSlug(start);
     setSaved(
       normalizeNewspaperDraft({
         ...EMPTY_NEWSPAPER_DRAFT,
-        ...saved,
+        ...(reuseDraft ? saved : {}),
         template: start,
+        locale,
         values: { ...seedTimesValues(design), ...keepValues },
         contents: { ...seedTimesContents(design), ...keepContents },
         updatedAt: new Date().toISOString(),
@@ -249,13 +251,18 @@ export default function NewspaperStudio({
     if (seededFor.current === paper.slug) return;
     seededFor.current = paper.slug;
     const hasUser = Object.keys(draft.values || {}).length > 0 || Object.keys(draft.contents || {}).length > 0;
-    if (hasUser && draft.template === paper.slug) return;
+    const draftMatchesLocale = !access || draft.locale === locale;
+    if (hasUser && draft.template === paper.slug && draftMatchesLocale) return;
     setSaved(
       normalizeNewspaperDraft({
         ...draft,
         template: paper.slug,
-        values: { ...seedTimesValues(design), ...legacyDraftToTimesValues(draft), ...(draft.values || {}) },
-        contents: { ...seedTimesContents(design), ...(draft.contents || {}) },
+        locale,
+        values: {
+          ...seedTimesValues(design),
+          ...(draftMatchesLocale ? { ...legacyDraftToTimesValues(draft), ...(draft.values || {}) } : {}),
+        },
+        contents: { ...seedTimesContents(design), ...(draftMatchesLocale ? draft.contents || {} : {}) },
         updatedAt: new Date().toISOString(),
       }),
     );
