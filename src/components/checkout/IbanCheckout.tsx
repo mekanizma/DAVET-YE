@@ -86,7 +86,7 @@ export default function IbanCheckout({
     if (!resume?.code || !resume.email) return;
     let cancelled = false;
     async function load() {
-      const res = await fetch(`/api/siparis/${encodeURIComponent(resume!.code)}?email=${encodeURIComponent(resume!.email)}`);
+      const res = await fetch(`/api/siparis/${encodeURIComponent(resume!.code)}?email=${encodeURIComponent(resume!.email)}&odeme=1`);
       if (cancelled) return;
       if (!res.ok) {
         setPhase("form");
@@ -117,7 +117,7 @@ export default function IbanCheckout({
     if (phase !== "pay" || !order || order.status === "onaylandi" || order.total === 0) return;
     let cancelled = false;
     async function load() {
-      const res = await fetch(`/api/siparis/${encodeURIComponent(order!.code)}?email=${encodeURIComponent(order!.customer.email)}`);
+      const res = await fetch(`/api/siparis/${encodeURIComponent(order!.code)}?email=${encodeURIComponent(order!.customer.email)}&odeme=1`);
       if (!res.ok || cancelled) return;
       const data = await res.json();
       if (cancelled || !data.order) return;

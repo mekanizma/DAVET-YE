@@ -224,6 +224,24 @@ export async function publishShare(order: OrderRecord): Promise<SharePublic | nu
   }
 }
 
+export async function sharesForOrders(codes: string[]): Promise<Record<string, SharePublic>> {
+  const out: Record<string, SharePublic> = {};
+  const wanted = [...new Set(codes.map((code) => code.trim().toUpperCase()).filter(Boolean))].slice(0, 40);
+  if (!wanted.length) return out;
+  try {
+    const db = admin();
+    if (!db) return out;
+    const { data } = await db.from("dv_share_links").select("*").in("order_code", wanted);
+    for (const row of data || []) {
+      const share = fromDb(row as Record<string, unknown>);
+      if (share.orderCode) out[share.orderCode] = toPublic(share);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return out;
+}
+
 export async function releaseShare(orderCode: string) {
   try {
     const db = admin();

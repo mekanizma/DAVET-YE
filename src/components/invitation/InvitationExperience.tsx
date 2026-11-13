@@ -42,6 +42,7 @@ export default function InvitationExperience({
   useDraftData = false,
   locale: localeProp,
   guestDraft = null,
+  albumSlug = "",
 }: {
   theme: Theme;
   embed?: boolean;
@@ -50,6 +51,7 @@ export default function InvitationExperience({
   useDraftData?: boolean;
   locale?: Locale;
   guestDraft?: InvitationDraft | null;
+  albumSlug?: string;
 }) {
   const contextLocale = useLocale();
   const locale = localeProp ?? contextLocale;
@@ -187,10 +189,36 @@ export default function InvitationExperience({
     };
   }, [phase]);
 
+  useEffect(() => {
+    if (!albumSlug) return;
+    let stop = false;
+    fetch(`/api/d/${encodeURIComponent(albumSlug)}/foto`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const rows = Array.isArray(data?.photos) ? data.photos as { id: string; url: string; source?: string }[] : [];
+        if (stop) return;
+        const next = rows.filter((row) => row?.id && row?.url).map((row) => ({
+          id: row.id,
+          url: row.url,
+          source: row.source === "lens" ? "lens" as const : "upload" as const,
+        }));
+        setPhotos((cur) => {
+          const ids = new Set(next.map((row) => row.id));
+          return [...next, ...cur.filter((row) => !ids.has(row.id))];
+        });
+      })
+      .catch(() => undefined);
+    return () => {
+      stop = true;
+    };
+  }, [albumSlug]);
+
   // release object URLs on unmount
   useEffect(
     () => () => {
-      photosRef.current.forEach((p) => URL.revokeObjectURL(p.url));
+      photosRef.current.forEach((p) => {
+        if (p.url.startsWith("blob:")) URL.revokeObjectURL(p.url);
+      });
     },
     [],
   );
@@ -199,7 +227,7 @@ export default function InvitationExperience({
   const removePhoto = useCallback((id: string) => {
     setPhotos((cur) => {
       const hit = cur.find((x) => x.id === id);
-      if (hit) URL.revokeObjectURL(hit.url);
+      if (hit?.url.startsWith("blob:")) URL.revokeObjectURL(hit.url);
       return cur.filter((x) => x.id !== id);
     });
   }, []);
@@ -247,8 +275,8 @@ export default function InvitationExperience({
             {show("geri-sayim") && <CountdownSection />}
             {show("program") && <ProgramSection />}
             {show("katilim") && <RsvpSection />}
-            {show("ani-duvari") && <MemoryWallSection photos={photos} onAdd={addPhoto} onRemove={removePhoto} />}
-            {show("ani-cekimi") && <LensSection onCapture={addPhoto} />}
+            {show("ani-duvari") && <MemoryWallSection photos={photos} onAdd={addPhoto} onRemove={removePhoto} albumSlug={albumSlug} />}
+            {show("ani-cekimi") && <LensSection onCapture={addPhoto} albumSlug={albumSlug} />}
             {show("dilekler") && <WishesSection />}
             {show("iban") && <GiftSection />}
             <ClosingSection

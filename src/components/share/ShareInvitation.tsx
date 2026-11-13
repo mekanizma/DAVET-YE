@@ -11,11 +11,13 @@ export default function ShareInvitation({
   locale,
   stage,
   design,
+  albumSlug = "",
 }: {
   template: string;
   locale: Locale;
   stage: unknown;
   design: Record<string, unknown>;
+  albumSlug?: string;
 }) {
   const theme = getTheme(template);
   const info = design.info && typeof design.info === "object" ? design.info as InvitationDraft["info"] : emptyInfo;

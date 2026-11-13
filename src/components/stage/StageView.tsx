@@ -5,6 +5,7 @@ import icons from "@/data/stage-icons.json";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
 import type { Locale } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
+import { uploadSharePhoto } from "@/lib/albumClient";
 import type { InvitationDraft } from "@/lib/storage";
 import { useDraft } from "@/lib/storage";
 
@@ -446,6 +447,8 @@ function Countdown({ el, canvasW, iso, locale }: { el: StageElement; canvasW: nu
   );
 }
 
+type Shot = { id: string; url: string };
+
 export default function StageView({
   stage,
   slug,
@@ -453,6 +456,7 @@ export default function StageView({
   useDraftData = false,
   locale: localeProp,
   guestDraft = null,
+  albumSlug = "",
 }: {
   stage: StageFile;
   slug: string;
@@ -460,6 +464,7 @@ export default function StageView({
   useDraftData?: boolean;
   locale?: Locale;
   guestDraft?: InvitationDraft | null;
+  albumSlug?: string;
 }) {
   const contextLocale = useLocale();
   const locale = localeProp ?? contextLocale;
@@ -534,7 +539,49 @@ export default function StageView({
   const reduced = usePrefersReduced();
   const [phase, setPhase] = useState<"gate" | "video" | "open">(design.intro?.gate ? "gate" : "open");
   const [musicOn, setMusicOn] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<Shot[]>([]);
+  const [photoNote, setPhotoNote] = useState<{ ok: boolean; text: string } | null>(null);
+
+  useEffect(() => {
+    if (!albumSlug) return;
+    let stop = false;
+    fetch(`/api/d/${encodeURIComponent(albumSlug)}/foto`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const rows = Array.isArray(data?.photos) ? data.photos as Shot[] : [];
+        if (!stop) {
+          const next = rows.filter((row) => row?.id && row?.url);
+          setPhotos((cur) => {
+            const ids = new Set(next.map((row) => row.id));
+            return [...next, ...cur.filter((row) => !ids.has(row.id))];
+          });
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      stop = true;
+    };
+  }, [albumSlug]);
+
+  async function addShot(file: File, source: "wall" | "lens") {
+    if (!file.type.startsWith("image/") || file.size > 8 * 1024 * 1024) {
+      setPhotoNote({ ok: false, text: en ? "Use a JPG, PNG or WEBP under 8 MB." : "JPG, PNG veya WEBP yükleyin; 8 MB’ı geçmesin." });
+      return;
+    }
+    if (!albumSlug) {
+      setPhotos((cur) => [...cur, { id: `local-${Date.now()}`, url: URL.createObjectURL(file) }]);
+      return;
+    }
+    setPhotoNote({ ok: true, text: en ? "Saving the photo…" : "Fotoğraf kaydediliyor…" });
+    try {
+      const saved = await uploadSharePhoto(albumSlug, file, source, file.name || "foto.jpg");
+      setPhotos((cur) => [...cur, saved]);
+      setPhotoNote({ ok: true, text: en ? "Saved to the album." : "Albüme kaydedildi." });
+    } catch (err) {
+      setPhotoNote({ ok: false, text: err instanceof Error ? err.message : (en ? "The photo could not be saved." : "Fotoğraf kaydedilemedi.") });
+    }
+  }
+
   const [rsvpDone, setRsvpDone] = useState(false);
   const [wishDone, setWishDone] = useState(false);
   const [wishes, setWishes] = useState(stage.messages || []);
@@ -908,7 +955,8 @@ export default function StageView({
   }, [gateImage, bgImage, pages]);
 
   return (
-    <div className="iv stg-root" data-embed={embed ? "1" : undefined} data-slug={slug} style={{ ["--stg-desk" as string]: desk }}>
+      <div className="iv stg-root" data-embed={embed ? "1" : undefined} data-slug={slug} style={{ ["--stg-desk" as string]: desk }}>
+      <p className={photoNote ? `iv-status iv-status--${photoNote.ok ? "ok" : "err"}` : "sr-only"} role="status" aria-live="polite">{photoNote?.text}</p>
       <style>{fontCss}</style>
       {(stage.fonts || []).map((f) => (
         <link key={f.url} rel="preload" href={f.url} as="font" type="font/woff2" crossOrigin="anonymous" />
@@ -947,7 +995,7 @@ export default function StageView({
                         photos={photos}
                         rsvpDone={rsvpDone}
                         wishDone={wishDone}
-                        onPhotos={setPhotos}
+                        onAddPhoto={addShot}
                         onRsvp={() => setRsvpDone(true)}
                         onWish={(name, text) => {
                           setWishes((w) => [...w, { name, text }]);
@@ -975,7 +1023,7 @@ export default function StageView({
                 {gateImage ? <img className="stg-media stg-media--screen" src={gateImage} alt="" draggable={false} decoding="async" fetchPriority="high" /> : null}
                 <div className="stg-art">
                   {(intro?.gate?.elements || []).filter((el) => !el.hidden).map((el) => (
-                    <Element key={el.id} el={el} canvasW={canvasW} values={values} lists={{}} places={{}} wishes={[]} photos={[]} rsvpDone={false} wishDone={false} onPhotos={() => undefined} onRsvp={() => undefined} onWish={() => undefined} onAction={onAction} locale={locale} eager />
+                    <Element key={el.id} el={el} canvasW={canvasW} values={values} lists={{}} places={{}} wishes={[]} photos={[]} rsvpDone={false} wishDone={false} onAddPhoto={() => undefined} onRsvp={() => undefined} onWish={() => undefined} onAction={onAction} locale={locale} eager />
                   ))}
                 </div>
               </div>
@@ -1094,7 +1142,7 @@ function Element({
   photos,
   rsvpDone,
   wishDone,
-  onPhotos,
+  onAddPhoto,
   onRsvp,
   onWish,
   onAction,
@@ -1107,10 +1155,10 @@ function Element({
   lists: Record<string, Array<Record<string, string>>>;
   places: Record<string, { query?: string; lat?: number; lng?: number }>;
   wishes: Array<{ name?: string; text?: string }>;
-  photos: string[];
+  photos: Shot[];
   rsvpDone: boolean;
   wishDone: boolean;
-  onPhotos: (photos: string[]) => void;
+  onAddPhoto: (file: File, source: "wall" | "lens") => void;
   onRsvp: () => void;
   onWish: (name: string, text: string) => void;
   onAction: (el: StageElement, node: HTMLElement) => void;
@@ -1187,11 +1235,10 @@ function Element({
           color: el.style?.color || "#fff",
         }}
       >
-        {el.action === "lens" && <input type="file" accept="image/*" capture="environment" hidden onChange={(e) => {
+        {el.action === "lens" && <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onChange={(e) => {
           const file = e.target.files?.[0];
-          if (!file) return;
-          const url = URL.createObjectURL(file);
-          onPhotos([...photos, url]);
+          e.currentTarget.value = "";
+          if (file) onAddPhoto(file, "lens");
         }} />}
         <StageIcon name={el.icon || b.icon} anim={b.iconAnim} speed={b.iconAnimSpeed} size={b.iconSize || 1.35} />
         {el.text ? <span className="stg-btn__label">{el.text}</span> : null}
@@ -1225,8 +1272,8 @@ function Element({
       <div className="stg-memory" style={{ color: el.style?.color }}>
         {el.hint ? <p style={{ ...textCss(el.style, canvasW), position: "relative", marginBottom: 8 }}>{el.hint}</p> : null}
         <div className="stg-gallery">
-          {photos.map((src) => (
-            <img key={src} src={src} alt="" />
+          {photos.map((shot) => (
+            <img key={shot.id} src={shot.url} alt="" />
           ))}
         </div>
         <label className="stg-btn" style={{ position: "relative", marginTop: 8, background: el.button?.fill || "#dc690c", color: "#fff", borderRadius: 10, minHeight: 38 }}>
@@ -1234,12 +1281,12 @@ function Element({
           <span>{el.text || (locale === "en" ? "Upload a photo" : "Fotoğraf Yükle")}</span>
           <input
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             hidden
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (!file) return;
-              onPhotos([...photos, URL.createObjectURL(file)]);
+              e.currentTarget.value = "";
+              if (file) onAddPhoto(file, "wall");
             }}
           />
         </label>

@@ -7,7 +7,7 @@ import Icon, { type IconName } from "../Icon";
 import Logo from "../Logo";
 import { useLocale } from "@/i18n/provider";
 import type { Locale } from "@/i18n/locale";
-import { AccountProvider, useAccount } from "./account";
+import { AccountProvider, useAccount, type Account } from "./account";
 
 const AUTH = new Set(["/panel/giris", "/panel/kayit", "/panel/sifremi-unuttum", "/panel/sifre-yenile"]);
 
@@ -19,6 +19,7 @@ function links(locale: Locale): { href: string; label: string; icon: IconName; e
   return [
     { href: "/panel", label: tx(locale, "Özet", "Overview"), icon: "home", exact: true },
     { href: "/panel/tasarimlar", label: tx(locale, "Tasarımlarım", "My designs"), icon: "sparkle" },
+    { href: "/panel/album", label: tx(locale, "Albüm", "Album"), icon: "image" },
     { href: "/panel/hesap", label: tx(locale, "Hesap", "Account"), icon: "user" },
   ];
 }
@@ -32,7 +33,7 @@ function firstName(name: string) {
   return name.trim().split(/\s+/)[0] || "";
 }
 
-export default function PanelFrame({ children }: { children: React.ReactNode }) {
+export default function PanelFrame({ children, initialAccount = null }: { children: React.ReactNode; initialAccount?: Account | null }) {
   const pathname = usePathname();
   const locale = useLocale();
   if (AUTH.has(pathname)) {
@@ -52,7 +53,7 @@ export default function PanelFrame({ children }: { children: React.ReactNode }) 
     );
   }
   return (
-    <AccountProvider>
+    <AccountProvider initial={initialAccount}>
       <Desk>{children}</Desk>
     </AccountProvider>
   );

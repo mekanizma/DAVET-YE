@@ -74,6 +74,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       locale={row.locale}
       stage={loadStage(row.template, row.locale)}
       design={row.payload}
+      albumSlug={row.slug}
     />
   );
 }

@@ -8,6 +8,7 @@ import { useIv } from "./ctx";
 import { sampleFor } from "@/data/sample";
 import { useLocale } from "@/i18n/provider";
 import { formatIban } from "@/lib/format";
+import { uploadSharePhoto } from "@/lib/albumClient";
 import { getLocalJson, setLocalJson, type Rsvp, type Wish } from "@/lib/storage";
 
 export interface WallPhoto {
@@ -186,40 +187,65 @@ export function MemoryWallSection({
   photos,
   onAdd,
   onRemove,
+  albumSlug = "",
 }: {
   photos: WallPhoto[];
   onAdd: (p: WallPhoto) => void;
   onRemove: (id: string) => void;
+  albumSlug?: string;
 }) {
   const { style } = useIv();
   const en = useLocale() === "en";
   const inputRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  function onFiles(files: FileList | null) {
-    if (!files || !files.length) return;
+  async function onFiles(files: FileList | null) {
+    if (!files || !files.length || busy) return;
     let added = 0;
     let rejected = "";
-    let room = MAX_PHOTOS - photos.length;
-    Array.from(files).forEach((f) => {
-      if (!f.type.startsWith("image/")) {
-        rejected = en ? `“${f.name}” is not an image.` : `“${f.name}” bir görsel değil.`;
-        return;
+    let room = albumSlug ? 200 - photos.length : MAX_PHOTOS - photos.length;
+    setBusy(true);
+    try {
+      for (const f of Array.from(files)) {
+        if (!f.type.startsWith("image/")) {
+          rejected = en ? `“${f.name}” is not an image.` : `“${f.name}” bir görsel değil.`;
+          continue;
+        }
+        if (f.size > MAX_BYTES) {
+          rejected = en ? `“${f.name}” is over the 8 MB limit.` : `“${f.name}” 8 MB sınırını aşıyor.`;
+          continue;
+        }
+        if (room <= 0) {
+          rejected = en ? "The album is full." : "Albüm doldu.";
+          break;
+        }
+        room--;
+        if (albumSlug) {
+          try {
+            const saved = await uploadSharePhoto(albumSlug, f, "wall", f.name);
+            onAdd({ id: saved.id, url: saved.url, source: "upload" });
+            added++;
+          } catch (err) {
+            rejected = err instanceof Error ? err.message : (en ? "The photo could not be saved." : "Fotoğraf kaydedilemedi.");
+          }
+        } else {
+          onAdd({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, url: URL.createObjectURL(f), source: "upload" });
+          added++;
+        }
       }
-      if (f.size > MAX_BYTES) {
-        rejected = en ? `“${f.name}” is over the 8 MB limit.` : `“${f.name}” 8 MB sınırını aşıyor.`;
-        return;
-      }
-      if (room <= 0) {
-        rejected = en ? `You can add up to ${MAX_PHOTOS} photos.` : `En fazla ${MAX_PHOTOS} fotoğraf eklenebilir.`;
-        return;
-      }
-      room--;
-      added++;
-      onAdd({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, url: URL.createObjectURL(f), source: "upload" });
-    });
+    } finally {
+      setBusy(false);
+    }
     if (rejected) setMsg({ kind: "err", text: rejected });
-    else if (added) setMsg({ kind: "ok", text: en ? (added === 1 ? "1 photo added." : `${added} photos added.`) : `${added} fotoğraf eklendi.` });
+    else if (added) {
+      setMsg({
+        kind: "ok",
+        text: albumSlug
+          ? (en ? (added === 1 ? "1 photo saved to the album." : `${added} photos saved to the album.`) : `${added} fotoğraf albüme kaydedildi.`)
+          : (en ? (added === 1 ? "1 photo added." : `${added} photos added.`) : `${added} fotoğraf eklendi.`),
+      });
+    }
     if (inputRef.current) inputRef.current.value = "";
   }
 
@@ -242,10 +268,14 @@ export function MemoryWallSection({
         onChange={(e) => onFiles(e.target.files)}
         tabIndex={-1}
       />
-      <button type="button" className="iv-btn iv-btn--solid" onClick={() => inputRef.current?.click()}>
-        <Icon name="upload" size={16} /> {en ? "Upload a photo" : "Fotoğraf Yükle"}
+      <button type="button" className="iv-btn iv-btn--solid" onClick={() => inputRef.current?.click()} disabled={busy}>
+        <Icon name="upload" size={16} /> {busy ? (en ? "Saving…" : "Kaydediliyor…") : en ? "Upload a photo" : "Fotoğraf Yükle"}
       </button>
-      <p className="iv-note">{en ? "Preview: photos are not sent to a server; they are shown only on this page." : "Önizleme: fotoğraflar sunucuya gönderilmez; yalnızca bu sayfada gösterilir."}</p>
+      <p className="iv-note">
+        {albumSlug
+          ? (en ? "Photos are saved to the couple’s album." : "Fotoğraflar çiftin albümüne kaydedilir.")
+          : (en ? "Preview: photos are not sent to a server; they are shown only on this page." : "Önizleme: fotoğraflar sunucuya gönderilmez; yalnızca bu sayfada gösterilir.")}
+      </p>
       <div role="status" aria-live="polite" className={msg ? `iv-status iv-status--${msg.kind}` : "sr-only"}>
         {msg?.text}
       </div>
@@ -258,7 +288,7 @@ export function MemoryWallSection({
               {/* blob: URLs are not supported by next/image */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={p.url} alt={en ? `Memory photo ${i + 1}${p.source === "lens" ? " (memory shot)" : ""}` : `Anı fotoğrafı ${i + 1}${p.source === "lens" ? " (Anı Çekimi)" : ""}`} />
-              <button type="button" aria-label={en ? `Remove photo ${i + 1}` : `Fotoğraf ${i + 1} kaldır`} onClick={() => onRemove(p.id)}>
+              <button type="button" aria-label={en ? `Remove photo ${i + 1}` : `Fotoğraf ${i + 1} kaldır`} hidden={Boolean(albumSlug)} onClick={() => onRemove(p.id)}>
                 <Icon name="close" size={14} />
               </button>
             </li>
@@ -271,7 +301,7 @@ export function MemoryWallSection({
 
 /* ------------------------------ Lens ------------------------------ */
 
-export function LensSection({ onCapture }: { onCapture: (p: WallPhoto) => void }) {
+export function LensSection({ onCapture, albumSlug = "" }: { onCapture: (p: WallPhoto) => void; albumSlug?: string }) {
   const { style, data } = useIv();
   const en = useLocale() === "en";
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -279,7 +309,8 @@ export function LensSection({ onCapture }: { onCapture: (p: WallPhoto) => void }
   const [state, setState] = useState<"idle" | "starting" | "live" | "error">("idle");
   const [error, setError] = useState("");
   const [flash, setFlash] = useState(false);
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState<{ ok: boolean; text: string } | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const stop = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -290,7 +321,7 @@ export function LensSection({ onCapture }: { onCapture: (p: WallPhoto) => void }
 
   async function start() {
     setError("");
-    setNote("");
+    setNote(null);
     if (!navigator.mediaDevices?.getUserMedia) {
       setState("error");
       setError(en
@@ -358,10 +389,24 @@ export function LensSection({ onCapture }: { onCapture: (p: WallPhoto) => void }
     ctx.fillText(`${data.partnerA} & ${data.partnerB}`, w / 2, h + 56);
     c.toBlob((blob) => {
       if (!blob) return;
-      onCapture({ id: `lens-${Date.now()}`, url: URL.createObjectURL(blob), source: "lens" });
       setFlash(true);
-      setNote(en ? "The photo was added to the Memory wall." : "Fotoğraf Anı Duvarı’na eklendi.");
       setTimeout(() => setFlash(false), 250);
+      if (!albumSlug) {
+        onCapture({ id: `lens-${Date.now()}`, url: URL.createObjectURL(blob), source: "lens" });
+        setNote({ ok: true, text: en ? "The photo was added to the Memory wall." : "Fotoğraf Anı Duvarı’na eklendi." });
+        return;
+      }
+      setSaving(true);
+      setNote({ ok: true, text: en ? "Saving the photo…" : "Fotoğraf kaydediliyor…" });
+      uploadSharePhoto(albumSlug, blob, "lens", "ani.jpg")
+        .then((saved) => {
+          onCapture({ id: saved.id, url: saved.url, source: "lens" });
+          setNote({ ok: true, text: en ? "Saved to the album." : "Albüme kaydedildi." });
+        })
+        .catch((err: Error) => {
+          setNote({ ok: false, text: err.message || (en ? "The photo could not be saved." : "Fotoğraf kaydedilemedi.") });
+        })
+        .finally(() => setSaving(false));
     }, "image/jpeg", 0.88);
   }
 
@@ -388,8 +433,8 @@ export function LensSection({ onCapture }: { onCapture: (p: WallPhoto) => void }
           </button>
         ) : (
           <>
-            <button type="button" className="iv-btn iv-btn--solid" onClick={snap}>
-              <Icon name="camera" size={16} /> {en ? "Take a photo" : "Fotoğraf çek"}
+            <button type="button" className="iv-btn iv-btn--solid" onClick={snap} disabled={saving}>
+              <Icon name="camera" size={16} /> {saving ? (en ? "Saving…" : "Kaydediliyor…") : en ? "Take a photo" : "Fotoğraf çek"}
             </button>
             <button type="button" className="iv-btn" onClick={stop}>
               {en ? "Close the camera" : "Kamerayı kapat"}
@@ -398,7 +443,7 @@ export function LensSection({ onCapture }: { onCapture: (p: WallPhoto) => void }
         )}
       </div>
       {error && <p className="iv-status iv-status--err" role="alert">{error}</p>}
-      <div role="status" aria-live="polite" className={note ? "iv-status iv-status--ok" : "sr-only"}>{note}</div>
+      <div role="status" aria-live="polite" className={note ? `iv-status iv-status--${note.ok ? "ok" : "err"}` : "sr-only"}>{note?.text}</div>
     </Sec>
   );
 }

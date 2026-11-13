@@ -1,13 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import type { OrderRecord } from "@/lib/orderTypes";
+import type { PanelAccount } from "@/lib/panelAccount";
 
-export interface Account {
-  email: string;
-  name: string;
-  orders: OrderRecord[];
-}
+export type Account = PanelAccount;
 
 interface AccountState {
   account: Account | null;
@@ -16,11 +12,12 @@ interface AccountState {
 
 const AccountContext = createContext<AccountState>({ account: null, failed: false });
 
-export function AccountProvider({ children }: { children: React.ReactNode }) {
-  const [account, setAccount] = useState<Account | null>(null);
+export function AccountProvider({ children, initial = null }: { children: React.ReactNode; initial?: Account | null }) {
+  const [account, setAccount] = useState<Account | null>(initial);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    if (initial) return;
     let stop = false;
     fetch("/api/hesap", { cache: "no-store" })
       .then(async (res) => {
@@ -41,7 +38,7 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
     return () => {
       stop = true;
     };
-  }, []);
+  }, [initial]);
 
   return <AccountContext.Provider value={{ account, failed }}>{children}</AccountContext.Provider>;
 }

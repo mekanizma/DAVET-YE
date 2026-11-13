@@ -11,9 +11,12 @@ export async function GET(req: Request, ctx: { params: Promise<{ code: string }>
   if (!found) {
     return NextResponse.json({ error: "Sipariş bulunamadı." }, { status: 404 });
   }
-  const order = await syncShopierPayment(found);
-  const cat = await getPublicCatalog();
+  const url = new URL(req.url);
+  const sync = url.searchParams.get("odeme") === "1";
+  const order = sync ? await syncShopierPayment(found) : found;
   const share = await shareForOrder(order.code);
+  if (!sync) return NextResponse.json({ order, share }, { headers: { "Cache-Control": "no-store" } });
+  const cat = await getPublicCatalog();
   return NextResponse.json({ order, share, settings: customerPaymentSettings(cat.settings), paymentReady: cat.cardPayments });
 }
 

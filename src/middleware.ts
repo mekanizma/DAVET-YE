@@ -64,6 +64,7 @@ export async function middleware(req: NextRequest) {
   if (canonical) return canonical;
   const { pathname } = req.nextUrl;
   const { locale, fromPath, requestHeaders } = localeHeaders(req);
+  requestHeaders.set("x-pathname", pathname);
   const pass = () => rememberLocale(NextResponse.next({ request: { headers: requestHeaders } }), locale, fromPath);
   const adminPage = pathname === "/yonetim" || pathname.startsWith("/yonetim/");
   const adminApi = pathname.startsWith("/api/yonetim");
@@ -107,7 +108,7 @@ export async function middleware(req: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   let admin = false;
-  if (user) {
+  if (user && (adminPage || adminApi)) {
     const { data } = await supabase.from("dv_profiles").select("role").eq("id", user.id).maybeSingle();
     admin = data?.role === "admin";
   }

@@ -67,12 +67,13 @@ function themeName(slug: string, locale: Locale) {
   return theme ? themeTitle(theme, locale) : slug;
 }
 
-function OrderShare({ code, email, locale }: { code: string; email: string; locale: Locale }) {
-  const [share, setShare] = useState<SharePublic | null>(null);
+function OrderShare({ code, email, locale, known }: { code: string; email: string; locale: Locale; known: SharePublic | null }) {
+  const [share, setShare] = useState<SharePublic | null>(known);
   useEffect(() => {
-    if (!code || !email) return;
+    setShare(known);
+    if (known || !code || !email) return;
     let stop = false;
-    fetch(`/api/siparis/${encodeURIComponent(code)}?email=${encodeURIComponent(email)}`)
+    fetch(`/api/siparis/${encodeURIComponent(code)}?email=${encodeURIComponent(email)}&ozet=1`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!stop) setShare((data?.share as SharePublic) || null);
@@ -81,7 +82,7 @@ function OrderShare({ code, email, locale }: { code: string; email: string; loca
     return () => {
       stop = true;
     };
-  }, [code, email]);
+  }, [known, code, email]);
   return <ShareLinkCard share={share} locale={locale} />;
 }
 
@@ -124,7 +125,7 @@ export default function Dashboard() {
     let stop = false;
     Promise.all(
       lookups.map((item) =>
-        fetch(`/api/siparis/${encodeURIComponent(item.code)}?email=${encodeURIComponent(item.email)}`)
+        fetch(`/api/siparis/${encodeURIComponent(item.code)}?email=${encodeURIComponent(item.email)}&ozet=1`)
           .then((res) => (res.ok ? res.json() : null))
           .then((data) => (data?.order ? (data.order as OrderRecord) : null))
           .catch(() => null),
@@ -198,10 +199,15 @@ export default function Dashboard() {
       </header>
 
       <div className="desk-tiles">
-        <Link href="/panel/tasarimlar" className="desk-tile">
+        <Link href="/panel/tasarimlar#kartlar" className="desk-tile">
           <Icon name="sparkle" size={18} />
           <strong>{tx(locale, "Tasarımlarım", "My designs")}</strong>
-          <span>{tx(locale, "Davetiye taslağınız", "Your invitation draft")}</span>
+          <span>{tx(locale, "QR kartı ve davetiye", "QR card and invitation")}</span>
+        </Link>
+        <Link href="/panel/album" className="desk-tile">
+          <Icon name="image" size={18} />
+          <strong>{tx(locale, "Albüm", "Album")}</strong>
+          <span>{tx(locale, "Anı duvarı ve çekimler", "Memory wall and shots")}</span>
         </Link>
         <a href="#katilim" className="desk-tile">
           <Icon name="heart" size={18} />
@@ -237,7 +243,7 @@ export default function Dashboard() {
                   <div className="dash__actions">
                     <Link href={action.href} className="btn btn--outline btn--sm">{action.label}</Link>
                   </div>
-                  <OrderShare code={o.code} email={o.customer.email} locale={locale} />
+                  <OrderShare code={o.code} email={o.customer.email} locale={locale} known={account.shares?.[o.code] || null} />
                 </li>
               );
             })}

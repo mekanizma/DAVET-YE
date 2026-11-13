@@ -8,6 +8,7 @@ import { newspapers } from "@/data/newspapers";
 import { localizeNewspaper, themeTitle } from "@/i18n/catalog";
 import { lp, type Locale } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
+import { useAccount } from "./account";
 import { normalizeNewspaperDraft, EMPTY_NEWSPAPER_DRAFT } from "@/lib/newspaperDraft";
 import {
   clearDraft,
@@ -31,6 +32,7 @@ function paperStarted(draft: NewspaperDraft) {
 
 export default function DraftCard({ hideEmpty = false }: { hideEmpty?: boolean }) {
   const locale = useLocale();
+  const { account } = useAccount();
   const { draft, ready } = useDraft();
   const [paper] = useLocalJson(NEWSPAPER_DRAFT, EMPTY_NEWSPAPER_DRAFT);
   const newspaper = normalizeNewspaperDraft(paper);
@@ -40,12 +42,17 @@ export default function DraftCard({ hideEmpty = false }: { hideEmpty?: boolean }
   useEffect(() => {
     const code = draft.order?.code;
     const email = draft.order?.email;
+    const known = account?.orders.find((order) => order.code === code);
+    if (known) {
+      setInviteApproved(known.status === "onaylandi");
+      return;
+    }
     if (!code || !email) {
       setInviteApproved(false);
       return;
     }
     let stop = false;
-    fetch(`/api/siparis/${encodeURIComponent(code)}?email=${encodeURIComponent(email)}`)
+    fetch(`/api/siparis/${encodeURIComponent(code)}?email=${encodeURIComponent(email)}&ozet=1`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!stop) setInviteApproved(data?.order?.status === "onaylandi");
@@ -56,15 +63,20 @@ export default function DraftCard({ hideEmpty = false }: { hideEmpty?: boolean }
     return () => {
       stop = true;
     };
-  }, [draft.order?.code, draft.order?.email]);
+  }, [account, draft.order?.code, draft.order?.email]);
 
   useEffect(() => {
+    const known = account?.orders.find((order) => order.code === newspaper.orderCode);
+    if (known) {
+      setPaperApproved(known.status === "onaylandi");
+      return;
+    }
     if (!newspaper.orderCode || !newspaper.orderEmail) {
       setPaperApproved(false);
       return;
     }
     let stop = false;
-    fetch(`/api/siparis/${encodeURIComponent(newspaper.orderCode)}?email=${encodeURIComponent(newspaper.orderEmail)}`)
+    fetch(`/api/siparis/${encodeURIComponent(newspaper.orderCode)}?email=${encodeURIComponent(newspaper.orderEmail)}&ozet=1`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!stop) setPaperApproved(data?.order?.status === "onaylandi");
@@ -75,7 +87,7 @@ export default function DraftCard({ hideEmpty = false }: { hideEmpty?: boolean }
     return () => {
       stop = true;
     };
-  }, [newspaper.orderCode, newspaper.orderEmail]);
+  }, [account, newspaper.orderCode, newspaper.orderEmail]);
 
   if (!ready) return <p className="wz-loading" role="status">{tx(locale, "Yükleniyor…", "Loading…")}</p>;
 

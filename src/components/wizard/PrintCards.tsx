@@ -355,17 +355,60 @@ function titleName(value: string, locale: Locale) {
     .replace(/(^|[\s-])(\p{L})/gu, (_, sep: string, ch: string) => sep + ch.toLocaleUpperCase(tag));
 }
 
-function fillQrStage(id: string, bride: string, groom: string, when: CardDate, locale: Locale) {
+function fillQrStage(id: string, bride: string, groom: string, when: CardDate, locale: Locale, qrSrc = "") {
   const raw = translateArt(QR_STAGES[id] || QR_STAGES.minimal, locale);
   const names = `${titleName(bride, locale)} & ${titleName(groom, locale)}`;
   const upper = locale === "en" ? "en-GB" : "tr";
-  return raw
+  let html = raw
     .replaceAll("Elif &amp; Kerem", esc(names))
     .replaceAll("ELİF &amp; KEREM", esc(names.toLocaleUpperCase(upper)))
     .replaceAll("18 · 09 · 2027", esc(when.dotted))
     .replaceAll("18 EYLÜL 2027", esc(when.upper))
     .replaceAll("18 Eylül 2027", esc(when.title))
     .replaceAll("18.09.2027", esc(when.short));
+  if (qrSrc) html = html.replaceAll("/img/kart/qr-ornek.webp", qrSrc);
+  return html;
+}
+
+export function PreparedCardFace({
+  kind,
+  design,
+  bride,
+  groom,
+  date,
+  time,
+  venue,
+  place,
+  qrSrc = "",
+}: {
+  kind: "qr" | "card";
+  design: string;
+  bride: string;
+  groom: string;
+  date: string;
+  time: string;
+  venue: string;
+  place: string;
+  qrSrc?: string;
+}) {
+  const locale = useLocale();
+  const look = pickLook(kind === "qr" ? QR_LOOKS : CARD_LOOKS, design);
+  const when = cardDate(date, time, locale);
+  const first = bride.trim() || (locale === "en" ? "Name" : "İsim");
+  const second = groom.trim() || (locale === "en" ? "Name" : "İsim");
+  const html = kind === "qr"
+    ? fillQrStage(look.id, first, second, when, locale, qrSrc)
+    : fillCardStage(look.id, first, second, when, venue, place, locale);
+  return (
+    <div
+      className="pthumb is-lg"
+      data-look={look.id}
+      data-kind={kind}
+      style={{ aspectRatio: look.ratio, backgroundColor: look.paper, color: look.ink, ["--accent" as string]: look.accent }}
+    >
+      <QrLive html={html} />
+    </div>
+  );
 }
 
 function fillCardStage(id: string, bride: string, groom: string, when: CardDate, venue: string, place: string, locale: Locale) {
