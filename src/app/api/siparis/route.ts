@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPublicCatalog, createOrderAsync } from "@/lib/store";
+import { reserveShare } from "@/lib/shareLink";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 const hits = new Map<string, { n: number; at: number }>();
@@ -64,6 +65,12 @@ export async function POST(req: Request) {
     userId,
   });
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
+  const share = await reserveShare({
+    order: result.order,
+    hint: typeof body.shareSlug === "string" ? body.shareSlug : "",
+    design: body.design,
+    locale: body.locale === "en" ? "en" : "tr",
+  });
   const cat = await getPublicCatalog();
-  return NextResponse.json({ order: result.order, settings: cat.settings, paymentReady: cat.paymentReady });
+  return NextResponse.json({ order: result.order, share, settings: cat.settings, paymentReady: cat.paymentReady });
 }

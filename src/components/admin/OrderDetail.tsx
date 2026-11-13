@@ -6,17 +6,21 @@ import { adminSend } from "./AdminShell";
 import { formatTL } from "@/lib/format";
 import { STATUS_LABEL } from "@/lib/orderStatus";
 import type { OrderRecord } from "@/lib/orderTypes";
+import ShareLinkCard from "@/components/share/ShareLinkCard";
+import type { SharePublic } from "@/lib/shareSlug";
 
 export default function OrderDetail({ code }: { code: string }) {
   const [order, setOrder] = useState<OrderRecord | null>(null);
+  const [share, setShare] = useState<SharePublic | null>(null);
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function load() {
-    const data = await adminSend<{ order: OrderRecord }>(`/api/yonetim/siparisler/${encodeURIComponent(code)}`);
+    const data = await adminSend<{ order: OrderRecord; share?: SharePublic | null }>(`/api/yonetim/siparisler/${encodeURIComponent(code)}`);
     setOrder(data.order);
+    setShare(data.share || null);
     setNote(data.order.adminNote || "");
   }
 
@@ -30,11 +34,12 @@ export default function OrderDetail({ code }: { code: string }) {
     setError("");
     setInfo("");
     try {
-      const data = await adminSend<{ order: OrderRecord }>(`/api/yonetim/siparisler/${encodeURIComponent(code)}`, {
+      const data = await adminSend<{ order: OrderRecord; share?: SharePublic | null }>(`/api/yonetim/siparisler/${encodeURIComponent(code)}`, {
         method: "PATCH",
         body: JSON.stringify({ action, adminNote: note }),
       });
       setOrder(data.order);
+      setShare(data.share || null);
       setInfo(action === "onayla" ? "Sipariş onaylandı." : action === "reddet" ? "Sipariş reddedildi." : "Not kaydedildi.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Kaydedilemedi");
@@ -68,6 +73,11 @@ export default function OrderDetail({ code }: { code: string }) {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="adm-card">
+        <h2>Online adres</h2>
+        {share ? <ShareLinkCard share={share} locale="tr" /> : <p>Bu sipariş için adres ayrılmadı.</p>}
       </section>
 
       <section className="adm-card">

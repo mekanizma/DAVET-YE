@@ -13,6 +13,8 @@ import { formatTL, isEmail } from "@/lib/format";
 import type { PaymentSettings } from "@/lib/catalog";
 import { STATUS_LABEL, type OrderStatus } from "@/lib/orderStatus";
 import type { OrderRecord } from "@/lib/orderTypes";
+import ShareLinkCard from "@/components/share/ShareLinkCard";
+import { shareMonths, type SharePublic } from "@/lib/shareSlug";
 
 export interface PlacedOrder {
   code: string;
@@ -48,6 +50,8 @@ export default function IbanCheckout({
   previewTotal,
   resume,
   onUpdate,
+  shareSlug = "",
+  design,
 }: {
   kind: "davetiye" | "gazete";
   template: string;
@@ -58,6 +62,8 @@ export default function IbanCheckout({
   previewTotal: number;
   resume?: { code: string; email: string } | null;
   onUpdate?: (order: PlacedOrder) => void;
+  shareSlug?: string;
+  design?: unknown;
 }) {
   const locale = useLocale();
   const cat = useCatalog();
@@ -73,6 +79,8 @@ export default function IbanCheckout({
   const [failure, setFailure] = useState("");
   const [busy, setBusy] = useState(false);
   const [order, setOrder] = useState<OrderRecord | null>(null);
+  const [share, setShare] = useState<SharePublic | null>(null);
+  const [pathName, setPathName] = useState(shareSlug);
   const [settings, setSettings] = useState<PaymentSettings>(cat.settings);
   const [ready, setReady] = useState(cat.paymentReady);
 
@@ -93,6 +101,7 @@ export default function IbanCheckout({
       const data = await res.json();
       if (cancelled) return;
       setOrder(data.order);
+      setShare(data.share || null);
       setSettings(data.settings);
       setReady(data.paymentReady);
       if (!silent) setSender("");
@@ -145,6 +154,9 @@ export default function IbanCheckout({
           customer: { name, email, phone },
           customerNote: note,
           snapshot,
+          shareSlug: pathName,
+          design,
+          locale,
         }),
       });
       const data = await res.json();
@@ -154,6 +166,7 @@ export default function IbanCheckout({
       }
       setSettings(data.settings);
       setReady(data.paymentReady);
+      setShare(data.share || null);
       remember(data.order);
       setSender("");
       setFile(null);
@@ -243,6 +256,20 @@ export default function IbanCheckout({
         <TextField id="pay-name" label={tx(locale, "Ad soyad", "Full name")} required value={name} onChange={(e) => setName(e.target.value)} error={errors.name} autoComplete="name" />
         <TextField id="pay-mail" type="email" label={tx(locale, "E-posta", "Email")} required value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} autoComplete="email" inputMode="email" hint={tx(locale, "Sipariş durumunu bu adresle sorgularsınız.", "You look up the order status with this address.")} />
         <TextField id="pay-phone" type="tel" label={tx(locale, "Telefon", "Phone")} required value={phone} onChange={(e) => setPhone(e.target.value)} error={errors.phone} autoComplete="tel" inputMode="tel" placeholder="05xx xxx xx xx" />
+        <TextField
+          id="pay-path"
+          label={tx(locale, "Online adres", "Online address")}
+          value={pathName}
+          onChange={(e) => setPathName(e.target.value.toLowerCase())}
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          hint={tx(
+            locale,
+            `Ödeme onayından sonra ${kind === "gazete" ? "gazeteniz" : "davetiyeniz"} ${shareMonths(kind)} ay boyunca davetanisi.com/d/ adresinde açık kalır.`,
+            `After payment is confirmed, your ${kind === "gazete" ? "newspaper" : "invitation"} stays at davetanisi.com/d/ for ${shareMonths(kind)} months.`,
+          )}
+        />
         <TextAreaField id="pay-note" label={tx(locale, "Not (isteğe bağlı)", "Note (optional)")} value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} />
         {failure && <div className="alert alert--error" role="alert"><Icon name="alert" size={18} /><span>{failure}</span></div>}
         <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={busy}>
@@ -334,6 +361,8 @@ export default function IbanCheckout({
           </div>
         </div>
       )}
+
+      <ShareLinkCard share={share} locale={locale} />
 
       {order && (
         <ul className="timeline">

@@ -28,31 +28,38 @@ import { getInvitationStyle } from "@/data/invitationStyles";
 import { sampleDate, sampleFor } from "@/data/sample";
 import { localizeInvitationStyle } from "@/i18n/invitation";
 import { themeTitle } from "@/i18n/catalog";
-import { lp } from "@/i18n/locale";
+import { lp, type Locale } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
 import { coverOf, openingVideoOf, type Theme } from "@/data/themes";
 import { useAmbientMusic } from "@/lib/music";
-import { useDraft } from "@/lib/storage";
+import { useDraft, type InvitationDraft } from "@/lib/storage";
 
 export default function InvitationExperience({
   theme,
   embed = false,
   mode = "tek",
   useDraftData = false,
+  locale: localeProp,
+  guestDraft = null,
 }: {
   theme: Theme;
   embed?: boolean;
   mode?: "tek" | "kina-dugun";
   /** Use the visitor's local wizard draft instead of sample content */
   useDraftData?: boolean;
+  locale?: Locale;
+  guestDraft?: InvitationDraft | null;
 }) {
-  const locale = useLocale();
+  const contextLocale = useLocale();
+  const locale = localeProp ?? contextLocale;
   const en = locale === "en";
   const sample = sampleFor(locale);
   const title = themeTitle(theme, locale);
-  const { draft, ready } = useDraft();
-  const live = useDraftData && ready;
+  const stored = useDraft();
+  const draft = guestDraft ?? stored.draft;
+  const ready = guestDraft ? true : stored.ready;
+  const live = Boolean(guestDraft) || (useDraftData && ready);
   const style = useMemo(() => localizeInvitationStyle(getInvitationStyle(theme), locale), [theme, locale]);
   const reduced = usePrefersReducedMotion();
   const [phase, setPhase] = useState<OpeningPhase>("closed");

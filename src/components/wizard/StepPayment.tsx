@@ -7,6 +7,7 @@ import { useCatalog } from "@/components/CatalogProvider";
 import { EVENT_LABELS } from "@/data/themes";
 import { useLocale } from "@/i18n/provider";
 import { priceTotal } from "@/lib/pricing";
+import { invitationShareDesign, suggestShareSlug } from "@/lib/shareSlug";
 import { getLocalJson, saveDraft, setLocalJson, type InvitationDraft, type StoredOrder } from "@/lib/storage";
 
 function remember(draft: InvitationDraft, title: string, order: PlacedOrder) {
@@ -73,6 +74,8 @@ export default function StepPayment({ draft, title }: { draft: InvitationDraft; 
       languages={draft.languages}
       addons={draft.addons}
       snapshot={snapshot}
+      shareSlug={suggestShareSlug([i.partnerA, i.partnerB].filter(Boolean).join(" "))}
+      design={invitationShareDesign(draft)}
       previewTotal={total}
       resume={draft.order?.email ? { code: draft.order.code, email: draft.order.email } : null}
       onUpdate={(order) => remember(draft, title, order)}

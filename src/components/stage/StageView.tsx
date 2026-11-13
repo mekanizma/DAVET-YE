@@ -5,6 +5,7 @@ import icons from "@/data/stage-icons.json";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
 import type { Locale } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
+import type { InvitationDraft } from "@/lib/storage";
 import { useDraft } from "@/lib/storage";
 
 interface TextStyle {
@@ -451,12 +452,14 @@ export default function StageView({
   embed = false,
   useDraftData = false,
   locale: localeProp,
+  guestDraft = null,
 }: {
   stage: StageFile;
   slug: string;
   embed?: boolean;
   useDraftData?: boolean;
   locale?: Locale;
+  guestDraft?: InvitationDraft | null;
 }) {
   const contextLocale = useLocale();
   const locale = localeProp ?? contextLocale;
@@ -464,8 +467,10 @@ export default function StageView({
   const { design } = stage;
   const canvasW = design.canvas?.width || 390;
   const canvasH = design.canvas?.height || 844;
-  const { draft, ready } = useDraft();
-  const live = useDraftData && ready;
+  const stored = useDraft();
+  const draft = guestDraft ?? stored.draft;
+  const ready = guestDraft ? true : stored.ready;
+  const live = Boolean(guestDraft) || (useDraftData && ready);
   const values = useMemo(() => {
     const base = { ...(stage.values || {}) };
     if (!live) return base;

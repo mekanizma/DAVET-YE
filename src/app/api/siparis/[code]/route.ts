@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { findOrderForCustomer, getPublicCatalog, reportTransfer } from "@/lib/store";
 import { removeReceipt, saveReceipt } from "@/lib/receipt";
+import { shareForOrder } from "@/lib/shareLink";
 
 export async function GET(req: Request, ctx: { params: Promise<{ code: string }> }) {
   const { code } = await ctx.params;
@@ -10,7 +11,8 @@ export async function GET(req: Request, ctx: { params: Promise<{ code: string }>
     return NextResponse.json({ error: "Sipariş bulunamadı." }, { status: 404 });
   }
   const cat = await getPublicCatalog();
-  return NextResponse.json({ order, settings: cat.settings, paymentReady: cat.paymentReady });
+  const share = await shareForOrder(order.code);
+  return NextResponse.json({ order, share, settings: cat.settings, paymentReady: cat.paymentReady });
 }
 
 export async function POST(req: Request, ctx: { params: Promise<{ code: string }> }) {

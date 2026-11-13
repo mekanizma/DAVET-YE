@@ -734,6 +734,55 @@ html:has(.wz__nav) {
   justify-content: center;
   margin-top: 8px;
 }
+.share-card {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.share-card__title {
+  margin: 0;
+  font-weight: 700;
+}
+.share-card__url {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.share-card__url .input {
+  flex: 1 1 180px;
+  min-width: 0;
+  font-size: 16px;
+}
+.share-card__url .btn {
+  min-height: 44px;
+  flex: 1 1 120px;
+}
+.share-note {
+  min-height: 100dvh;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 32px 20px;
+  text-align: center;
+}
+.share-note h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+}
+.share-note__brand {
+  margin: 0;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+.share-paper {
+  min-height: 100dvh;
+}
 
 /* summary */
 .wz__aside {

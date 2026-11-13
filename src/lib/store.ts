@@ -21,6 +21,7 @@ import { asDbOrder, toOrder, type DbOrder } from "@/lib/orderRow";
 import type { OrderStatus } from "@/lib/orderStatus";
 import type { OrderLine, OrderRecord } from "@/lib/orderTypes";
 import { invitationQuote, paperQuote } from "@/lib/pricing";
+import { publishShare, releaseShare } from "@/lib/shareLink";
 import { createSupabaseAnon, createSupabaseServer } from "@/lib/supabase/server";
 
 export type { OrderLine, OrderRecord };
@@ -402,7 +403,10 @@ export async function decideOrder(
       order.decidedAt = now;
       order.updatedAt = now;
     }
-    return { ok: true, order: await upsertOrder(order, row.user_id || null) };
+    const saved = await upsertOrder(order, row.user_id || null);
+    if (action === "onayla") await publishShare(saved);
+    if (action === "reddet") await releaseShare(saved.code);
+    return { ok: true, order: saved };
   } catch (e) {
     console.error(e);
     return { ok: false, error: e instanceof Error ? e.message : "Karar kaydedilemedi." };

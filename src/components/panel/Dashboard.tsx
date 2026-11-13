@@ -17,6 +17,8 @@ import type { Rsvp } from "@/lib/storage";
 import { NEWSPAPER_DRAFT, useDraft, useLocalJson } from "@/lib/storage";
 import { useAccount } from "./account";
 import DraftCard from "./DraftCard";
+import ShareLinkCard from "@/components/share/ShareLinkCard";
+import type { SharePublic } from "@/lib/shareSlug";
 
 interface RsvpRow extends Rsvp {
   slug: string;
@@ -63,6 +65,24 @@ function orderLink(order: OrderRecord, locale: Locale) {
 function themeName(slug: string, locale: Locale) {
   const theme = getTheme(slug);
   return theme ? themeTitle(theme, locale) : slug;
+}
+
+function OrderShare({ code, email, locale }: { code: string; email: string; locale: Locale }) {
+  const [share, setShare] = useState<SharePublic | null>(null);
+  useEffect(() => {
+    if (!code || !email) return;
+    let stop = false;
+    fetch(`/api/siparis/${encodeURIComponent(code)}?email=${encodeURIComponent(email)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!stop) setShare((data?.share as SharePublic) || null);
+      })
+      .catch(() => undefined);
+    return () => {
+      stop = true;
+    };
+  }, [code, email]);
+  return <ShareLinkCard share={share} locale={locale} />;
 }
 
 function orderTitle(order: OrderRecord, locale: Locale) {
@@ -217,6 +237,7 @@ export default function Dashboard() {
                   <div className="dash__actions">
                     <Link href={action.href} className="btn btn--outline btn--sm">{action.label}</Link>
                   </div>
+                  <OrderShare code={o.code} email={o.customer.email} locale={locale} />
                 </li>
               );
             })}

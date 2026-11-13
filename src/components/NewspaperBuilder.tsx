@@ -11,6 +11,7 @@ import { useCatalog } from "@/components/CatalogProvider";
 import { applyNewspaper } from "@/lib/catalog";
 import { getNewspaper, newspaperStyles, newspapers } from "@/data/newspapers";
 import { localizeNewspaper } from "@/i18n/catalog";
+import { suggestShareSlug } from "@/lib/shareSlug";
 import { withLocaleQuery } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
 import {
@@ -437,6 +438,8 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                     [en ? "Size" : "Boyut"]: draft.size,
                     [en ? "Story" : "Hikaye"]: (values.story || "").slice(0, 280),
                   }}
+                  shareSlug={suggestShareSlug(titleLine || paper.title)}
+                  design={{ template: paper.slug, values, contents, size: draft.size, style: draft.style }}
                   resume={draft.orderCode && draft.orderEmail ? { code: draft.orderCode, email: draft.orderEmail } : null}
                   onUpdate={remember}
                 />
