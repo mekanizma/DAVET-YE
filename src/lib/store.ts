@@ -422,6 +422,11 @@ function adminDb() {
   return createClient(supabaseUrl(), key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
+export async function findOrderByCode(code: string): Promise<OrderRecord | null> {
+  const loaded = await loadOrderByCode(code);
+  return loaded?.order ?? null;
+}
+
 async function loadOrderByCode(code: string): Promise<{ order: OrderRecord; userId: string | null } | null> {
   const db = adminDb();
   if (!db) return null;

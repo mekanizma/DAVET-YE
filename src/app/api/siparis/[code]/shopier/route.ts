@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { findOrderForCustomer, saveShopierProduct, syncShopierPayment } from "@/lib/store";
+import { findOrderByCode, findOrderForCustomer, saveShopierProduct, syncShopierPayment } from "@/lib/store";
 import { createShopierCheckout, deleteShopierProduct, shopierCheckoutHtml, shopierConfigured, shopierMessageHtml, shopierShopSlug } from "@/lib/shopier";
 
 export const dynamic = "force-dynamic";
@@ -24,28 +24,11 @@ function html(body: string, status = 200) {
   });
 }
 
-export async function POST(req: Request, ctx: { params: Promise<{ code: string }> }) {
+async function start(req: Request, code: string, email: string, fresh: boolean) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (limited(ip)) return html(shopierMessageHtml("Çok fazla deneme. Biraz sonra yeniden deneyin."), 429);
-  const { code } = await ctx.params;
-  let email = "";
-  let fresh = false;
-  try {
-    const type = req.headers.get("content-type") || "";
-    if (type.includes("application/json")) {
-      const body = (await req.json()) as { email?: string; fresh?: boolean };
-      email = String(body.email || "");
-      fresh = Boolean(body.fresh);
-    } else {
-      const form = await req.formData();
-      email = String(form.get("email") || "");
-      fresh = form.get("fresh") === "1";
-    }
-  } catch {
-    return html(shopierMessageHtml("Ödeme isteği okunamadı."), 400);
-  }
   if (!shopierConfigured()) return html(shopierMessageHtml("Kart ödemesi henüz açılmadı."), 503);
-  const known = await findOrderForCustomer(code, email);
+  const known = email ? await findOrderForCustomer(code, email) : await findOrderByCode(code);
   if (!known) return html(shopierMessageHtml("Sipariş bulunamadı. Kod ve e-posta birlikte kontrol edilir."), 404);
   const order = await syncShopierPayment(known);
   if (order.status === "onaylandi" || order.total <= 0) {
@@ -76,4 +59,33 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
     console.error(error);
     return html(shopierMessageHtml("Shopier ödeme sayfası açılamadı. Biraz sonra yeniden deneyin."), 502);
   }
+}
+
+export async function GET(req: Request, ctx: { params: Promise<{ code: string }> }) {
+  const { code } = await ctx.params;
+  const url = new URL(req.url);
+  const email = url.searchParams.get("email") || "";
+  const fresh = url.searchParams.get("yeni") === "1";
+  return start(req, code, email, fresh);
+}
+
+export async function POST(req: Request, ctx: { params: Promise<{ code: string }> }) {
+  const { code } = await ctx.params;
+  let email = "";
+  let fresh = false;
+  try {
+    const type = req.headers.get("content-type") || "";
+    if (type.includes("application/json")) {
+      const body = (await req.json()) as { email?: string; fresh?: boolean };
+      email = String(body.email || "");
+      fresh = Boolean(body.fresh);
+    } else {
+      const form = await req.formData();
+      email = String(form.get("email") || "");
+      fresh = form.get("fresh") === "1";
+    }
+  } catch {
+    return html(shopierMessageHtml("Ödeme isteği okunamadı."), 400);
+  }
+  return start(req, code, email, fresh);
 }

@@ -260,19 +260,12 @@ export default function IbanCheckout({
               <span>{order.adminNote || tx(locale, "Ödeme onaylanmadı. Kartla yeniden deneyebilirsiniz.", "The payment was not confirmed. You can try again by card.")}</span>
             </div>
           )}
-          <form method="post" action={`/api/siparis/${encodeURIComponent(order.code)}/shopier`}>
-            <input type="hidden" name="email" value={order.customer.email} />
-            <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif">
-              <Icon name="lock" size={16} /> {tx(locale, "Kart ile öde", "Pay by card")}
-            </button>
-          </form>
-          <form method="post" action={`/api/siparis/${encodeURIComponent(order.code)}/shopier`}>
-            <input type="hidden" name="email" value={order.customer.email} />
-            <input type="hidden" name="fresh" value="1" />
-            <button type="submit" className="btn btn--outline btn--block">
-              {tx(locale, "Ödeme sayfası açılmazsa yeniden dene", "Try again if the payment page does not open")}
-            </button>
-          </form>
+          <a className="btn btn--dark btn--lg btn--block btn--serif" href={`/api/siparis/${encodeURIComponent(order.code)}/shopier?email=${encodeURIComponent(order.customer.email)}`}>
+            <Icon name="lock" size={16} /> {tx(locale, "Kart ile öde", "Pay by card")}
+          </a>
+          <a className="btn btn--outline btn--block" href={`/api/siparis/${encodeURIComponent(order.code)}/shopier?email=${encodeURIComponent(order.customer.email)}&yeni=1`}>
+            {tx(locale, "Ödeme sayfası açılmazsa yeniden dene", "Try again if the payment page does not open")}
+          </a>
           <p className="field__hint">
             {tx(
               locale,
