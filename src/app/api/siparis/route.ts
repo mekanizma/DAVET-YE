@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { customerPaymentSettings } from "@/lib/catalog";
 import { getPublicCatalog, createOrderAsync } from "@/lib/store";
 import { reserveShare } from "@/lib/shareLink";
 import { createSupabaseServer } from "@/lib/supabase/server";
@@ -72,5 +73,5 @@ export async function POST(req: Request) {
     locale: body.locale === "en" ? "en" : "tr",
   });
   const cat = await getPublicCatalog();
-  return NextResponse.json({ order: result.order, share, settings: cat.settings, paymentReady: cat.paymentReady });
+  return NextResponse.json({ order: result.order, share, settings: customerPaymentSettings(cat.settings), paymentReady: cat.cardPayments });
 }

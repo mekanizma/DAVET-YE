@@ -4,13 +4,11 @@ import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import Icon from "../Icon";
 import { TextAreaField, TextField } from "../Field";
-import { IbanCard } from "./IbanCard";
 import { useCatalog } from "@/components/CatalogProvider";
 import { useLocale } from "@/i18n/provider";
 import { withLocaleQuery, type Locale } from "@/i18n/locale";
 import { localizeError, statusLabel } from "@/i18n/product";
 import { formatTL, isEmail } from "@/lib/format";
-import type { PaymentSettings } from "@/lib/catalog";
 import { STATUS_LABEL, type OrderStatus } from "@/lib/orderStatus";
 import type { OrderRecord } from "@/lib/orderTypes";
 import ShareLinkCard from "@/components/share/ShareLinkCard";
@@ -72,39 +70,32 @@ export default function IbanCheckout({
   const [email, setEmail] = useState(resume?.email ?? "");
   const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
-  const [sender, setSender] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [failure, setFailure] = useState("");
   const [busy, setBusy] = useState(false);
   const [order, setOrder] = useState<OrderRecord | null>(null);
   const [share, setShare] = useState<SharePublic | null>(null);
   const [pathName, setPathName] = useState(shareSlug);
-  const [settings, setSettings] = useState<PaymentSettings>(cat.settings);
-  const [ready, setReady] = useState(cat.paymentReady);
+
+  function remember(o: OrderRecord) {
+    setOrder(o);
+    onUpdate?.({ code: o.code, status: o.status, at: o.createdAt, total: o.total, email: o.customer.email });
+  }
 
   useEffect(() => {
     if (!resume?.code || !resume.email) return;
     let cancelled = false;
-    let timer = 0;
-    async function load(silent = false) {
+    async function load() {
       const res = await fetch(`/api/siparis/${encodeURIComponent(resume!.code)}?email=${encodeURIComponent(resume!.email)}`);
       if (cancelled) return;
       if (!res.ok) {
-        if (!silent) {
-          setFailure("");
-          setPhase("form");
-        }
-        return false;
+        setPhase("form");
+        return;
       }
       const data = await res.json();
       if (cancelled) return;
       setOrder(data.order);
       setShare(data.share || null);
-      setSettings(data.settings);
-      setReady(data.paymentReady);
-      if (!silent) setSender("");
       setPhase("pay");
       onUpdate?.({
         code: data.order.code,
@@ -113,23 +104,45 @@ export default function IbanCheckout({
         total: data.order.total,
         email: data.order.customer.email,
       });
-      return true;
     }
-    load().then((found) => {
-      if (!cancelled && found) timer = window.setInterval(() => load(true), 15000);
-    });
+    load();
     return () => {
       cancelled = true;
-      window.clearInterval(timer);
     };
     // resume identity is stable enough for this screen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resume?.code, resume?.email]);
 
-  function remember(o: OrderRecord) {
-    setOrder(o);
-    onUpdate?.({ code: o.code, status: o.status, at: o.createdAt, total: o.total, email: o.customer.email });
-  }
+  useEffect(() => {
+    if (phase !== "pay" || !order || order.status === "onaylandi" || order.total === 0) return;
+    let cancelled = false;
+    async function load() {
+      const res = await fetch(`/api/siparis/${encodeURIComponent(order!.code)}?email=${encodeURIComponent(order!.customer.email)}`);
+      if (!res.ok || cancelled) return;
+      const data = await res.json();
+      if (cancelled || !data.order) return;
+      setOrder(data.order);
+      setShare(data.share || null);
+      onUpdate?.({
+        code: data.order.code,
+        status: data.order.status,
+        at: data.order.createdAt,
+        total: data.order.total,
+        email: data.order.customer.email,
+      });
+    }
+    const timer = window.setInterval(load, 8000);
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, order?.code, order?.status, order?.total]);
 
   async function create(ev: FormEvent) {
     ev.preventDefault();
@@ -164,56 +177,9 @@ export default function IbanCheckout({
         setFailure(localizeError(data.error || "Sipariş kaydedilemedi.", locale));
         return;
       }
-      setSettings(data.settings);
-      setReady(data.paymentReady);
       setShare(data.share || null);
       remember(data.order);
-      setSender("");
-      setFile(null);
       setPhase("pay");
-    } catch {
-      setFailure(tx(locale, "Bağlantı kurulamadı. Yeniden deneyin.", "The connection could not be made. Please try again."));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  useEffect(() => {
-    if (!file || !file.type.startsWith("image/")) {
-      setPreview("");
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
-
-  async function report(ev: FormEvent) {
-    ev.preventDefault();
-    if (!order) return;
-    const receipt = file;
-    const er: Record<string, string> = {};
-    if (sender.trim().length < 3) er.sender = tx(locale, "Ad soyad yazın.", "Enter your full name.");
-    if (!receipt) er.dekont = tx(locale, "Dekont yükleyin.", "Upload a receipt.");
-    else if (receipt.size > 5 * 1024 * 1024) er.dekont = localizeError("Dekont JPG, PNG, WEBP veya PDF olmalı ve 5 MB’ı geçmemeli.", locale);
-    setErrors(er);
-    if (Object.keys(er).length || !receipt) return;
-    setBusy(true);
-    setFailure("");
-    try {
-      const body = new FormData();
-      body.set("email", order.customer.email);
-      body.set("senderName", sender.trim());
-      body.set("dekont", receipt);
-      const res = await fetch(`/api/siparis/${encodeURIComponent(order.code)}`, { method: "POST", body });
-      const data = await res.json();
-      if (!res.ok) {
-        setFailure(localizeError(data.error || "Bildirim kaydedilemedi.", locale));
-        return;
-      }
-      remember(data.order);
-      setErrors({});
-      setFile(null);
     } catch {
       setFailure(tx(locale, "Bağlantı kurulamadı. Yeniden deneyin.", "The connection could not be made. Please try again."));
     } finally {
@@ -223,33 +189,31 @@ export default function IbanCheckout({
 
   const status = order?.status as OrderStatus | undefined;
   const total = order?.total ?? previewTotal;
-  const receiptSent = Boolean(order?.snapshot?.__dekont);
-  const showNotify = status === "bekliyor" || status === "reddedildi" || (status === "bildirildi" && !receiptSent);
-  const canSend = sender.trim().length >= 3 && Boolean(file) && ready && !busy;
   const statusText = status ? statusLabel(status, locale, STATUS_LABEL[status] ?? status) : "";
+  const canPay = Boolean(order) && order!.total > 0 && (status === "bekliyor" || status === "reddedildi") && cat.cardPayments;
+  const support = [cat.settings.supportPhone, cat.settings.supportEmail].filter(Boolean).join(" · ");
 
   if (phase === "form") {
     return (
       <form className="iban-pay" onSubmit={create} noValidate>
         <div className="alert alert--info" role="note">
-          <Icon name="info" size={18} />
+          <Icon name="lock" size={18} />
           <span>
             {locale === "en" ? (
               <>
-                Payment is by <strong>bank transfer</strong> only. Card details are never asked for. After the order code is created, write the amount and the code in the transfer reference.
+                Payment is taken by <strong>card</strong> on Shopier. This page does not ask for a card number or an IBAN.
               </>
             ) : (
               <>
-                Ödeme yalnızca <strong>havale veya EFT</strong> ile alınır. Kart bilgisi istenmez. Sipariş kodu oluştuktan
-                sonra tutarı ve kodu açıklamaya yazmanız gerekir.
+                Ödeme <strong>Shopier</strong> güvenli sayfasında kartla alınır. Bu sayfada kart numarası ve IBAN istenmez.
               </>
             )}
           </span>
         </div>
-        {!ready && (
+        {!cat.cardPayments && (
           <div className="alert alert--warn" role="status">
             <Icon name="alert" size={18} />
-            <span>{tx(locale, "Havale hesabı henüz yayınlanmadı. Siparişinizi yine de oluşturabilirsiniz; hesap eklendiğinde bu ekranda görünür.", "The transfer account has not been published yet. You can still place the order; the account appears on this screen once it is added.")}</span>
+            <span>{tx(locale, "Kart ödemesi henüz açılmadı.", "Card payment is not open yet.")}</span>
           </div>
         )}
         <p className="pay__total">{tx(locale, "Ödenecek tutar", "Amount to pay")} <strong className="num">{formatTL(previewTotal, locale)}</strong></p>
@@ -272,8 +236,8 @@ export default function IbanCheckout({
         />
         <TextAreaField id="pay-note" label={tx(locale, "Not (isteğe bağlı)", "Note (optional)")} value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} />
         {failure && <div className="alert alert--error" role="alert"><Icon name="alert" size={18} /><span>{failure}</span></div>}
-        <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={busy}>
-          <Icon name="envelope" size={16} /> {busy ? tx(locale, "Kaydediliyor…", "Saving…") : tx(locale, "Siparişi oluştur", "Create the order")}
+        <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={busy || !cat.cardPayments}>
+          <Icon name="lock" size={16} /> {busy ? tx(locale, "Kaydediliyor…", "Saving…") : tx(locale, "Siparişi oluştur", "Create the order")}
         </button>
       </form>
     );
@@ -286,61 +250,59 @@ export default function IbanCheckout({
         <strong className="num">{order ? order.code : "…"}</strong>
         {status && <span className={`pill pill--${status}`}>{statusText}</span>}
       </p>
+      <p className="pay__total">{tx(locale, "Ödenecek tutar", "Amount to pay")} <strong className="num">{formatTL(total, locale)}</strong></p>
 
-      {order?.total === 0 || status === "onaylandi" ? null : (
-        <ol className="iban-steps">
-          <li>{tx(locale, "Aşağıdaki hesaba sipariş tutarının tamamını havale veya EFT ile gönderin.", "Send the full order amount to the account below by bank transfer.")}</li>
-          <li>{tx(locale, "Açıklama kısmına yalnızca sipariş kodunu yazın. Kod olmadan ödeme eşleşmeyebilir.", "Write only the order code in the reference. Without the code, the payment may not be matched.")}</li>
-          <li>{tx(locale, "Ad soyadınızı ve dekontu gönderin. Ödeme sistem tarafından kontrol edilip onaylanır. Karttan çekim yapılmaz.", "Send your full name and the receipt. The payment is checked and confirmed by the system. Nothing is charged to a card.")}</li>
-        </ol>
-      )}
-
-      {status !== "onaylandi" && <IbanCard settings={settings} total={total} code={order?.code} title={title} />}
-      {settings.instructions && status !== "onaylandi" && <p className="field__hint">{settings.instructions}</p>}
-      {(settings.supportEmail || settings.supportPhone) && (
-        <p className="field__hint">
-          {tx(locale, "Destek:", "Support:")} {settings.supportPhone} {settings.supportEmail && <a href={`mailto:${settings.supportEmail}`}>{settings.supportEmail}</a>}
-        </p>
-      )}
-
-      {showNotify ? (
-        <form onSubmit={report} noValidate>
+      {canPay && order && (
+        <>
           {status === "reddedildi" && (
             <div className="alert alert--error" role="alert">
               <Icon name="alert" size={18} />
-              <span>{order?.adminNote || tx(locale, "Ödeme onaylanmadı. Havale bilgilerinizi kontrol edip yeniden bildirin.", "The payment was not confirmed. Check the transfer details and send them again.")}</span>
+              <span>{order.adminNote || tx(locale, "Ödeme onaylanmadı. Kartla yeniden deneyebilirsiniz.", "The payment was not confirmed. You can try again by card.")}</span>
             </div>
           )}
-          <TextField id="pay-sender" label={tx(locale, "Ad soyad", "Full name")} required value={sender} onChange={(e) => setSender(e.target.value)} error={errors.sender} autoComplete="name" hint={tx(locale, "Dekonttaki gönderen adıyla aynı olsun.", "Use the same name as the sender on the receipt.")} />
-          <div className="dekont">
-            <label htmlFor="pay-dekont">{tx(locale, "Dekont", "Receipt")}</label>
-            <input
-              id="pay-dekont"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf"
-              onChange={(e) => {
-                setFile(e.target.files?.[0] ?? null);
-                setErrors((prev) => ({ ...prev, dekont: "" }));
-              }}
-            />
-            <small>{file ? file.name : tx(locale, "Fotoğraf veya PDF seçin. En fazla 5 MB.", "Choose a photograph or a PDF. 5 MB at most.")}</small>
-            {errors.dekont && <p className="field__error" role="alert">{errors.dekont}</p>}
-            {preview && <img className="dekont__preview" src={preview} alt={tx(locale, "Seçilen dekontun önizlemesi", "Preview of the selected receipt")} />}
-          </div>
-          {failure && <div className="alert alert--error" role="alert"><Icon name="alert" size={18} /><span>{failure}</span></div>}
-          <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={!canSend}>
-            {busy ? tx(locale, "Gönderiliyor…", "Sending…") : status === "reddedildi" ? tx(locale, "Yeniden gönder", "Send again") : tx(locale, "Gönder", "Send")}
-          </button>
-          {!ready && <p className="field__hint">{tx(locale, "Hesap bilgisi yayınlanmadan havale bildirimi kapalıdır.", "A transfer notice stays closed until the account details are published.")}</p>}
-        </form>
-      ) : null}
+          <form method="post" action={`/api/siparis/${encodeURIComponent(order.code)}/shopier`}>
+            <input type="hidden" name="email" value={order.customer.email} />
+            <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif">
+              <Icon name="lock" size={16} /> {tx(locale, "Kart ile öde", "Pay by card")}
+            </button>
+          </form>
+          <form method="post" action={`/api/siparis/${encodeURIComponent(order.code)}/shopier`}>
+            <input type="hidden" name="email" value={order.customer.email} />
+            <input type="hidden" name="fresh" value="1" />
+            <button type="submit" className="btn btn--outline btn--block">
+              {tx(locale, "Ödeme sayfası açılmazsa yeniden dene", "Try again if the payment page does not open")}
+            </button>
+          </form>
+          <p className="field__hint">
+            {tx(
+              locale,
+              "Kart bilgisi Shopier sayfasında girilir. Ödeme onaylanınca sipariş kendiliğinden açılır. Bu ekrana geri dönebilirsiniz.",
+              "Card details are entered on Shopier. The order opens on its own once the payment is confirmed. You can come back to this screen.",
+            )}
+          </p>
+        </>
+      )}
 
-      {status === "bildirildi" && receiptSent && (
+      {!cat.cardPayments && status !== "onaylandi" && order?.total !== 0 && (
+        <div className="alert alert--warn" role="status">
+          <Icon name="alert" size={18} />
+          <span>{tx(locale, "Kart ödemesi henüz açılmadı.", "Card payment is not open yet.")}</span>
+        </div>
+      )}
+
+      {support && status !== "onaylandi" && (
+        <p className="field__hint">
+          {tx(locale, "Destek:", "Support:")} {cat.settings.supportPhone} {cat.settings.supportEmail && <a href={`mailto:${cat.settings.supportEmail}`}>{cat.settings.supportEmail}</a>}
+        </p>
+      )}
+
+      {status === "bildirildi" && (
         <div className="alert alert--success" role="status">
           <Icon name="check" size={18} />
           <span>
-            {tx(locale, "Ödemeniz sistem tarafından kontrol edilip onaylanacaktır.", "Your payment will be checked and confirmed by the system.")}
-            {order?.senderName ? ` ${tx(locale, "Gönderen:", "Sender:")} ${order.senderName}.` : ""} {tx(locale, "Sipariş kodu:", "Order code:")} <strong className="num">{order?.code}</strong>
+            {tx(locale, "Ödemeniz kontrol edilip onaylanacaktır.", "Your payment will be checked and confirmed.")}
+            {" "}
+            {tx(locale, "Sipariş kodu:", "Order code:")} <strong className="num">{order?.code}</strong>
           </span>
         </div>
       )}
@@ -367,7 +329,6 @@ export default function IbanCheckout({
       {order && (
         <ul className="timeline">
           <li>{tx(locale, "Oluşturuldu", "Created")} · <time dateTime={order.createdAt}>{stamp(order.createdAt, locale)}</time></li>
-          {order.reportedAt && <li>{tx(locale, "Havale bildirildi", "Transfer reported")} · <time dateTime={order.reportedAt}>{stamp(order.reportedAt, locale)}</time></li>}
           {order.decidedAt && <li>{tx(locale, "Sonuçlandı", "Decided")} · <time dateTime={order.decidedAt}>{stamp(order.decidedAt, locale)}</time></li>}
         </ul>
       )}

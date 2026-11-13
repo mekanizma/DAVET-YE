@@ -12,7 +12,7 @@ const LINKS: { href: string; label: string; icon: IconName; exact?: boolean }[] 
   { href: "/yonetim/sablonlar", label: "Şablonlar", icon: "sparkle" },
   { href: "/yonetim/fiyatlar", label: "Fiyatlar", icon: "tag" },
   { href: "/yonetim/gazeteler", label: "Gazeteler", icon: "doc" },
-  { href: "/yonetim/odeme", label: "Ödeme hesabı", icon: "envelope" },
+  { href: "/yonetim/odeme", label: "Ödeme", icon: "lock" },
 ];
 
 function on(pathname: string, href: string, exact?: boolean) {

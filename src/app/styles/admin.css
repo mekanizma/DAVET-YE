@@ -479,7 +479,8 @@
 }
 
 /* Havale */
-.iban-pay { display: grid; gap: 14px; }
+.iban-pay { display: grid; gap: 14px; width: 100%; }
+.iban-pay .btn { max-width: 100%; white-space: normal; text-align: center; }
 .iban-pay form { display: grid; gap: 14px; }
 .iban-pay form .field { margin-bottom: 0; }
 .iban-steps {

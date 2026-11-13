@@ -11,7 +11,7 @@ import type { OrderRecord } from "@/lib/orderTypes";
 const FILTERS = [
   { id: "", label: "Tümü" },
   { id: "bildirildi", label: "Onay bekleyen" },
-  { id: "bekliyor", label: "Havale bekleyen" },
+  { id: "bekliyor", label: "Ödeme bekleyen" },
   { id: "onaylandi", label: "Onaylanan" },
   { id: "reddedildi", label: "Reddedilen" },
 ];

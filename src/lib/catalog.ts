@@ -50,6 +50,8 @@ export interface PaperLive {
 export interface PublicCatalog {
   settings: PaymentSettings;
   paymentReady: boolean;
+  /** Shopier card checkout is configured on the server. */
+  cardPayments: boolean;
   addons: CatalogAddon[];
   themes: Record<string, ThemeLive>;
   newspapers: Record<string, PaperLive>;
@@ -94,6 +96,11 @@ export function paymentReady(settings: PaymentSettings): boolean {
   return isValidIban(settings.iban) && settings.accountHolder.trim().length >= 3;
 }
 
+/** Bank details stay on the server. The payment page collects by card. */
+export function customerPaymentSettings(settings: PaymentSettings): PaymentSettings {
+  return { ...settings, bankName: "", accountHolder: "", iban: "", instructions: "" };
+}
+
 export function buildPublicCatalog(ov: CatalogOverrides = {}): PublicCatalog {
   const settings: PaymentSettings = { ...DEFAULT_SETTINGS, ...(ov.settings ?? {}) };
   const themesLive: Record<string, ThemeLive> = {};
@@ -134,6 +141,7 @@ export function buildPublicCatalog(ov: CatalogOverrides = {}): PublicCatalog {
   return {
     settings,
     paymentReady: paymentReady(settings),
+    cardPayments: Boolean(process.env.SHOPIER_PAT?.trim()),
     addons,
     themes: themesLive,
     newspapers: papers,

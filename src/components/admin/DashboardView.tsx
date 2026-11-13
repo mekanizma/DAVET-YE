@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { adminSend } from "./AdminShell";
-import { formatIban, formatTL } from "@/lib/format";
+import { formatTL } from "@/lib/format";
 import { STATUS_LABEL } from "@/lib/orderStatus";
 import type { OrderRecord } from "@/lib/orderTypes";
 
@@ -42,18 +42,9 @@ export default function DashboardView() {
       <header className="adm-h">
         <div>
           <h1>Özet</h1>
-          <p>Gelen havaleleri onaylayın, fiyatı ve şablonu buradan değiştirin. Ödeme yalnızca IBAN ile alınır.</p>
+          <p>Kart ödemeleri Shopier POS ile alınır ve onaylanınca sipariş kendiliğinden açılır.</p>
         </div>
       </header>
-
-      {!data.paymentReady && (
-        <div className="alert alert--warn" role="status" style={{ marginBottom: 14 }}>
-          <span>
-            Havale hesabı eksik. Müşteri sipariş oluşturabilir ama nereye yatıracağını göremez.{" "}
-            <Link href="/yonetim/odeme">Ödeme hesabını tanımlayın</Link>.
-          </span>
-        </div>
-      )}
 
       <div className="adm-stats">
         <article className="adm-stat adm-stat--alert">
@@ -61,7 +52,7 @@ export default function DashboardView() {
           <strong>{c.bildirildi}</strong>
         </article>
         <article className="adm-stat">
-          <span>Havale bekleniyor</span>
+          <span>Ödeme bekleniyor</span>
           <strong>{c.bekliyor}</strong>
         </article>
         <article className="adm-stat adm-stat--ok">
@@ -75,19 +66,10 @@ export default function DashboardView() {
       </div>
 
       <section className="adm-card">
-        <h2>Hesap</h2>
-        {data.paymentReady ? (
-          <p>
-            {data.bankName ? `${data.bankName} · ` : ""}
-            {data.accountHolder}
-            <br />
-            <span className="num">{formatIban(data.iban)}</span>
-          </p>
-        ) : (
-          <p className="muted">IBAN henüz kayıtlı değil.</p>
-        )}
+        <h2>Ödeme</h2>
+        <p>Müşteri ödeme sayfasında IBAN görmez. Tahsilat Shopier kart ekranından yapılır.</p>
         <div className="adm-actions">
-          <Link href="/yonetim/odeme" className="btn btn--dark btn--sm">Hesabı düzenle</Link>
+          <Link href="/yonetim/siparisler?durum=bekliyor" className="btn btn--outline btn--sm">Ödeme bekleyenler</Link>
           <Link href="/yonetim/siparisler?durum=bildirildi" className="btn btn--outline btn--sm">Onay kuyruğu</Link>
         </div>
       </section>
@@ -106,7 +88,7 @@ export default function DashboardView() {
       <section>
         <h2 style={{ margin: "8px 0" }}>Son siparişler</h2>
         {data.recent.length === 0 ? (
-          <p className="muted">Henüz sipariş yok. Müşteri ödeme adımında ad soyad ve dekont gönderince bildirim burada ve onay kuyruğunda görünür.</p>
+          <p className="muted">Henüz sipariş yok. Kart ödemesi Shopier’de onaylanınca sipariş burada görünür.</p>
         ) : (
           <div className="ord-list">
             {data.recent.map((o) => (

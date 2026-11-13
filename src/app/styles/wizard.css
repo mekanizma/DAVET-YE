@@ -733,6 +733,11 @@ html:has(.wz__nav) {
   gap: 10px;
   justify-content: center;
   margin-top: 8px;
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .pay-done__cta { flex-direction: column; align-items: stretch; }
+  .pay-done__cta .btn { width: 100%; }
 }
 .share-card {
   display: grid;

@@ -26,8 +26,8 @@ export default async function FinalCta() {
         </h2>
         <p className="final-cta__lead">
           {en
-            ? `${count} invitations · prices from ${price} · a one-time bank transfer`
-            : `${count} davetiye · ${price}'den başlayan fiyatlarla · tek seferlik havale`}
+            ? `${count} invitations · prices from ${price} · a one-time card payment`
+            : `${count} davetiye · ${price}'den başlayan fiyatlarla · tek seferlik kart ödemesi`}
         </p>
         <Link href={lp(locale, "/davetiye-olustur")} className="btn btn--gold btn--lg">
           {en ? "Start now" : "Hemen Başla"} <Icon name="arrow" size={16} />

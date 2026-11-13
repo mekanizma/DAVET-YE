@@ -137,7 +137,11 @@ export const dynamic = "force-dynamic";
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [catalog, locale] = await Promise.all([getPublicCatalog(), getLocale()]);
+  const [loaded, locale] = await Promise.all([getPublicCatalog(), getLocale()]);
+  const catalog = {
+    ...loaded,
+    settings: { ...loaded.settings, bankName: "", accountHolder: "", iban: "", instructions: "" },
+  };
   return (
     <html
       lang={htmlLang(locale)}

@@ -22,7 +22,10 @@ import type { OrderStatus } from "@/lib/orderStatus";
 import type { OrderLine, OrderRecord } from "@/lib/orderTypes";
 import { invitationQuote, paperQuote } from "@/lib/pricing";
 import { publishShare, releaseShare } from "@/lib/shareLink";
+import { deleteShopierProduct, findPaidShopierOrder, listShopierOrdersSince, shopierPaidHit } from "@/lib/shopier";
 import { createSupabaseAnon, createSupabaseServer } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
+import { supabaseUrl } from "@/lib/supabase/env";
 
 export type { OrderLine, OrderRecord };
 
@@ -410,6 +413,110 @@ export async function decideOrder(
   } catch (e) {
     console.error(e);
     return { ok: false, error: e instanceof Error ? e.message : "Karar kaydedilemedi." };
+  }
+}
+
+function adminDb() {
+  const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  if (!key || !process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  return createClient(supabaseUrl(), key, { auth: { persistSession: false, autoRefreshToken: false } });
+}
+
+async function loadOrderByCode(code: string): Promise<{ order: OrderRecord; userId: string | null } | null> {
+  const db = adminDb();
+  if (!db) return null;
+  const { data, error } = await db.from("dv_orders").select("*").eq("code", code.trim().toUpperCase()).maybeSingle();
+  if (error || !data) return null;
+  const row = data as DbOrder;
+  return { order: toOrder(row), userId: row.user_id || null };
+}
+
+async function loadOrderByShopierProduct(productId: string): Promise<{ order: OrderRecord; userId: string | null } | null> {
+  const db = adminDb();
+  if (!db) return null;
+  const { data, error } = await db.from("dv_orders").select("*").order("created_at", { ascending: false }).limit(200);
+  if (error || !data) return null;
+  const row = (data as DbOrder[]).find((item) => item.snapshot?.__shopier === productId);
+  if (!row) return null;
+  return { order: toOrder(row), userId: row.user_id || null };
+}
+
+export async function saveShopierProduct(code: string, email: string, productId: string): Promise<OrderRecord | null> {
+  const row = await orderForCustomer(code, email);
+  if (!row) return null;
+  const order = toOrder(row);
+  order.snapshot = { ...order.snapshot, __shopier: productId, __shopierAmount: String(order.total) };
+  order.updatedAt = new Date().toISOString();
+  return upsertOrder(order, row.user_id || null);
+}
+
+export async function confirmShopierPayment(match: {
+  code?: string;
+  productId?: string;
+  shopierOrderId: string;
+  amount: number;
+}): Promise<OrderRecord | null> {
+  const byProduct = match.productId ? await loadOrderByShopierProduct(match.productId) : null;
+  const loaded = byProduct || (match.code ? await loadOrderByCode(match.code) : null);
+  if (!loaded) return null;
+  const order = loaded.order;
+  if (order.status === "onaylandi") return order;
+  if (order.total <= 0 || match.amount !== order.total) return null;
+  const now = new Date().toISOString();
+  order.status = "onaylandi";
+  order.decidedAt = now;
+  order.updatedAt = now;
+  order.adminNote = order.adminNote || "Shopier POS ile ödendi.";
+  order.snapshot = { ...order.snapshot, __shopierOrder: match.shopierOrderId };
+  if (match.productId) order.snapshot.__shopier = match.productId;
+  const saved = await upsertOrder(order, loaded.userId);
+  await publishShare(saved);
+  if (match.productId) {
+    try {
+      await deleteShopierProduct(match.productId);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  return saved;
+}
+
+export async function syncPendingShopierPayments() {
+  const db = adminDb();
+  if (!db) return;
+  try {
+    const { data, error } = await db.from("dv_orders").select("*").in("status", ["bekliyor", "reddedildi"]).order("created_at", { ascending: false }).limit(40);
+    if (error || !data?.length) return;
+    const pending = (data as DbOrder[]).map(toOrder).filter((order) => order.total > 0 && order.snapshot.__shopier);
+    if (!pending.length) return;
+    const oldest = pending.reduce((min, order) => (order.createdAt < min ? order.createdAt : min), pending[0].createdAt);
+    const remote = await listShopierOrdersSince(oldest);
+    for (const order of pending) {
+      const hit = remote
+        .map((row) => shopierPaidHit(row, { code: order.code, productId: order.snapshot.__shopier, total: order.total }))
+        .find((item): item is NonNullable<typeof item> => Boolean(item));
+      if (!hit) continue;
+      await confirmShopierPayment({ code: order.code, productId: hit.productId, shopierOrderId: hit.id, amount: hit.amount });
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function syncShopierPayment(order: OrderRecord): Promise<OrderRecord> {
+  if (order.status === "onaylandi" || order.total <= 0 || !order.snapshot.__shopier) return order;
+  try {
+    const hit = await findPaidShopierOrder({
+      productId: order.snapshot.__shopier,
+      code: order.code,
+      since: order.createdAt,
+      total: order.total,
+    });
+    if (!hit) return order;
+    return (await confirmShopierPayment({ code: order.code, productId: hit.productId, shopierOrderId: hit.id, amount: hit.amount })) || order;
+  } catch (error) {
+    console.error(error);
+    return order;
   }
 }
 

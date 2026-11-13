@@ -202,7 +202,7 @@ export function languagesFor(locale: Locale) {
 }
 
 const STATUS_EN: Record<string, string> = {
-  bekliyor: "Awaiting transfer",
+  bekliyor: "Awaiting payment",
   bildirildi: "Awaiting confirmation",
   onaylandi: "Confirmed",
   reddedildi: "Declined",

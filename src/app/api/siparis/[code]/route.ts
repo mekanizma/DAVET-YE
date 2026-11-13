@@ -1,18 +1,20 @@
 import { NextResponse } from "next/server";
-import { findOrderForCustomer, getPublicCatalog, reportTransfer } from "@/lib/store";
+import { findOrderForCustomer, getPublicCatalog, reportTransfer, syncShopierPayment } from "@/lib/store";
+import { customerPaymentSettings } from "@/lib/catalog";
 import { removeReceipt, saveReceipt } from "@/lib/receipt";
 import { shareForOrder } from "@/lib/shareLink";
 
 export async function GET(req: Request, ctx: { params: Promise<{ code: string }> }) {
   const { code } = await ctx.params;
   const email = new URL(req.url).searchParams.get("email") || "";
-  const order = await findOrderForCustomer(code, email);
-  if (!order) {
+  const found = await findOrderForCustomer(code, email);
+  if (!found) {
     return NextResponse.json({ error: "Sipariş bulunamadı." }, { status: 404 });
   }
+  const order = await syncShopierPayment(found);
   const cat = await getPublicCatalog();
   const share = await shareForOrder(order.code);
-  return NextResponse.json({ order, share, settings: cat.settings, paymentReady: cat.paymentReady });
+  return NextResponse.json({ order, share, settings: customerPaymentSettings(cat.settings), paymentReady: cat.cardPayments });
 }
 
 export async function POST(req: Request, ctx: { params: Promise<{ code: string }> }) {
@@ -62,5 +64,5 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
   const cat = await getPublicCatalog();
-  return NextResponse.json({ order: result.order, settings: cat.settings, paymentReady: cat.paymentReady });
+  return NextResponse.json({ order: result.order, settings: customerPaymentSettings(cat.settings), paymentReady: cat.cardPayments });
 }

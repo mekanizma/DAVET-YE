@@ -25,3 +25,9 @@ services:
         sync: false
       - key: SUPABASE_SECRET_KEY
         sync: false
+      - key: SHOPIER_PAT
+        sync: false
+      - key: SHOPIER_WEBHOOK_TOKEN
+        sync: false
+      - key: SHOPIER_SHOP_SLUG
+        sync: false

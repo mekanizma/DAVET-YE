@@ -16,11 +16,8 @@ export async function PUT(req: Request) {
     body = {};
   }
   const iban = String(body.iban || "").replace(/\s+/g, "").toUpperCase();
-  if (!isValidIban(iban)) {
+  if (iban && !isValidIban(iban)) {
     return NextResponse.json({ error: "IBAN geçersiz. TR ile başlayan 26 karakter olmalı." }, { status: 400 });
-  }
-  if (String(body.accountHolder || "").trim().length < 3) {
-    return NextResponse.json({ error: "Hesap sahibi adını yazın." }, { status: 400 });
   }
   await saveSettings({
     bankName: String(body.bankName || ""),

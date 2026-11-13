@@ -53,7 +53,7 @@ const RANK: Record<string, number> = { onaylandi: 0, bildirildi: 1, bekliyor: 2,
 
 function orderLink(order: OrderRecord, locale: Locale) {
   const again = order.status === "reddedildi";
-  const pay = again ? tx(locale, "Yeniden bildir", "Send again") : tx(locale, "Ödemeye dön", "Back to payment");
+  const pay = again ? tx(locale, "Yeniden öde", "Pay again") : tx(locale, "Ödemeye dön", "Back to payment");
   if (order.status === "onaylandi") {
     if (order.kind === "davetiye" && order.template) return { href: withLocaleQuery(locale, `/onizleme/tema/${order.template}?taslak=1`), label: tx(locale, "Davetiyeyi aç", "Open the invitation") };
     return { href: lp(locale, "/gazete-tasarla"), label: tx(locale, "Gazeteyi aç", "Open the newspaper") };

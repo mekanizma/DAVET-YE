@@ -51,8 +51,8 @@ function titles(locale: Locale): Record<WizardStepId, { h: string; sub: string }
       sub: en ? "Review the details. Anything still missing must be completed before payment." : "Bilgileri gözden geçirin. Eksik kalanlar ödemeden önce tamamlanmalı.",
     },
     odeme: {
-      h: en ? "Pay by bank transfer" : "Havale ile ödeme",
-      sub: en ? "Send the amount to the IBAN, and write the order code in the reference." : "Tutarı IBAN’a gönderin, sipariş kodunu açıklamaya yazın.",
+      h: en ? "Pay by card" : "Kart ile ödeme",
+      sub: en ? "You pay on Shopier’s secure page. Card numbers are not entered here." : "Ödeme Shopier’in güvenli sayfasında alınır. Kart numarası burada istenmez.",
     },
   };
 }

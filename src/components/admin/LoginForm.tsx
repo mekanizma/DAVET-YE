@@ -69,7 +69,7 @@ export default function LoginForm() {
       <p className="eyebrow">Yönetim</p>
       <h1>Panele girin</h1>
       <p className="muted" style={{ margin: "6px 0 16px" }}>
-        Fiyatlar, şablonlar, gazeteler ve havale onayları bu hesapla yönetilir. Müşteri paneli ayrıdır.
+        Fiyatlar, şablonlar, gazeteler ve ödemeler bu hesapla yönetilir. Müşteri paneli ayrıdır.
       </p>
       <TextField
         id="adm-email"

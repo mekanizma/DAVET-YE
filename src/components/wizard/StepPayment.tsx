@@ -41,11 +41,11 @@ export default function StepPayment({ draft, title }: { draft: InvitationDraft; 
         <p>
           {en ? (
             <>
-              Order code: <strong className="num">{draft.order.code}</strong>. This record is left from a card trial; new orders are opened by bank transfer only.
+              Order code: <strong className="num">{draft.order.code}</strong>. This record is left from an earlier trial. New orders are paid by card on Shopier.
             </>
           ) : (
             <>
-              Sipariş kodu: <strong className="num">{draft.order.code}</strong>. Bu kayıt kart denemesinden kalmıştır; yeni siparişler yalnızca havale ile açılır.
+              Sipariş kodu: <strong className="num">{draft.order.code}</strong>. Bu kayıt eski bir denemeden kalmıştır. Yeni siparişler Shopier ile karttan alınır.
             </>
           )}
         </p>

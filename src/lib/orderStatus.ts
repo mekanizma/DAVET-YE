@@ -2,7 +2,7 @@ export const ORDER_STATUSES = ["bekliyor", "bildirildi", "onaylandi", "reddedild
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export const STATUS_LABEL: Record<string, string> = {
-  bekliyor: "Havale bekleniyor",
+  bekliyor: "Ödeme bekleniyor",
   bildirildi: "Onay bekliyor",
   onaylandi: "Onaylandı",
   reddedildi: "Reddedildi",

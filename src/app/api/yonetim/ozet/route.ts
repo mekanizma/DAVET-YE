@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
-import { getPublicCatalog, listOrders } from "@/lib/store";
+import { getPublicCatalog, listOrders, syncPendingShopierPayments } from "@/lib/store";
 
 export async function GET() {
+  await syncPendingShopierPayments();
   const cat = await getPublicCatalog();
   const orders = await listOrders();
   const sum = (status: string) => orders.filter((o) => o.status === status).length;
   const approved = orders.filter((o) => o.status === "onaylandi");
   const hiddenThemes = Object.values(cat.themes).filter((t) => t.hidden).length;
   return NextResponse.json({
-    paymentReady: cat.paymentReady,
-    bankName: cat.settings.bankName,
-    accountHolder: cat.settings.accountHolder,
-    iban: cat.settings.iban,
+    paymentReady: cat.cardPayments,
+    bankName: "",
+    accountHolder: "",
+    iban: "",
     counts: {
       bekliyor: sum("bekliyor"),
       bildirildi: sum("bildirildi"),
