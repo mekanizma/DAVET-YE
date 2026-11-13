@@ -772,7 +772,15 @@ export default function StageView({
     };
   }, [phase]);
 
-  const finish = useCallback(() => setPhase("open"), []);
+  const finish = useCallback(() => {
+    const el = videoRef.current;
+    if (el) {
+      el.pause();
+      el.removeAttribute("src");
+      el.load();
+    }
+    setPhase("open");
+  }, []);
 
   const openInvite = useCallback(() => {
     if (phase !== "gate") return;
@@ -781,10 +789,16 @@ export default function StageView({
       setPhase("open");
       return;
     }
-    setPhase("video");
     const el = videoRef.current;
-    if (!el) return;
+    if (!el) {
+      setPhase("open");
+      return;
+    }
+    setPhase("video");
     el.muted = Boolean(intro?.videoMuted);
+    if (el.getAttribute("src") !== video) {
+      el.src = video;
+    }
     el.currentTime = 0;
     const play = el.play();
     play?.catch(() => {
@@ -880,10 +894,28 @@ export default function StageView({
 
   const bgImage = design.background?.image;
   const gateImage = intro?.poster || bgImage;
+  const warmImages = useMemo(() => {
+    const srcs: string[] = [];
+    const add = (src?: string) => {
+      if (src && !srcs.includes(src)) srcs.push(src);
+    };
+    add(gateImage);
+    add(bgImage);
+    for (const el of pages[0]?.elements || []) {
+      if (!el.hidden && el.type === "image" && el.src) add(el.src);
+    }
+    return srcs.slice(0, 3);
+  }, [gateImage, bgImage, pages]);
 
   return (
     <div className="iv stg-root" data-embed={embed ? "1" : undefined} data-slug={slug} style={{ ["--stg-desk" as string]: desk }}>
       <style>{fontCss}</style>
+      {(stage.fonts || []).map((f) => (
+        <link key={f.url} rel="preload" href={f.url} as="font" type="font/woff2" crossOrigin="anonymous" />
+      ))}
+      {warmImages.map((src) => (
+        <link key={src} rel="preload" href={src} as="image" fetchPriority="high" />
+      ))}
       <div className="iv__stage">
         <div
           ref={stageRef}
@@ -892,11 +924,16 @@ export default function StageView({
           data-flow="snap"
           data-phase={phase}
         >
-          <div ref={scrollRef} className="stg-pages" aria-hidden={phase !== "open"} style={{ visibility: phase === "open" ? "visible" : "hidden" }}>
-            {pages.map((page) => (
-              <section key={page.id} className="stg-page" id={`sayfa-${page.id}`} aria-label={page.name}>
+          {phase === "open" && bgImage ? (
+            <div className="stg-fit stg-bg" aria-hidden="true">
+              <img className="stg-media stg-media--screen" src={bgImage} alt="" draggable={false} decoding="async" fetchPriority="high" />
+            </div>
+          ) : null}
+          {phase === "open" ? (
+          <div ref={scrollRef} className="stg-pages">
+            {pages.map((page, pageIndex) => (
+              <section key={page.id} className={pageIndex === 0 ? "stg-page is-in" : "stg-page"} id={`sayfa-${page.id}`} aria-label={page.name}>
                 <div className="stg-fit">
-                  {bgImage ? <img className="stg-media stg-media--screen" src={bgImage} alt="" draggable={false} /> : null}
                   <div className="stg-art">
                     {(page.elements || []).filter((el) => !el.hidden).map((el) => (
                       <Element
@@ -918,6 +955,7 @@ export default function StageView({
                         }}
                         onAction={onAction}
                         locale={locale}
+                        eager={pageIndex === 0}
                       />
                     ))}
                   </div>
@@ -925,6 +963,7 @@ export default function StageView({
               </section>
             ))}
           </div>
+          ) : null}
 
           {phase !== "open" && (
             <div className={`stg-intro${phase === "gate" ? " is-in" : " is-leaving"}`} onClick={(e) => {
@@ -933,10 +972,10 @@ export default function StageView({
             }}>
               <div className="stg-fit">
                 <div style={{ position: "absolute", inset: 0, background: intro?.videoBackground || desk }} />
-                {gateImage ? <img className="stg-media stg-media--screen" src={gateImage} alt="" draggable={false} /> : null}
+                {gateImage ? <img className="stg-media stg-media--screen" src={gateImage} alt="" draggable={false} decoding="async" fetchPriority="high" /> : null}
                 <div className="stg-art">
                   {(intro?.gate?.elements || []).filter((el) => !el.hidden).map((el) => (
-                    <Element key={el.id} el={el} canvasW={canvasW} values={values} lists={{}} places={{}} wishes={[]} photos={[]} rsvpDone={false} wishDone={false} onPhotos={() => undefined} onRsvp={() => undefined} onWish={() => undefined} onAction={onAction} locale={locale} />
+                    <Element key={el.id} el={el} canvasW={canvasW} values={values} lists={{}} places={{}} wishes={[]} photos={[]} rsvpDone={false} wishDone={false} onPhotos={() => undefined} onRsvp={() => undefined} onWish={() => undefined} onAction={onAction} locale={locale} eager />
                   ))}
                 </div>
               </div>
@@ -947,10 +986,9 @@ export default function StageView({
             <video
               ref={videoRef}
               className="stg-video"
-              src={intro.video}
-              poster={intro.poster}
               playsInline
-              preload="auto"
+              preload="none"
+              muted={Boolean(intro.videoMuted)}
               style={{ opacity: phase === "video" ? 1 : 0, pointerEvents: phase === "video" ? "auto" : "none" }}
               onEnded={finish}
               onError={finish}
@@ -1061,6 +1099,7 @@ function Element({
   onWish,
   onAction,
   locale,
+  eager = false,
 }: {
   el: StageElement;
   canvasW: number;
@@ -1076,6 +1115,7 @@ function Element({
   onWish: (name: string, text: string) => void;
   onAction: (el: StageElement, node: HTMLElement) => void;
   locale: Locale;
+  eager?: boolean;
 }) {
   const style = boxStyle(el, canvasW);
   const anim = el.anim?.kind
@@ -1093,6 +1133,9 @@ function Element({
         src={el.src}
         alt=""
         draggable={false}
+        decoding="async"
+        loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? "high" : "low"}
         style={{ objectFit: el.imageFit === "contain" ? "contain" : el.imageFit === "cover" ? "cover" : "fill", objectPosition: `${el.focusX ?? 50}% ${el.focusY ?? 50}%`, borderRadius: "inherit" }}
       />
     );
@@ -1170,7 +1213,7 @@ function Element({
           : "";
     body = (
       <div className="stg-map" style={{ borderRadius: el.clipShape === "ellipse" ? "50%" : undefined }}>
-        {src ? <iframe title={q || (locale === "en" ? "Map" : "Harita")} src={src} loading="eager" referrerPolicy="no-referrer-when-downgrade" /> : <span className="stg-text" style={textCss(el.style, canvasW)}>{q}</span>}
+        {src ? <iframe title={q || (locale === "en" ? "Map" : "Harita")} src={src} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /> : <span className="stg-text" style={textCss(el.style, canvasW)}>{q}</span>}
       </div>
     );
   } else if (el.type === "form") {

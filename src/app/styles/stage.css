@@ -11,6 +11,10 @@
   background: var(--stg-desk, #1a120c);
   color: #fff;
 }
+.stg-bg {
+  z-index: 0;
+  pointer-events: none;
+}
 .stg-fit {
   position: absolute;
   left: 50%;
