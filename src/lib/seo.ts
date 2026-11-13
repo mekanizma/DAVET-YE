@@ -3,7 +3,7 @@ import { SITE } from "@/data/site";
 import { HOME_DESCRIPTION_EN } from "@/i18n/marketing";
 import type { Locale } from "@/i18n/locale";
 
-const FALLBACK_ORIGIN = "https://www.davetanisi.com";
+const FALLBACK_ORIGIN = "https://davetanisi.com";
 
 export function siteUrl() {
   const raw = process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_ORIGIN;

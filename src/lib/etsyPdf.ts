@@ -177,7 +177,7 @@ function header(p: Page, ink: RGB, gold: RGB, pageNo: number) {
 }
 
 function footer(p: Page, code: string, url: string) {
-  let host = "www.davetanisi.com";
+  let host = "davetanisi.com";
   try {
     host = new URL(url).host;
   } catch {

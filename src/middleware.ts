@@ -26,16 +26,25 @@ function rememberLocale(res: NextResponse, locale: Locale, fromPath: Locale | nu
   return res;
 }
 
-const CANONICAL_HOST = "www.davetanisi.com";
+const PUBLIC_HOST = "davetanisi.com";
+
+function requestHosts(req: NextRequest) {
+  return [req.headers.get("x-forwarded-host"), req.headers.get("host")]
+    .flatMap((value) => (value ?? "").split(","))
+    .map((part) => part.trim().split(":")[0]?.toLowerCase() ?? "")
+    .filter(Boolean);
+}
 
 function redirectToCanonical(req: NextRequest) {
-  const raw = (req.headers.get("x-forwarded-host") || req.headers.get("host") || "").split(",")[0]?.trim() ?? "";
-  const host = raw.split(":")[0]?.toLowerCase() ?? "";
-  if (!host || host === CANONICAL_HOST || host === "localhost" || host === "127.0.0.1") return null;
-  if (host !== "davetanisi.com" && !host.endsWith(".onrender.com")) return null;
+  const hosts = requestHosts(req);
+  // Cloudflare already 301s www to the apex. Sending the apex back to www loops.
+  if (hosts.some((host) => host === PUBLIC_HOST || host === `www.${PUBLIC_HOST}` || host === "localhost" || host === "127.0.0.1")) {
+    return null;
+  }
+  if (!hosts.some((host) => host.endsWith(".onrender.com"))) return null;
   const url = req.nextUrl.clone();
   url.protocol = "https:";
-  url.hostname = CANONICAL_HOST;
+  url.hostname = PUBLIC_HOST;
   url.port = "";
   return NextResponse.redirect(url, 308);
 }
