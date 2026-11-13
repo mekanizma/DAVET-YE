@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { getTheme } from "@/data/themes";
 import { themeTitle } from "@/i18n/catalog";
-import { lp } from "@/i18n/locale";
+import { lp, withLocaleQuery } from "@/i18n/locale";
 import { marketing } from "@/i18n/marketing";
 import { languageLabel } from "@/i18n/product";
 import { useLocale } from "@/i18n/provider";
@@ -83,11 +83,11 @@ export default function StepReview({ draft, errors }: { draft: InvitationDraft; 
           <div className="review-phone">
             <iframe
               title={en ? "Invitation preview" : "Davetiye önizlemesi"}
-              src={`/onizleme/tema/${theme.slug}?embed=1&taslak=1${draft.event === "coklu" ? "&mod=kina-dugun" : ""}`}
+              src={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?embed=1&taslak=1${draft.event === "coklu" ? "&mod=kina-dugun" : ""}`)}
               loading="lazy"
             />
           </div>
-          <Link className="btn btn--outline btn--sm" href={`/onizleme/tema/${theme.slug}?taslak=1`} target="_blank" rel="noopener noreferrer">
+          <Link className="btn btn--outline btn--sm" href={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?taslak=1`)} target="_blank" rel="noopener noreferrer">
             {en ? "Open full screen" : "Tam ekran aç"}
           </Link>
         </div>

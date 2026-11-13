@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import Icon from "../Icon";
 import { useCatalog } from "@/components/CatalogProvider";
 import { localizeTheme } from "@/i18n/catalog";
-import { lp } from "@/i18n/locale";
+import { lp, withLocaleQuery } from "@/i18n/locale";
 import { marketing } from "@/i18n/marketing";
 import { useLocale } from "@/i18n/provider";
 import { applyTheme } from "@/lib/catalog";
@@ -107,7 +107,7 @@ export default function StepTemplate({ draft, errors }: { draft: InvitationDraft
                   </span>
                   <span className="tpl__select">{on ? (en ? "Selected" : "Seçildi") : (en ? "Select" : "Seç")}</span>
                 </label>
-                <a className="tpl__prev" href={`/onizleme/tema/${t.slug}`} target="_blank" rel="noopener noreferrer" aria-label={en ? `${view.title} preview (new tab)` : `${view.title} önizleme (yeni sekme)`}>
+                <a className="tpl__prev" href={withLocaleQuery(locale, `/onizleme/tema/${t.slug}`)} target="_blank" rel="noopener noreferrer" aria-label={en ? `${view.title} preview (new tab)` : `${view.title} önizleme (yeni sekme)`}>
                   <Icon name="expand" size={12} /> {en ? "Preview" : "Önizle"}
                 </a>
               </div>

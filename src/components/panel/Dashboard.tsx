@@ -6,7 +6,7 @@ import Icon from "../Icon";
 import { getNewspaper } from "@/data/newspapers";
 import { getTheme } from "@/data/themes";
 import { localizeNewspaper, themeTitle } from "@/i18n/catalog";
-import { lp, type Locale } from "@/i18n/locale";
+import { lp, withLocaleQuery, type Locale } from "@/i18n/locale";
 import { statusLabel } from "@/i18n/product";
 import { useLocale } from "@/i18n/provider";
 import { downloadBlob, formatTL, longDate } from "@/lib/format";
@@ -53,7 +53,7 @@ function orderLink(order: OrderRecord, locale: Locale) {
   const again = order.status === "reddedildi";
   const pay = again ? tx(locale, "Yeniden bildir", "Send again") : tx(locale, "Ödemeye dön", "Back to payment");
   if (order.status === "onaylandi") {
-    if (order.kind === "davetiye" && order.template) return { href: `/onizleme/tema/${order.template}?taslak=1`, label: tx(locale, "Davetiyeyi aç", "Open the invitation") };
+    if (order.kind === "davetiye" && order.template) return { href: withLocaleQuery(locale, `/onizleme/tema/${order.template}?taslak=1`), label: tx(locale, "Davetiyeyi aç", "Open the invitation") };
     return { href: lp(locale, "/gazete-tasarla"), label: tx(locale, "Gazeteyi aç", "Open the newspaper") };
   }
   if (order.kind === "gazete") return { href: lp(locale, "/gazete-tasarla"), label: pay };

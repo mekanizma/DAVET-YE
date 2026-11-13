@@ -5,6 +5,7 @@ import Link from "next/link";
 import PhoneFrame from "./PhoneFrame";
 import Icon from "./Icon";
 import { localizeTheme } from "@/i18n/catalog";
+import { withLocaleQuery } from "@/i18n/locale";
 import { useLocale, useLp } from "@/i18n/provider";
 import { coverOf, discountPercent, type Theme } from "@/data/themes";
 import { formatTL } from "@/lib/format";
@@ -67,7 +68,7 @@ export default function ProductCard({
               </summary>
               <p className="pcard__desc">{theme.eyebrow}</p>
               {discount > 0 && <p className="pcard__off">{en ? `${discount}% off` : `%${discount} indirim`}</p>}
-              <Link href={`/onizleme/tema/${theme.slug}`} className="btn btn--outline btn--xs">
+              <Link href={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}`)} className="btn btn--outline btn--xs">
                 <Icon name="expand" size={12} /> {en ? "Preview full screen" : "Tam ekran önizle"}
               </Link>
             </details>

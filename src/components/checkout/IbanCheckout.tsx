@@ -7,7 +7,7 @@ import { TextAreaField, TextField } from "../Field";
 import { IbanCard } from "./IbanCard";
 import { useCatalog } from "@/components/CatalogProvider";
 import { useLocale } from "@/i18n/provider";
-import type { Locale } from "@/i18n/locale";
+import { withLocaleQuery, type Locale } from "@/i18n/locale";
 import { localizeError, statusLabel } from "@/i18n/product";
 import { formatTL, isEmail } from "@/lib/format";
 import type { PaymentSettings } from "@/lib/catalog";
@@ -328,7 +328,7 @@ export default function IbanCheckout({
           </p>
           <div className="pay-done__cta">
             {kind === "davetiye" && (
-              <Link href={`/onizleme/tema/${template}?taslak=1`} className="btn btn--dark btn--lg btn--serif">{tx(locale, "Davetiyemi önizle", "Preview my invitation")}</Link>
+              <Link href={withLocaleQuery(locale, `/onizleme/tema/${template}?taslak=1`)} className="btn btn--dark btn--lg btn--serif">{tx(locale, "Davetiyemi önizle", "Preview my invitation")}</Link>
             )}
             <Link href="/panel" className="btn btn--outline btn--lg">{tx(locale, "Panelime git", "Go to my account")}</Link>
           </div>

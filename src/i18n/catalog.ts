@@ -1,6 +1,9 @@
 import type { Locale } from "./locale";
+import coversEn from "@/data/covers-en.json";
 import type { Newspaper } from "@/data/newspapers";
 import type { OpeningType, Theme } from "@/data/themes";
+
+const COVER_EN = coversEn as Record<string, string>;
 
 const THEME_TITLES: Record<string, string> = {
   "zumrut-yesili-cocukluk-aski": "Emerald Childhood Love",
@@ -577,7 +580,8 @@ export function tagLabel(tag: string, locale: Locale): string {
 export function localizeNewspaper(paper: Newspaper, locale: Locale): Newspaper {
   if (locale !== "en") return paper;
   const en = PAPER_EN[paper.slug];
-  if (!en) return paper;
+  const cover = COVER_EN[paper.slug] || paper.cover;
+  if (!en) return { ...paper, cover };
   return {
     ...paper,
     title: en.title,
@@ -585,6 +589,7 @@ export function localizeNewspaper(paper: Newspaper, locale: Locale): Newspaper {
     description: en.description,
     headline: en.headline,
     tagline: "Your story, on the front page",
+    cover,
   };
 }
 

@@ -450,13 +450,16 @@ export default function StageView({
   slug,
   embed = false,
   useDraftData = false,
+  locale: localeProp,
 }: {
   stage: StageFile;
   slug: string;
   embed?: boolean;
   useDraftData?: boolean;
+  locale?: Locale;
 }) {
-  const locale = useLocale();
+  const contextLocale = useLocale();
+  const locale = localeProp ?? contextLocale;
   const en = locale === "en";
   const { design } = stage;
   const canvasW = design.canvas?.width || 390;
@@ -1232,11 +1235,17 @@ function formVars(el: StageElement, canvasW: number): CSSProperties {
   };
 }
 
+function attendingChoice(form: NonNullable<StageElement["form"]>) {
+  const question = (form.questions || []).find((item) => item.type === "attendance");
+  return question?.options?.[0] || "Katılıyorum";
+}
+
 function RsvpForm({ el, canvasW, done, onDone, locale }: { el: StageElement; canvasW: number; done: boolean; onDone: () => void; locale: Locale }) {
   const form = el.form || {};
   const s = form.style || {};
   const en = locale === "en";
-  const [attend, setAttend] = useState("Katılıyorum");
+  const yes = attendingChoice(form);
+  const [attend, setAttend] = useState(yes);
   const [guests, setGuests] = useState(1);
   if (done) {
     return <p className="stg-form__success" style={textCss(el.style, canvasW)}>{form.successText || (en ? "Thank you for your reply!" : "Yanıtınız için teşekkür ederiz!")}</p>;
@@ -1253,7 +1262,7 @@ function RsvpForm({ el, canvasW, done, onDone, locale }: { el: StageElement; can
       }}
     >
       {(form.questions || []).map((q) => {
-        if (q.onlyIfAttending && attend !== "Katılıyorum") return null;
+        if (q.onlyIfAttending && attend !== yes) return null;
         if (q.type === "attendance") {
           return (
             <div key={q.id} className="stg-form__row">

@@ -11,6 +11,7 @@ import { useCatalog } from "@/components/CatalogProvider";
 import { applyNewspaper } from "@/lib/catalog";
 import { getNewspaper, newspaperStyles, newspapers } from "@/data/newspapers";
 import { localizeNewspaper } from "@/i18n/catalog";
+import { withLocaleQuery } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
 import {
   EMPTY_NEWSPAPER_DRAFT,
@@ -120,7 +121,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
     let cancelled = false;
     setDesignLoading(true);
     setDesignErr("");
-    fetch(`/api/times/${encodeURIComponent(paper.slug)}`)
+    fetch(`/api/times/${encodeURIComponent(paper.slug)}${locale === "en" ? "?dil=en" : ""}`)
       .then(async (r) => {
         if (!r.ok) throw new Error(tx("Şablon yüklenemedi", "The template could not be loaded"));
         return (await r.json()) as TimesReaderData;
@@ -451,7 +452,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                 </button>
               )}
               <Link
-                href={`/times/sablon/${paper.slug}`}
+                href={withLocaleQuery(locale, `/times/sablon/${paper.slug}`)}
                 className="btn btn--outline btn--block"
                 target="_blank"
                 rel="noopener noreferrer"

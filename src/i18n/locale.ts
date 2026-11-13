@@ -29,3 +29,9 @@ export function swapLocale(pathname: string, next: Locale): string {
   return pathname;
 }
 
+/** Invitation and newspaper previews live outside /en, so the query selects the English artwork. */
+export function withLocaleQuery(locale: Locale, href: string): string {
+  if (locale !== "en" || /(?:^|[?&])dil=/.test(href)) return href;
+  return `${href}${href.includes("?") ? "&" : "?"}dil=en`;
+}
+

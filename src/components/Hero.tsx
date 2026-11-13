@@ -105,7 +105,7 @@ export default function Hero({ featured }: { featured: Theme[] }) {
           {paper && (
             <Link href={lp("/gazeteler/ask-bulteni")} className="hero__paper" aria-label={en ? `View the ${paper.title} newspaper` : `${paper.title} gazetesini incele`}>
               <Image
-                src="/img/times/ask-bulteni-kapak.jpg"
+                src={paper.cover || "/img/times/ask-bulteni-kapak.jpg"}
                 alt={paper.title}
                 width={320}
                 height={452}

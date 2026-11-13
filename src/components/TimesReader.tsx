@@ -107,7 +107,12 @@ export default function TimesReader({
   const locale = useLocale();
   const rootRef = useRef<HTMLDivElement>(null);
   const skin = useMemo(() => timesSkinFor(slug), [slug]);
-  const localized = useMemo(() => (locale === "en" ? englishReader(data, slug) : data), [data, locale, slug]);
+  const localized = useMemo(() => {
+    if (locale !== "en") return data;
+    const payload = data.payload;
+    if (payload && typeof payload === "object" && (payload as { locale?: string }).locale === "en") return data;
+    return englishReader(data, slug);
+  }, [data, locale, slug]);
   const patched = useMemo(() => patchTimesDataForSkin(localized, slug), [localized, slug]);
 
   useEffect(() => {

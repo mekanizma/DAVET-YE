@@ -15,7 +15,7 @@ import { firstIncompleteBefore, gapSentence, infoIssues, validateStep, type Erro
 import { useCatalog } from "@/components/CatalogProvider";
 import { getTheme } from "@/data/themes";
 import { themeTitle } from "@/i18n/catalog";
-import { lp, type Locale } from "@/i18n/locale";
+import { lp, withLocaleQuery, type Locale } from "@/i18n/locale";
 import { marketing } from "@/i18n/marketing";
 import { useLocale } from "@/i18n/provider";
 import { formatTL } from "@/lib/format";
@@ -142,7 +142,7 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
   const lines = priceLines(draft, cat, locale);
   const total = priceTotal(draft, cat, locale);
   const previewSrc = theme
-    ? `/onizleme/tema/${theme.slug}?embed=1&taslak=1${draft.event === "coklu" ? "&mod=kina-dugun" : ""}&v=${previewKey}`
+    ? withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?embed=1&taslak=1${draft.event === "coklu" ? "&mod=kina-dugun" : ""}&v=${previewKey}`)
     : "";
   const disabled = continueDisabled();
 
@@ -239,7 +239,7 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
                   <button type="button" aria-label={tx(locale, "Açılışı oynat", "Play the opening")} onClick={() => setPreviewKey((n) => n + 1)}>
                     <Icon name="arrow" size={16} />
                   </button>
-                  <Link href={`/onizleme/tema/${theme.slug}?taslak=1`} target="_blank" rel="noopener noreferrer" aria-label={tx(locale, "Yeni sekmede aç", "Open in a new tab")}>
+                  <Link href={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?taslak=1`)} target="_blank" rel="noopener noreferrer" aria-label={tx(locale, "Yeni sekmede aç", "Open in a new tab")}>
                     <Icon name="expand" size={16} />
                   </Link>
                 </div>

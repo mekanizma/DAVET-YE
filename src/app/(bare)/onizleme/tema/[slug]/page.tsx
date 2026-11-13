@@ -5,13 +5,22 @@ import { notFound } from "next/navigation";
 import InvitationExperience from "@/components/invitation/InvitationExperience";
 import StageView from "@/components/stage/StageView";
 import { themeTitle } from "@/i18n/catalog";
+import type { Locale } from "@/i18n/locale";
 import { getLocale } from "@/i18n/server";
 import { getTheme, themes } from "@/data/themes";
 
-function loadStage(slug: string) {
-  const file = path.join(process.cwd(), "src/data/stages", `${slug}.json`);
+function loadStage(slug: string, locale: Locale) {
+  const english = path.join(process.cwd(), "src/data/stages/en", `${slug}.json`);
+  const file = locale === "en" && fs.existsSync(english)
+    ? english
+    : path.join(process.cwd(), "src/data/stages", `${slug}.json`);
   if (!fs.existsSync(file)) return null;
   return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
+function requestedLocale(value: string | string[] | undefined, fallback: Locale): Locale {
+  const dil = Array.isArray(value) ? value[0] : value;
+  return dil === "en" || dil === "tr" ? dil : fallback;
 }
 
 export function generateStaticParams() {
@@ -20,11 +29,14 @@ export function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const locale = await getLocale();
+  const sp = await searchParams;
+  const locale = requestedLocale(sp.dil, await getLocale());
   const t = getTheme(slug);
   return {
     title: t ? `${themeTitle(t, locale)} — ${locale === "en" ? "preview" : "önizleme"}` : locale === "en" ? "Preview" : "Önizleme",
@@ -41,13 +53,14 @@ export default async function PreviewPage({
 }) {
   const { slug } = await params;
   const sp = await searchParams;
+  const locale = requestedLocale(sp.dil, await getLocale());
   const theme = getTheme(slug);
   if (!theme) notFound();
   const embed = sp.embed === "1";
   const mode = sp.mod === "kina-dugun" ? "kina-dugun" : "tek";
-  const stage = loadStage(slug);
+  const stage = loadStage(slug, locale);
   if (stage) {
-    return <StageView stage={stage} slug={slug} embed={embed} useDraftData={sp.taslak === "1"} />;
+    return <StageView stage={stage} slug={slug} embed={embed} useDraftData={sp.taslak === "1"} locale={locale} />;
   }
   return <InvitationExperience theme={theme} embed={embed} mode={mode} useDraftData={sp.taslak === "1"} />;
 }

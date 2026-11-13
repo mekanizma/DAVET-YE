@@ -11,7 +11,7 @@ import JsonLd from "@/components/JsonLd";
 import { ADDONS } from "@/data/pricing";
 import { discountPercent, getTheme, similarThemes, themes } from "@/data/themes";
 import { localizeTheme } from "@/i18n/catalog";
-import { isLocale, LOCALES, lp, type Locale } from "@/i18n/locale";
+import { isLocale, LOCALES, lp, withLocaleQuery, type Locale } from "@/i18n/locale";
 import { marketing } from "@/i18n/marketing";
 import { invitationSections, localizeAddon } from "@/i18n/product";
 import { applyTheme } from "@/lib/catalog";
@@ -140,7 +140,7 @@ export default async function ThemeDetailPage({
                 >
                   <Icon name="sparkle" size={16} /> {en ? "Start with this invitation" : "Bu Davetiyeyle Başla"} <Icon name="arrow" size={16} />
                 </Link>
-                <Link href={`/onizleme/tema/${theme.slug}`} className="btn btn--outline btn--lg btn--serif">
+                <Link href={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}`)} className="btn btn--outline btn--lg btn--serif">
                   <Icon name="expand" size={16} /> {en ? "Full-screen preview" : "Tam Ekran Önizle"}
                 </Link>
               </div>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Icon from "./Icon";
 import NewspaperCover from "./NewspaperCover";
 import { localizeNewspaper } from "@/i18n/catalog";
-import { lp } from "@/i18n/locale";
+import { lp, withLocaleQuery } from "@/i18n/locale";
 import { getLocale } from "@/i18n/server";
 import type { Newspaper } from "@/data/newspapers";
 import { formatTL } from "@/lib/format";
@@ -40,7 +40,7 @@ export default async function NewspaperCard({
             {en ? "Show more" : "Daha fazla göster"} <Icon name="chevron-down" size={14} />
           </summary>
           <p className="pcard__desc">{paper.eyebrow}</p>
-          <Link href={`/times/sablon/${paper.slug}`} className="btn btn--outline btn--xs">
+          <Link href={withLocaleQuery(locale, `/times/sablon/${paper.slug}`)} className="btn btn--outline btn--xs">
             <Icon name="expand" size={12} /> {en ? "Preview full screen" : "Tam ekran önizle"}
           </Link>
         </details>

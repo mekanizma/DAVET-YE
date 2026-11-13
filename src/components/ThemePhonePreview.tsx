@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import PhoneFrame from "./PhoneFrame";
+import { withLocaleQuery } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
 
 export default function ThemePhonePreview({ slug, title }: { slug: string; title: string }) {
@@ -21,7 +22,7 @@ export default function ThemePhonePreview({ slug, title }: { slug: string; title
         <iframe
           key={mode}
           title={en ? `${title} invitation preview` : `${title} davetiye önizlemesi`}
-          src={`/onizleme/tema/${slug}?embed=1&mod=${mode}`}
+          src={withLocaleQuery(en ? "en" : "tr", `/onizleme/tema/${slug}?embed=1&mod=${mode}`)}
           loading="lazy"
           className="tpreview__frame"
         />

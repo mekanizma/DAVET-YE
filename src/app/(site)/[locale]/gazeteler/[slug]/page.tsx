@@ -8,7 +8,7 @@ import SectionHead from "@/components/SectionHead";
 import JsonLd from "@/components/JsonLd";
 import { getNewspaper, newspapers } from "@/data/newspapers";
 import { localizeNewspaper } from "@/i18n/catalog";
-import { isLocale, LOCALES, lp, type Locale } from "@/i18n/locale";
+import { isLocale, LOCALES, lp, withLocaleQuery, type Locale } from "@/i18n/locale";
 import { marketing } from "@/i18n/marketing";
 import { applyNewspaper } from "@/lib/catalog";
 import { formatTL } from "@/lib/format";
@@ -115,7 +115,7 @@ export default async function NewspaperDetail({
                 <Link href={`${lp(locale, "/gazete-tasarla")}?sablon=${encodeURIComponent(paper.slug)}`} className="btn btn--dark btn--lg btn--serif">
                   {en ? "Start with this newspaper" : "Bu Gazeteyle Başla"} <Icon name="arrow" size={16} />
                 </Link>
-                <Link href={`/times/sablon/${paper.slug}`} className="btn btn--outline btn--lg btn--serif">
+                <Link href={withLocaleQuery(locale, `/times/sablon/${paper.slug}`)} className="btn btn--outline btn--lg btn--serif">
                   <Icon name="expand" size={16} /> {en ? "Page-turning preview" : "Sayfa Çevirmeli Önizleme"}
                 </Link>
               </div>
