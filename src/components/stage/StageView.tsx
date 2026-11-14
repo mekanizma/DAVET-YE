@@ -673,9 +673,9 @@ export default function StageView({
   useEffect(() => {
     const root = scrollRef.current;
     if (!root || phase !== "open") return;
-    const wishList = (target: EventTarget | null) => {
-      const node = target instanceof Element ? target : null;
-      return node?.closest<HTMLElement>(".stg-messages__list, .stg-gift__sheet") || null;
+    const wishList = (target: EventTarget | null): HTMLElement | null => {
+      if (!(target instanceof HTMLElement)) return null;
+      return target.closest(".stg-messages__list, .stg-gift__sheet");
     };
     const stopWheel = (e: WheelEvent) => {
       const list = wishList(e.target);
