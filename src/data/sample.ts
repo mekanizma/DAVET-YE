@@ -23,6 +23,7 @@ export const SAMPLE = {
   wishes: [
     { name: "Ayşe", text: "Çok mutlu olun, ömür boyu beraber!" },
     { name: "Mehmet", text: "Tebrikler, nice güzel yıllara." },
+    { name: "Elif", text: "El ele, bir ömür boyu mutluluklar." },
   ],
   ibanHolder: "Ayşe Yılmaz",
   /** Örnek IBAN: gerçek bir hesaba ait değildir. */
@@ -47,8 +48,9 @@ const SAMPLE_EN: SampleContent = {
     { time: "22:00", title: "Cake & dancing", text: "The floor opens" },
   ],
   wishes: [
-    { name: "Ayşe", text: "Be very happy, together for a lifetime!" },
-    { name: "Mehmet", text: "Congratulations, to many beautiful years." },
+    { name: "Sophie", text: "Be very happy, together for a lifetime!" },
+    { name: "Daniel", text: "Congratulations, to many beautiful years." },
+    { name: "Nora", text: "Hand in hand, a lifetime of happiness." },
   ],
   closing: "We would be delighted to have you with us on the most special day of our lives.",
 };

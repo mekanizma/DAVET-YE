@@ -4,7 +4,10 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import icons from "@/data/stage-icons.json";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
 import type { Locale } from "@/i18n/locale";
+import { editorLabel } from "@/i18n/editorLabel";
 import { useLocale } from "@/i18n/provider";
+import GiftBox from "@/components/stage/GiftBox";
+import { sampleFor } from "@/data/sample";
 import { uploadSharePhoto } from "@/lib/albumClient";
 import type { InvitationDraft } from "@/lib/storage";
 import { useDraft } from "@/lib/storage";
@@ -157,6 +160,9 @@ type StageFile = {
     intro?: {
       video?: string;
       poster?: string;
+      /** Textless opening assets — preferred for English so burned-in Turkish copy is not shown. */
+      neutralVideo?: string;
+      neutralPoster?: string;
       videoBackground?: string;
       videoMuted?: boolean;
       skippable?: boolean;
@@ -176,6 +182,57 @@ type StageFile = {
 };
 
 const ICON_SET = icons as Record<string, { label: string; path: string }>;
+
+function keepGiftChrome(el: StageElement, elements: StageElement[]) {
+  if (el.action === "nextPage") return true;
+  if (el.type !== "shape") return false;
+  return elements.some((next) => {
+    if (next.action !== "nextPage") return false;
+    const dx = el.x + el.w / 2 - (next.x + next.w / 2);
+    const dy = el.y + el.h / 2 - (next.y + next.h / 2);
+    return Math.abs(dx) < 36 && Math.abs(dy) < 36;
+  });
+}
+
+function giftHexLum(color?: string) {
+  const raw = (color || "").trim();
+  const hex = raw.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i)?.[1];
+  if (!hex) return 0.5;
+  const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
+  const r = Number.parseInt(full.slice(0, 2), 16) / 255;
+  const g = Number.parseInt(full.slice(2, 4), 16) / 255;
+  const b = Number.parseInt(full.slice(4, 6), 16) / 255;
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function giftPalette(elements: StageElement[]) {
+  const copy = elements.find((el) => el.action === "copy");
+  const texts = elements.filter((el) => el.type === "text" && !el.hidden);
+  const title = texts.find((el) => /hediye|gift|iban/i.test(`${el.name || ""} ${el.text || ""}`)) || texts[0];
+  const ink = title?.style?.color || copy?.button?.color || "#e8d3a4";
+  const accent = copy?.fill || copy?.button?.fill || title?.style?.color || "#8a6d4b";
+  /* Prefer plan title ink; if it is a washed mid-tone, fall back to accent so labels stay readable. */
+  const inkLum = giftHexLum(ink);
+  const washed = inkLum > 0.32 && inkLum < 0.72 && Math.abs(inkLum - giftHexLum(accent)) > 0.12;
+  const label = washed ? accent : ink;
+  return { accent, ink, label };
+}
+
+function openingWishes(stage: StageFile, locale: Locale) {
+  const rows = (stage.messages || []).filter((wish) => (wish.text || "").trim());
+  if (rows.length) return rows;
+  return sampleFor(locale).wishes.map((wish) => ({ name: wish.name, text: wish.text }));
+}
+
+/** Translate leftover Turkish editor labels without mangling already-English copy (e.g. IBAN). */
+function stageLabel(raw: string | undefined, locale: Locale) {
+  const text = (raw || "").trim();
+  if (!text || locale !== "en") return text;
+  if (!/[çğıöşüÇĞİÖŞÜ]/i.test(text) && !/\b(davetiye|takvim|kameray[ıi]|geçiş|başlık|açıklama|aile|hediye|dilek|anı|kapanış|mekân|çelenk)\b/i.test(text)) {
+    return text;
+  }
+  return editorLabel(text, locale);
+}
 
 const HIDE: Record<string, string> = {
   families: "aileler",
@@ -588,11 +645,12 @@ export default function StageView({
 
   const [rsvpDone, setRsvpDone] = useState(false);
   const [wishDone, setWishDone] = useState(false);
-  const [wishes, setWishes] = useState(stage.messages || []);
+  const [wishes, setWishes] = useState(() => openingWishes(stage, locale));
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const intro = design.intro;
+  const introVideo = en && intro?.neutralVideo ? intro.neutralVideo : intro?.video;
   const desk = design.background?.color || "#cb6715";
 
   useEffect(() => {
@@ -615,10 +673,19 @@ export default function StageView({
   useEffect(() => {
     const root = scrollRef.current;
     if (!root || phase !== "open") return;
+    const wishList = (target: EventTarget | null) =>
+      target instanceof Element ? target.closest<HTMLElement>(".stg-messages__list, .stg-gift__sheet") : null;
     const stopWheel = (e: WheelEvent) => {
+      const list = wishList(e.target);
+      if (list && list.scrollHeight > list.clientHeight + 2) {
+        const atTop = list.scrollTop <= 0 && e.deltaY < 0;
+        const atBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 2 && e.deltaY > 0;
+        if (!atTop && !atBottom) return;
+      }
       e.preventDefault();
     };
     const stopTouch = (e: TouchEvent) => {
+      if (wishList(e.target)) return;
       e.preventDefault();
     };
     const stopKeys = (e: KeyboardEvent) => {
@@ -716,7 +783,7 @@ export default function StageView({
       el.removeEventListener("loadedmetadata", fit);
       observer.disconnect();
     };
-  }, [phase, intro?.video]);
+  }, [phase, introVideo]);
 
   useEffect(() => {
     if (phase !== "open") return;
@@ -835,7 +902,7 @@ export default function StageView({
 
   const openInvite = useCallback(() => {
     if (record || phase !== "gate") return;
-    const video = intro?.video;
+    const video = introVideo;
     if (reduced || !video) {
       setPhase("open");
       return;
@@ -856,7 +923,7 @@ export default function StageView({
       el.muted = true;
       el.play().catch(() => setPhase("open"));
     });
-  }, [record, phase, intro, reduced]);
+  }, [record, phase, introVideo, intro?.videoMuted, reduced]);
 
   const toggleMusic = () => {
     const a = audioRef.current;
@@ -972,7 +1039,7 @@ export default function StageView({
     .join("");
 
   const bgImage = design.background?.image;
-  const gateImage = intro?.poster || bgImage;
+  const gateImage = (en && intro?.neutralPoster ? intro.neutralPoster : intro?.poster) || bgImage;
   const warmImages = useMemo(() => {
     const srcs: string[] = [];
     const add = (src?: string) => {
@@ -1012,10 +1079,10 @@ export default function StageView({
           {phase === "open" ? (
           <div ref={scrollRef} className="stg-pages">
             {pages.map((page, pageIndex) => (
-              <section key={page.id} className={`stg-page${(record ? pageIndex === shot - gateCount : pageIndex === 0) ? " is-in" : ""}`} id={`sayfa-${page.id}`} aria-label={page.name}>
+              <section key={page.id} className={`stg-page${(record ? pageIndex === shot - gateCount : pageIndex === 0) ? " is-in" : ""}`} id={`sayfa-${page.id}`} aria-label={stageLabel(page.name, locale)}>
                 <div className="stg-fit">
                   <div className="stg-art">
-                    {(page.elements || []).filter((el) => !el.hidden).map((el) => (
+                    {(page.kind === "gift" ? (page.elements || []).filter((el) => !el.hidden && keepGiftChrome(el, page.elements || [])) : (page.elements || []).filter((el) => !el.hidden)).map((el) => (
                       <Element
                         key={el.id}
                         el={el}
@@ -1030,7 +1097,10 @@ export default function StageView({
                         onAddPhoto={addShot}
                         onRsvp={() => setRsvpDone(true)}
                         onWish={(name, text) => {
-                          setWishes((w) => [...w, { name, text }]);
+                          const cleanName = name.trim();
+                          const cleanText = text.trim();
+                          if (cleanName.length < 2 || cleanText.length < 3) return;
+                          setWishes((w) => [...w, { name: cleanName, text: cleanText }]);
                           setWishDone(true);
                         }}
                         onAction={onAction}
@@ -1038,6 +1108,19 @@ export default function StageView({
                         eager={record || pageIndex === 0}
                       />
                     ))}
+                    {page.kind === "gift" ? (() => {
+                      const palette = giftPalette(page.elements || []);
+                      return (
+                        <GiftBox
+                          holder={values.f_ibanOwner || ""}
+                          iban={values.f_iban || ""}
+                          accent={palette.accent}
+                          ink={palette.ink}
+                          label={palette.label}
+                          locale={locale}
+                        />
+                      );
+                    })() : null}
                   </div>
                 </div>
               </section>
@@ -1062,13 +1145,13 @@ export default function StageView({
             </div>
           )}
 
-          {intro?.video ? (
+          {introVideo ? (
             <video
               ref={videoRef}
               className="stg-video"
               playsInline
               preload="none"
-              muted={Boolean(intro.videoMuted)}
+              muted={Boolean(intro?.videoMuted)}
               style={{ opacity: phase === "video" ? 1 : 0, pointerEvents: phase === "video" ? "auto" : "none" }}
               onEnded={finish}
               onError={finish}
@@ -1254,7 +1337,7 @@ function Element({
         type="button"
         className="stg-btn"
         data-action={el.action || undefined}
-        aria-label={el.name || el.action}
+        aria-label={el.text || stageLabel(el.name, locale) || el.action}
         onClick={(e) => {
           e.stopPropagation();
           onAction(el, e.currentTarget);
@@ -1452,36 +1535,51 @@ function WishWall({
   locale: Locale;
 }) {
   const en = locale === "en";
+  const listRef = useRef<HTMLUListElement>(null);
+  const stickToEnd = useRef(false);
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    if (!stickToEnd.current) return;
+    stickToEnd.current = false;
+    list.scrollTop = list.scrollHeight;
+  }, [wishes.length]);
   return (
     <div className="stg-messages">
-      <ul className="stg-messages__list">
+      <ul ref={listRef} className="stg-messages__list">
         {wishes.map((w, i) => (
-          <li key={i} className="stg-messages__item" style={textCss(el.style, canvasW)}>
+          <li key={`${w.name || "wish"}-${i}`} className="stg-messages__item" style={textCss(el.style, canvasW)}>
             <strong>{w.name}</strong>
             <p>{w.text}</p>
           </li>
         ))}
       </ul>
       {done ? (
-        <p className="stg-form__success" style={textCss(el.style, canvasW)}>{el.form?.successText}</p>
-      ) : (
-        <form
-          className="stg-form has-panel"
-          data-look="filled"
-          style={formVars(el, canvasW)}
-          onSubmit={(e) => {
-            e.preventDefault();
-            const data = new FormData(e.currentTarget);
-            onWish(String(data.get("name") || ""), String(data.get("text") || ""));
-          }}
-        >
-          <input className="stg-form__input" name="name" required placeholder={el.hint || (en ? "Your name" : "Adınız")} aria-label={en ? "Your name" : "Adınız"} />
-          <textarea className="stg-form__input" name="text" required placeholder={en ? "Your wish" : "Dileğiniz"} rows={3} aria-label={en ? "Your wish" : "Dileğiniz"} />
-          <button type="submit" className="stg-form__submit">
-            {el.form?.submitLabel || (en ? "Send my wish" : "Dileğimi Gönder")}
-          </button>
-        </form>
-      )}
+        <p className="stg-messages__note" role="status" style={textCss(el.style, canvasW)}>
+          {en ? "Your wish was added. Thank you!" : "Dileğiniz iletildi, teşekkür ederiz!"}
+        </p>
+      ) : null}
+      <form
+        className="stg-form has-panel"
+        data-look="filled"
+        style={formVars(el, canvasW)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const data = new FormData(e.currentTarget);
+          const name = String(data.get("name") || "");
+          const text = String(data.get("text") || "");
+          if (name.trim().length < 2 || text.trim().length < 3) return;
+          stickToEnd.current = true;
+          onWish(name, text);
+          e.currentTarget.reset();
+        }}
+      >
+        <input className="stg-form__input" name="name" required minLength={2} placeholder={el.hint || (en ? "Your name" : "Adınız")} aria-label={en ? "Your name" : "Adınız"} autoComplete="name" />
+        <textarea className="stg-form__input" name="text" required minLength={3} maxLength={300} placeholder={en ? "Your wish" : "Dileğiniz"} rows={2} aria-label={en ? "Your wish" : "Dileğiniz"} />
+        <button type="submit" className="stg-form__submit">
+          {el.form?.submitLabel || (en ? "Send my wish" : "Dileğimi Gönder")}
+        </button>
+      </form>
     </div>
   );
 }
