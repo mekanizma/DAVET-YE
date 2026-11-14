@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { adminSend } from "./AdminShell";
+import { useState } from "react";
+import { adminSend, useAdminQuery } from "./AdminShell";
 import type { CatalogAddon } from "@/lib/catalog";
 
 interface Payload {
@@ -14,6 +14,7 @@ interface Payload {
 }
 
 export default function PricingView() {
+  const query = useAdminQuery<Payload>("/api/yonetim/fiyatlar");
   const [data, setData] = useState<Payload | null>(null);
   const [addons, setAddons] = useState<CatalogAddon[]>([]);
   const [studio, setStudio] = useState(99);
@@ -22,16 +23,12 @@ export default function PricingView() {
   const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    adminSend<Payload>("/api/yonetim/fiyatlar")
-      .then((d) => {
-        setData(d);
-        setAddons(d.addons);
-        setStudio(d.studioPrice);
-        setFeatures(d.features.join("\n"));
-      })
-      .catch((e: Error) => setError(e.message));
-  }, []);
+  if (query.data && data === null) {
+    setData(query.data);
+    setAddons(query.data.addons);
+    setStudio(query.data.studioPrice);
+    setFeatures(query.data.features.join("\n"));
+  }
 
   function patch(id: string, p: Partial<CatalogAddon>) {
     setAddons((list) => list.map((a) => (a.id === id ? { ...a, ...p } : a)));
@@ -67,7 +64,8 @@ export default function PricingView() {
     }
   }
 
-  if (error && !data) return <p className="alert alert--error">{error}</p>;
+  const loadError = error || query.error;
+  if (loadError && !data) return <p className="alert alert--error">{loadError}</p>;
   if (!data) return <p role="status">Yükleniyor…</p>;
 
   return (
@@ -134,7 +132,7 @@ export default function PricingView() {
       </div>
 
       <div className="adm-save">
-        <p>{info || error || "Değişiklikler kaydedilince site fiyatına yansır."}</p>
+        <p>{info || loadError || "Değişiklikler kaydedilince site fiyatına yansır."}</p>
         <button type="button" className="btn" disabled={busy} onClick={save}>{busy ? "Kaydediliyor…" : "Kaydet"}</button>
       </div>
     </>

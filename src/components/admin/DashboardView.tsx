@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { adminSend } from "./AdminShell";
+import { useAdminQuery } from "./AdminShell";
 import { formatTL } from "@/lib/format";
 import { STATUS_LABEL } from "@/lib/orderStatus";
 import type { OrderRecord } from "@/lib/orderTypes";
@@ -26,12 +25,7 @@ interface Summary {
 }
 
 export default function DashboardView() {
-  const [data, setData] = useState<Summary | null>(null);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    adminSend<Summary>("/api/yonetim/ozet").then(setData).catch((e: Error) => setError(e.message));
-  }, []);
+  const { data, error } = useAdminQuery<Summary>("/api/yonetim/ozet");
 
   if (error) return <p className="alert alert--error" role="alert">{error}</p>;
   if (!data) return <p role="status">Yükleniyor…</p>;

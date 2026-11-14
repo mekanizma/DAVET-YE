@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Inter, Playfair_Display } from "next/font/google";
 import localFont from "next/font/local";
 import { CatalogProvider } from "@/components/CatalogProvider";
@@ -137,6 +138,15 @@ export const dynamic = "force-dynamic";
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const path = (await headers()).get("x-pathname") || "";
+  const admin = path === "/yonetim" || path.startsWith("/yonetim/");
+  if (admin) {
+    return (
+      <html lang="tr" className={`${playfair.variable} ${inter.variable}`}>
+        <body>{children}</body>
+      </html>
+    );
+  }
   const [loaded, locale] = await Promise.all([getPublicCatalog(), getLocale()]);
   const catalog = {
     ...loaded,

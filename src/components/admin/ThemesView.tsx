@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { adminSend } from "./AdminShell";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Icon from "../Icon";
+import { adminSend, useAdminQuery } from "./AdminShell";
 import { EVENT_LABELS, type EventType } from "@/data/themes";
 import { foldTr } from "@/lib/format";
+import { recordTemplateVideo } from "@/lib/recordTemplateVideo";
 import type { ThemeLive } from "@/lib/catalog";
 
 interface Row {
@@ -19,19 +21,21 @@ interface Row {
   base: ThemeLive;
 }
 
+type ThemePayload = { items: { slug: string; title: string; cover: string; eventTypes: EventType[]; current: ThemeLive; base: ThemeLive }[] };
+
 export default function ThemesView() {
+  const query = useAdminQuery<ThemePayload>("/api/yonetim/sablonlar");
   const [rows, setRows] = useState<Row[] | null>(null);
   const [q, setQ] = useState("");
   const [only, setOnly] = useState<"" | "featured" | "hidden">("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
+  const [job, setJob] = useState<{ slug: string; title: string; locale: "tr" | "en"; status: string; scale: number } | null>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    adminSend<{ items: { slug: string; title: string; cover: string; eventTypes: EventType[]; current: ThemeLive; base: ThemeLive }[] }>("/api/yonetim/sablonlar")
-      .then((d) => setRows(d.items.map((i) => ({ ...i, ...i.current }))))
-      .catch((e: Error) => setError(e.message));
-  }, []);
+  if (query.data && rows === null) setRows(query.data.items.map((i) => ({ ...i, ...i.current })));
 
   const shown = useMemo(() => {
     const f = foldTr(q.trim());
@@ -74,7 +78,54 @@ export default function ThemesView() {
     }
   }
 
-  if (error && !rows) return <p className="alert alert--error">{error}</p>;
+  useEffect(() => {
+    if (!job) return;
+    const slug = job.slug;
+    const locale = job.locale;
+    const title = locale === "en" ? `${job.title} EN` : job.title;
+    const frame = frameRef.current;
+    if (!frame) return;
+    const ac = new AbortController();
+    abortRef.current = ac;
+    let alive = true;
+    recordTemplateVideo(frame, title, (status) => {
+      if (alive) setJob((cur) => (cur && cur.slug === slug && cur.locale === locale ? { ...cur, status } : cur));
+    }, ac.signal)
+      .catch((err: unknown) => {
+        if (!alive || ac.signal.aborted) return;
+        setError(err instanceof Error ? err.message : "Video hazırlanamadı.");
+      })
+      .finally(() => {
+        if (alive) setJob(null);
+      });
+    return () => {
+      alive = false;
+      ac.abort();
+    };
+    // Status text updates must not restart the recording.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [job?.slug, job?.locale]);
+
+  function startDownload(slug: string, title: string, locale: "tr" | "en") {
+    if (job) return;
+    const scale = Math.min(1, (window.innerWidth - 32) / 390, (window.innerHeight - 180) / 844);
+    setError("");
+    setJob({
+      slug,
+      title,
+      locale,
+      status: locale === "en" ? "İngilizce şablon açılıyor…" : "Şablon açılıyor…",
+      scale: Math.max(0.34, scale),
+    });
+  }
+
+  function cancelDownload() {
+    abortRef.current?.abort();
+    setJob(null);
+  }
+
+  const loadError = error || query.error;
+  if (loadError && !rows) return <p className="alert alert--error">{loadError}</p>;
   if (!rows) return <p role="status">Yükleniyor…</p>;
 
   return (
@@ -82,7 +133,7 @@ export default function ThemesView() {
       <header className="adm-h">
         <div>
           <h1>Şablonlar</h1>
-          <p>Her davetiyenin satış fiyatını, karşılaştırma fiyatını, ana sayfada öne çıkmasını ve yayından kalkmasını buradan yönetin. Gizli şablon listelerde görünmez, yeni sipariş almaz.</p>
+          <p>Her davetiyenin satış fiyatını, karşılaştırma fiyatını, ana sayfada öne çıkmasını ve yayından kalkmasını buradan yönetin. Gizli şablon listelerde görünmez, yeni sipariş almaz. Türkçe indir ve İngilizce indir, hazır şablonu o dilde kapak ve isim sayfalarıyla birlikte video olarak alır.</p>
         </div>
       </header>
       <input className="adm-search" type="search" placeholder="Şablon ara" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Şablon ara" />
@@ -96,11 +147,19 @@ export default function ThemesView() {
           <article key={r.slug} className="theme-edit">
             <div className="theme-edit__head">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={r.cover} alt="" />
-              <div>
+              <img src={r.cover} alt="" loading="lazy" decoding="async" />
+              <div className="theme-edit__copy">
                 <h3>{r.title}</h3>
                 <p className="slug">{r.slug}</p>
                 <p className="slug">{r.eventTypes.map((e) => EVENT_LABELS[e]).join(" · ")}</p>
+              </div>
+              <div className="theme-edit__dls">
+                <button type="button" className="btn btn--outline theme-edit__dl" disabled={Boolean(job)} onClick={() => startDownload(r.slug, r.title, "tr")}>
+                  <Icon name="download" size={16} /> {job?.slug === r.slug && job.locale === "tr" ? "Hazırlanıyor…" : "Türkçe indir"}
+                </button>
+                <button type="button" className="btn btn--outline theme-edit__dl" disabled={Boolean(job)} onClick={() => startDownload(r.slug, r.title, "en")}>
+                  <Icon name="download" size={16} /> {job?.slug === r.slug && job.locale === "en" ? "Hazırlanıyor…" : "İngilizce indir"}
+                </button>
               </div>
             </div>
             <div className="adm-grid2">
@@ -126,8 +185,22 @@ export default function ThemesView() {
           </article>
         ))}
       </div>
+      {job ? (
+        <div className="rec-shade" role="dialog" aria-modal="true" aria-labelledby="rec-status">
+          <p id="rec-status">{job.status}</p>
+          <div className="rec-fit" style={{ width: Math.round(390 * job.scale), height: Math.round(844 * job.scale) }}>
+            <iframe
+              ref={frameRef}
+              title={`${job.title} kaydı`}
+              src={`/onizleme/tema/${encodeURIComponent(job.slug)}?kayit=1&dil=${job.locale}`}
+              style={{ transform: `scale(${job.scale})` }}
+            />
+          </div>
+          <button type="button" className="btn btn--outline rec-cancel" onClick={cancelDownload}>İptal</button>
+        </div>
+      ) : null}
       <div className="adm-save">
-        <p>{info || error || `${shown.length} şablon listeleniyor`}</p>
+        <p>{info || loadError || `${shown.length} şablon listeleniyor`}</p>
         <button type="button" className="btn" disabled={busy} onClick={save}>{busy ? "Kaydediliyor…" : "Kaydet"}</button>
       </div>
     </>

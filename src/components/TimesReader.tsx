@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { getNewspaper } from "@/data/newspapers";
 import { localizeNewspaper } from "@/i18n/catalog";
+import type { Locale } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
 import type { TimesReaderData } from "@/lib/times";
 import { patchTimesDataForSkin, timesSkinFor } from "@/lib/timesSkins";
@@ -98,13 +99,17 @@ export default function TimesReader({
   data,
   slug,
   embedded = false,
+  locale: localeProp,
 }: {
   data: TimesReaderData;
   slug: string;
   /** Panel / builder side preview — do not lock page chrome to fullscreen desk. */
   embedded?: boolean;
+  /** Wins over the site cookie so a recording stays in the requested language. */
+  locale?: Locale;
 }) {
-  const locale = useLocale();
+  const siteLocale = useLocale();
+  const locale = localeProp ?? siteLocale;
   const rootRef = useRef<HTMLDivElement>(null);
   const skin = useMemo(() => timesSkinFor(slug), [slug]);
   const localized = useMemo(() => {
@@ -156,7 +161,7 @@ export default function TimesReader({
     const mount = () => {
       if (cancelled) return;
       const run = () => {
-        window.DavetanisiTimes?.mount(root, patched as TimesReaderData);
+        window.DavetanisiTimes?.mount(root, { ...patched, embedded } as TimesReaderData);
         applyChromeVars();
         requestAnimationFrame(applyChromeVars);
       };

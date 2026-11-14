@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { adminSend } from "./AdminShell";
+import { useAdminQuery } from "./AdminShell";
 import { formatTL } from "@/lib/format";
 import { STATUS_LABEL, ORDER_STATUSES } from "@/lib/orderStatus";
 import type { OrderRecord } from "@/lib/orderTypes";
@@ -16,24 +16,24 @@ const FILTERS = [
   { id: "reddedildi", label: "Reddedilen" },
 ];
 
+function ordersUrl(durum: string, q: string) {
+  const p = new URLSearchParams();
+  if (durum) p.set("durum", durum);
+  if (q.trim()) p.set("q", q.trim());
+  return `/api/yonetim/siparisler?${p.toString()}`;
+}
+
 export default function OrdersView() {
   const params = useSearchParams();
   const initial = params.get("durum") || "";
   const [durum, setDurum] = useState(ORDER_STATUSES.includes(initial as never) || initial === "" ? initial : "");
   const [q, setQ] = useState("");
-  const [orders, setOrders] = useState<OrderRecord[] | null>(null);
-  const [error, setError] = useState("");
+  const [url, setUrl] = useState(() => ordersUrl(ORDER_STATUSES.includes(initial as never) || initial === "" ? initial : "", ""));
+  const query = useAdminQuery<{ orders: OrderRecord[] }>(url);
+  const orders = query.data?.orders ?? null;
 
   useEffect(() => {
-    const t = window.setTimeout(() => {
-      const p = new URLSearchParams();
-      if (durum) p.set("durum", durum);
-      if (q.trim()) p.set("q", q.trim());
-      setError("");
-      adminSend<{ orders: OrderRecord[] }>(`/api/yonetim/siparisler?${p.toString()}`)
-        .then((d) => setOrders(d.orders))
-        .catch((e: Error) => setError(e.message));
-    }, 200);
+    const t = window.setTimeout(() => setUrl(ordersUrl(durum, q)), 200);
     return () => window.clearTimeout(t);
   }, [durum, q]);
 
@@ -53,7 +53,7 @@ export default function OrdersView() {
         ))}
       </div>
       <input className="adm-search" type="search" placeholder="Kod, ad, e-posta veya telefon" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Sipariş ara" />
-      {error && <p className="alert alert--error" role="alert">{error}</p>}
+      {query.error && <p className="alert alert--error" role="alert">{query.error}</p>}
       {orders === null ? <p role="status">Yükleniyor…</p> : orders.length === 0 ? (
         <p className="muted">Bu süzgeçte sipariş yok.</p>
       ) : (

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { adminSend } from "./AdminShell";
+import { useState } from "react";
+import { adminSend, useAdminQuery } from "./AdminShell";
 import type { PaymentSettings } from "@/lib/catalog";
 
 const EMPTY: PaymentSettings = {
@@ -14,16 +14,17 @@ const EMPTY: PaymentSettings = {
 };
 
 export default function SettingsView() {
+  const query = useAdminQuery<{ settings: PaymentSettings; paymentReady: boolean }>("/api/yonetim/ayarlar");
   const [form, setForm] = useState<PaymentSettings>(EMPTY);
+  const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    adminSend<{ settings: PaymentSettings; paymentReady: boolean }>("/api/yonetim/ayarlar")
-      .then((d) => setForm(d.settings))
-      .catch((e: Error) => setError(e.message));
-  }, []);
+  if (query.data && !ready) {
+    setForm(query.data.settings);
+    setReady(true);
+  }
 
   function set<K extends keyof PaymentSettings>(key: K, value: PaymentSettings[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -61,7 +62,7 @@ export default function SettingsView() {
             <input type="tel" inputMode="tel" value={form.supportPhone} onChange={(e) => set("supportPhone", e.target.value)} />
           </label>
         </div>
-        {error && <p className="alert alert--error" role="alert">{error}</p>}
+        {(error || query.error) && <p className="alert alert--error" role="alert">{error || query.error}</p>}
         {info && <p className="alert alert--success" role="status">{info}</p>}
         <div className="adm-actions">
           <button type="button" className="btn btn--dark" disabled={busy} onClick={save}>{busy ? "Kaydediliyor…" : "Kaydet"}</button>

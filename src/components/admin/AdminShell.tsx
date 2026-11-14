@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import Icon, { type IconName } from "../Icon";
 
 const LINKS: { href: string; label: string; icon: IconName; exact?: boolean }[] = [
@@ -20,18 +20,65 @@ function on(pathname: string, href: string, exact?: boolean) {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-export async function adminSend<T>(url: string, init?: RequestInit): Promise<T> {
+const readCache = new Map<string, { at: number; data: unknown }>();
+const READ_MS = 20_000;
+
+export function adminCached<T>(url: string): T | null {
+  const hit = readCache.get(url);
+  if (!hit || Date.now() - hit.at > READ_MS) return null;
+  return hit.data as T;
+}
+
+type AdminInit = RequestInit & { fresh?: boolean };
+
+export async function adminSend<T>(url: string, init?: AdminInit): Promise<T> {
+  const fresh = Boolean(init?.fresh);
+  const { fresh: _ignored, ...rest } = init ?? {};
+  const method = (rest.method || "GET").toUpperCase();
+  if (method !== "GET") readCache.clear();
+  else if (!fresh) {
+    const hit = adminCached<T>(url);
+    if (hit) return hit;
+  }
   const res = await fetch(url, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+    ...rest,
+    headers: { "Content-Type": "application/json", ...(rest.headers ?? {}) },
   });
   const data = await res.json().catch(() => ({}));
   if (res.status === 401) {
+    readCache.clear();
     window.location.assign("/yonetim/giris");
     throw new Error("Giriş gerekli");
   }
   if (!res.ok) throw new Error((data as { error?: string }).error || "İşlem başarısız");
+  if (method === "GET") readCache.set(url, { at: Date.now(), data });
   return data as T;
+}
+
+export function useAdminQuery<T>(url: string) {
+  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState("");
+
+  useLayoutEffect(() => {
+    let stop = false;
+    const hit = adminCached<T>(url);
+    if (hit) setData(hit);
+    adminSend<T>(url)
+      .then((next) => {
+        if (!stop) {
+          setData(next);
+          setError("");
+        }
+      })
+      .catch((e: Error) => {
+        if (!stop) setError(e.message);
+      });
+    return () => {
+      stop = true;
+    };
+  }, [url]);
+
+  return { data, error };
 }
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
@@ -41,11 +88,20 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     let stop = false;
-    adminSend<{ counts: { bildirildi: number } }>("/api/yonetim/ozet")
-      .then((d) => { if (!stop) setPending(d.counts.bildirildi); })
-      .catch(() => undefined);
-    return () => { stop = true; };
-  }, [pathname]);
+    const pull = () => {
+      adminSend<{ counts: { bildirildi: number } }>("/api/yonetim/ozet", { fresh: true })
+        .then((d) => { if (!stop) setPending(d.counts.bildirildi); })
+        .catch(() => undefined);
+    };
+    pull();
+    const timer = window.setInterval(pull, 45_000);
+    window.addEventListener("focus", pull);
+    return () => {
+      stop = true;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", pull);
+    };
+  }, []);
 
   async function logout() {
     await fetch("/api/yonetim/cikis", { method: "POST" });

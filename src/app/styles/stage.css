@@ -637,6 +637,10 @@ textarea.stg-form__input {
 [data-anim] {
   opacity: 0;
 }
+.stg-root[data-kayit="1"] [data-anim] {
+  animation: none !important;
+  opacity: 1 !important;
+}
 .stg-page.is-in [data-anim],
 .stg-intro.is-in [data-anim] {
   animation: var(--anim-name, stg-fade) var(--anim-dur, 0.8s) cubic-bezier(0.2, 0.7, 0.2, 1) var(--anim-delay, 0ms) both;

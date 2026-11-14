@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import { listOrders, syncPendingShopierPayments } from "@/lib/store";
+import { listOrderCards, nudgeShopierSync } from "@/lib/store";
 import { isOrderStatus } from "@/lib/orderStatus";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const durum = url.searchParams.get("durum") || "";
   const q = (url.searchParams.get("q") || "").trim().toLocaleLowerCase("tr");
-  await syncPendingShopierPayments();
-  let orders = await listOrders();
+  await nudgeShopierSync();
+  let orders = await listOrderCards();
   if (isOrderStatus(durum)) orders = orders.filter((o) => o.status === durum);
   if (q) {
     orders = orders.filter((o) => {

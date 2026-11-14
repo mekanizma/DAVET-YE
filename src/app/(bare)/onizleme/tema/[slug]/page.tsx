@@ -60,7 +60,7 @@ export default async function PreviewPage({
   const mode = sp.mod === "kina-dugun" ? "kina-dugun" : "tek";
   const stage = loadStage(slug, locale);
   if (stage) {
-    return <StageView stage={stage} slug={slug} embed={embed} useDraftData={sp.taslak === "1"} locale={locale} />;
+    return <StageView stage={stage} slug={slug} embed={embed} useDraftData={sp.taslak === "1"} record={sp.kayit === "1"} locale={locale} />;
   }
   return <InvitationExperience theme={theme} embed={embed} mode={mode} useDraftData={sp.taslak === "1"} />;
 }

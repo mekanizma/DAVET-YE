@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import Icon from "@/components/Icon";
-import { adminSend } from "./AdminShell";
+import { adminCached, adminSend } from "./AdminShell";
 
 type PaperOpt = { slug: string; title: string; titleEn: string };
 
@@ -41,15 +41,22 @@ export default function EtsyView() {
   const [busy, setBusy] = useState(false);
   const [created, setCreated] = useState<Item | null>(null);
 
+  const apply = useCallback((d: { items: Item[]; papers: PaperOpt[] }) => {
+    setItems(d.items);
+    setPapers(d.papers);
+    setSlug((prev) => prev || d.papers[0]?.slug || "");
+  }, []);
+
   const load = useCallback(() => {
     adminSend<{ items: Item[]; papers: PaperOpt[] }>("/api/yonetim/etsy")
-      .then((d) => {
-        setItems(d.items);
-        setPapers(d.papers);
-        setSlug((prev) => prev || d.papers[0]?.slug || "");
-      })
+      .then(apply)
       .catch((e: Error) => setError(e.message));
-  }, []);
+  }, [apply]);
+
+  useLayoutEffect(() => {
+    const hit = adminCached<{ items: Item[]; papers: PaperOpt[] }>("/api/yonetim/etsy");
+    if (hit) apply(hit);
+  }, [apply]);
 
   useEffect(() => {
     load();

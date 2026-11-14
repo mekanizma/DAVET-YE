@@ -454,6 +454,7 @@ export default function StageView({
   slug,
   embed = false,
   useDraftData = false,
+  record = false,
   locale: localeProp,
   guestDraft = null,
   albumSlug = "",
@@ -462,6 +463,8 @@ export default function StageView({
   slug: string;
   embed?: boolean;
   useDraftData?: boolean;
+  /** Admin export: show the ready template, one screen at a time, with sample names. */
+  record?: boolean;
   locale?: Locale;
   guestDraft?: InvitationDraft | null;
   albumSlug?: string;
@@ -538,6 +541,7 @@ export default function StageView({
 
   const reduced = usePrefersReduced();
   const [phase, setPhase] = useState<"gate" | "video" | "open">(design.intro?.gate ? "gate" : "open");
+  const [shot, setShot] = useState(0);
   const [musicOn, setMusicOn] = useState(false);
   const [photos, setPhotos] = useState<Shot[]>([]);
   const [photoNote, setPhotoNote] = useState<{ ok: boolean; text: string } | null>(null);
@@ -593,7 +597,7 @@ export default function StageView({
 
   useEffect(() => {
     const root = scrollRef.current;
-    if (!root || phase !== "open") return;
+    if (record || !root || phase !== "open") return;
     const nodes = [...root.querySelectorAll(".stg-page")];
     const io = new IntersectionObserver(
       (entries) => {
@@ -605,7 +609,7 @@ export default function StageView({
     // First page must animate immediately when the invite opens.
     nodes[0]?.classList.add("is-in");
     return () => io.disconnect();
-  }, [phase, pages.length]);
+  }, [phase, pages.length, record]);
 
   // Desktop mouse/trackpad (and free swipe) must not change pages — only nextPage button.
   useEffect(() => {
@@ -830,7 +834,7 @@ export default function StageView({
   }, []);
 
   const openInvite = useCallback(() => {
-    if (phase !== "gate") return;
+    if (record || phase !== "gate") return;
     const video = intro?.video;
     if (reduced || !video) {
       setPhase("open");
@@ -852,7 +856,7 @@ export default function StageView({
       el.muted = true;
       el.play().catch(() => setPhase("open"));
     });
-  }, [phase, intro, reduced]);
+  }, [record, phase, intro, reduced]);
 
   const toggleMusic = () => {
     const a = audioRef.current;
@@ -908,6 +912,34 @@ export default function StageView({
   };
 
   const stageRef = useRef<HTMLDivElement>(null);
+  const gateCount = intro?.gate ? 1 : 0;
+
+  useEffect(() => {
+    if (!record) return;
+    setPhase(shot < gateCount ? "gate" : "open");
+  }, [record, shot, gateCount]);
+
+  useEffect(() => {
+    if (!record || phase !== "open") return;
+    const root = scrollRef.current;
+    const page = root?.querySelectorAll(".stg-page")[shot - gateCount] as HTMLElement | undefined;
+    if (root && page) root.scrollTop = page.offsetTop;
+  }, [record, phase, shot, gateCount]);
+
+  useEffect(() => {
+    if (!record) return;
+    const api = {
+      ready: true as const,
+      count: gateCount + pages.length,
+      gate: gateCount,
+      show: (index: number) => setShot(index),
+      stage: () => stageRef.current,
+    };
+    (window as Window & { __kayit?: typeof api }).__kayit = api;
+    return () => {
+      delete (window as Window & { __kayit?: typeof api }).__kayit;
+    };
+  }, [record, gateCount, pages.length]);
   useLayoutEffect(() => {
     const node = stageRef.current;
     if (!node) return;
@@ -955,7 +987,7 @@ export default function StageView({
   }, [gateImage, bgImage, pages]);
 
   return (
-      <div className="iv stg-root" data-embed={embed ? "1" : undefined} data-slug={slug} style={{ ["--stg-desk" as string]: desk }}>
+      <div className="iv stg-root" data-embed={embed ? "1" : undefined} data-kayit={record ? "1" : undefined} data-slug={slug} style={{ ["--stg-desk" as string]: desk }}>
       <p className={photoNote ? `iv-status iv-status--${photoNote.ok ? "ok" : "err"}` : "sr-only"} role="status" aria-live="polite">{photoNote?.text}</p>
       <style>{fontCss}</style>
       {(stage.fonts || []).map((f) => (
@@ -980,7 +1012,7 @@ export default function StageView({
           {phase === "open" ? (
           <div ref={scrollRef} className="stg-pages">
             {pages.map((page, pageIndex) => (
-              <section key={page.id} className={pageIndex === 0 ? "stg-page is-in" : "stg-page"} id={`sayfa-${page.id}`} aria-label={page.name}>
+              <section key={page.id} className={`stg-page${(record ? pageIndex === shot - gateCount : pageIndex === 0) ? " is-in" : ""}`} id={`sayfa-${page.id}`} aria-label={page.name}>
                 <div className="stg-fit">
                   <div className="stg-art">
                     {(page.elements || []).filter((el) => !el.hidden).map((el) => (
@@ -1003,7 +1035,7 @@ export default function StageView({
                         }}
                         onAction={onAction}
                         locale={locale}
-                        eager={pageIndex === 0}
+                        eager={record || pageIndex === 0}
                       />
                     ))}
                   </div>
@@ -1049,11 +1081,13 @@ export default function StageView({
             </button>
           )}
 
-          <div className="stg-wm" aria-hidden="true">
-            {en ? "PREVIEW · PREVIEW · PREVIEW" : "ÖNİZLEME · ÖNİZLEME · ÖNİZLEME"}
-          </div>
+          {record ? null : (
+            <div className="stg-wm" aria-hidden="true">
+              {en ? "PREVIEW · PREVIEW · PREVIEW" : "ÖNİZLEME · ÖNİZLEME · ÖNİZLEME"}
+            </div>
+          )}
 
-          {stage.music?.src ? (
+          {stage.music?.src && !record ? (
             <>
               <audio ref={audioRef} src={stage.music.src} loop={stage.music.loop !== false} preload="none" />
               <button type="button" className="stg-chrome stg-chrome--right" aria-pressed={musicOn} aria-label={en ? "Turn music on or off" : "Müziği aç/kapat"} onClick={toggleMusic}>

@@ -90,7 +90,10 @@ function check(error: { message: string; code?: string } | null) {
   throw new Error(error.message);
 }
 
+let catalogMemo: { at: number; data: PublicCatalog } | null = null;
+
 function refresh() {
+  catalogMemo = null;
   try {
     revalidatePath("/", "layout");
   } catch {
@@ -182,8 +185,9 @@ async function readCatalog(): Promise<{
 
 export const getPublicCatalog = cache(async (): Promise<PublicCatalog> => {
   noStore();
+  if (catalogMemo && Date.now() - catalogMemo.at < 20_000) return catalogMemo.data;
   const s = await readCatalog();
-  return buildPublicCatalog({
+  const data = buildPublicCatalog({
     settings: s.settings,
     themeOverrides: s.themeOverrides,
     paperOverrides: s.paperOverrides,
@@ -191,6 +195,8 @@ export const getPublicCatalog = cache(async (): Promise<PublicCatalog> => {
     studioPrice: s.studioPrice ?? undefined,
     features: s.features,
   });
+  catalogMemo = { at: Date.now(), data };
+  return data;
 });
 
 export async function listOrders(): Promise<OrderRecord[]> {
@@ -199,6 +205,60 @@ export async function listOrders(): Promise<OrderRecord[]> {
   const { data, error } = await db.from("dv_orders").select("*").order("created_at", { ascending: false }).limit(2000);
   check(error);
   return ((data || []) as DbOrder[]).map(toOrder);
+}
+
+const ORDER_CARD = "code, status, kind, template, title, total, created_at, updated_at, reported_at, decided_at, sender_name, customer_name, customer_email, customer_phone, dekont:snapshot->>__dekont";
+
+function cardOrder(row: DbOrder & { dekont?: string | null }): OrderRecord {
+  const dekont = row.dekont ? String(row.dekont) : "";
+  return toOrder({
+    ...row,
+    lines: [],
+    customer_note: "",
+    admin_note: "",
+    snapshot: dekont ? { __dekont: dekont } : {},
+  });
+}
+
+/** Order list rows without the invitation snapshot or line items. */
+export async function listOrderCards(): Promise<OrderRecord[]> {
+  noStore();
+  const db = await createSupabaseServer();
+  const { data, error } = await db.from("dv_orders").select(ORDER_CARD).order("created_at", { ascending: false }).limit(2000);
+  check(error);
+  return ((data || []) as (DbOrder & { dekont?: string | null })[]).map(cardOrder);
+}
+
+/** Counts and the latest orders for the admin home. Skips the full catalog and full snapshots. */
+export async function deskSummary() {
+  noStore();
+  const db = await createSupabaseServer();
+  const [statRes, recentRes, hiddenRes] = await Promise.all([
+    db.from("dv_orders").select("status, total"),
+    db.from("dv_orders").select(ORDER_CARD).order("created_at", { ascending: false }).limit(8),
+    db.from("dv_theme_overrides").select("slug").eq("hidden", true),
+  ]);
+  check(statRes.error);
+  check(recentRes.error);
+  check(hiddenRes.error);
+  const stats = (statRes.data || []) as { status: string; total: number }[];
+  const sum = (status: string) => stats.filter((o) => o.status === status).length;
+  const known = new Set(themes.map((t) => t.slug));
+  const hiddenThemes = ((hiddenRes.data || []) as { slug: string }[]).filter((row) => known.has(row.slug)).length;
+  return {
+    paymentReady: Boolean(process.env.SHOPIER_PAT?.trim()),
+    counts: {
+      bekliyor: sum("bekliyor"),
+      bildirildi: sum("bildirildi"),
+      onaylandi: sum("onaylandi"),
+      reddedildi: sum("reddedildi"),
+      themes: themes.length,
+      hiddenThemes,
+      newspapers: newspapers.length,
+    },
+    approvedTotal: stats.filter((o) => o.status === "onaylandi").reduce((s, o) => s + (Number(o.total) || 0), 0),
+    recent: ((recentRes.data || []) as (DbOrder & { dekont?: string | null })[]).map(cardOrder),
+  };
 }
 
 export async function findOrder(code: string): Promise<OrderRecord | undefined> {
@@ -486,7 +546,17 @@ export async function confirmShopierPayment(match: {
   return saved;
 }
 
+let shopierSyncAt = 0;
+
+/** Start a payment check, but do not let a slow Shopier response hold the admin page. */
+export function nudgeShopierSync() {
+  const run = syncPendingShopierPayments();
+  return Promise.race([run, new Promise<void>((resolve) => setTimeout(resolve, 400))]);
+}
+
 export async function syncPendingShopierPayments() {
+  if (Date.now() - shopierSyncAt < 45_000) return;
+  shopierSyncAt = Date.now();
   const db = adminDb();
   if (!db) return;
   try {
@@ -536,6 +606,8 @@ export interface ThemeEdit {
 
 export async function saveThemes(items: ThemeEdit[]) {
   const db = await createSupabaseServer();
+  const upserts: { slug: string; price: number | null; compare_at: number | null; featured: boolean | null; hidden: boolean | null; badge: string | null }[] = [];
+  const clears: string[] = [];
   for (const item of items) {
     const theme = themes.find((t) => t.slug === item.slug);
     if (!theme) continue;
@@ -550,7 +622,7 @@ export async function saveThemes(items: ThemeEdit[]) {
     const badge = item.badge === "featured" || item.badge === "new" ? item.badge : "";
     if (badge !== base.badge) next.badge = badge;
     if (Object.keys(next).length) {
-      const { error } = await db.from("dv_theme_overrides").upsert({
+      upserts.push({
         slug: theme.slug,
         price: next.price ?? null,
         compare_at: next.compareAt ?? null,
@@ -558,12 +630,13 @@ export async function saveThemes(items: ThemeEdit[]) {
         hidden: next.hidden ?? null,
         badge: next.badge ?? null,
       });
-      check(error);
-    } else {
-      const { error } = await db.from("dv_theme_overrides").delete().eq("slug", theme.slug);
-      check(error);
-    }
+    } else clears.push(theme.slug);
   }
+  const writes = [];
+  if (upserts.length) writes.push(db.from("dv_theme_overrides").upsert(upserts));
+  if (clears.length) writes.push(db.from("dv_theme_overrides").delete().in("slug", clears));
+  const results = await Promise.all(writes);
+  for (const result of results) check(result.error);
   refresh();
 }
 
@@ -576,6 +649,8 @@ export interface PaperEdit {
 
 export async function savePapers(items: PaperEdit[]) {
   const db = await createSupabaseServer();
+  const upserts: { slug: string; price: number | null; compare_at: number | null; hidden: boolean | null }[] = [];
+  const clears: string[] = [];
   for (const item of items) {
     const paper = newspapers.find((n) => n.slug === item.slug);
     if (!paper) continue;
@@ -586,18 +661,19 @@ export async function savePapers(items: PaperEdit[]) {
     if (compareAt !== paper.compareAt) next.compareAt = compareAt;
     if (Boolean(item.hidden)) next.hidden = true;
     if (Object.keys(next).length) {
-      const { error } = await db.from("dv_paper_overrides").upsert({
+      upserts.push({
         slug: paper.slug,
         price: next.price ?? null,
         compare_at: next.compareAt ?? null,
         hidden: next.hidden ?? null,
       });
-      check(error);
-    } else {
-      const { error } = await db.from("dv_paper_overrides").delete().eq("slug", paper.slug);
-      check(error);
-    }
+    } else clears.push(paper.slug);
   }
+  const writes = [];
+  if (upserts.length) writes.push(db.from("dv_paper_overrides").upsert(upserts));
+  if (clears.length) writes.push(db.from("dv_paper_overrides").delete().in("slug", clears));
+  const results = await Promise.all(writes);
+  for (const result of results) check(result.error);
   refresh();
 }
 
@@ -614,6 +690,8 @@ export interface AddonEdit {
 
 export async function savePricing(input: { addons: AddonEdit[]; studioPrice: number; features: string[] }) {
   const db = await createSupabaseServer();
+  const upserts: { id: string; title: string | null; note: string | null; blurb: string | null; price: number | null; was: number | null; was_set: boolean; active: boolean | null; included: boolean | null }[] = [];
+  const clears: string[] = [];
   for (const item of input.addons) {
     const baseAddon = ADDONS.find((a) => a.id === item.id);
     if (!baseAddon) continue;
@@ -633,8 +711,8 @@ export async function savePricing(input: { addons: AddonEdit[]; studioPrice: num
     if (Boolean(item.active) !== base.active) next.active = Boolean(item.active);
     if (Boolean(item.included) !== base.included) next.included = Boolean(item.included);
     if (Object.keys(next).length) {
-      const { error } = await db.from("dv_addon_overrides").upsert({
-        id: base.id,
+      upserts.push({
+        id: baseAddon.id,
         title: next.title ?? null,
         note: next.note !== undefined ? next.note : null,
         blurb: next.text ?? null,
@@ -644,20 +722,21 @@ export async function savePricing(input: { addons: AddonEdit[]; studioPrice: num
         active: next.active ?? null,
         included: next.included ?? null,
       });
-      check(error);
-    } else {
-      const { error } = await db.from("dv_addon_overrides").delete().eq("id", base.id);
-      check(error);
-    }
+    } else clears.push(baseAddon.id);
   }
   const studio = money(input.studioPrice, STUDIO_PRICE_DEFAULT);
   const features = input.features.map((x) => clean(x, 160)).filter(Boolean).slice(0, 12);
-  const { error } = await db.from("dv_site_config").update({
-    studio_price: studio === STUDIO_PRICE_DEFAULT ? null : studio,
-    features: features.length ? features : null,
-    updated_at: new Date().toISOString(),
-  }).eq("id", 1);
-  check(error);
+  const writes = [
+    db.from("dv_site_config").update({
+      studio_price: studio === STUDIO_PRICE_DEFAULT ? null : studio,
+      features: features.length ? features : null,
+      updated_at: new Date().toISOString(),
+    }).eq("id", 1),
+  ];
+  if (upserts.length) writes.push(db.from("dv_addon_overrides").upsert(upserts));
+  if (clears.length) writes.push(db.from("dv_addon_overrides").delete().in("id", clears));
+  const results = await Promise.all(writes);
+  for (const result of results) check(result.error);
   refresh();
 }
 
