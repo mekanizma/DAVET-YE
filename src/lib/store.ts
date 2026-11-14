@@ -632,11 +632,10 @@ export async function saveThemes(items: ThemeEdit[]) {
       });
     } else clears.push(theme.slug);
   }
-  const writes = [];
-  if (upserts.length) writes.push(db.from("dv_theme_overrides").upsert(upserts));
-  if (clears.length) writes.push(db.from("dv_theme_overrides").delete().in("slug", clears));
-  const results = await Promise.all(writes);
-  for (const result of results) check(result.error);
+  const jobs: PromiseLike<void>[] = [];
+  if (upserts.length) jobs.push(db.from("dv_theme_overrides").upsert(upserts).then(({ error }) => check(error)));
+  if (clears.length) jobs.push(db.from("dv_theme_overrides").delete().in("slug", clears).then(({ error }) => check(error)));
+  await Promise.all(jobs);
   refresh();
 }
 
@@ -669,11 +668,10 @@ export async function savePapers(items: PaperEdit[]) {
       });
     } else clears.push(paper.slug);
   }
-  const writes = [];
-  if (upserts.length) writes.push(db.from("dv_paper_overrides").upsert(upserts));
-  if (clears.length) writes.push(db.from("dv_paper_overrides").delete().in("slug", clears));
-  const results = await Promise.all(writes);
-  for (const result of results) check(result.error);
+  const jobs: PromiseLike<void>[] = [];
+  if (upserts.length) jobs.push(db.from("dv_paper_overrides").upsert(upserts).then(({ error }) => check(error)));
+  if (clears.length) jobs.push(db.from("dv_paper_overrides").delete().in("slug", clears).then(({ error }) => check(error)));
+  await Promise.all(jobs);
   refresh();
 }
 
@@ -726,17 +724,16 @@ export async function savePricing(input: { addons: AddonEdit[]; studioPrice: num
   }
   const studio = money(input.studioPrice, STUDIO_PRICE_DEFAULT);
   const features = input.features.map((x) => clean(x, 160)).filter(Boolean).slice(0, 12);
-  const writes = [
+  const jobs: PromiseLike<void>[] = [
     db.from("dv_site_config").update({
       studio_price: studio === STUDIO_PRICE_DEFAULT ? null : studio,
       features: features.length ? features : null,
       updated_at: new Date().toISOString(),
-    }).eq("id", 1),
+    }).eq("id", 1).then(({ error }) => check(error)),
   ];
-  if (upserts.length) writes.push(db.from("dv_addon_overrides").upsert(upserts));
-  if (clears.length) writes.push(db.from("dv_addon_overrides").delete().in("id", clears));
-  const results = await Promise.all(writes);
-  for (const result of results) check(result.error);
+  if (upserts.length) jobs.push(db.from("dv_addon_overrides").upsert(upserts).then(({ error }) => check(error)));
+  if (clears.length) jobs.push(db.from("dv_addon_overrides").delete().in("id", clears).then(({ error }) => check(error)));
+  await Promise.all(jobs);
   refresh();
 }
 
