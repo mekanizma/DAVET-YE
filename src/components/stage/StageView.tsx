@@ -209,7 +209,7 @@ function giftPalette(elements: StageElement[]) {
   const copy = elements.find((el) => el.action === "copy");
   const texts = elements.filter((el) => el.type === "text" && !el.hidden);
   const title = texts.find((el) => /hediye|gift|iban/i.test(`${el.name || ""} ${el.text || ""}`)) || texts[0];
-  const ink = title?.style?.color || copy?.button?.color || "#e8d3a4";
+  const ink = title?.style?.color || copy?.style?.color || copy?.button?.text?.color || "#e8d3a4";
   const accent = copy?.fill || copy?.button?.fill || title?.style?.color || "#8a6d4b";
   /* Prefer plan title ink; if it is a washed mid-tone, fall back to accent so labels stay readable. */
   const inkLum = giftHexLum(ink);
@@ -673,8 +673,10 @@ export default function StageView({
   useEffect(() => {
     const root = scrollRef.current;
     if (!root || phase !== "open") return;
-    const wishList = (target: EventTarget | null) =>
-      target instanceof Element ? target.closest<HTMLElement>(".stg-messages__list, .stg-gift__sheet") : null;
+    const wishList = (target: EventTarget | null) => {
+      const node = target instanceof Element ? target : null;
+      return node?.closest<HTMLElement>(".stg-messages__list, .stg-gift__sheet") || null;
+    };
     const stopWheel = (e: WheelEvent) => {
       const list = wishList(e.target);
       if (list && list.scrollHeight > list.clientHeight + 2) {
