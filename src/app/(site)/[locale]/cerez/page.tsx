@@ -26,11 +26,11 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   if (!isLocale(locale)) notFound();
   if (locale === "en") {
     return (
-      <ContentPage eyebrow="Legal" title="Cookie policy" draft>
+      <ContentPage eyebrow="Legal" title="Cookie policy">
         <h2>Essential storage</h2>
         <p>Browser storage is used to keep your session, your drafts, and your preferences.</p>
         <h2>Optional</h2>
-        <p>This local copy does not use cookies for analytics or advertising.</p>
+        <p>Analytics or advertising cookies are not used unless you later choose to allow them.</p>
         <h2>Your choice</h2>
         <p>You can change your cookie-notice preference again below.</p>
         <ConsentButton />
@@ -38,11 +38,11 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     );
   }
   return (
-    <ContentPage eyebrow="Yasal" title="Çerez politikası" draft>
+    <ContentPage eyebrow="Yasal" title="Çerez politikası">
       <h2>Zorunlu depolama</h2>
       <p>Oturumunuzu, taslaklarınızı ve tercihlerinizi tutmak için tarayıcı depolaması kullanılır.</p>
       <h2>İsteğe bağlı</h2>
-      <p>Bu yerel kopyada analiz ya da reklam amaçlı çerez kullanılmaz.</p>
+      <p>Analiz veya reklam amaçlı çerezler, siz açıkça izin vermedikçe kullanılmaz.</p>
       <h2>Tercihiniz</h2>
       <p>Çerez bildirimi tercihinizi aşağıdan yeniden değiştirebilirsiniz.</p>
       <ConsentButton />

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Icon from "./Icon";
 import Logo from "./Logo";
 import ConsentButton from "./ConsentButton";
+import PaymentTrust from "./PaymentTrust";
 import { SITE } from "@/data/site";
 import { marketing } from "@/i18n/marketing";
 import { useLocale } from "@/i18n/provider";
@@ -14,6 +15,8 @@ export default function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="wrap wrap--lg">
+        <PaymentTrust />
+
         <div className="site-footer__grid">
           <div className="site-footer__brand">
             <Logo width={140} />

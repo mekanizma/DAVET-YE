@@ -10,14 +10,10 @@
     "featured": false,
     "order": 0,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
       "çocukluk aşkı",
-      "düğün davetiyesi",
       "kapı açılışı",
       "zümrüt",
       "zümrüt yeşili"
@@ -44,14 +40,11 @@
     "featured": true,
     "order": 1,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
       "akdeniz",
       "akdeniz masalı",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "perde açılışı"
     ],
     "eyebrow": "Zarif Tül Perde Açılışı ve Akdeniz Manzarası Eşliğinde Dijital Davetiye",
@@ -75,12 +68,9 @@
     "featured": false,
     "order": 2,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "gün batımı",
       "zarf açılışı"
     ],
@@ -105,12 +95,9 @@
     "featured": false,
     "order": 3,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "kış masalı",
       "zarf açılışı"
     ],
@@ -135,13 +122,10 @@
     "featured": false,
     "order": 4,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
       "al gülüm",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "gül",
       "zarf açılışı"
     ],
@@ -166,13 +150,10 @@
     "featured": false,
     "order": 5,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
       "altın mühür",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "inci",
       "siyah inci"
     ],
@@ -197,14 +178,11 @@
     "featured": false,
     "order": 6,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
       "bahar",
       "bahar yolu",
-      "düğün davetiyesi",
       "zarf açılışı"
     ],
     "eyebrow": "Doğanın Uyanışı ve Çiçek Açan Yeni Bir Başlangıç Eşliğinde Dijital Davetiye",
@@ -229,12 +207,9 @@
     "featured": true,
     "order": 7,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "güz masalı",
       "zarf açılışı"
     ],
@@ -258,12 +233,9 @@
     "featured": false,
     "order": 8,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "yeşil düş",
       "zarf açılışı"
     ],
@@ -289,13 +261,10 @@
     "featured": true,
     "order": 9,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
       "barok",
-      "düğün davetiyesi",
       "kapı açılışı"
     ],
     "eyebrow": "Kabartmalı Barok Kapı Açılışı ve Altın Detaylar Eşliğinde Dijital Davetiye",
@@ -319,12 +288,9 @@
     "featured": false,
     "order": 10,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "fildişi",
       "kapı açılışı",
       "kemer"
@@ -350,13 +316,10 @@
     "featured": false,
     "order": 11,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
       "bahar",
-      "düğün davetiyesi",
       "kapı açılışı"
     ],
     "eyebrow": "Kapı Açılışı Eşliğinde Dijital Davetiye",
@@ -380,12 +343,9 @@
     "featured": false,
     "order": 12,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "gül",
       "kapı açılışı"
     ],
@@ -410,13 +370,9 @@
     "featured": false,
     "order": 13,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "kapı açılışı",
       "saray",
       "yaldız"
@@ -442,12 +398,9 @@
     "featured": false,
     "order": 14,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "rokoko",
       "zarf açılışı"
     ],
@@ -472,12 +425,9 @@
     "featured": false,
     "order": 15,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "fildişi",
       "rokoko",
       "zarf açılışı"
@@ -503,13 +453,10 @@
     "featured": false,
     "order": 16,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
       "ceviz",
-      "düğün davetiyesi",
       "kapı açılışı",
       "oyma kapı"
     ],
@@ -534,13 +481,10 @@
     "featured": false,
     "order": 17,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
       "begonvil",
-      "düğün davetiyesi",
       "zarf açılışı"
     ],
     "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
@@ -564,13 +508,9 @@
     "featured": false,
     "order": 18,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "nil",
       "zarf açılışı"
     ],
@@ -595,12 +535,9 @@
     "featured": false,
     "order": 19,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "sakura",
       "zarf açılışı"
     ],
@@ -625,14 +562,10 @@
     "featured": false,
     "order": 20,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
       "avlu",
-      "düğün davetiyesi",
       "elhamra",
       "kapı açılışı"
     ],
@@ -657,13 +590,9 @@
     "featured": false,
     "order": 21,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "kapı açılışı",
       "kemer"
     ],
@@ -688,12 +617,9 @@
     "featured": false,
     "order": 22,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "kapı açılışı",
       "kemer",
       "lavanta"
@@ -719,13 +645,9 @@
     "featured": false,
     "order": 23,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "kapı açılışı",
       "lale",
       "teras"
@@ -752,14 +674,10 @@
     "featured": true,
     "order": 24,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
       "çini",
-      "düğün davetiyesi",
       "kapı açılışı"
     ],
     "eyebrow": "Tavus Kuşu Motifli Çini Kapı Açılışı Eşliğinde Dijital Davetiye",
@@ -783,13 +701,9 @@
     "featured": false,
     "order": 25,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "ege",
       "kapı açılışı",
       "sütun"
@@ -815,12 +729,9 @@
     "featured": false,
     "order": 26,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "kapı açılışı",
       "sakura"
     ],
@@ -845,13 +756,10 @@
     "featured": false,
     "order": 27,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
       "altın mühür",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "fildişi",
       "madalyon"
     ],
@@ -876,14 +784,10 @@
     "featured": false,
     "order": 28,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
       "altın",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "yelpaze",
       "zarf açılışı"
     ],
@@ -908,12 +812,9 @@
     "featured": false,
     "order": 29,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "perde açılışı",
       "şakayık"
     ],
@@ -938,12 +839,9 @@
     "featured": false,
     "order": 30,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "yıldız",
       "zarf açılışı"
     ],
@@ -968,12 +866,9 @@
     "featured": false,
     "order": 31,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "goblen",
       "göl",
       "zarf açılışı"
@@ -999,13 +894,9 @@
     "featured": false,
     "order": 32,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "kaftan",
       "perde",
       "perde açılışı"
@@ -1031,12 +922,9 @@
     "featured": false,
     "order": 33,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "pembe",
       "rokoko",
       "zarf açılışı"
@@ -1062,12 +950,9 @@
     "featured": false,
     "order": 34,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "inci",
       "zarf açılışı"
     ],
@@ -1092,12 +977,9 @@
     "featured": false,
     "order": 35,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "mor salkım",
       "zarf açılışı"
     ],
@@ -1122,12 +1004,9 @@
     "featured": false,
     "order": 36,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "gül",
       "tek gül",
       "zarf açılışı"
@@ -1153,13 +1032,10 @@
     "featured": false,
     "order": 37,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
       "dantel",
-      "düğün davetiyesi",
       "gül",
       "gül dantel",
       "perde açılışı"
@@ -1186,12 +1062,9 @@
     "featured": true,
     "order": 38,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "gece",
       "perde açılışı"
     ],
@@ -1216,12 +1089,9 @@
     "featured": false,
     "order": 39,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "sakura",
       "zarf açılışı"
     ],
@@ -1246,12 +1116,9 @@
     "featured": false,
     "order": 40,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "zarf açılışı"
     ],
     "eyebrow": "Zarf Açılışı Eşliğinde Dijital Davetiye",
@@ -1275,13 +1142,9 @@
     "featured": false,
     "order": 41,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "lale",
       "saray",
       "zarf açılışı"
@@ -1307,13 +1170,10 @@
     "featured": false,
     "order": 42,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
       "altın mühür",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "madalyon"
     ],
     "eyebrow": "Mühürlü Açılış Eşliğinde Dijital Davetiye",
@@ -1337,12 +1197,9 @@
     "featured": false,
     "order": 43,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "inci",
       "zambak",
       "zarf açılışı"
@@ -1369,14 +1226,11 @@
     "featured": true,
     "order": 44,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
       "altın mühür",
-      "animasyonlu davetiye",
       "bordo",
-      "düğün davetiyesi",
       "mühür"
     ],
     "eyebrow": "Bordo Mühür Açılışı ve Couture Detaylar Eşliğinde Dijital Davetiye",
@@ -1400,14 +1254,10 @@
     "featured": false,
     "order": 45,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
       "altın",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "hilal",
       "zarf açılışı"
     ],
@@ -1432,13 +1282,10 @@
     "featured": false,
     "order": 46,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
       "altın mühür",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "gül",
       "gül kurusu",
       "mühür"
@@ -1464,13 +1311,10 @@
     "featured": false,
     "order": 47,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
       "altın mühür",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "fildişi",
       "mühür"
     ],
@@ -1495,13 +1339,9 @@
     "featured": false,
     "order": 48,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "lale",
       "zarf açılışı"
     ],
@@ -1526,13 +1366,10 @@
     "featured": false,
     "order": 49,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
       "altın mühür",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "lacivert",
       "madalyon"
     ],
@@ -1557,12 +1394,9 @@
     "featured": false,
     "order": 50,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "hikâye",
       "lacivert",
       "zarf açılışı"
@@ -1588,12 +1422,9 @@
     "featured": false,
     "order": 51,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "kabartma",
       "pudra",
       "zarf açılışı"
@@ -1619,12 +1450,9 @@
     "featured": false,
     "order": 52,
     "eventTypes": [
-      "nisan-dugun",
       "coklu"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "gül",
       "inci",
       "zarf açılışı"
@@ -1650,13 +1478,9 @@
     "featured": false,
     "order": 53,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "lale",
       "zarf açılışı"
     ],
@@ -1681,14 +1505,10 @@
     "featured": false,
     "order": 54,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu",
       "kina"
     ],
     "tags": [
       "altın mühür",
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "mühür",
       "zümrüt"
     ],
@@ -1713,12 +1533,9 @@
     "featured": false,
     "order": 55,
     "eventTypes": [
-      "nisan-dugun",
-      "coklu"
+      "nisan-dugun"
     ],
     "tags": [
-      "animasyonlu davetiye",
-      "düğün davetiyesi",
       "şampanya",
       "zarf açılışı"
     ],

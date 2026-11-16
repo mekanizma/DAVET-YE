@@ -181,6 +181,14 @@ export default function ThemeCatalog({
       <div className="catalog__meta">
         <p className="catalog__count" role="status" aria-live="polite">
           {countLabel}
+          {filtered ? (
+            <>
+              {" · "}
+              <button type="button" className="catalog__clear" onClick={reset}>
+                {text.clear}
+              </button>
+            </>
+          ) : null}
         </p>
         <div className="catalog__tools">
           <div className="seg" role="group" aria-label={text.columns}>

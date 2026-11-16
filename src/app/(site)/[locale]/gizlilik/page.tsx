@@ -27,13 +27,13 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   if (!isLocale(locale)) notFound();
   if (locale === "en") {
     return (
-      <ContentPage eyebrow="Legal" title="Privacy policy" draft>
+      <ContentPage eyebrow="Legal" title="Privacy policy">
         <h2>What we collect</h2>
         <p>Your account details, the invitation content, RSVPs sent by guests, wishes, and uploaded photographs.</p>
-        <h2>In this local copy</h2>
+        <h2>How we store data</h2>
         <p>
-          In this local development copy, no data is sent to a server. Drafts, sign-in details, and replies are kept
-          only in your browser’s local storage. You can delete them by clearing your browser data.
+          Account and order data are kept on secure servers so you can manage your invitation and payments.
+          Drafts may also stay in your browser until you finish or clear them.
         </p>
         <h2>Sharing</h2>
         <p>Personal information is not sold to third parties. It is shared only as far as necessary with required providers, such as a payment provider.</p>
@@ -43,13 +43,13 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     );
   }
   return (
-    <ContentPage eyebrow="Yasal" title="Gizlilik politikası" draft>
+    <ContentPage eyebrow="Yasal" title="Gizlilik politikası">
       <h2>Topladığımız bilgiler</h2>
       <p>Hesap bilgileriniz, davetiye içeriği, misafirlerin ilettiği katılım yanıtları, dilekler ve yüklenen fotoğraflar.</p>
-      <h2>Bu yerel kopyada</h2>
+      <h2>Verilerin saklanması</h2>
       <p>
-        Bu yerel geliştirme kopyasında hiçbir veri sunucuya gönderilmez; taslaklar, giriş bilgileri ve yanıtlar
-        yalnızca tarayıcınızın yerel depolamasında tutulur. Tarayıcı verilerini temizleyerek silebilirsiniz.
+        Hesap ve sipariş bilgileri, davetiyenizi ve ödemelerinizi yönetebilmeniz için güvenli sunucularda tutulur.
+        Taslaklar tamamlanana veya temizlenene kadar tarayıcınızda da kalabilir.
       </p>
       <h2>Paylaşım</h2>
       <p>Kişisel bilgiler üçüncü taraflara satılmaz. Ödeme sağlayıcısı gibi zorunlu hizmet sağlayıcılarla yalnızca gerekli ölçüde paylaşılır.</p>

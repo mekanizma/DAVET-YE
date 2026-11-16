@@ -271,6 +271,47 @@ export async function shareForOrder(orderCode: string): Promise<SharePublic | nu
   }
 }
 
+/** Full share row for the owner editor. Slug stays the same on republish. */
+export async function shareDesignForOrder(orderCode: string): Promise<{
+  share: SharePublic;
+  design: Record<string, unknown>;
+  kind: ShareKind;
+  template: string;
+  locale: "tr" | "en";
+} | null> {
+  const code = orderCode.trim().toUpperCase();
+  if (!code) return null;
+  try {
+    const db = admin();
+    let row: ShareRow | undefined;
+    if (db) {
+      const { data } = await db.from("dv_share_links").select("*").eq("order_code", code).maybeSingle();
+      row = data ? fromDb(data as Record<string, unknown>) : undefined;
+    } else {
+      row = (await readLocal()).find((item) => item.orderCode === code);
+    }
+    if (!row?.slug) return null;
+    return {
+      share: toPublic(row),
+      design: row.payload || {},
+      kind: row.kind,
+      template: row.template,
+      locale: row.locale,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Update live/reserved design without changing the public slug or expiry clock. */
+export async function updateShareDesign(input: {
+  order: OrderRecord;
+  design?: unknown;
+  locale?: "tr" | "en";
+}): Promise<SharePublic | null> {
+  return reserveShare(input);
+}
+
 export async function sharePage(slug: string): Promise<
   | { state: "live"; row: ShareRow }
   | { state: "pending"; locale: "tr" | "en" }

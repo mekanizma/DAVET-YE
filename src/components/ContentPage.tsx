@@ -1,21 +1,16 @@
 import type { ReactNode } from "react";
-import { getLocale } from "@/i18n/server";
 
 export default async function ContentPage({
   eyebrow,
   title,
   lead,
-  draft,
   children,
 }: {
   eyebrow?: string;
   title: string;
   lead?: string;
-  /** Mark legal texts as local placeholders */
-  draft?: boolean;
   children: ReactNode;
 }) {
-  const locale = await getLocale();
   return (
     <section className="section section--tight">
       <div className="wrap wrap--sm">
@@ -24,13 +19,6 @@ export default async function ContentPage({
           <h1>{title}</h1>
           {lead && <p>{lead}</p>}
         </header>
-        {draft && (
-          <p className="alert alert--info" role="note">
-            {locale === "en"
-              ? "This page is sample text prepared for this local copy. It is not a real company's legal text and it is not binding."
-              : "Bu sayfa bu yerel kopya için hazırlanmış örnek bir metindir; gerçek bir şirketin hukuki metni değildir ve bağlayıcılığı yoktur."}
-          </p>
-        )}
         <div className="prose">{children}</div>
       </div>
     </section>

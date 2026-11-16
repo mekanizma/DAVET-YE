@@ -51,8 +51,8 @@ function titles(locale: Locale): Record<WizardStepId, { h: string; sub: string }
       sub: en ? "Review the details. Anything still missing must be completed before payment." : "Bilgileri gözden geçirin. Eksik kalanlar ödemeden önce tamamlanmalı.",
     },
     odeme: {
-      h: en ? "Pay by transfer" : "Havale / EFT ile ödeme",
-      sub: en ? "Pay into the IBAN below, then send the receipt. Card details are never asked for." : "Aşağıdaki IBAN’a havale edin, sonra dekontu gönderin. Kart bilgisi istenmez.",
+      h: en ? "Pay with Shopier" : "Shopier ile ödeme",
+      sub: en ? "A product is opened for the order amount. It is deleted once the payment is verified." : "Sipariş tutarı kadar ürün açılır. Ödeme doğrulanınca ürün silinir.",
     },
   };
 }
@@ -69,13 +69,12 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
   const steps = wizardSteps(locale);
   const base = lp(locale, "/davetiye-olustur");
   const copy = marketing(locale);
-  const baseHeading = titles(locale)[step];
-  const heading = step === "odeme" && cat.cardPayments
+  const heading = step === "odeme" && draft.order?.status === "onaylandi"
     ? {
-        h: tx(locale, "Shopier ile ödeme", "Pay with Shopier"),
-        sub: tx(locale, "Sipariş tutarı kadar ürün açılır. Ödeme doğrulanınca ürün silinir.", "A product is opened for the order amount. It is deleted once the payment is verified."),
+        h: tx(locale, "Yeniden yayınla", "Republish"),
+        sub: tx(locale, "Düzenlemeyi kaydedince aynı davet linki güncellenir.", "Saving your edits updates the same invitation link."),
       }
-    : baseHeading;
+    : titles(locale)[step];
 
   const idx = steps.findIndex((s) => s.id === step);
   const prev = steps[idx - 1];
@@ -85,16 +84,40 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
 
   useEffect(() => {
     if (!ready || seeded) return;
-    const t = sablon ? getTheme(sablon) : undefined;
-    if (t && draft.template !== t.slug) {
-      saveDraft({
-        template: t.slug,
-        event: draft.event && t.eventTypes.includes(draft.event) ? draft.event : t.eventTypes[0] ?? "nisan-dugun",
-        order: null,
-      });
+    let cancelled = false;
+    const code = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("siparis") : null;
+    async function boot() {
+      if (code) {
+        try {
+          const res = await fetch(`/api/hesap/yayin?code=${encodeURIComponent(code)}`);
+          const data = await res.json();
+          if (!cancelled && res.ok && data.order && data.design) {
+            const { invitationDraftFromShare } = await import("@/lib/shareHydrate");
+            saveDraft(invitationDraftFromShare(data.design, data.order));
+            setSeeded(true);
+            return;
+          }
+        } catch {
+          /* fall through to normal seed */
+        }
+      }
+      if (cancelled) return;
+      const t = sablon ? getTheme(sablon) : undefined;
+      if (t && draft.template !== t.slug) {
+        saveDraft({
+          template: t.slug,
+          event: draft.event && t.eventTypes.includes(draft.event) ? draft.event : t.eventTypes[0] ?? "nisan-dugun",
+          order: null,
+        });
+      }
+      setSeeded(true);
     }
-    setSeeded(true);
-  }, [ready, seeded, sablon, draft.template, draft.event]);
+    boot();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, seeded, sablon]);
 
   const blocker = ready && seeded ? firstIncompleteBefore(step, draft, steps, locale) : null;
   const payBlock = step === "odeme" && !blocker ? (gapCount ? "bilgiler" : !draft.termsAccepted ? "kontrol" : null) : null;

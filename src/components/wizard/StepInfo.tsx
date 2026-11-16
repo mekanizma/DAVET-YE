@@ -126,8 +126,26 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
         onOpen={() => setOpen(open === "isimler" ? "" : "isimler")}
         onToggle={() => {}}
       >
-        <Field id="alan-partnerA" label={tx(locale, "Gelinin adı", "Bride’s name")} required error={errors.partnerA} max={24} value={i.partnerA} onChange={set("partnerA")} placeholder="Ayşe" />
-        <Field id="alan-partnerB" label={tx(locale, "Damadın adı", "Groom’s name")} required error={errors.partnerB} max={24} value={i.partnerB} onChange={set("partnerB")} placeholder="Mehmet" />
+        <Field
+          id="alan-partnerA"
+          label={tx(locale, "Gelinin adı", "Bride’s name")}
+          required
+          error={errors.partnerA}
+          max={24}
+          value={i.partnerA}
+          onChange={set("partnerA")}
+          placeholder="Ayşe"
+        />
+        <Field
+          id="alan-partnerB"
+          label={tx(locale, "Damadın adı", "Groom’s name")}
+          required
+          error={errors.partnerB}
+          max={24}
+          value={i.partnerB}
+          onChange={set("partnerB")}
+          placeholder="Mehmet"
+        />
         <NameFontPicker
           locale={locale}
           value={i.nameFont || "default"}

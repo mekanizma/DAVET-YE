@@ -175,11 +175,17 @@ for (const [i, p] of parsed.entries()) {
     if (ft.split(" ").every((w) => words.includes(w)) && ft.length > 2) tagSet.add(t);
   }
   if (optionTags.includes(OPENING_TAG[opening])) tagSet.add(OPENING_TAG[opening]);
-  if (optionTags.includes("animasyonlu davetiye")) tagSet.add("animasyonlu davetiye");
-  if (optionTags.includes("düğün davetiyesi")) tagSet.add("düğün davetiyesi");
 
-  const eventTypes = ["nisan-dugun", "coklu"];
-  if (KINA_HINTS.test(p.slug)) eventTypes.push("kina");
+  const COKLU = new Set([
+    "guz-masali", "akdeniz-masali", "barok-kapi", "opera-gecesi", "bordo-muhur",
+    "gol-kiyisi-goblen", "inci-ve-gul", "fildisi-rokoko", "mavi-bahar-kapisi",
+    "bahar-yolu", "sakura-bahcesi", "yildiz-tozu", "gul-bahcesi-kapisi", "inci-saten", "lavanta-kemeri",
+  ]);
+  const eventTypes = KINA_HINTS.test(p.slug)
+    ? ["kina"]
+    : COKLU.has(p.slug)
+      ? ["coklu"]
+      : ["nisan-dugun"];
 
   const coverPath = coverFor(p.slug);
   const colors = await colorsFor(path.join(ROOT, "public", coverPath), p.slug);
@@ -205,6 +211,17 @@ for (const [i, p] of parsed.entries()) {
     colors,
   };
   themes.push(t);
+}
+
+const EXTRA_PATH = path.join(ROOT, "src/data/themes.extra.json");
+if (fs.existsSync(EXTRA_PATH)) {
+  const extra = JSON.parse(fs.readFileSync(EXTRA_PATH, "utf8"));
+  if (Array.isArray(extra)) {
+    for (const row of extra) {
+      if (!row?.slug || themes.some((t) => t.slug === row.slug)) continue;
+      themes.push(row);
+    }
+  }
 }
 
 fs.writeFileSync(path.join(ROOT, "src/data/themes.json"), JSON.stringify(themes, null, 2) + "\n");

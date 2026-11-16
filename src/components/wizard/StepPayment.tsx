@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Icon from "../Icon";
 import IbanCheckout, { type PlacedOrder } from "../checkout/IbanCheckout";
+import RepublishPanel from "@/components/share/RepublishPanel";
 import { useCatalog } from "@/components/CatalogProvider";
 import { EVENT_LABELS } from "@/data/themes";
 import { useLocale } from "@/i18n/provider";
@@ -53,6 +54,17 @@ export default function StepPayment({ draft, title }: { draft: InvitationDraft; 
           <Link href="/panel" className="btn btn--outline btn--lg">{en ? "Go to my account" : "Panelime git"}</Link>
         </div>
       </div>
+    );
+  }
+
+  if (draft.order?.status === "onaylandi" && draft.order.code) {
+    return (
+      <RepublishPanel
+        locale={locale}
+        code={draft.order.code}
+        design={invitationShareDesign(draft)}
+        names={title}
+      />
     );
   }
 

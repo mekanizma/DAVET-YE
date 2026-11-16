@@ -1,0 +1,59 @@
+{
+  "design": {
+    "schemaVersion": 1,
+    "canvas": { "width": 390, "height": 844 },
+    "flow": "snap",
+    "background": { "color": "#1a120c" },
+    "intro": { "mode": "none", "skippable": true },
+    "chrome": { "color": "#fff", "background": "#00000059" },
+    "fonts": [],
+    "colors": { "accent": "#df8d5b", "ink": "#462100" },
+    "fields": [
+      { "id": "f_first", "type": "text", "label": "Mother / host" },
+      { "id": "f_second", "type": "text", "label": "Father / co-host" },
+      { "id": "f_mainDate", "type": "dateTime", "label": "Date and time" },
+      { "id": "f_intro", "type": "longText", "label": "Welcome line" },
+      { "id": "f_storyText", "type": "longText", "label": "Ceremony title" },
+      { "id": "f_venueName", "type": "text", "label": "Venue" },
+      { "id": "f_address", "type": "longText", "label": "Address" },
+      { "id": "f_closing", "type": "longText", "label": "RSVP / contact" },
+      { "id": "f_storyPhoto", "type": "image", "label": "Baby photo" }
+    ],
+    "pages": [
+      {
+        "id": "p_names",
+        "name": "Naming Ceremony",
+        "kind": "names",
+        "elements": []
+      }
+    ]
+  },
+  "values": {
+    "f_first": "Elif",
+    "f_second": "Can",
+    "f_mainDate": "2026-07-26T14:00:00+03:00",
+    "f_intro": "— Welcome To —",
+    "f_storyText": "Naming Ceremony",
+    "f_venueName": "Garden Terrace",
+    "f_address": "Anywhere Street, Any City",
+    "f_closing": "RSVP to mommy at: 123 456 7890"
+  },
+  "places": {},
+  "lists": {},
+  "music": null,
+  "locale": "en",
+  "locales": ["en"],
+  "ceremonies": [],
+  "flags": {
+    "layout": "namingCeremony",
+    "mode": "preview",
+    "showSamples": true,
+    "watermark": true,
+    "skipIntro": true
+  },
+  "photos": ["/img/davetiye/altin-isim-merasimi/ornek-foto.webp"],
+  "guestPhotos": [],
+  "messages": [],
+  "fonts": [],
+  "title": "Naming Ceremony"
+}

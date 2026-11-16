@@ -27,7 +27,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   if (!isLocale(locale)) notFound();
   if (locale === "en") {
     return (
-      <ContentPage eyebrow="Legal" title="Terms of use" draft>
+      <ContentPage eyebrow="Legal" title="Terms of use">
         <h2>1. The service</h2>
         <p>The service lets you create, publish, and share a digital invitation and a newspaper from ready-made designs.</p>
         <h2>2. Account and content</h2>
@@ -42,7 +42,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     );
   }
   return (
-    <ContentPage eyebrow="Yasal" title="Kullanım koşulları" draft>
+    <ContentPage eyebrow="Yasal" title="Kullanım koşulları">
       <h2>1. Hizmet</h2>
       <p>Hizmet; hazır tasarımlarla dijital davetiye ve gazete oluşturma, yayınlama ve paylaşma imkânı sunar.</p>
       <h2>2. Hesap ve içerik</h2>

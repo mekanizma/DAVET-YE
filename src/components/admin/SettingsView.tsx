@@ -42,7 +42,7 @@ export default function SettingsView() {
     try {
       await adminSend("/api/yonetim/ayarlar", { method: "PUT", body: JSON.stringify(form) });
       setReady(true);
-      setInfo("Havale hesabı kaydedildi. Yeni siparişler bu IBAN’ı görür.");
+      setInfo("Havale hesabı kaydedildi. Ödeme ekranında şu an gösterilmez.");
       setForm((f) => ({ ...f, iban: f.iban.replace(/\s+/g, "").toUpperCase() }));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Kaydedilemedi");
@@ -58,7 +58,7 @@ export default function SettingsView() {
       <header className="adm-h">
         <div>
           <h1>Ödeme hesabı</h1>
-          <p>Kart ödemesi Shopier üzerinden alınır. Bu IBAN, havale veya EFT ile ödemek isteyen müşteri içindir.</p>
+          <p>Müşteri ödemesi Shopier ile alınır. Havale hesabı şu an ödeme ekranında gösterilmez.</p>
         </div>
       </header>
 

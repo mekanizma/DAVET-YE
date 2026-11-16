@@ -62,21 +62,7 @@ export default function DashboardView() {
 
       <section className="adm-card">
         <h2>Ödeme</h2>
-        {!data.paymentReady ? (
-          <div className="alert alert--warn" role="status">
-            <span>
-              Havale hesabı eksik. Müşteri sipariş oluşturabilir ama nereye yatıracağını göremez.{" "}
-              <Link href="/yonetim/odeme">Ödeme hesabını tanımlayın</Link>.
-            </span>
-          </div>
-        ) : (
-          <p>
-            {data.accountHolder}
-            <br />
-            <span className="num">{data.iban}</span>
-          </p>
-        )}
-        <p className="muted">{data.cardPayments ? "Shopier kart ödemesi açık. Ödeme doğrulanınca ürün silinir." : "Shopier kart ödemesi kapalı. SHOPIER_PAT tanımlı değil."}</p>
+        <p className="muted">{data.cardPayments ? "Shopier kart ödemesi açık. Ödeme doğrulanınca ürün silinir. Havale seçeneği müşteriye kapalı." : "Shopier kart ödemesi kapalı. SHOPIER_PAT tanımlı değil."}</p>
         <div className="adm-actions">
           <Link href="/yonetim/odeme" className="btn btn--outline btn--sm">IBAN ayarı</Link>
           <Link href="/yonetim/siparisler?durum=bekliyor" className="btn btn--outline btn--sm">Ödeme bekleyenler</Link>

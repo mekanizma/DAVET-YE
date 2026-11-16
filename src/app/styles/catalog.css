@@ -177,6 +177,24 @@
   font-size: 0.8125rem;
   color: var(--ink-soft);
 }
+.catalog__count {
+  margin: 0;
+}
+.catalog__clear {
+  border: 0;
+  background: none;
+  padding: 0;
+  min-height: 44px;
+  color: var(--gold-text);
+  font: inherit;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.catalog__clear:hover {
+  color: var(--ink);
+}
 .catalog__tools {
   display: flex;
   flex-wrap: wrap;

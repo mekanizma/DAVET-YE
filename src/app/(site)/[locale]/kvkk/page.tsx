@@ -31,7 +31,6 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         eyebrow="Legal"
         title="Personal data notice"
         lead="This is the notice under Turkish Law No. 6698 on the Protection of Personal Data (KVKK)."
-        draft
       >
         <h2>Data controller</h2>
         <p>The data controller’s details, under Turkish Law No. 6698 on the Protection of Personal Data (KVKK), appear here on the live site.</p>
@@ -49,7 +48,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     );
   }
   return (
-    <ContentPage eyebrow="Yasal" title="KVKK aydınlatma metni" draft>
+    <ContentPage eyebrow="Yasal" title="KVKK aydınlatma metni">
       <h2>Veri sorumlusu</h2>
       <p>6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu bilgileri gerçek yayında burada yer alır.</p>
       <h2>İşleme amacı</h2>

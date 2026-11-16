@@ -1,0 +1,59 @@
+{
+  "design": {
+    "schemaVersion": 1,
+    "canvas": { "width": 390, "height": 844 },
+    "flow": "snap",
+    "background": { "color": "#1a120c" },
+    "intro": { "mode": "none", "skippable": true },
+    "chrome": { "color": "#fff", "background": "#00000059" },
+    "fonts": [],
+    "colors": { "accent": "#df8d5b", "ink": "#462100" },
+    "fields": [
+      { "id": "f_first", "type": "text", "label": "Anne / ev sahibi" },
+      { "id": "f_second", "type": "text", "label": "Baba / eş sahibi" },
+      { "id": "f_mainDate", "type": "dateTime", "label": "Tarih ve saat" },
+      { "id": "f_intro", "type": "longText", "label": "Karşılama metni" },
+      { "id": "f_storyText", "type": "longText", "label": "Merasim başlığı" },
+      { "id": "f_venueName", "type": "text", "label": "Mekân" },
+      { "id": "f_address", "type": "longText", "label": "Adres" },
+      { "id": "f_closing", "type": "longText", "label": "RSVP / iletişim" },
+      { "id": "f_storyPhoto", "type": "image", "label": "Bebek fotoğrafı" }
+    ],
+    "pages": [
+      {
+        "id": "p_names",
+        "name": "İsim Merasimi",
+        "kind": "names",
+        "elements": []
+      }
+    ]
+  },
+  "values": {
+    "f_first": "Elif",
+    "f_second": "Can",
+    "f_mainDate": "2026-07-26T14:00:00+03:00",
+    "f_intro": "— Hoş Geldiniz —",
+    "f_storyText": "İsim Alma Merasimi",
+    "f_venueName": "Garden Terrace",
+    "f_address": "Örnek Sokak No:12, İstanbul",
+    "f_closing": "Katılım için: 0532 000 00 00"
+  },
+  "places": {},
+  "lists": {},
+  "music": null,
+  "locale": "tr",
+  "locales": ["tr"],
+  "ceremonies": [],
+  "flags": {
+    "layout": "namingCeremony",
+    "mode": "preview",
+    "showSamples": true,
+    "watermark": true,
+    "skipIntro": true
+  },
+  "photos": ["/img/davetiye/altin-isim-merasimi/ornek-foto.webp"],
+  "guestPhotos": [],
+  "messages": [],
+  "fonts": [],
+  "title": "İsim Alma Merasimi"
+}

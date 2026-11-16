@@ -6,6 +6,7 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } f
 import Icon from "@/components/Icon";
 import TimesReader from "@/components/TimesReader";
 import IbanCheckout, { type PlacedOrder } from "@/components/checkout/IbanCheckout";
+import RepublishPanel from "@/components/share/RepublishPanel";
 import { useCatalog } from "@/components/CatalogProvider";
 import { SlotControl } from "@/components/newspaper/SlotControls";
 import { applyNewspaper } from "@/lib/catalog";
@@ -154,6 +155,41 @@ export default function NewspaperStudio({
     const row = getLocalJson<StoredOrder[]>("orders", []).find((o) => o.code === draft.orderCode);
     setOrderPaid(row?.status === "onaylandi");
   }, [draft.orderCode]);
+
+  useEffect(() => {
+    const code = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("siparis") : null;
+    if (!code) return;
+    let stop = false;
+    fetch(`/api/hesap/yayin?code=${encodeURIComponent(code)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then(async (data) => {
+        if (stop || !data?.order || !data?.design) return;
+        const { newspaperDraftFromShare } = await import("@/lib/shareHydrate");
+        const patchData = newspaperDraftFromShare(data.design, data.order);
+        setSaved(normalizeNewspaperDraft({ ...EMPTY_NEWSPAPER_DRAFT, ...patchData, updatedAt: new Date().toISOString() }));
+        if (patchData.template) setBootSlug(patchData.template);
+        setOrderPaid(true);
+        setPayOpen(true);
+        setTool("order");
+        setPanelOpen(true);
+        const prev = getLocalJson<StoredOrder[]>("orders", []);
+        const row: StoredOrder = {
+          code: data.order.code,
+          at: data.order.createdAt,
+          total: data.order.total,
+          template: data.order.template,
+          title: data.order.title,
+          status: "onaylandi",
+          kind: "gazete",
+          email: data.order.customer.email,
+        };
+        setLocalJson("orders", [row, ...prev.filter((o) => o.code !== row.code)]);
+      })
+      .catch(() => undefined);
+    return () => {
+      stop = true;
+    };
+  }, [setSaved]);
 
   const etsyMode = Boolean(etsy);
   const tools = useMemo(() => {
@@ -564,12 +600,12 @@ export default function NewspaperStudio({
                 className="ns-btn ns-btn--primary"
                 onClick={() => {
                   openTool("order");
-                  if (!payOpen && !draft.orderCode && validate()) setPayOpen(true);
+                  if (!payOpen && !draft.orderCode && !orderPaid && validate()) setPayOpen(true);
                   else setPayOpen(true);
                 }}
               >
-                <Icon name="download" size={14} />
-                {tx("Sipariş", "Order")}
+                <Icon name={orderPaid ? "sparkle" : "download"} size={14} />
+                {orderPaid ? tx("Yeniden yayınla", "Republish") : tx("Sipariş", "Order")}
               </button>
             )}
           </div>
@@ -771,8 +807,19 @@ export default function NewspaperStudio({
                     </>
                   ) : (
                     <>
-                      <p className="ns-hint">{cat.cardPayments ? tx("Taslak tarayıcıda saklanır. Ödeme Shopier ile alınır.", "The draft is saved in this browser. Payment is taken through Shopier.") : tx("Taslak tarayıcıda saklanır. Ödeme havale / EFT ile alınır.", "The draft is saved in this browser. Payment is by bank transfer.")}</p>
-                      {payOpen || draft.orderCode ? (
+                      <p className="ns-hint">
+                        {orderPaid
+                          ? tx("Değişiklikler aynı yayın linkinde kalır.", "Changes stay on the same public link.")
+                          : tx("Taslak tarayıcıda saklanır. Ödeme Shopier ile alınır.", "The draft is saved in this browser. Payment is taken through Shopier.")}
+                      </p>
+                      {orderPaid && draft.orderCode ? (
+                        <RepublishPanel
+                          locale={locale}
+                          code={draft.orderCode}
+                          design={{ template: paper.slug, values, contents, size: draft.size, style: draft.style }}
+                          names={paper.title}
+                        />
+                      ) : payOpen || draft.orderCode ? (
                         <IbanCheckout
                           kind="gazete"
                           template={paper.slug}

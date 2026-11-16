@@ -7,6 +7,7 @@ import type { Locale } from "@/i18n/locale";
 import { editorLabel } from "@/i18n/editorLabel";
 import { useLocale } from "@/i18n/provider";
 import GiftBox from "@/components/stage/GiftBox";
+import NamingCeremonyInvite from "@/components/stage/NamingCeremonyInvite";
 import { sampleFor } from "@/data/sample";
 import { uploadSharePhoto } from "@/lib/albumClient";
 import AlbumCarousel from "@/components/invitation/AlbumCarousel";
@@ -185,6 +186,8 @@ type StageFile = {
   music?: { src?: string; title?: string; volume?: number; loop?: boolean } | null;
   fonts?: Array<{ family: string; url: string; minWeight: number; maxWeight: number }>;
   title?: string;
+  photos?: string[];
+  flags?: { layout?: string; [key: string]: unknown };
 };
 
 const ICON_SET = icons as Record<string, { label: string; path: string }>;
@@ -1166,6 +1169,37 @@ export default function StageView({
     }
     return srcs.slice(0, 3);
   }, [gateImage, bgImage, pages]);
+
+  if ((stage.flags as { layout?: string } | undefined)?.layout === "namingCeremony") {
+    const sampleDraft: InvitationDraft = {
+      ...draft,
+      info: {
+        ...draft.info,
+        partnerA: live ? draft.info.partnerA : values.f_first || "Elif",
+        partnerB: live ? draft.info.partnerB : values.f_second || "Can",
+        message: live ? draft.info.message : values.f_intro || "",
+        story: live ? draft.info.story : values.f_storyText || "",
+        venue: live ? draft.info.venue : values.f_venueName || "",
+        address: live ? draft.info.address : values.f_address || "",
+        closing: live ? draft.info.closing : values.f_closing || "",
+        date: live ? draft.info.date : "2026-07-26",
+        time: live ? draft.info.time || "14:00" : "14:00",
+        albumPhotos: live && draft.info.albumPhotos?.length ? draft.info.albumPhotos : stage.photos?.length ? stage.photos : [],
+      },
+    };
+    return (
+      <div className="iv stg-root" data-embed={embed ? "1" : undefined} data-kayit={record ? "1" : undefined} data-slug={slug} style={{ ["--stg-desk" as string]: desk }}>
+        <NamingCeremonyInvite
+          locale={locale}
+          draft={sampleDraft}
+          live
+          title={stage.title}
+          samplePhoto={stage.photos?.[0]}
+          watermark={showWatermark}
+        />
+      </div>
+    );
+  }
 
   return (
       <div className="iv stg-root" data-embed={embed ? "1" : undefined} data-kayit={record ? "1" : undefined} data-slug={slug} style={{ ["--stg-desk" as string]: desk }}>

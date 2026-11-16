@@ -34,6 +34,9 @@ function shopierPayUrl(code: string, email: string) {
   return `/api/siparis/${encodeURIComponent(code)}/shopier?email=${encodeURIComponent(email)}`;
 }
 
+/** Müşteriye havale / EFT kapalı. Ödeme yalnızca Shopier. */
+const SHOW_BANK_TRANSFER = false;
+
 function stamp(iso: string, locale: Locale) {
   return new Date(iso).toLocaleString(locale === "en" ? "en-GB" : "tr-TR", {
     day: "numeric",
@@ -276,7 +279,7 @@ export default function IbanCheckout({
         <div className="alert alert--info" role="note">
           <Icon name="info" size={18} />
           <span>
-            {cards ? (
+            {cards || !SHOW_BANK_TRANSFER ? (
               locale === "en" ? (
                 <>
                   Payment is taken on <strong>Shopier</strong>. A one-off product is opened for this amount in TL. After the payment is verified, that product is deleted and the order is confirmed.
@@ -298,7 +301,7 @@ export default function IbanCheckout({
             )}
           </span>
         </div>
-        {!cards && !ready && (
+        {SHOW_BANK_TRANSFER && !cards && !ready && (
           <div className="alert alert--warn" role="status">
             <Icon name="alert" size={18} />
             <span>{tx(locale, "Havale hesabı henüz yayınlanmadı. Siparişinizi yine de oluşturabilirsiniz; hesap eklendiğinde bu ekranda görünür.", "The transfer account has not been published yet. You can still place the order; the account appears on this screen once it is added.")}</span>
@@ -325,7 +328,7 @@ export default function IbanCheckout({
         <TextAreaField id="pay-note" label={tx(locale, "Not (isteğe bağlı)", "Note (optional)")} value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} />
         {failure && <div className="alert alert--error" role="alert"><Icon name="alert" size={18} /><span>{failure}</span></div>}
         <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={busy}>
-          <Icon name="envelope" size={16} /> {busy ? (cards ? tx(locale, "Shopier açılıyor…", "Opening Shopier…") : tx(locale, "Kaydediliyor…", "Saving…")) : cards ? tx(locale, "Shopier ile ödemeye geç", "Continue to Shopier") : tx(locale, "Siparişi oluştur", "Create the order")}
+          <Icon name="envelope" size={16} /> {busy ? (cards || !SHOW_BANK_TRANSFER ? tx(locale, "Shopier açılıyor…", "Opening Shopier…") : tx(locale, "Kaydediliyor…", "Saving…")) : cards || !SHOW_BANK_TRANSFER ? tx(locale, "Shopier ile ödemeye geç", "Continue to Shopier") : tx(locale, "Siparişi oluştur", "Create the order")}
         </button>
       </form>
     );
@@ -339,7 +342,7 @@ export default function IbanCheckout({
         {status && <span className={`pill pill--${status}`}>{statusText}</span>}
       </p>
 
-      {unpaid && cards && order ? (
+      {unpaid && (cards || !SHOW_BANK_TRANSFER) && order ? (
         <div className="pay-shopier">
           <ol className="iban-steps">
             <li>{tx(locale, "Sipariş tutarı kadar tek kullanımlık Shopier ürünü açılır.", "A one-off Shopier product is opened for the order amount.")}</li>
@@ -351,7 +354,7 @@ export default function IbanCheckout({
           </a>
           <p className="field__hint">{tx(locale, "Ödeme bitince bu sayfaya dönün. Onay kısa süre içinde burada görünür.", "Come back to this page after paying. Confirmation shows up here shortly.")}</p>
         </div>
-      ) : unpaid ? (
+      ) : unpaid && SHOW_BANK_TRANSFER ? (
         <ol className="iban-steps">
           <li>{tx(locale, "Aşağıdaki hesaba sipariş tutarının tamamını havale veya EFT ile gönderin.", "Send the full order amount to the account below by bank transfer.")}</li>
           <li>{tx(locale, "Açıklama kısmına yalnızca sipariş kodunu yazın. Kod olmadan ödeme eşleşmeyebilir.", "Write only the order code in the reference. Without the code, the payment may not be matched.")}</li>
@@ -359,7 +362,7 @@ export default function IbanCheckout({
         </ol>
       ) : null}
 
-      {unpaid && cards && ready ? (
+      {SHOW_BANK_TRANSFER && unpaid && cards && ready ? (
         <details className="pay-alt">
           <summary>{tx(locale, "Havale / EFT ile ödemek istiyorum", "I want to pay by bank transfer")}</summary>
           <div className="pay-shopier">
@@ -370,15 +373,15 @@ export default function IbanCheckout({
         </details>
       ) : null}
 
-      {status !== "onaylandi" && !cards && <IbanCard settings={settings} total={total} code={order?.code} title={title} />}
-      {!cards && settings.instructions && status !== "onaylandi" && <p className="field__hint">{settings.instructions}</p>}
+      {SHOW_BANK_TRANSFER && status !== "onaylandi" && !cards && <IbanCard settings={settings} total={total} code={order?.code} title={title} />}
+      {SHOW_BANK_TRANSFER && !cards && settings.instructions && status !== "onaylandi" && <p className="field__hint">{settings.instructions}</p>}
       {(settings.supportEmail || settings.supportPhone) && (
         <p className="field__hint">
           {tx(locale, "Destek:", "Support:")} {settings.supportPhone} {settings.supportEmail && <a href={`mailto:${settings.supportEmail}`}>{settings.supportEmail}</a>}
         </p>
       )}
 
-      {!cards ? transferForm : null}
+      {SHOW_BANK_TRANSFER && !cards ? transferForm : null}
 
       {status === "bildirildi" && receiptSent && (
         <div className="alert alert--success" role="status">

@@ -101,10 +101,18 @@ export function similarThemes(theme: Theme, count = 4): Theme[] {
     .slice(0, count);
 }
 
-/** All tags that exist on at least one theme. */
-export const allTags: string[] = Array.from(
-  new Set(themes.flatMap((t) => t.tags)),
-).sort((a, b) => a.localeCompare(b, "tr"));
+/** Useful filter tags: skip one-off theme-name tags and near-universal labels. */
+export const allTags: string[] = (() => {
+  const counts = new Map<string, number>();
+  for (const theme of themes) {
+    for (const tag of theme.tags) counts.set(tag, (counts.get(tag) || 0) + 1);
+  }
+  const total = themes.length;
+  return Array.from(counts.entries())
+    .filter(([tag, n]) => n >= 2 && n < total * 0.8 && tag.length <= 24)
+    .map(([tag]) => tag)
+    .sort((a, b) => a.localeCompare(b, "tr"));
+})();
 
 export function popularity(t: Theme): number {
   return (t.featured ? 100 : 0) + (t.badge === "featured" ? 50 : 0) + (t.badge === "new" ? 20 : 0) - t.order * 0.1;

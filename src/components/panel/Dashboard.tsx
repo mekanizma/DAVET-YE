@@ -55,12 +55,26 @@ function orderLink(order: OrderRecord, locale: Locale) {
   const again = order.status === "reddedildi";
   const pay = again ? tx(locale, "Yeniden öde", "Pay again") : tx(locale, "Ödemeye dön", "Back to payment");
   if (order.status === "onaylandi") {
-    if (order.kind === "davetiye" && order.template) return { href: withLocaleQuery(locale, `/onizleme/tema/${order.template}?taslak=1&odendi=1`), label: tx(locale, "Davetiyeyi aç", "Open the invitation") };
-    if (order.kind === "gazete" && order.template) return { href: withLocaleQuery(locale, `/times/sablon/${order.template}?odendi=1`), label: tx(locale, "Gazeteyi aç", "Open the newspaper") };
-    return { href: lp(locale, "/gazete-tasarla"), label: tx(locale, "Gazeteyi aç", "Open the newspaper") };
+    if (order.kind === "davetiye" && order.template) return { href: withLocaleQuery(locale, `/onizleme/tema/${order.template}?taslak=1&odendi=1`), label: tx(locale, "Önizle", "Preview") };
+    if (order.kind === "gazete" && order.template) return { href: withLocaleQuery(locale, `/times/sablon/${order.template}?odendi=1`), label: tx(locale, "Önizle", "Preview") };
+    return { href: lp(locale, "/gazete-tasarla"), label: tx(locale, "Önizle", "Preview") };
   }
   if (order.kind === "gazete") return { href: lp(locale, "/gazete-tasarla"), label: pay };
   return { href: lp(locale, "/davetiye-olustur/odeme"), label: pay };
+}
+
+function editLink(order: OrderRecord, locale: Locale) {
+  if (order.status !== "onaylandi") return null;
+  if (order.kind === "gazete") {
+    return {
+      href: `${lp(locale, "/gazete-tasarla")}?siparis=${encodeURIComponent(order.code)}`,
+      label: tx(locale, "Düzenle", "Edit"),
+    };
+  }
+  return {
+    href: `${lp(locale, "/davetiye-olustur/bilgiler")}?siparis=${encodeURIComponent(order.code)}`,
+    label: tx(locale, "Düzenle", "Edit"),
+  };
 }
 
 function themeName(slug: string, locale: Locale) {
@@ -232,6 +246,8 @@ export default function Dashboard() {
           <ul className="dash__list">
             {orders.map((o) => {
               const action = orderLink(o, locale);
+              const edit = editLink(o, locale);
+              const live = account.shares?.[o.code];
               const created = Number.isNaN(Date.parse(o.createdAt)) ? o.createdAt : longDate(new Date(o.createdAt), locale);
               return (
                 <li key={o.code}>
@@ -242,9 +258,15 @@ export default function Dashboard() {
                   </div>
                   <span className="num">{formatTL(o.total, locale)}</span>
                   <div className="dash__actions">
+                    {edit ? <Link href={edit.href} className="btn btn--dark btn--sm">{edit.label}</Link> : null}
+                    {live?.url && live.status === "live" ? (
+                      <a href={live.url} className="btn btn--outline btn--sm" target="_blank" rel="noopener noreferrer">
+                        {tx(locale, "Yayın linki", "Live link")}
+                      </a>
+                    ) : null}
                     <Link href={action.href} className="btn btn--outline btn--sm">{action.label}</Link>
                   </div>
-                  <OrderShare code={o.code} email={o.customer.email} locale={locale} known={account.shares?.[o.code] || null} names={orderTitle(o, locale)} />
+                  <OrderShare code={o.code} email={o.customer.email} locale={locale} known={live || null} names={orderTitle(o, locale)} />
                 </li>
               );
             })}
