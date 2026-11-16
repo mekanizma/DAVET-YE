@@ -6,7 +6,17 @@ export const dynamic = "force-dynamic";
 
 const hits = new Map<string, { n: number; at: number }>();
 
+function visitorIp(req: Request): string {
+  // Cloudflare overwrites these with the real visitor. x-forwarded-for is the edge address, shared by everyone.
+  for (const name of ["cf-connecting-ip", "true-client-ip"]) {
+    const ip = req.headers.get(name)?.split(",")[0]?.trim() || "";
+    if (ip.length > 0 && ip.length <= 64 && /^[0-9a-f:.]+$/i.test(ip)) return ip;
+  }
+  return "";
+}
+
 function limited(ip: string): boolean {
+  if (!ip) return false;
   const now = Date.now();
   const row = hits.get(ip);
   if (!row || now - row.at > 10 * 60 * 1000) {
@@ -25,9 +35,8 @@ function html(body: string, status = 200) {
 }
 
 async function start(req: Request, code: string, email: string, fresh: boolean) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-  if (limited(ip)) return html(shopierMessageHtml("Çok fazla deneme. Biraz sonra yeniden deneyin."), 429);
-  if (!shopierConfigured()) return html(shopierMessageHtml("Kart ödemesi henüz açılmadı."), 503);
+  if (limited(visitorIp(req))) return html(shopierMessageHtml("Çok fazla deneme. Biraz sonra yeniden deneyin."));
+  if (!shopierConfigured()) return html(shopierMessageHtml("Kart ödemesi henüz açılmadı."));
   const known = email ? await findOrderForCustomer(code, email) : await findOrderByCode(code);
   if (!known) return html(shopierMessageHtml("Sipariş bulunamadı. Kod ve e-posta birlikte kontrol edilir."), 404);
   const order = await syncShopierPayment(known);
@@ -52,12 +61,12 @@ async function start(req: Request, code: string, email: string, fresh: boolean) 
     const saved = await saveShopierProduct(order.code, order.customer.email, checkout.productId);
     if (!saved) {
       await deleteShopierProduct(checkout.productId);
-      return html(shopierMessageHtml("Sipariş eşleştirilemedi."), 500);
+      return html(shopierMessageHtml("Sipariş eşleştirilemedi."));
     }
     return html(shopierCheckoutHtml(checkout));
   } catch (error) {
     console.error(error);
-    return html(shopierMessageHtml("Shopier ödeme sayfası açılamadı. Biraz sonra yeniden deneyin."), 502);
+    return html(shopierMessageHtml("Shopier ödeme sayfası açılamadı. Biraz sonra yeniden deneyin."));
   }
 }
 
