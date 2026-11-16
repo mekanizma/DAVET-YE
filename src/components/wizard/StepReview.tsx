@@ -83,11 +83,11 @@ export default function StepReview({ draft, errors }: { draft: InvitationDraft; 
           <div className="review-phone">
             <iframe
               title={en ? "Invitation preview" : "Davetiye önizlemesi"}
-              src={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?embed=1&taslak=1${draft.event === "coklu" ? "&mod=kina-dugun" : ""}`)}
+              src={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?embed=1&taslak=1${draft.event === "coklu" ? "&mod=kina-dugun" : ""}${draft.order?.status === "onaylandi" ? "&odendi=1" : ""}`)}
               loading="lazy"
             />
           </div>
-          <Link className="btn btn--outline btn--sm" href={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?taslak=1`)} target="_blank" rel="noopener noreferrer">
+          <Link className="btn btn--outline btn--sm" href={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?taslak=1${draft.order?.status === "onaylandi" ? "&odendi=1" : ""}`)} target="_blank" rel="noopener noreferrer">
             {en ? "Open full screen" : "Tam ekran aç"}
           </Link>
         </div>

@@ -104,6 +104,7 @@ export default function NewspaperStudio({
   const cat = useCatalog();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [payOpen, setPayOpen] = useState(false);
+  const [orderPaid, setOrderPaid] = useState(false);
   const [page, setPage] = useState<PageId>(start ? "p:0" : "p:0");
   const [tool, setTool] = useState<ToolId>(start ? "text" : "templates");
   const [panelOpen, setPanelOpen] = useState(true);
@@ -144,6 +145,15 @@ export default function NewspaperStudio({
       stop = true;
     };
   }, [access, locale]);
+
+  useEffect(() => {
+    if (!draft.orderCode) {
+      setOrderPaid(false);
+      return;
+    }
+    const row = getLocalJson<StoredOrder[]>("orders", []).find((o) => o.code === draft.orderCode);
+    setOrderPaid(row?.status === "onaylandi");
+  }, [draft.orderCode]);
 
   const etsyMode = Boolean(etsy);
   const tools = useMemo(() => {
@@ -415,6 +425,7 @@ export default function NewspaperStudio({
 
   function remember(order: PlacedOrder) {
     patch({ orderCode: order.code, orderEmail: order.email });
+    setOrderPaid(order.status === "onaylandi");
     const prev = getLocalJson<StoredOrder[]>("orders", []);
     const row: StoredOrder = {
       code: order.code,
@@ -535,7 +546,7 @@ export default function NewspaperStudio({
           </button>
 
           <div className="ns-top__end">
-            <Link href={withLocaleQuery(locale, `/times/sablon/${paper.slug}`)} className="ns-btn ns-btn--ghost ns-btn--sm" target="_blank" rel="noopener noreferrer">
+            <Link href={withLocaleQuery(locale, `/times/sablon/${paper.slug}${orderPaid ? "?odendi=1" : ""}`)} className="ns-btn ns-btn--ghost ns-btn--sm" target="_blank" rel="noopener noreferrer">
               <Icon name="expand" size={14} />
               <span className="ns-desktop-only">{tx("Önizle", "Preview")}</span>
             </Link>

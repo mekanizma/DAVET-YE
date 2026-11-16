@@ -512,6 +512,7 @@ export default function StageView({
   embed = false,
   useDraftData = false,
   record = false,
+  watermark,
   locale: localeProp,
   guestDraft = null,
   albumSlug = "",
@@ -522,6 +523,8 @@ export default function StageView({
   useDraftData?: boolean;
   /** Admin export: show the ready template, one screen at a time, with sample names. */
   record?: boolean;
+  /** Preview watermark. Live/paid shares hide it; unpaid drafts keep it. */
+  watermark?: boolean;
   locale?: Locale;
   guestDraft?: InvitationDraft | null;
   albumSlug?: string;
@@ -536,6 +539,8 @@ export default function StageView({
   const draft = guestDraft ?? stored.draft;
   const ready = guestDraft ? true : stored.ready;
   const live = Boolean(guestDraft) || (useDraftData && ready);
+  const paidLocal = draft.order?.status === "onaylandi";
+  const showWatermark = !record && (watermark ?? (!guestDraft && !paidLocal));
   const values = useMemo(() => {
     const base = { ...(stage.values || {}) };
     if (!live) return base;
@@ -1166,11 +1171,11 @@ export default function StageView({
             </button>
           )}
 
-          {record ? null : (
+          {showWatermark ? (
             <div className="stg-wm" aria-hidden="true">
               {en ? "PREVIEW · PREVIEW · PREVIEW" : "ÖNİZLEME · ÖNİZLEME · ÖNİZLEME"}
             </div>
-          )}
+          ) : null}
 
           {stage.music?.src && !record ? (
             <>

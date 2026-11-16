@@ -58,9 +58,20 @@ export default async function PreviewPage({
   if (!theme) notFound();
   const embed = sp.embed === "1";
   const mode = sp.mod === "kina-dugun" ? "kina-dugun" : "tek";
+  const paid = sp.odendi === "1";
   const stage = loadStage(slug, locale);
   if (stage) {
-    return <StageView stage={stage} slug={slug} embed={embed} useDraftData={sp.taslak === "1"} record={sp.kayit === "1"} locale={locale} />;
+    return (
+      <StageView
+        stage={stage}
+        slug={slug}
+        embed={embed}
+        useDraftData={sp.taslak === "1"}
+        record={sp.kayit === "1"}
+        watermark={!paid}
+        locale={locale}
+      />
+    );
   }
-  return <InvitationExperience theme={theme} embed={embed} mode={mode} useDraftData={sp.taslak === "1"} />;
+  return <InvitationExperience theme={theme} embed={embed} mode={mode} useDraftData={sp.taslak === "1"} watermark={!paid} />;
 }

@@ -355,7 +355,10 @@ export default function IbanCheckout({
           </p>
           <div className="pay-done__cta">
             {kind === "davetiye" && (
-              <Link href={withLocaleQuery(locale, `/onizleme/tema/${template}?taslak=1`)} className="btn btn--dark btn--lg btn--serif">{tx(locale, "Davetiyemi önizle", "Preview my invitation")}</Link>
+              <Link href={withLocaleQuery(locale, `/onizleme/tema/${template}?taslak=1&odendi=1`)} className="btn btn--dark btn--lg btn--serif">{tx(locale, "Davetiyemi aç", "Open my invitation")}</Link>
+            )}
+            {kind === "gazete" && (
+              <Link href={withLocaleQuery(locale, `/times/sablon/${template}?odendi=1`)} className="btn btn--dark btn--lg btn--serif">{tx(locale, "Gazetemi aç", "Open my newspaper")}</Link>
             )}
             <Link href="/panel" className="btn btn--outline btn--lg">{tx(locale, "Panelime git", "Go to my account")}</Link>
           </div>

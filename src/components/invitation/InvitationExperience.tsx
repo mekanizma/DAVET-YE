@@ -40,6 +40,7 @@ export default function InvitationExperience({
   embed = false,
   mode = "tek",
   useDraftData = false,
+  watermark,
   locale: localeProp,
   guestDraft = null,
   albumSlug = "",
@@ -49,6 +50,8 @@ export default function InvitationExperience({
   mode?: "tek" | "kina-dugun";
   /** Use the visitor's local wizard draft instead of sample content */
   useDraftData?: boolean;
+  /** Preview watermark. Live/paid shares hide it; unpaid drafts keep it. */
+  watermark?: boolean;
   locale?: Locale;
   guestDraft?: InvitationDraft | null;
   albumSlug?: string;
@@ -62,6 +65,8 @@ export default function InvitationExperience({
   const draft = guestDraft ?? stored.draft;
   const ready = guestDraft ? true : stored.ready;
   const live = Boolean(guestDraft) || (useDraftData && ready);
+  const paidLocal = draft.order?.status === "onaylandi";
+  const showWatermark = watermark ?? (!guestDraft && !paidLocal);
   const style = useMemo(() => localizeInvitationStyle(getInvitationStyle(theme), locale), [theme, locale]);
   const reduced = usePrefersReducedMotion();
   const [phase, setPhase] = useState<OpeningPhase>("closed");
@@ -302,11 +307,13 @@ export default function InvitationExperience({
             onSkip={finishOpen}
           />
 
-          <div className="iv__wm" aria-hidden="true">
-            {Array.from({ length: 7 }, (_, i) => (
-              <span key={i}>{en ? "PREVIEW · PREVIEW · PREVIEW" : "ÖNİZLEME · ÖNİZLEME · ÖNİZLEME"}</span>
-            ))}
-          </div>
+          {showWatermark ? (
+            <div className="iv__wm" aria-hidden="true">
+              {Array.from({ length: 7 }, (_, i) => (
+                <span key={i}>{en ? "PREVIEW · PREVIEW · PREVIEW" : "ÖNİZLEME · ÖNİZLEME · ÖNİZLEME"}</span>
+              ))}
+            </div>
+          ) : null}
 
           <button
             type="button"

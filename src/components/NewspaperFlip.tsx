@@ -65,11 +65,14 @@ export default function NewspaperFlip({
   info,
   embed = false,
   backHref,
+  watermark = true,
 }: {
   paper: Newspaper;
   info?: FlipInfo;
   embed?: boolean;
   backHref?: string;
+  /** Catalog samples keep the preview mark; paid openings hide it. */
+  watermark?: boolean;
 }) {
   const locale = useLocale();
   const en = locale === "en";
@@ -285,9 +288,13 @@ export default function NewspaperFlip({
           <span />
         )}
         <p className="flip__title">{paper.title}</p>
-        <span className="flip__mark" aria-hidden="true">
-          {en ? "PREVIEW" : "ÖNİZLEME"}
-        </span>
+        {watermark ? (
+          <span className="flip__mark" aria-hidden="true">
+            {en ? "PREVIEW" : "ÖNİZLEME"}
+          </span>
+        ) : (
+          <span />
+        )}
       </header>
 
       <div

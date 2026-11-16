@@ -141,8 +141,9 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
   const themeName = theme ? themeTitle(theme, locale) : "";
   const lines = priceLines(draft, cat, locale);
   const total = priceTotal(draft, cat, locale);
+  const paidQ = draft.order?.status === "onaylandi" ? "&odendi=1" : "";
   const previewSrc = theme
-    ? withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?embed=1&taslak=1${draft.event === "coklu" ? "&mod=kina-dugun" : ""}&v=${previewKey}`)
+    ? withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?embed=1&taslak=1${draft.event === "coklu" ? "&mod=kina-dugun" : ""}${paidQ}&v=${previewKey}`)
     : "";
   const disabled = continueDisabled();
 
@@ -239,7 +240,7 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
                   <button type="button" aria-label={tx(locale, "Açılışı oynat", "Play the opening")} onClick={() => setPreviewKey((n) => n + 1)}>
                     <Icon name="arrow" size={16} />
                   </button>
-                  <Link href={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?taslak=1`)} target="_blank" rel="noopener noreferrer" aria-label={tx(locale, "Yeni sekmede aç", "Open in a new tab")}>
+                  <Link href={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?taslak=1${paidQ}`)} target="_blank" rel="noopener noreferrer" aria-label={tx(locale, "Yeni sekmede aç", "Open in a new tab")}>
                     <Icon name="expand" size={16} />
                   </Link>
                 </div>

@@ -55,7 +55,8 @@ function orderLink(order: OrderRecord, locale: Locale) {
   const again = order.status === "reddedildi";
   const pay = again ? tx(locale, "Yeniden öde", "Pay again") : tx(locale, "Ödemeye dön", "Back to payment");
   if (order.status === "onaylandi") {
-    if (order.kind === "davetiye" && order.template) return { href: withLocaleQuery(locale, `/onizleme/tema/${order.template}?taslak=1`), label: tx(locale, "Davetiyeyi aç", "Open the invitation") };
+    if (order.kind === "davetiye" && order.template) return { href: withLocaleQuery(locale, `/onizleme/tema/${order.template}?taslak=1&odendi=1`), label: tx(locale, "Davetiyeyi aç", "Open the invitation") };
+    if (order.kind === "gazete" && order.template) return { href: withLocaleQuery(locale, `/times/sablon/${order.template}?odendi=1`), label: tx(locale, "Gazeteyi aç", "Open the newspaper") };
     return { href: lp(locale, "/gazete-tasarla"), label: tx(locale, "Gazeteyi aç", "Open the newspaper") };
   }
   if (order.kind === "gazete") return { href: lp(locale, "/gazete-tasarla"), label: pay };

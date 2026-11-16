@@ -46,6 +46,7 @@ export default async function NewspaperPreview({
   const sp = await searchParams;
   const dil = Array.isArray(sp.dil) ? sp.dil[0] : sp.dil;
   const kayit = (Array.isArray(sp.kayit) ? sp.kayit[0] : sp.kayit) === "1";
+  const paid = (Array.isArray(sp.odendi) ? sp.odendi[0] : sp.odendi) === "1";
   const locale = dil === "en" || dil === "tr" ? dil : await getLocale();
   const found = getNewspaper(slug);
   if (!found) notFound();
@@ -58,7 +59,7 @@ export default async function NewspaperPreview({
 
   return (
     <main id="main">
-      <NewspaperFlip paper={paper} backHref={lp(locale, `/gazeteler/${paper.slug}`)} />
+      <NewspaperFlip paper={paper} backHref={lp(locale, `/gazeteler/${paper.slug}`)} watermark={!paid} />
     </main>
   );
 }
