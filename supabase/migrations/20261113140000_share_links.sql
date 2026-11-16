@@ -1,5 +1,4 @@
--- A bought invitation keeps its public path for 3 months.
--- A bought newspaper keeps its public path for 6 months.
+-- Bought invitations and newspapers keep their public path for 6 months.
 -- Guests read the page through the server; the table itself is not public.
 
 create table if not exists public.dv_share_links (

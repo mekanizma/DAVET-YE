@@ -16,8 +16,8 @@ const BLOCKED = new Set([
   "favicon", "gazeteler", "temalar", "hesap", "siparis",
 ]);
 
-export function shareMonths(kind: ShareKind) {
-  return kind === "gazete" ? 6 : 3;
+export function shareMonths(_kind?: ShareKind) {
+  return 6;
 }
 
 export function slugifyShare(raw: string): string {
