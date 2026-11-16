@@ -37,6 +37,8 @@ export interface DraftInfo {
   menu: string;
   /** "default" | "none" | a library track id */
   music: string;
+  /** Couple’s own album photos (compressed data URLs) shown as a collage. */
+  albumPhotos: string[];
   ibanHolder: string;
   iban: string;
   kinaDate: string;
@@ -102,6 +104,7 @@ export const emptyInfo: DraftInfo = {
   dressCode: "",
   menu: "",
   music: "default",
+  albumPhotos: [],
   ibanHolder: "",
   iban: "",
   kinaDate: "",
@@ -211,6 +214,9 @@ export function loadDraft(): InvitationDraft {
       ...emptyInfo,
       ...(d.info ?? {}),
       place: (d.info?.place || d.info?.venue || "").trim(),
+      albumPhotos: Array.isArray(d.info?.albumPhotos)
+        ? d.info.albumPhotos.filter((url): url is string => typeof url === "string" && url.startsWith("data:image/")).slice(0, 8)
+        : [],
     },
     program: normalizeProgram(d.program),
     qrDesign: QR_LOOKS.some((look) => look.id === d.qrDesign) ? (d.qrDesign as string) : "minimal",

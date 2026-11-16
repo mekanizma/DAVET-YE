@@ -9,6 +9,7 @@ import { sampleFor } from "@/data/sample";
 import { useLocale } from "@/i18n/provider";
 import { formatIban } from "@/lib/format";
 import { uploadSharePhoto } from "@/lib/albumClient";
+import { listShareWishes, postShareWish } from "@/lib/wishClient";
 import { getLocalJson, setLocalJson, type Rsvp, type Wish } from "@/lib/storage";
 
 export interface WallPhoto {
@@ -448,9 +449,33 @@ export function LensSection({ onCapture, albumSlug = "" }: { onCapture: (p: Wall
   );
 }
 
+/* ----------------------------- Couple album ----------------------------- */
+
+export function AlbumCollageSection({ photos }: { photos: string[] }) {
+  const { style } = useIv();
+  const en = useLocale() === "en";
+  return (
+    <Sec id="album" title={en ? "Our album" : "Albümümüz"}>
+      <p className="iv-kicker">{en ? "Our photos" : "Fotoğraflarımız"}</p>
+      <Divider kind={style.ornament} />
+      {photos.length ? (
+        <ul className={`iv-album${photos.length >= 3 ? " iv-album--dense" : ""}`}>
+          {photos.map((url, index) => (
+            <li key={`${index}-${url.slice(-24)}`}>
+              <img src={url} alt="" />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="iv-note">{en ? "Photos will appear here once they are added." : "Fotoğraflar eklendiğinde burada görünür."}</p>
+      )}
+    </Sec>
+  );
+}
+
 /* ----------------------------- Wishes ----------------------------- */
 
-export function WishesSection() {
+export function WishesSection({ albumSlug = "", live = false }: { albumSlug?: string; live?: boolean }) {
   const { theme, style } = useIv();
   const locale = useLocale();
   const en = locale === "en";
@@ -462,28 +487,61 @@ export function WishesSection() {
   const [text, setText] = useState("");
   const [errors, setErrors] = useState<{ name?: string; text?: string }>({});
   const [ok, setOk] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [storeError, setStoreError] = useState("");
 
   useEffect(() => {
+    if (albumSlug) {
+      let stop = false;
+      listShareWishes(albumSlug)
+        .then((rows) => {
+          if (!stop) setWishes(rows.map((row) => ({ name: row.name, text: row.text, at: row.createdAt || "" })));
+        })
+        .catch(() => {
+          if (!stop) setWishes([]);
+        });
+      return () => {
+        stop = true;
+      };
+    }
     setWishes(getLocalJson<Wish[]>(key, []));
-  }, [key]);
+  }, [albumSlug, key]);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (busy) return;
     const er: typeof errors = {};
     if (name.trim().length < 2) er.name = en ? "Please enter your name." : "Lütfen adınızı yazın.";
     if (text.trim().length < 3) er.text = en ? "Your wish must be at least 3 characters." : "Dileğiniz en az 3 karakter olmalıdır.";
     setErrors(er);
     if (Object.keys(er).length) return;
-    const next = [{ name: name.trim(), text: text.trim(), at: new Date().toISOString() }, ...wishes];
-    setWishes(next);
-    setLocalJson(key, next);
-    setName("");
-    setText("");
-    setOk(true);
-    setTimeout(() => setOk(false), 2500);
+    const entry = { name: name.trim(), text: text.trim(), at: new Date().toISOString() };
+    setBusy(true);
+    setStoreError("");
+    try {
+      if (albumSlug) {
+        const saved = await postShareWish(albumSlug, entry.name, entry.text);
+        setWishes((cur) => [...cur, { name: saved.name, text: saved.text, at: saved.createdAt || entry.at }]);
+      } else {
+        const next = [entry, ...wishes];
+        setWishes(next);
+        setLocalJson(key, next);
+      }
+      setName("");
+      setText("");
+      setOk(true);
+      setTimeout(() => setOk(false), 2500);
+    } catch (err) {
+      setStoreError(err instanceof Error ? err.message : (en ? "Your wish could not be saved." : "Dilek kaydedilemedi."));
+    } finally {
+      setBusy(false);
+    }
   }
 
-  const shown: Wish[] = [...wishes, ...sampleWishes.map((w) => ({ ...w, at: "" }))];
+  // Live shares never mix in mock sample wishes.
+  const shown: Wish[] = live || albumSlug
+    ? wishes
+    : [...wishes, ...sampleWishes.map((w) => ({ ...w, at: "" }))];
 
   return (
     <Sec id="dilekler" title={en ? "Wishes" : "Dilekler"}>
@@ -492,20 +550,25 @@ export function WishesSection() {
       <form className="iv-form" onSubmit={submit} noValidate>
         <div className="iv-field">
           <label htmlFor={`${uid}-wn`} className="sr-only">{en ? "Your name" : "Adınız"}</label>
-          <input id={`${uid}-wn`} placeholder={en ? "Your name" : "Adınız"} value={name} onChange={(e) => setName(e.target.value)} aria-invalid={Boolean(errors.name)} autoComplete="name" />
+          <input id={`${uid}-wn`} placeholder={en ? "Your name" : "Adınız"} value={name} onChange={(e) => setName(e.target.value)} aria-invalid={Boolean(errors.name)} autoComplete="name" disabled={busy} />
           {errors.name && <p className="iv-field__err">{errors.name}</p>}
         </div>
         <div className="iv-field">
           <label htmlFor={`${uid}-wt`} className="sr-only">{en ? "Your wish" : "Dileğiniz"}</label>
-          <textarea id={`${uid}-wt`} rows={3} placeholder={en ? "Your wish" : "Dileğiniz"} value={text} onChange={(e) => setText(e.target.value)} aria-invalid={Boolean(errors.text)} maxLength={300} />
+          <textarea id={`${uid}-wt`} rows={3} placeholder={en ? "Your wish" : "Dileğiniz"} value={text} onChange={(e) => setText(e.target.value)} aria-invalid={Boolean(errors.text)} maxLength={300} disabled={busy} />
           {errors.text && <p className="iv-field__err">{errors.text}</p>}
         </div>
-        <button type="submit" className="iv-btn iv-btn--solid iv-btn--block">
-          {en ? "Send my wish" : "Dileğimi Gönder"}
+        <button type="submit" className="iv-btn iv-btn--solid iv-btn--block" disabled={busy}>
+          {busy ? (en ? "Saving…" : "Kaydediliyor…") : (en ? "Send my wish" : "Dileğimi Gönder")}
         </button>
         <p role="status" aria-live="polite" className={ok ? "iv-status iv-status--ok" : "sr-only"}>
-          {ok ? (en ? "Your wish was added (in this browser only)." : "Dileğiniz eklendi (yalnızca bu tarayıcıda).") : ""}
+          {ok
+            ? albumSlug
+              ? (en ? "Your wish was added." : "Dileğiniz eklendi.")
+              : (en ? "Your wish was added (in this browser only)." : "Dileğiniz eklendi (yalnızca bu tarayıcıda).")
+            : ""}
         </p>
+        {storeError ? <p className="iv-field__err" role="alert">{storeError}</p> : null}
       </form>
       <ul className="iv-wishes">
         {shown.map((w, i) => (

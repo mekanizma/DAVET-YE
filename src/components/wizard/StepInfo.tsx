@@ -10,20 +10,15 @@ import { useLocale } from "@/i18n/provider";
 import type { Locale } from "@/i18n/locale";
 import { formatIban, formatTL } from "@/lib/format";
 import { saveDraft, type DraftInfo, type DraftProgramItem, type InvitationDraft } from "@/lib/storage";
+import { fileToDraftPhoto } from "@/lib/newspaperDraft";
+import { MUSIC_TRACKS } from "@/lib/musicCatalog";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
+import Time24 from "./Time24";
 import { gapSentence, INFO_FIELDS, type Errors } from "./validate";
 
 const DEFAULT_OFF = ["hikaye", "kiyafet", "album", "menu", "ani-duvari", "ani-cekimi"];
-
-const TRACKS = [
-  { id: "seremoni", tr: "Düğün Seremoni Fon Müziği", en: "Wedding ceremony music" },
-  { id: "fon", tr: "Düğün Fon Müziği", en: "Wedding background music" },
-  { id: "fon-2", tr: "Düğün Fon Müziği 2", en: "Wedding background music 2" },
-  { id: "sinematik", tr: "Sinematik Düğün Müziği", en: "Cinematic wedding music" },
-  { id: "davet", tr: "Düğün Davetiye Müziği", en: "Wedding invitation music" },
-  { id: "caz", tr: "Düğün Caz Müziği", en: "Wedding jazz" },
-  { id: "gece", tr: "Gece Ruhu Düğün Müziği", en: "Night-mood wedding music" },
-];
+const TRACKS = MUSIC_TRACKS;
+const ALBUM_MAX = 8;
 
 function tx(locale: Locale, tr: string, en: string) {
   return locale === "en" ? en : tr;
@@ -93,6 +88,7 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
   }, [draft.hiddenSections]);
 
   const set = (k: keyof DraftInfo) => (v: string) => saveDraft({ info: { ...i, [k]: v } });
+  const setAlbumPhotos = (photos: string[]) => saveDraft({ info: { ...i, albumPhotos: photos.slice(0, ALBUM_MAX) } });
   function toggle(id: string, next: boolean) {
     const hidden = new Set(draft.hiddenSections);
     if (next) hidden.delete(id);
@@ -135,7 +131,7 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
           <span>{tx(locale, "Etkinlik tarihi ve saati", "Event date and time")} <i>{tx(locale, "Zorunlu", "Required")}</i></span>
           <span className="info-field__row">
             <input id="alan-date" className="input" type="date" value={i.date} onChange={(e) => set("date")(e.target.value)} aria-invalid={errors.date ? true : undefined} />
-            <input id="alan-time" className="input" type="time" value={i.time} onChange={(e) => set("time")(e.target.value)} aria-label={tx(locale, "Etkinlik saati", "Event time")} aria-invalid={errors.time ? true : undefined} />
+            <Time24 id="alan-time" value={i.time} onChange={set("time")} aria-label={tx(locale, "Etkinlik saati", "Event time")} aria-invalid={Boolean(errors.time)} />
           </span>
           {errors.date && <small className="field__error">{errors.date}</small>}
           {errors.time && <small className="field__error">{errors.time}</small>}
@@ -145,14 +141,14 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
             <span>{tx(locale, "Kına tarihi ve saati", "Henna date and time")} <i>{tx(locale, "Zorunlu", "Required")}</i></span>
             <span className="info-field__row">
               <input id="alan-kinaDate" className="input" type="date" value={i.kinaDate} onChange={(e) => set("kinaDate")(e.target.value)} aria-invalid={errors.kinaDate ? true : undefined} />
-              <input className="input" type="time" value={i.kinaTime} onChange={(e) => set("kinaTime")(e.target.value)} aria-label={tx(locale, "Kına saati", "Henna time")} />
+              <Time24 value={i.kinaTime} onChange={set("kinaTime")} aria-label={tx(locale, "Kına saati", "Henna time")} />
             </span>
             {errors.kinaDate && <small className="field__error">{errors.kinaDate}</small>}
           </label>
         )}
         <label className="info-field">
           <span>{tx(locale, "Bitiş saati (isteğe bağlı)", "End time (optional)")}</span>
-          <input className="input" type="time" value={i.endTime} onChange={(e) => set("endTime")(e.target.value)} />
+          <Time24 value={i.endTime || ""} onChange={set("endTime")} aria-label={tx(locale, "Bitiş saati", "End time")} optional />
           <small>{tx(locale, "Girerseniz saat aralık olarak görünür (ör. 19:00–23:00).", "If you enter it, the time is shown as a range (for example 19:00–23:00).")}</small>
         </label>
         <Area label={tx(locale, "Davet metni", "Invitation line")} optional max={100} value={i.message} onChange={set("message")} hint={tx(locale, "Kısa bir cümle en iyi sonucu verir.", "A short sentence works best.")} />
@@ -189,8 +185,51 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
         <Field label={tx(locale, "Kıyafet kodu", "Dress code")} optional max={40} value={i.dressCode} onChange={set("dressCode")} placeholder={tx(locale, "Kokteyl", "Cocktail")} />
       </Group>
 
-      <Group id="album" icon="image" title={sec("album")} meta={on(draft, "album") ? tx(locale, "fotoğraflar", "photographs") : closedMeta(locale)} missing={0} open={open === "album"} enabled={on(draft, "album")} onOpen={() => setOpen(open === "album" ? "" : "album")} onToggle={(v) => toggle("album", v)}>
-        <p className="field__hint">{tx(locale, "Fotoğraflar ödeme sonrası panelden eklenir. Bu adımda bölümü açmanız yeter.", "Photographs are added from your account after payment. On this step, turning the section on is enough.")}</p>
+      <Group id="album" icon="image" title={sec("album")} meta={on(draft, "album") ? tx(locale, `${(i.albumPhotos || []).length} fotoğraf`, `${(i.albumPhotos || []).length} photos`) : closedMeta(locale)} missing={0} open={open === "album"} enabled={on(draft, "album")} onOpen={() => setOpen(open === "album" ? "" : "album")} onToggle={(v) => toggle("album", v)}>
+        <p className="field__hint">{tx(locale, "En fazla 8 fotoğraf ekleyin; davetiyede kolaj olarak görünür.", "Add up to 8 photos; they appear as a collage on the invitation.")}</p>
+        <div className="wz-album">
+          <ul className="wz-album__grid">
+            {(i.albumPhotos || []).map((url, index) => (
+              <li key={`${index}-${url.slice(-24)}`}>
+                <img src={url} alt="" />
+                <button
+                  type="button"
+                  className="wz-album__remove"
+                  aria-label={tx(locale, `Fotoğraf ${index + 1} kaldır`, `Remove photo ${index + 1}`)}
+                  onClick={() => setAlbumPhotos((i.albumPhotos || []).filter((_, n) => n !== index))}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+          {(i.albumPhotos || []).length < ALBUM_MAX ? (
+            <label className="wz-album__add">
+              <span>{tx(locale, "Fotoğraf ekle", "Add photos")}</span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                hidden
+                onChange={async (e) => {
+                  const files = [...(e.target.files || [])];
+                  e.currentTarget.value = "";
+                  if (!files.length) return;
+                  const room = ALBUM_MAX - (i.albumPhotos || []).length;
+                  const next = [...(i.albumPhotos || [])];
+                  for (const file of files.slice(0, room)) {
+                    try {
+                      next.push(await fileToDraftPhoto(file, 960, 0.7));
+                    } catch {
+                      /* skip bad files */
+                    }
+                  }
+                  setAlbumPhotos(next);
+                }}
+              />
+            </label>
+          ) : null}
+        </div>
       </Group>
 
       <Group id="menu" icon="doc" title={sec("menu")} meta={on(draft, "menu") ? fieldsLabel(locale, 1) : closedMeta(locale)} missing={0} open={open === "menu"} enabled={on(draft, "menu")} onOpen={() => setOpen(open === "menu" ? "" : "menu")} onToggle={(v) => toggle("menu", v)}>
@@ -412,7 +451,7 @@ function Program({ draft }: { draft: InvitationDraft }) {
       <ul className="wz-program__list">
         {program.map((row, index) => (
           <li key={index} className="wz-program__row">
-            <input className="input wz-program__time" type="time" value={row.time} aria-label={tx(locale, `Saat ${index + 1}`, `Time ${index + 1}`)} onChange={(e) => setProgram(program.map((r, i) => i === index ? { ...r, time: e.target.value } : r))} />
+            <Time24 className="input wz-program__time" value={row.time} aria-label={tx(locale, `Saat ${index + 1}`, `Time ${index + 1}`)} onChange={(time) => setProgram(program.map((r, i) => i === index ? { ...r, time } : r))} />
             <input className="input wz-program__title" value={row.title} placeholder={tx(locale, "Nikâh Töreni", "Nikah ceremony")} aria-label={tx(locale, `Başlık ${index + 1}`, `Title ${index + 1}`)} onChange={(e) => setProgram(program.map((r, i) => i === index ? { ...r, title: e.target.value } : r))} />
             <input className="input wz-program__note" value={row.note} placeholder={tx(locale, "İsteğe bağlı", "Optional")} aria-label={tx(locale, `Not ${index + 1}`, `Note ${index + 1}`)} onChange={(e) => setProgram(program.map((r, i) => i === index ? { ...r, note: e.target.value } : r))} />
             <button type="button" className="btn btn--ghost btn--sm" disabled={program.length <= 1} aria-label={tx(locale, "Satırı sil", "Remove row")} onClick={() => setProgram(program.filter((_, i) => i !== index))}>

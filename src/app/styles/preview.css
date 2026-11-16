@@ -646,6 +646,37 @@
   color: #ff9a8f;
 }
 
+/* couple album collage */
+.iv-album {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.iv-album--dense {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.iv-album--dense li:first-child {
+  grid-column: span 2;
+}
+.iv-album li {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.iv-album--dense li:first-child {
+  aspect-ratio: 4 / 3;
+}
+.iv-album img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 /* wall */
 .iv-wall {
   display: grid;

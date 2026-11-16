@@ -31,9 +31,9 @@ export default function ShareInvitation({
     hiddenSections: Array.isArray(design.hiddenSections) ? design.hiddenSections.filter((item): item is string => typeof item === "string") : [],
   };
   if (stage && theme) {
-    return <StageView stage={stage as never} slug={template} locale={locale} guestDraft={draft} />;
+    return <StageView stage={stage as never} slug={template} locale={locale} guestDraft={draft} albumSlug={albumSlug} />;
   }
   if (!theme) return null;
   const mode = draft.event === "coklu" ? "kina-dugun" : "tek";
-  return <InvitationExperience theme={theme} mode={mode} locale={locale} guestDraft={draft} />;
+  return <InvitationExperience theme={theme} mode={mode} locale={locale} guestDraft={draft} albumSlug={albumSlug} />;
 }

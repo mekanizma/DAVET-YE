@@ -667,6 +667,60 @@ textarea.stg-form__input {
   object-fit: cover;
   border-radius: 8px;
 }
+.stg-album {
+  position: absolute;
+  inset: 8% 7% 14%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 2.4cqw;
+  color: var(--stg-chrome, #fff);
+  text-align: center;
+}
+.stg-album__title {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 6.2cqw;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+.stg-album__empty {
+  margin: auto;
+  opacity: 0.85;
+  font-size: 3.6cqw;
+}
+.stg-album__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2cqw;
+  align-content: start;
+  overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  padding: 0.5cqw;
+}
+.stg-album__grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 2.4cqw;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+}
+.stg-album__grid:has(img:nth-child(3)) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.stg-album__grid:has(img:nth-child(3)) img:first-child {
+  grid-column: span 2;
+  aspect-ratio: 4 / 3;
+}
+.stg-chrome--next {
+  position: relative;
+  justify-self: center;
+  width: 11cqw;
+  height: 11cqw;
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: 999px;
+}
 
 [data-anim] {
   opacity: 0;

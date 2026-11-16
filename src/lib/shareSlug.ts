@@ -86,6 +86,7 @@ export function invitationShareDesign(draft: InvitationDraft) {
       dressCode: info.dressCode,
       menu: info.menu,
       music: info.music,
+      albumPhotos: (info.albumPhotos || []).filter((url) => typeof url === "string" && url.startsWith("data:image/")).slice(0, 8),
       ibanHolder: info.ibanHolder,
       iban: info.iban,
       kinaDate: info.kinaDate,
@@ -151,6 +152,9 @@ export function sanitizeShareDesign(kind: ShareKind, raw: unknown) {
       dressCode: text(info.dressCode, 160),
       menu: text(info.menu, 800),
       music: text(info.music, 40),
+      albumPhotos: (Array.isArray(info.albumPhotos) ? info.albumPhotos : [])
+        .filter((url): url is string => typeof url === "string" && url.startsWith("data:image/") && url.length <= 400_000)
+        .slice(0, 8),
       ibanHolder: text(info.ibanHolder, 80),
       iban: text(info.iban, 40),
       kinaDate: text(info.kinaDate, 20),

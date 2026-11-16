@@ -16,6 +16,7 @@ import {
   ProgramSection,
 } from "./BasicSections";
 import {
+  AlbumCollageSection,
   GiftSection,
   LensSection,
   MemoryWallSection,
@@ -32,6 +33,7 @@ import { lp, type Locale } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
 import { coverOf, openingVideoOf, type Theme } from "@/data/themes";
+import { musicTrackSrc } from "@/lib/musicCatalog";
 import { useAmbientMusic } from "@/lib/music";
 import { useDraft, type InvitationDraft } from "@/lib/storage";
 
@@ -72,10 +74,39 @@ export default function InvitationExperience({
   const [phase, setPhase] = useState<OpeningPhase>("closed");
   const [photos, setPhotos] = useState<WallPhoto[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const music = useAmbientMusic();
+  const ambient = useAmbientMusic();
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [trackOn, setTrackOn] = useState(false);
   const photosRef = useRef<WallPhoto[]>([]);
   photosRef.current = photos;
   const openingVideo = useMemo(() => openingVideoOf(theme), [theme]);
+  const musicChoice = live ? draft.info.music : "default";
+  const trackSrc = musicChoice === "none" ? null : musicTrackSrc(musicChoice);
+  const musicEnabled = musicChoice !== "none";
+  const musicOn = trackSrc ? trackOn : ambient.on;
+  const albumPhotos = live ? (draft.info.albumPhotos || []).filter(Boolean).slice(0, 8) : [];
+
+  useEffect(() => {
+    setTrackOn(false);
+    audioRef.current?.pause();
+  }, [trackSrc]);
+
+  const toggleMusic = useCallback(() => {
+    if (!musicEnabled) return;
+    if (trackSrc) {
+      const a = audioRef.current;
+      if (!a) return;
+      if (trackOn) {
+        a.pause();
+        setTrackOn(false);
+        return;
+      }
+      a.volume = 0.6;
+      a.play().then(() => setTrackOn(true)).catch(() => setTrackOn(false));
+      return;
+    }
+    ambient.toggle();
+  }, [musicEnabled, trackSrc, trackOn, ambient.toggle, ambient]);
 
   const info = draft.info;
   const data: InvData = useMemo(() => {
@@ -280,9 +311,10 @@ export default function InvitationExperience({
             {show("geri-sayim") && <CountdownSection />}
             {show("program") && <ProgramSection />}
             {show("katilim") && <RsvpSection />}
+            {show("album") && <AlbumCollageSection photos={albumPhotos} />}
             {show("ani-duvari") && <MemoryWallSection photos={photos} onAdd={addPhoto} onRemove={removePhoto} albumSlug={albumSlug} />}
             {show("ani-cekimi") && <LensSection onCapture={addPhoto} albumSlug={albumSlug} />}
-            {show("dilekler") && <WishesSection />}
+            {show("dilekler") && <WishesSection albumSlug={albumSlug} live={live} />}
             {show("iban") && <GiftSection />}
             <ClosingSection
               embed={embed}
@@ -315,17 +347,22 @@ export default function InvitationExperience({
             </div>
           ) : null}
 
-          <button
-            type="button"
-            className="iv__music"
-            onClick={music.toggle}
-            aria-pressed={music.on}
-            aria-label={en ? "Turn music on or off" : "Müziği aç/kapat"}
-            title={music.supported ? (en ? "Turn music on or off" : "Müziği aç/kapat") : en ? "This browser cannot play generated sound" : "Bu tarayıcı ses üretimini desteklemiyor"}
-            disabled={!music.supported}
-          >
-            <Icon name={music.on ? "music" : "music-off"} size={18} />
-          </button>
+          {musicEnabled ? (
+            <>
+              {trackSrc ? <audio ref={audioRef} src={trackSrc} loop preload="none" /> : null}
+              <button
+                type="button"
+                className="iv__music"
+                onClick={toggleMusic}
+                aria-pressed={musicOn}
+                aria-label={en ? "Turn music on or off" : "Müziği aç/kapat"}
+                title={trackSrc || ambient.supported ? (en ? "Turn music on or off" : "Müziği aç/kapat") : en ? "This browser cannot play generated sound" : "Bu tarayıcı ses üretimini desteklemiyor"}
+                disabled={!trackSrc && !ambient.supported}
+              >
+                <Icon name={musicOn ? "music" : "music-off"} size={18} />
+              </button>
+            </>
+          ) : null}
 
           {!embed && (
             <Link href={lp(locale, `/temalar/${theme.slug}`)} className="iv__exit" aria-label={en ? "Back to the invitation page" : "Davetiye sayfasına dön"}>

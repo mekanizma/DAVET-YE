@@ -9,6 +9,8 @@ import { useLocale } from "@/i18n/provider";
 import GiftBox from "@/components/stage/GiftBox";
 import { sampleFor } from "@/data/sample";
 import { uploadSharePhoto } from "@/lib/albumClient";
+import { musicTrackSrc } from "@/lib/musicCatalog";
+import { listShareWishes, postShareWish } from "@/lib/wishClient";
 import type { InvitationDraft } from "@/lib/storage";
 import { useDraft } from "@/lib/storage";
 
@@ -218,9 +220,11 @@ function giftPalette(elements: StageElement[]) {
   return { accent, ink, label };
 }
 
-function openingWishes(stage: StageFile, locale: Locale) {
+function openingWishes(stage: StageFile, locale: Locale, live: boolean) {
   const rows = (stage.messages || []).filter((wish) => (wish.text || "").trim());
-  if (rows.length) return rows;
+  if (rows.length) return rows.map((wish) => ({ name: wish.name, text: wish.text }));
+  // Live shares start empty; mock wishes are only for unpaid previews.
+  if (live) return [];
   return sampleFor(locale).wishes.map((wish) => ({ name: wish.name, text: wish.text }));
 }
 
@@ -245,6 +249,7 @@ const HIDE: Record<string, string> = {
   lens: "ani-cekimi",
   messages: "dilekler",
   gift: "iban",
+  album: "album",
   closing: "kapanis",
 };
 
@@ -323,7 +328,7 @@ function textCss(style: TextStyle | undefined, canvasW: number): CSSProperties {
   };
 }
 
-function formatField(raw: string, format: string | undefined, locale: Locale) {
+function formatField(raw: string, format: string | undefined, locale: Locale, endTime = "") {
   if (!raw) return "";
   if (!/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw;
   const d = new Date(raw);
@@ -333,8 +338,10 @@ function formatField(raw: string, format: string | undefined, locale: Locale) {
   const fmt = (options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(loc, { timeZone: zone, ...options }).format(d);
   const long = fmt({ day: "numeric", month: "long", year: "numeric" });
   if (format === "time") {
-    const clock = fmt({ hour: "2-digit", minute: "2-digit" });
-    return locale === "en" ? clock : `Saat ${clock}`;
+    const clock = fmt({ hour: "2-digit", minute: "2-digit", hour12: false, hourCycle: "h23" });
+    const end = endTime.trim().slice(0, 5);
+    const range = /^\d{1,2}:\d{2}$/.test(end) ? `${clock}–${end}` : clock;
+    return locale === "en" ? range : `Saat ${range}`;
   }
   if (format === "weekday") return fmt({ weekday: "long" });
   if (format === "day") return fmt({ day: "numeric" });
@@ -595,11 +602,30 @@ export default function StageView({
   }, [stage.lists, live, draft.program]);
 
   const hidden = useMemo(() => new Set(live ? draft.hiddenSections : []), [live, draft.hiddenSections]);
-  const pages = design.pages.filter((p) => {
-    if (!RSVP_FORM_ENABLED && p.kind === "rsvp") return false;
-    const key = p.kind ? HIDE[p.kind] : undefined;
-    return !key || !hidden.has(key);
-  });
+  const albumPhotos = live ? (draft.info.albumPhotos || []).filter((url) => typeof url === "string" && url.length > 0).slice(0, 8) : [];
+  const pages = useMemo(() => {
+    const base = design.pages.filter((p) => {
+      if (!RSVP_FORM_ENABLED && p.kind === "rsvp") return false;
+      const key = p.kind ? HIDE[p.kind] : undefined;
+      return !key || !hidden.has(key);
+    });
+    if (!live || hidden.has("album")) return base;
+    if (base.some((p) => p.kind === "album")) return base;
+    const albumPage = {
+      id: "p_album",
+      name: en ? "Our album" : "Albümümüz",
+      kind: "album",
+      elements: [] as StageElement[],
+    };
+    const at = base.findIndex((p) => p.kind === "memoryWall" || p.kind === "lens" || p.kind === "messages" || p.kind === "gift" || p.kind === "closing");
+    if (at < 0) return [...base, albumPage];
+    return [...base.slice(0, at), albumPage, ...base.slice(at)];
+  }, [design.pages, hidden, live, en]);
+  const musicChoice = live ? draft.info.music : "default";
+  const musicSrc =
+    musicChoice === "none"
+      ? null
+      : musicTrackSrc(musicChoice) || (musicChoice === "default" ? stage.music?.src || null : null);
 
   const reduced = usePrefersReduced();
   const [phase, setPhase] = useState<"gate" | "video" | "open">(design.intro?.gate ? "gate" : "open");
@@ -629,6 +655,22 @@ export default function StageView({
     };
   }, [albumSlug]);
 
+  useEffect(() => {
+    if (!albumSlug) return;
+    let stop = false;
+    listShareWishes(albumSlug)
+      .then((rows) => {
+        if (stop) return;
+        setWishes(rows.map((row) => ({ name: row.name, text: row.text })));
+      })
+      .catch(() => {
+        if (!stop) setWishes([]);
+      });
+    return () => {
+      stop = true;
+    };
+  }, [albumSlug]);
+
   async function addShot(file: File, source: "wall" | "lens") {
     if (!file.type.startsWith("image/") || file.size > 8 * 1024 * 1024) {
       setPhotoNote({ ok: false, text: en ? "Use a JPG, PNG or WEBP under 8 MB." : "JPG, PNG veya WEBP yükleyin; 8 MB’ı geçmesin." });
@@ -650,7 +692,8 @@ export default function StageView({
 
   const [rsvpDone, setRsvpDone] = useState(false);
   const [wishDone, setWishDone] = useState(false);
-  const [wishes, setWishes] = useState(() => openingWishes(stage, locale));
+  const [wishNote, setWishNote] = useState<{ ok: boolean; text: string } | null>(null);
+  const [wishes, setWishes] = useState(() => openingWishes(stage, locale, live));
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -674,43 +717,91 @@ export default function StageView({
     return () => io.disconnect();
   }, [phase, pages.length, record]);
 
-  // Desktop mouse/trackpad (and free swipe) must not change pages — only nextPage button.
+  // Wheel / finger swipe / keys move one page at a time (nested wish/gift lists still scroll).
   useEffect(() => {
     const root = scrollRef.current;
     if (!root || phase !== "open") return;
-    const wishList = (target: EventTarget | null): HTMLElement | null => {
+    let locked = false;
+    let touchY = 0;
+    const nestedScroll = (target: EventTarget | null): HTMLElement | null => {
       if (!(target instanceof HTMLElement)) return null;
-      return target.closest(".stg-messages__list, .stg-gift__sheet");
+      return target.closest(".stg-messages__list, .stg-gift__sheet, .stg-album__grid");
     };
-    const stopWheel = (e: WheelEvent) => {
-      const list = wishList(e.target);
+    const pageIndex = () => {
+      const nodes = [...root.querySelectorAll<HTMLElement>(".stg-page")];
+      if (!nodes.length) return 0;
+      const top = root.scrollTop;
+      return nodes.reduce((best, el, i) => (Math.abs(el.offsetTop - top) < Math.abs(nodes[best].offsetTop - top) ? i : best), 0);
+    };
+    const go = (dir: 1 | -1) => {
+      if (locked || root.classList.contains("is-typing")) return;
+      const nodes = [...root.querySelectorAll<HTMLElement>(".stg-page")];
+      const next = nodes[pageIndex() + dir];
+      if (!next) return;
+      locked = true;
+      root.scrollTo({ top: next.offsetTop, behavior: reduced ? "auto" : "smooth" });
+      window.setTimeout(() => {
+        locked = false;
+      }, reduced ? 180 : 720);
+    };
+    const onWheel = (e: WheelEvent) => {
+      const list = nestedScroll(e.target);
       if (list && list.scrollHeight > list.clientHeight + 2) {
         const atTop = list.scrollTop <= 0 && e.deltaY < 0;
         const atBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 2 && e.deltaY > 0;
         if (!atTop && !atBottom) return;
       }
       e.preventDefault();
+      if (Math.abs(e.deltaY) < 10) return;
+      go(e.deltaY > 0 ? 1 : -1);
     };
-    const stopTouch = (e: TouchEvent) => {
-      if (wishList(e.target)) return;
+    const onTouchStart = (e: TouchEvent) => {
+      touchY = e.touches[0]?.clientY || 0;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (nestedScroll(e.target)) return;
       e.preventDefault();
     };
-    const stopKeys = (e: KeyboardEvent) => {
+    const onTouchEnd = (e: TouchEvent) => {
+      if (nestedScroll(e.target)) return;
+      const y = e.changedTouches[0]?.clientY || touchY;
+      const dy = touchY - y;
+      if (Math.abs(dy) < 42) return;
+      go(dy > 0 ? 1 : -1);
+    };
+    const onKeys = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (t?.matches?.("input, textarea, select, [contenteditable='true']")) return;
-      if (["PageDown", "PageUp", "ArrowDown", "ArrowUp", "Home", "End", " "].includes(e.key)) {
+      if (["PageDown", "ArrowDown", " "].includes(e.key)) {
         e.preventDefault();
+        go(1);
+      } else if (["PageUp", "ArrowUp"].includes(e.key)) {
+        e.preventDefault();
+        go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        const first = root.querySelector<HTMLElement>(".stg-page");
+        if (first) root.scrollTo({ top: first.offsetTop, behavior: reduced ? "auto" : "smooth" });
+      } else if (e.key === "End") {
+        e.preventDefault();
+        const nodes = root.querySelectorAll<HTMLElement>(".stg-page");
+        const last = nodes[nodes.length - 1];
+        if (last) root.scrollTo({ top: last.offsetTop, behavior: reduced ? "auto" : "smooth" });
       }
     };
-    root.addEventListener("wheel", stopWheel, { passive: false });
-    root.addEventListener("touchmove", stopTouch, { passive: false });
-    root.addEventListener("keydown", stopKeys);
+    root.addEventListener("wheel", onWheel, { passive: false });
+    root.addEventListener("touchstart", onTouchStart, { passive: true });
+    root.addEventListener("touchmove", onTouchMove, { passive: false });
+    root.addEventListener("touchend", onTouchEnd, { passive: true });
+    root.addEventListener("keydown", onKeys);
     return () => {
-      root.removeEventListener("wheel", stopWheel);
-      root.removeEventListener("touchmove", stopTouch);
-      root.removeEventListener("keydown", stopKeys);
+      root.removeEventListener("wheel", onWheel);
+      root.removeEventListener("touchstart", onTouchStart);
+      root.removeEventListener("touchmove", onTouchMove);
+      root.removeEventListener("touchend", onTouchEnd);
+      root.removeEventListener("keydown", onKeys);
     };
-  }, [phase]);
+  }, [phase, reduced]);
 
   /**
    * The soft keyboard used to shrink the stage and let scroll-snap jump to another
@@ -932,9 +1023,19 @@ export default function StageView({
     });
   }, [record, phase, introVideo, intro?.videoMuted, reduced]);
 
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a || !musicSrc) {
+      setMusicOn(false);
+      return;
+    }
+    a.pause();
+    setMusicOn(false);
+  }, [musicSrc]);
+
   const toggleMusic = () => {
     const a = audioRef.current;
-    if (!a) return;
+    if (!a || !musicSrc) return;
     if (musicOn) {
       a.pause();
       setMusicOn(false);
@@ -1089,7 +1190,28 @@ export default function StageView({
               <section key={page.id} className={`stg-page${(record ? pageIndex === shot - gateCount : pageIndex === 0) ? " is-in" : ""}`} id={`sayfa-${page.id}`} aria-label={stageLabel(page.name, locale)}>
                 <div className="stg-fit">
                   <div className="stg-art">
-                    {(page.kind === "gift" ? (page.elements || []).filter((el) => !el.hidden && keepGiftChrome(el, page.elements || [])) : (page.elements || []).filter((el) => !el.hidden)).map((el) => (
+                    {page.kind === "album" ? (
+                      <div className="stg-album">
+                        <p className="stg-album__title">{en ? "Our album" : "Albümümüz"}</p>
+                        {albumPhotos.length ? (
+                          <div className="stg-album__grid">
+                            {albumPhotos.map((url, index) => (
+                              <img key={`${index}-${url.slice(-32)}`} src={url} alt="" />
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="stg-album__empty">{en ? "Photos will appear here." : "Fotoğraflar burada görünecek."}</p>
+                        )}
+                        <button
+                          type="button"
+                          className="stg-chrome stg-chrome--next"
+                          aria-label={en ? "Next page" : "Sonraki sayfa"}
+                          onClick={(e) => goNext(e.currentTarget)}
+                        >
+                          <StageIcon name="chevronDown" size={1.1} />
+                        </button>
+                      </div>
+                    ) : (page.kind === "gift" ? (page.elements || []).filter((el) => !el.hidden && keepGiftChrome(el, page.elements || [])) : (page.elements || []).filter((el) => !el.hidden)).map((el) => (
                       <Element
                         key={el.id}
                         el={el}
@@ -1099,17 +1221,37 @@ export default function StageView({
                         places={stage.places || {}}
                         wishes={wishes}
                         photos={photos}
+                        endTime={draft.info.endTime || ""}
                         rsvpDone={rsvpDone}
                         wishDone={wishDone}
                         onAddPhoto={addShot}
                         onRsvp={() => setRsvpDone(true)}
-                        onWish={(name, text) => {
+                        onWish={async (name, text) => {
                           const cleanName = name.trim();
                           const cleanText = text.trim();
-                          if (cleanName.length < 2 || cleanText.length < 3) return;
-                          setWishes((w) => [...w, { name: cleanName, text: cleanText }]);
-                          setWishDone(true);
+                          if (cleanName.length < 2 || cleanText.length < 3) return false;
+                          if (!albumSlug) {
+                            setWishes((w) => [...w, { name: cleanName, text: cleanText }]);
+                            setWishDone(true);
+                            setWishNote(null);
+                            return true;
+                          }
+                          setWishNote({ ok: true, text: en ? "Saving your wish…" : "Dileğiniz kaydediliyor…" });
+                          try {
+                            const saved = await postShareWish(albumSlug, cleanName, cleanText);
+                            setWishes((w) => [...w, { name: saved.name, text: saved.text }]);
+                            setWishDone(true);
+                            setWishNote(null);
+                            return true;
+                          } catch (err) {
+                            setWishNote({
+                              ok: false,
+                              text: err instanceof Error ? err.message : (en ? "Your wish could not be saved." : "Dilek kaydedilemedi."),
+                            });
+                            return false;
+                          }
                         }}
+                        wishNote={wishNote}
                         onAction={onAction}
                         locale={locale}
                         eager={record || pageIndex === 0}
@@ -1145,7 +1287,7 @@ export default function StageView({
                 {gateImage ? <img className="stg-media stg-media--screen" src={gateImage} alt="" draggable={false} decoding="async" fetchPriority="high" /> : null}
                 <div className="stg-art">
                   {(intro?.gate?.elements || []).filter((el) => !el.hidden).map((el) => (
-                    <Element key={el.id} el={el} canvasW={canvasW} values={values} lists={{}} places={{}} wishes={[]} photos={[]} rsvpDone={false} wishDone={false} onAddPhoto={() => undefined} onRsvp={() => undefined} onWish={() => undefined} onAction={onAction} locale={locale} eager />
+                    <Element key={el.id} el={el} canvasW={canvasW} values={values} lists={{}} places={{}} wishes={[]} photos={[]} endTime="" rsvpDone={false} wishDone={false} onAddPhoto={() => undefined} onRsvp={() => undefined} onWish={() => false} onAction={onAction} locale={locale} eager />
                   ))}
                 </div>
               </div>
@@ -1177,9 +1319,9 @@ export default function StageView({
             </div>
           ) : null}
 
-          {stage.music?.src && !record ? (
+          {musicSrc && !record ? (
             <>
-              <audio ref={audioRef} src={stage.music.src} loop={stage.music.loop !== false} preload="none" />
+              <audio ref={audioRef} src={musicSrc} loop={stage.music?.loop !== false} preload="none" />
               <button type="button" className="stg-chrome stg-chrome--right" aria-pressed={musicOn} aria-label={en ? "Turn music on or off" : "Müziği aç/kapat"} onClick={toggleMusic}>
                 <StageIcon name={musicOn ? "volume" : "music"} size={1.1} />
               </button>
@@ -1264,8 +1406,10 @@ function Element({
   places,
   wishes,
   photos,
+  endTime = "",
   rsvpDone,
   wishDone,
+  wishNote,
   onAddPhoto,
   onRsvp,
   onWish,
@@ -1280,11 +1424,13 @@ function Element({
   places: Record<string, { query?: string; lat?: number; lng?: number }>;
   wishes: Array<{ name?: string; text?: string }>;
   photos: Shot[];
+  endTime?: string;
   rsvpDone: boolean;
   wishDone: boolean;
+  wishNote?: { ok: boolean; text: string } | null;
   onAddPhoto: (file: File, source: "wall" | "lens") => void;
   onRsvp: () => void;
-  onWish: (name: string, text: string) => void;
+  onWish: (name: string, text: string) => boolean | Promise<boolean>;
   onAction: (el: StageElement, node: HTMLElement) => void;
   locale: Locale;
   eager?: boolean;
@@ -1297,7 +1443,7 @@ function Element({
   let body: ReactNode = null;
   if (el.type === "text" || el.type === "field") {
     const raw = el.type === "field" && el.fieldId ? values[el.fieldId] || "" : el.text || "";
-    body = <TextBlock el={el} canvasW={canvasW} value={el.type === "field" ? formatField(raw, el.format, locale) : raw} />;
+    body = <TextBlock el={el} canvasW={canvasW} value={el.type === "field" ? formatField(raw, el.format, locale, endTime) : raw} />;
   } else if (el.type === "image" && el.src) {
     body = (
       <img
@@ -1390,7 +1536,7 @@ function Element({
   } else if (el.type === "form") {
     body = <RsvpForm el={el} canvasW={canvasW} done={rsvpDone} onDone={onRsvp} locale={locale} />;
   } else if (el.type === "messages") {
-    body = <WishWall el={el} canvasW={canvasW} wishes={wishes} done={wishDone} onWish={onWish} locale={locale} />;
+    body = <WishWall el={el} canvasW={canvasW} wishes={wishes} done={wishDone} note={wishNote} onWish={onWish} locale={locale} />;
   } else if (el.type === "memoryWall") {
     body = (
       <div className="stg-memory" style={{ color: el.style?.color }}>
@@ -1531,6 +1677,7 @@ function WishWall({
   canvasW,
   wishes,
   done,
+  note,
   onWish,
   locale,
 }: {
@@ -1538,12 +1685,14 @@ function WishWall({
   canvasW: number;
   wishes: Array<{ name?: string; text?: string }>;
   done: boolean;
-  onWish: (name: string, text: string) => void;
+  note?: { ok: boolean; text: string } | null;
+  onWish: (name: string, text: string) => boolean | Promise<boolean>;
   locale: Locale;
 }) {
   const en = locale === "en";
   const listRef = useRef<HTMLUListElement>(null);
   const stickToEnd = useRef(false);
+  const [busy, setBusy] = useState(false);
   useLayoutEffect(() => {
     const list = listRef.current;
     if (!list) return;
@@ -1566,27 +1715,42 @@ function WishWall({
           {en ? "Your wish was added. Thank you!" : "Dileğiniz iletildi, teşekkür ederiz!"}
         </p>
       ) : null}
+      {note ? (
+        <p className="stg-messages__note" role="status" style={textCss(el.style, canvasW)}>
+          {note.text}
+        </p>
+      ) : null}
+      {!done ? (
       <form
         className="stg-form has-panel"
         data-look="filled"
         style={formVars(el, canvasW)}
         onSubmit={(e) => {
           e.preventDefault();
-          const data = new FormData(e.currentTarget);
+          if (busy) return;
+          const form = e.currentTarget;
+          const data = new FormData(form);
           const name = String(data.get("name") || "");
           const text = String(data.get("text") || "");
           if (name.trim().length < 2 || text.trim().length < 3) return;
           stickToEnd.current = true;
-          onWish(name, text);
-          e.currentTarget.reset();
+          setBusy(true);
+          Promise.resolve(onWish(name, text))
+            .then((ok) => {
+              if (ok) form.reset();
+            })
+            .finally(() => setBusy(false));
         }}
       >
-        <input className="stg-form__input" name="name" required minLength={2} placeholder={el.hint || (en ? "Your name" : "Adınız")} aria-label={en ? "Your name" : "Adınız"} autoComplete="name" />
-        <textarea className="stg-form__input" name="text" required minLength={3} maxLength={300} placeholder={en ? "Your wish" : "Dileğiniz"} rows={2} aria-label={en ? "Your wish" : "Dileğiniz"} />
-        <button type="submit" className="stg-form__submit">
-          {el.form?.submitLabel || (en ? "Send my wish" : "Dileğimi Gönder")}
+        <input className="stg-form__input" name="name" required minLength={2} placeholder={el.hint || (en ? "Your name" : "Adınız")} aria-label={en ? "Your name" : "Adınız"} autoComplete="name" disabled={busy} />
+        <textarea className="stg-form__input" name="text" required minLength={3} maxLength={300} placeholder={en ? "Your wish" : "Dileğiniz"} rows={2} aria-label={en ? "Your wish" : "Dileğiniz"} disabled={busy} />
+        <button type="submit" className="stg-form__submit" disabled={busy}>
+          {busy
+            ? (en ? "Saving…" : "Kaydediliyor…")
+            : (el.form?.submitLabel || (en ? "Send my wish" : "Dileğimi Gönder"))}
         </button>
       </form>
+      ) : null}
     </div>
   );
 }
