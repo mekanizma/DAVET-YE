@@ -1,4 +1,3 @@
-import { CARD_LOOKS, QR_LOOKS } from "@/data/printCards";
 import type { DraftInfo, DraftProgramItem, InvitationDraft } from "@/lib/storage";
 
 export type ShareKind = "davetiye" | "gazete";
