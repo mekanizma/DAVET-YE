@@ -1,0 +1,79 @@
+name: Shopier product sync
+
+# Backup path when Render cannot create Shopier products: GitHub runners create
+# missing payment products for pending orders every few minutes.
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Create missing Shopier products
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SHOPIER_PAT: ${{ secrets.SHOPIER_PAT }}
+          IMAGE_URL: https://davetanisi.com/og.jpg
+        run: |
+          node <<'NODE'
+          const url = process.env.SUPABASE_URL;
+          const key = process.env.SUPABASE_KEY;
+          const pat = process.env.SHOPIER_PAT;
+          const image = process.env.IMAGE_URL;
+          if (!url || !key || !pat) {
+            console.log("missing secrets");
+            process.exit(0);
+          }
+          const headers = { apikey: key, Authorization: `Bearer ${key}` };
+          const res = await fetch(`${url}/rest/v1/dv_orders?status=in.(bekliyor,reddedildi)&total=gt.0&select=code,status,total,kind,snapshot&order=created_at.desc&limit=40`, { headers });
+          const rows = await res.json();
+          if (!Array.isArray(rows)) {
+            console.log("orders failed", res.status);
+            process.exit(1);
+          }
+          let created = 0;
+          for (const row of rows) {
+            const snap = row.snapshot || {};
+            if (snap.__shopier && snap.__shopierAmount === String(row.total)) continue;
+            const label = row.kind === "gazete" ? "Dijital gazete" : "Dijital davetiye";
+            const create = await fetch("https://api.shopier.com/v1/products", {
+              method: "POST",
+              headers: { Authorization: `Bearer ${pat}`, Accept: "application/json", "Content-Type": "application/json" },
+              body: JSON.stringify({
+                title: `${label} ${row.code}`.slice(0, 100),
+                description: `Tek kullanımlık dijital sipariş ${row.code}.`,
+                type: "digital",
+                shippingPayer: "sellerPays",
+                priceData: { currency: "TRY", price: Number(row.total).toFixed(2) },
+                stockQuantity: 1,
+                customListing: true,
+                media: [{ type: "image", url: image, placement: 1 }],
+              }),
+            });
+            const product = await create.json().catch(() => ({}));
+            const productId = String(product.id || "");
+            if (!create.ok || !/^\d+$/.test(productId)) {
+              console.log("create fail", row.code, create.status);
+              continue;
+            }
+            if (snap.__shopier && /^\d+$/.test(String(snap.__shopier))) {
+              await fetch(`https://api.shopier.com/v1/products/${snap.__shopier}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${pat}`, Accept: "application/json" },
+              }).catch(() => null);
+            }
+            const next = { ...snap, __shopier: productId, __shopierAmount: String(row.total) };
+            const upd = await fetch(`${url}/rest/v1/dv_orders?code=eq.${row.code}`, {
+              method: "PATCH",
+              headers: { ...headers, "Content-Type": "application/json" },
+              body: JSON.stringify({ snapshot: next, updated_at: new Date().toISOString() }),
+            });
+            console.log(row.code, upd.ok ? productId : `db-${upd.status}`);
+            if (upd.ok) created += 1;
+          }
+          console.log("created", created);
+          NODE

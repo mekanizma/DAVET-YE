@@ -16,14 +16,66 @@ export function siteUrl() {
 
 export const HOME_TITLE = "Davetanisi — Dijital davetiye ve düğün gazetesi";
 export const HOME_DESCRIPTION =
-  "Düğün, nişan ve kına için telefonda açılan dijital davetiye. Tek bağlantıyla paylaşın, katılım yanıtlarını izleyin, hikâyenizi Türkiye’de gazeteye taşıyın.";
+  "Düğün, nişan ve kına için telefonda açılan dijital davetiye. Tek bağlantıyla paylaşın, katılım yanıtlarını izleyin, hikâyenizi Türkiye ve KKTC’de gazeteye taşıyın.";
 
+/** Google / geo targeting: Türkiye + Kuzey Kıbrıs Türk Cumhuriyeti */
 export const GEO = {
   "geo.region": "TR",
-  "geo.placename": "İstanbul, Türkiye",
+  "geo.placename": "Türkiye, KKTC",
   "geo.country": "TR",
+  "geo.region:alt": "CY",
+  "geo.placename:alt": "Lefkoşa, KKTC",
+  "ICBM": "41.0082, 28.9784",
   "content-language": "tr-TR",
 };
+
+const AREA_SERVED_TR = [
+  { "@type": "Country", name: "Türkiye" },
+  { "@type": "Country", name: "Kuzey Kıbrıs Türk Cumhuriyeti" },
+  { "@type": "City", name: "İstanbul" },
+  { "@type": "City", name: "Lefkoşa" },
+] as const;
+
+const AREA_SERVED_EN = [
+  { "@type": "Country", name: "Turkey" },
+  { "@type": "Country", name: "Northern Cyprus" },
+  { "@type": "City", name: "Istanbul" },
+  { "@type": "City", name: "Nicosia" },
+] as const;
+
+const KEYWORDS_TR = [
+  "dijital davetiye",
+  "düğün davetiyesi",
+  "kına davetiyesi",
+  "nişan davetiyesi",
+  "online davetiye",
+  "düğün gazetesi",
+  "katılım formu",
+  "Davetanisi",
+  "İstanbul",
+  "Türkiye",
+  "KKTC",
+  "Kuzey Kıbrıs",
+  "Lefkoşa",
+  "Kıbrıs düğün davetiyesi",
+];
+
+const KEYWORDS_EN = [
+  "digital invitation",
+  "wedding invitation",
+  "henna night invitation",
+  "engagement invitation",
+  "online invitation",
+  "wedding newspaper",
+  "RSVP form",
+  "Davetanisi",
+  "Istanbul",
+  "Turkey",
+  "Northern Cyprus",
+  "TRNC",
+  "Nicosia",
+  "Cyprus wedding invitation",
+];
 
 export function pageMeta(opts: {
   title: string;
@@ -45,10 +97,9 @@ export function pageMeta(opts: {
       canonical: opts.path,
       languages: { "tr-TR": trPath, en: enPath, "x-default": trPath },
     },
-    keywords: locale === "en"
-      ? ["digital invitation", "wedding invitation", "henna night invitation", "engagement invitation", "online invitation", "wedding newspaper", "RSVP form", "Davetanisi", "Istanbul", "Turkey"]
-      : ["dijital davetiye", "düğün davetiyesi", "kına davetiyesi", "nişan davetiyesi", "online davetiye", "düğün gazetesi", "katılım formu", "Davetanisi", "İstanbul", "Türkiye"],
+    keywords: locale === "en" ? [...KEYWORDS_EN] : [...KEYWORDS_TR],
     other: {
+      ...GEO,
       "content-language": locale === "en" ? "en" : "tr-TR",
     },
     robots: index
@@ -92,10 +143,7 @@ export function siteGraph(locale: Locale = "tr") {
           height: 512,
         },
         image: `${origin}/og.jpg`,
-        areaServed: [
-          { "@type": "Country", name: locale === "en" ? "Turkey" : "Türkiye" },
-          { "@type": "City", name: "İstanbul" },
-        ],
+        areaServed: locale === "en" ? [...AREA_SERVED_EN] : [...AREA_SERVED_TR],
         address: {
           "@type": "PostalAddress",
           addressLocality: "İstanbul",
@@ -111,6 +159,7 @@ export function siteGraph(locale: Locale = "tr") {
         description,
         inLanguage: locale === "en" ? "en" : "tr-TR",
         publisher: { "@id": `${origin}/#organization` },
+        areaServed: locale === "en" ? [...AREA_SERVED_EN] : [...AREA_SERVED_TR],
       },
     ],
   };
@@ -118,6 +167,7 @@ export function siteGraph(locale: Locale = "tr") {
 
 export function productJsonLd(opts: { name: string; description: string; path: string; image?: string; price: number }) {
   const origin = siteUrl();
+  const en = opts.path.startsWith("/en");
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -125,14 +175,18 @@ export function productJsonLd(opts: { name: string; description: string; path: s
     description: opts.description,
     image: opts.image ? new URL(opts.image, origin).toString() : `${origin}/og.jpg`,
     brand: { "@type": "Brand", name: SITE.name },
-    areaServed: { "@type": "Country", name: opts.path.startsWith("/en") ? "Turkey" : "Türkiye" },
+    areaServed: en ? [...AREA_SERVED_EN] : [...AREA_SERVED_TR],
     offers: {
       "@type": "Offer",
       url: new URL(opts.path, origin).toString(),
       priceCurrency: "TRY",
       price: opts.price,
       availability: "https://schema.org/InStock",
-      areaServed: "TR",
+      areaServed: en ? [...AREA_SERVED_EN] : [...AREA_SERVED_TR],
+      eligibleRegion: [
+        { "@type": "Country", name: en ? "Turkey" : "Türkiye" },
+        { "@type": "Country", name: en ? "Northern Cyprus" : "Kuzey Kıbrıs Türk Cumhuriyeti" },
+      ],
     },
   };
 }

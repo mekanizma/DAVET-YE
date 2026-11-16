@@ -233,4 +233,4 @@ export function marketing(locale: Locale) {
 
 export const HOME_TITLE_EN = "Davetanisi — Digital invitations and wedding newspapers";
 export const HOME_DESCRIPTION_EN =
-  "A digital invitation for a wedding, an engagement, or a henna night, opened on a phone. Share one link, follow RSVPs, and put your story on a newspaper.";
+  "A digital invitation for a wedding, an engagement, or a henna night, opened on a phone. Share one link, follow RSVPs, and put your story on a newspaper across Turkey and Northern Cyprus.";

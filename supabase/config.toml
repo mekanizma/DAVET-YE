@@ -1,0 +1,5 @@
+[project]
+# Linked via `supabase link` or --project-ref when deploying.
+
+[functions.shopier-create]
+verify_jwt = false

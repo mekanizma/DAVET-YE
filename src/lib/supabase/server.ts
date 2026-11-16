@@ -60,9 +60,18 @@ export async function createSupabaseRoute() {
   };
 }
 
-/** No session. Used for public catalog reads and secret-gated order writes. */
+/** No session. Used for public catalog reads. */
 export function createSupabaseAnon() {
   return createClient(supabaseUrl(), supabaseAnonKey(), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+/** Service role. Used for secret-gated RPCs and private table writes. Never expose to the browser. */
+export function createSupabaseService() {
+  const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  if (!key) throw new Error("SUPABASE_SECRET_KEY tanımlı değil.");
+  return createClient(supabaseUrl(), key, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }

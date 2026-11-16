@@ -89,6 +89,10 @@ export const metadata: Metadata = {
     "Davetanisi",
     "İstanbul",
     "Türkiye",
+    "KKTC",
+    "Kuzey Kıbrıs",
+    "Lefkoşa",
+    "Kıbrıs düğün davetiyesi",
   ],
   robots: {
     index: true,

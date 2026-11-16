@@ -6,8 +6,7 @@ import { createSupabaseServer } from "@/lib/supabase/server";
 export async function GET() {
   if (!supabaseConfigured()) return NextResponse.json({ error: "Kartlar kullanılamıyor." }, { status: 503 });
   const supabase = await createSupabaseServer();
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user;
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user?.email) return NextResponse.json({ error: "Giriş gerekli." }, { status: 401 });
   const cards = await listUserPrintCards(user.id, user.email);
   if (!cards) return NextResponse.json({ error: "Kartlar okunamadı." }, { status: 500 });

@@ -115,14 +115,65 @@ export async function deleteShopierProduct(productId: string) {
   await shopier(`/products/${productId}`, { method: "DELETE" });
 }
 
-export async function createShopierCheckout(input: {
+function createSecret(): string {
+  return process.env.SHOPIER_CREATE_SECRET?.trim() || process.env.SUPABASE_SERVER_SECRET?.trim() || "";
+}
+
+function edgeCreateUrl(): string {
+  const fromEnv = process.env.SHOPIER_CREATE_URL?.trim() || "";
+  if (/^https:\/\//i.test(fromEnv)) return fromEnv.replace(/\/$/, "");
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "";
+  if (!base) return "";
+  return `${base.replace(/\/$/, "")}/functions/v1/shopier-create`;
+}
+
+async function createShopierProductViaEdge(input: {
   code: string;
   kind: "davetiye" | "gazete";
   total: number;
   previousProductId?: string;
-}): Promise<ShopierCheckout> {
-  if (!Number.isInteger(input.total) || input.total <= 0) throw new Error("Ödenecek tutar geçersiz.");
-  const slug = await shopierShopSlug();
+}): Promise<{ productId: string; productUrl: string } | null> {
+  const url = edgeCreateUrl();
+  const secret = createSecret();
+  const bearer = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
+  if (!url || !secret || !bearer) return null;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-shopier-create-secret": secret,
+      Authorization: `Bearer ${bearer}`,
+    },
+    body: JSON.stringify({
+      code: input.code,
+      kind: input.kind,
+      total: input.total,
+      previousProductId: input.previousProductId || "",
+      imageUrl: imageUrl(),
+    }),
+    cache: "no-store",
+  });
+  const raw = await res.text();
+  let data: { productId?: string; productUrl?: string; status?: number } | null = null;
+  try {
+    data = raw ? (JSON.parse(raw) as { productId?: string; productUrl?: string; status?: number }) : null;
+  } catch {
+    data = null;
+  }
+  const productId = String(data?.productId || "");
+  if (!res.ok || !/^\d+$/.test(productId)) {
+    console.error("shopier edge create failed", res.status, raw.slice(0, 400));
+    return null;
+  }
+  return { productId, productUrl: data?.productUrl || `https://www.shopier.com/${productId}` };
+}
+
+async function createShopierProductDirect(input: {
+  code: string;
+  kind: "davetiye" | "gazete";
+  total: number;
+  previousProductId?: string;
+}): Promise<{ productId: string; productUrl: string }> {
   const label = input.kind === "gazete" ? "Dijital gazete" : "Dijital davetiye";
   const { status, data, raw } = await shopier<{ id?: string; url?: string }>("/products", {
     method: "POST",
@@ -143,7 +194,6 @@ export async function createShopierCheckout(input: {
     const blocked = status === 403 || status === 401 || /cloudflare|just a moment|cf-ray|attention required/i.test(raw);
     throw new Error(`Shopier ürün açılamadı (${blocked ? status || 403 : status || 0}).`);
   }
-  // Delete the previous listing only after the new one exists, so a failed create cannot wipe payment.
   if (input.previousProductId && input.previousProductId !== productId) {
     try {
       await deleteShopierProduct(input.previousProductId);
@@ -151,9 +201,23 @@ export async function createShopierCheckout(input: {
       console.error(error);
     }
   }
+  return { productId, productUrl: `https://www.shopier.com/${productId}` };
+}
+
+export async function createShopierCheckout(input: {
+  code: string;
+  kind: "davetiye" | "gazete";
+  total: number;
+  previousProductId?: string;
+}): Promise<ShopierCheckout> {
+  if (!Number.isInteger(input.total) || input.total <= 0) throw new Error("Ödenecek tutar geçersiz.");
+  const slug = await shopierShopSlug();
+  // Prefer the Supabase Edge Function so product create does not leave from Render's blocked egress.
+  const viaEdge = await createShopierProductViaEdge(input);
+  const created = viaEdge || (await createShopierProductDirect(input));
   return {
-    productId,
-    productUrl: `https://www.shopier.com/${productId}`,
+    productId: created.productId,
+    productUrl: created.productUrl,
     slug,
   };
 }

@@ -6,8 +6,7 @@ import { createSupabaseServer } from "@/lib/supabase/server";
 async function viewer() {
   if (!supabaseConfigured()) return null;
   const supabase = await createSupabaseServer();
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user;
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user?.email) return null;
   return user;
 }

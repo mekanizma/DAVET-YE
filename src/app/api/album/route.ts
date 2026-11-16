@@ -6,8 +6,7 @@ import { createSupabaseServer } from "@/lib/supabase/server";
 export async function GET() {
   if (!supabaseConfigured()) return NextResponse.json({ error: "Albüm kullanılamıyor." }, { status: 503 });
   const supabase = await createSupabaseServer();
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user;
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user?.email) return NextResponse.json({ error: "Giriş gerekli." }, { status: 401 });
   const photos = await listUserAlbum(user.id, user.email);
   if (!photos) return NextResponse.json({ error: "Albüm okunamadı." }, { status: 500 });

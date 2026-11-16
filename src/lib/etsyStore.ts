@@ -3,7 +3,7 @@ import path from "node:path";
 import { randomInt } from "crypto";
 import { getNewspaper } from "@/data/newspapers";
 import { localizeNewspaper } from "@/i18n/catalog";
-import { createSupabaseAnon, createSupabaseServer } from "@/lib/supabase/server";
+import { createSupabaseServer, createSupabaseService } from "@/lib/supabase/server";
 import { supabaseConfigured } from "@/lib/supabase/env";
 
 export type EtsyCodeStatus = "active" | "redeemed" | "revoked";
@@ -225,7 +225,7 @@ export async function getEtsyCode(code: string): Promise<EtsyCode | null> {
     }
     if (process.env.SUPABASE_SERVER_SECRET) {
       try {
-        const db = createSupabaseAnon();
+        const db = createSupabaseService();
         const { data, error } = await db.rpc("dv_etsy_lookup", {
           access_code: clean,
           server_secret: serverSecret(),
@@ -247,7 +247,7 @@ export async function redeemEtsyCode(code: string): Promise<{ ok: true; item: Et
 
   if (supabaseConfigured() && process.env.SUPABASE_SERVER_SECRET) {
     try {
-      const db = createSupabaseAnon();
+      const db = createSupabaseService();
       const { data, error } = await db.rpc("dv_etsy_redeem", {
         access_code: clean,
         server_secret: serverSecret(),

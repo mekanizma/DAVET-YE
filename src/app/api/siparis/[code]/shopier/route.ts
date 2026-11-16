@@ -94,7 +94,7 @@ async function start(req: Request, code: string, email: string, fresh: boolean) 
       const codeMatch = /\((\d+)\)/.exec(detail);
       const status = codeMatch?.[1] || "";
       if (status === "401" || status === "403") {
-        return html(shopierMessageHtml(`Kart ödeme isteği Shopier tarafından reddedildi (${status}). Render sunucusundan ürün açılamıyor; Shopier API Key/Secret ekleyin.`));
+        return html(shopierMessageHtml(`Kart ödeme isteği Shopier tarafından reddedildi (${status}). Biraz sonra yeniden deneyin.`));
       }
       if (status === "429") {
         return html(shopierMessageHtml("Shopier şu an yoğun. Biraz sonra yeniden deneyin."));

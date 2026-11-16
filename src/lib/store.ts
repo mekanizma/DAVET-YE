@@ -23,7 +23,7 @@ import type { OrderLine, OrderRecord } from "@/lib/orderTypes";
 import { invitationQuote, paperQuote } from "@/lib/pricing";
 import { publishShare, releaseShare } from "@/lib/shareLink";
 import { deleteShopierProduct, findPaidShopierOrder, listShopierOrdersSince, shopierPaidHit } from "@/lib/shopier";
-import { createSupabaseAnon, createSupabaseServer } from "@/lib/supabase/server";
+import { createSupabaseAnon, createSupabaseServer, createSupabaseService } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseUrl } from "@/lib/supabase/env";
 
@@ -274,7 +274,7 @@ export async function findOrder(code: string): Promise<OrderRecord | undefined> 
 }
 
 async function orderForCustomer(code: string, email: string): Promise<DbOrder | null> {
-  const { data, error } = await createSupabaseAnon().rpc("dv_order_for_customer", {
+  const { data, error } = await createSupabaseService().rpc("dv_order_for_customer", {
     order_code: code.trim().toUpperCase(),
     email: email.trim().toLowerCase(),
     server_secret: serverSecret(),
@@ -284,7 +284,7 @@ async function orderForCustomer(code: string, email: string): Promise<DbOrder | 
 }
 
 async function upsertOrder(order: OrderRecord, userId: string | null): Promise<OrderRecord> {
-  const { data, error } = await createSupabaseAnon().rpc("dv_order_upsert", {
+  const { data, error } = await createSupabaseService().rpc("dv_order_upsert", {
     payload: {
       code: order.code,
       status: order.status,
