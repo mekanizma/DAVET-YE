@@ -46,24 +46,45 @@ async function start(req: Request, code: string, email: string, fresh: boolean) 
   if (order.status !== "bekliyor" && order.status !== "reddedildi") {
     return html(shopierMessageHtml("Bu sipariş için ödeme alınamıyor."), 400);
   }
+  const existing =
+    order.snapshot.__shopier && order.snapshot.__shopierAmount === String(order.total) ? order.snapshot.__shopier : "";
+
+  async function openExisting(productId: string) {
+    const slug = await shopierShopSlug();
+    return html(shopierCheckoutHtml({ productId, productUrl: `https://www.shopier.com/${productId}`, slug }));
+  }
+
   try {
-    const reuse = !fresh && order.snapshot.__shopier && order.snapshot.__shopierAmount === String(order.total) ? order.snapshot.__shopier : "";
-    if (reuse) {
-      const slug = await shopierShopSlug();
-      return html(shopierCheckoutHtml({ productId: reuse, productUrl: `https://www.shopier.com/${reuse}`, slug }));
+    if (existing && !fresh) return openExisting(existing);
+
+    try {
+      const checkout = await createShopierCheckout({
+        code: order.code,
+        kind: order.kind,
+        total: order.total,
+        previousProductId: order.snapshot.__shopier,
+      });
+      const saved = await saveShopierProduct(order.code, order.customer.email, checkout.productId);
+      if (!saved) {
+        await deleteShopierProduct(checkout.productId);
+        if (existing) return openExisting(existing);
+        return html(shopierMessageHtml("Sipariş eşleştirilemedi."));
+      }
+      return html(shopierCheckoutHtml(checkout));
+    } catch (error) {
+      console.error(error);
+      if (existing) return openExisting(existing);
+      const detail = error instanceof Error ? error.message : "";
+      const codeMatch = /\((\d+)\)/.exec(detail);
+      const status = codeMatch?.[1] || "";
+      if (status === "401" || status === "403") {
+        return html(shopierMessageHtml("Kart ödeme anahtarı Shopier tarafından reddedildi. Render’daki SHOPIER_PAT değerini kontrol edin."));
+      }
+      if (status === "429") {
+        return html(shopierMessageHtml("Shopier şu an yoğun. Biraz sonra yeniden deneyin."));
+      }
+      return html(shopierMessageHtml("Shopier ödeme sayfası açılamadı. Biraz sonra yeniden deneyin."));
     }
-    const checkout = await createShopierCheckout({
-      code: order.code,
-      kind: order.kind,
-      total: order.total,
-      previousProductId: order.snapshot.__shopier,
-    });
-    const saved = await saveShopierProduct(order.code, order.customer.email, checkout.productId);
-    if (!saved) {
-      await deleteShopierProduct(checkout.productId);
-      return html(shopierMessageHtml("Sipariş eşleştirilemedi."));
-    }
-    return html(shopierCheckoutHtml(checkout));
   } catch (error) {
     console.error(error);
     return html(shopierMessageHtml("Shopier ödeme sayfası açılamadı. Biraz sonra yeniden deneyin."));

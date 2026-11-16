@@ -263,7 +263,7 @@ export default function IbanCheckout({
           <a className="btn btn--dark btn--lg btn--block btn--serif" href={`/api/siparis/${encodeURIComponent(order.code)}/shopier?email=${encodeURIComponent(order.customer.email)}`}>
             <Icon name="lock" size={16} /> {tx(locale, "Kart ile öde", "Pay by card")}
           </a>
-          <a className="btn btn--outline btn--block" href={`/api/siparis/${encodeURIComponent(order.code)}/shopier?email=${encodeURIComponent(order.customer.email)}&yeni=1`}>
+          <a className="btn btn--outline btn--block" href={`/api/siparis/${encodeURIComponent(order.code)}/shopier?email=${encodeURIComponent(order.customer.email)}`}>
             {tx(locale, "Ödeme sayfası açılmazsa yeniden dene", "Try again if the payment page does not open")}
           </a>
           <p className="field__hint">

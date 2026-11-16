@@ -40,7 +40,7 @@ function pat(): string {
   return token;
 }
 
-async function shopier<T>(path: string, init?: { method?: string; body?: unknown }): Promise<{ status: number; data: T | null }> {
+async function shopier<T>(path: string, init?: { method?: string; body?: unknown }): Promise<{ status: number; data: T | null; raw: string }> {
   const res = await fetch(`${API}${path}`, {
     method: init?.method || "GET",
     headers: {
@@ -51,12 +51,12 @@ async function shopier<T>(path: string, init?: { method?: string; body?: unknown
     body: init?.body ? JSON.stringify(init.body) : undefined,
     cache: "no-store",
   });
-  const text = await res.text();
-  if (!text) return { status: res.status, data: null };
+  const raw = await res.text();
+  if (!raw) return { status: res.status, data: null, raw: "" };
   try {
-    return { status: res.status, data: JSON.parse(text) as T };
+    return { status: res.status, data: JSON.parse(raw) as T, raw };
   } catch {
-    return { status: res.status, data: null };
+    return { status: res.status, data: null, raw };
   }
 }
 
@@ -73,14 +73,28 @@ function shopierDate(ms: number): string {
 
 let slugCache = "";
 
+function slugFrom(value: string): string {
+  const raw = value.trim();
+  if (!raw) return "";
+  if (/^[a-z0-9_-]+$/i.test(raw) && !/^\d+$/.test(raw)) return raw;
+  try {
+    const path = raw.includes("://") ? new URL(raw).pathname : raw;
+    const slug = path.split("/").filter(Boolean).pop() || "";
+    if (/^[a-z0-9_-]+$/i.test(slug) && !/^\d+$/.test(slug)) return slug;
+  } catch {
+    /* ignore bad URL */
+  }
+  return "";
+}
+
 export async function shopierShopSlug(): Promise<string> {
-  const fromEnv = process.env.SHOPIER_SHOP_SLUG?.trim() || "";
-  if (/^[a-z0-9_-]+$/i.test(fromEnv) && !/^\d+$/.test(fromEnv)) return fromEnv;
+  const fromEnv = slugFrom(process.env.SHOPIER_SHOP_SLUG || "");
+  if (fromEnv) return fromEnv;
   if (slugCache) return slugCache;
   const { status, data } = await shopier<{ url?: string }>("/shop/settings");
-  if (status !== 200) throw new Error("Shopier mağaza bilgisi alınamadı.");
-  const slug = String(data?.url || "").split("/").filter(Boolean).pop() || "";
-  if (!/^[a-z0-9_-]+$/i.test(slug) || /^\d+$/.test(slug)) throw new Error("Shopier mağaza adresi okunamadı.");
+  if (status !== 200) throw new Error(`Shopier mağaza bilgisi alınamadı (${status}).`);
+  const slug = slugFrom(String(data?.url || ""));
+  if (!slug) throw new Error("Shopier mağaza adresi okunamadı.");
   slugCache = slug;
   return slug;
 }
@@ -104,9 +118,8 @@ export async function createShopierCheckout(input: {
 }): Promise<ShopierCheckout> {
   if (!Number.isInteger(input.total) || input.total <= 0) throw new Error("Ödenecek tutar geçersiz.");
   const slug = await shopierShopSlug();
-  if (input.previousProductId) await deleteShopierProduct(input.previousProductId);
   const label = input.kind === "gazete" ? "Dijital gazete" : "Dijital davetiye";
-  const { status, data } = await shopier<{ id?: string; url?: string }>("/products", {
+  const { status, data, raw } = await shopier<{ id?: string; url?: string }>("/products", {
     method: "POST",
     body: {
       title: `${label} ${input.code}`.slice(0, 100),
@@ -121,7 +134,17 @@ export async function createShopierCheckout(input: {
   });
   const productId = String(data?.id || "");
   if (status < 200 || status >= 300 || !/^\d+$/.test(productId)) {
-    throw new Error("Shopier ödeme sayfası açılamadı.");
+    console.error("shopier product create failed", status, raw.slice(0, 400));
+    const blocked = status === 403 || status === 401 || /cloudflare|just a moment|cf-ray|attention required/i.test(raw);
+    throw new Error(`Shopier ürün açılamadı (${blocked ? status || 403 : status || 0}).`);
+  }
+  // Delete the previous listing only after the new one exists, so a failed create cannot wipe payment.
+  if (input.previousProductId && input.previousProductId !== productId) {
+    try {
+      await deleteShopierProduct(input.previousProductId);
+    } catch (error) {
+      console.error(error);
+    }
   }
   return {
     productId,
