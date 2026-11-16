@@ -50,7 +50,7 @@ jobs:
                 shippingPayer: "sellerPays",
                 priceData: { currency: "TRY", price: Number(row.total).toFixed(2) },
                 stockQuantity: 1,
-                customListing: true,
+                customListing: false,
                 media: [{ type: "image", url: image, placement: 1 }],
               }),
             });

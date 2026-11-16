@@ -87,7 +87,7 @@ Deno.serve(async (req) => {
       shippingPayer: "sellerPays",
       priceData: { currency: "TRY", price: total.toFixed(2) },
       stockQuantity: 1,
-      customListing: true,
+      customListing: false,
       media: [{ type: "image", url: imageUrl, placement: 1 }],
     },
   });

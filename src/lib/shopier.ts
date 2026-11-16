@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
+import { createClient } from "@supabase/supabase-js";
 import { siteUrl } from "@/lib/seo";
 
 const API = "https://api.shopier.com/v1";
@@ -49,7 +50,7 @@ function blockedShopier(status: number, raw: string): boolean {
   return /cloudflare|just a moment|cf-ray|attention required/i.test(raw) || (status === 403 && !raw.trim().startsWith("{"));
 }
 
-async function shopier<T>(path: string, init?: { method?: string; body?: unknown }): Promise<{ status: number; data: T | null; raw: string }> {
+async function shopierDirect<T>(path: string, init?: { method?: string; body?: unknown }): Promise<{ status: number; data: T | null; raw: string }> {
   const res = await fetch(`${API}${path}`, {
     method: init?.method || "GET",
     headers: {
@@ -68,6 +69,36 @@ async function shopier<T>(path: string, init?: { method?: string; body?: unknown
   } catch {
     return { status: res.status, data: null, raw };
   }
+}
+
+/** Render is rejected by Shopier. The database makes the same call from Supabase. */
+async function shopierViaRelay<T>(path: string, init?: { method?: string; body?: unknown }): Promise<{ status: number; data: T | null; raw: string } | null> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "";
+  const key = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
+  if (!url || !key) return null;
+  const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data, error } = await db.rpc("shopier_relay", {
+    method: init?.method || "GET",
+    path,
+    payload: init?.body ?? null,
+    token: pat(),
+  });
+  if (error || !data || typeof data !== "object") return null;
+  const row = data as { status?: number; raw?: string };
+  if (typeof row.status !== "number" || row.status <= 0) return null;
+  const raw = String(row.raw || "");
+  if (!raw) return { status: row.status, data: null, raw: "" };
+  try {
+    return { status: row.status, data: JSON.parse(raw) as T, raw };
+  } catch {
+    return { status: row.status, data: null, raw };
+  }
+}
+
+async function shopier<T>(path: string, init?: { method?: string; body?: unknown }): Promise<{ status: number; data: T | null; raw: string }> {
+  const relayed = await shopierViaRelay<T>(path, init);
+  if (relayed && !blockedShopier(relayed.status, relayed.raw)) return relayed;
+  return shopierDirect<T>(path, init);
 }
 
 function tl(value: unknown): number | null {
@@ -215,7 +246,7 @@ async function createShopierProductDirect(input: {
       shippingPayer: "sellerPays",
       priceData: { currency: "TRY", price: input.total.toFixed(2) },
       stockQuantity: 1,
-      customListing: true,
+      customListing: false,
       media: [{ type: "image", url: imageUrl(), placement: 1 }],
     },
   });
