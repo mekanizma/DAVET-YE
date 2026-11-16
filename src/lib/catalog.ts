@@ -141,7 +141,7 @@ export function buildPublicCatalog(ov: CatalogOverrides = {}): PublicCatalog {
   return {
     settings,
     paymentReady: paymentReady(settings),
-    cardPayments: Boolean(process.env.SHOPIER_PAT?.trim()),
+    cardPayments: Boolean(process.env.SHOPIER_PAT?.trim() || (process.env.SHOPIER_API_KEY?.trim() && process.env.SHOPIER_API_SECRET?.trim())),
     addons,
     themes: themesLive,
     newspapers: papers,

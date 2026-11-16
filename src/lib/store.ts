@@ -246,7 +246,7 @@ export async function deskSummary() {
   const known = new Set(themes.map((t) => t.slug));
   const hiddenThemes = ((hiddenRes.data || []) as { slug: string }[]).filter((row) => known.has(row.slug)).length;
   return {
-    paymentReady: Boolean(process.env.SHOPIER_PAT?.trim()),
+    paymentReady: Boolean(process.env.SHOPIER_PAT?.trim() || (process.env.SHOPIER_API_KEY?.trim() && process.env.SHOPIER_API_SECRET?.trim())),
     counts: {
       bekliyor: sum("bekliyor"),
       bildirildi: sum("bildirildi"),

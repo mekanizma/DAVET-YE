@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { findOrderByCode, findOrderForCustomer, saveShopierProduct, syncShopierPayment } from "@/lib/store";
-import { createShopierCheckout, deleteShopierProduct, shopierCheckoutHtml, shopierConfigured, shopierMessageHtml, shopierShopSlug } from "@/lib/shopier";
+import { createShopierCheckout, deleteShopierProduct, shopierCheckoutHtml, shopierConfigured, shopierMessageHtml, shopierPatConfigured, shopierShopSlug } from "@/lib/shopier";
+import { classicShopierCheckoutHtml, shopierClassicConfigured } from "@/lib/shopierClassic";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,21 @@ async function start(req: Request, code: string, email: string, fresh: boolean) 
   if (order.status !== "bekliyor" && order.status !== "reddedildi") {
     return html(shopierMessageHtml("Bu sipariş için ödeme alınamıyor."), 400);
   }
+  // Classic form is signed on the server and posted by the browser to Shopier.
+  // It does not need Render to call api.shopier.com, so it works when PAT product-create is blocked.
+  if (shopierClassicConfigured()) {
+    try {
+      return html(classicShopierCheckoutHtml(order));
+    } catch (error) {
+      console.error(error);
+      return html(shopierMessageHtml("Shopier ödeme sayfası açılamadı. Biraz sonra yeniden deneyin."));
+    }
+  }
+
+  if (!shopierPatConfigured()) {
+    return html(shopierMessageHtml("Kart ödemesi henüz açılmadı."));
+  }
+
   const existing =
     order.snapshot.__shopier && order.snapshot.__shopierAmount === String(order.total) ? order.snapshot.__shopier : "";
 
@@ -78,12 +94,12 @@ async function start(req: Request, code: string, email: string, fresh: boolean) 
       const codeMatch = /\((\d+)\)/.exec(detail);
       const status = codeMatch?.[1] || "";
       if (status === "401" || status === "403") {
-        return html(shopierMessageHtml("Kart ödeme anahtarı Shopier tarafından reddedildi. Render’daki SHOPIER_PAT değerini kontrol edin."));
+        return html(shopierMessageHtml(`Kart ödeme isteği Shopier tarafından reddedildi (${status}). Render sunucusundan ürün açılamıyor; Shopier API Key/Secret ekleyin.`));
       }
       if (status === "429") {
         return html(shopierMessageHtml("Shopier şu an yoğun. Biraz sonra yeniden deneyin."));
       }
-      return html(shopierMessageHtml("Shopier ödeme sayfası açılamadı. Biraz sonra yeniden deneyin."));
+      return html(shopierMessageHtml(`Shopier ödeme sayfası açılamadı${status ? ` (${status})` : ""}. Biraz sonra yeniden deneyin.`));
     }
   } catch (error) {
     console.error(error);

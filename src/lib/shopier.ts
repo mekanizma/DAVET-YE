@@ -30,8 +30,13 @@ export interface ShopierPaid {
   amount: number;
 }
 
-export function shopierConfigured(): boolean {
+export function shopierPatConfigured(): boolean {
   return Boolean(process.env.SHOPIER_PAT?.trim());
+}
+
+export function shopierConfigured(): boolean {
+  const classic = Boolean(process.env.SHOPIER_API_KEY?.trim() && process.env.SHOPIER_API_SECRET?.trim());
+  return shopierPatConfigured() || classic;
 }
 
 function pat(): string {

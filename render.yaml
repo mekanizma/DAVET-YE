@@ -31,3 +31,7 @@ services:
         sync: false
       - key: SHOPIER_SHOP_SLUG
         sync: false
+      - key: SHOPIER_API_KEY
+        sync: false
+      - key: SHOPIER_API_SECRET
+        sync: false
