@@ -424,7 +424,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
               </p>
             </div>
             <div className="nb__summary">
-              <p className="field__hint">{tx("Taslak tarayıcıda saklanır. Ödeme Shopier ile karttan alınır.", "The draft is saved in this browser. Payment is by card on Shopier.")}</p>
+              <p className="field__hint">{tx("Taslak tarayıcıda saklanır. Ödeme havale / EFT ile alınır.", "The draft is saved in this browser. Payment is by bank transfer.")}</p>
               {payOpen || draft.orderCode ? (
                 <IbanCheckout
                   kind="gazete"

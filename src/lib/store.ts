@@ -245,8 +245,12 @@ export async function deskSummary() {
   const sum = (status: string) => stats.filter((o) => o.status === status).length;
   const known = new Set(themes.map((t) => t.slug));
   const hiddenThemes = ((hiddenRes.data || []) as { slug: string }[]).filter((row) => known.has(row.slug)).length;
+  const cat = await getPublicCatalog();
   return {
-    paymentReady: Boolean(process.env.SHOPIER_PAT?.trim() || (process.env.SHOPIER_API_KEY?.trim() && process.env.SHOPIER_API_SECRET?.trim())),
+    paymentReady: cat.paymentReady,
+    bankName: cat.settings.bankName,
+    accountHolder: cat.settings.accountHolder,
+    iban: cat.settings.iban,
     counts: {
       bekliyor: sum("bekliyor"),
       bildirildi: sum("bildirildi"),
@@ -513,6 +517,31 @@ export async function saveShopierProduct(code: string, email: string, productId:
   order.snapshot = { ...order.snapshot, __shopier: productId, __shopierAmount: String(order.total) };
   order.updatedAt = new Date().toISOString();
   return upsertOrder(order, row.user_id || null);
+}
+
+/** Create (or reuse) the Shopier product for an unpaid order. Safe to fire-and-forget after checkout. */
+export async function ensureShopierProduct(order: OrderRecord): Promise<OrderRecord | null> {
+  if (order.total <= 0 || order.status === "onaylandi") return order;
+  if (order.snapshot.__shopier && order.snapshot.__shopierAmount === String(order.total)) return order;
+  try {
+    const { createShopierCheckout } = await import("@/lib/shopier");
+    const checkout = await createShopierCheckout({
+      code: order.code,
+      kind: order.kind,
+      total: order.total,
+      previousProductId: order.snapshot.__shopier,
+    });
+    return (await saveShopierProduct(order.code, order.customer.email, checkout.productId)) || order;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export function nudgeShopierProduct(order: OrderRecord) {
+  if (order.total <= 0 || order.status === "onaylandi") return;
+  if (order.snapshot.__shopier && order.snapshot.__shopierAmount === String(order.total)) return;
+  void ensureShopierProduct(order);
 }
 
 export async function confirmShopierPayment(match: {

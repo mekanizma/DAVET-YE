@@ -96,9 +96,9 @@ export function paymentReady(settings: PaymentSettings): boolean {
   return isValidIban(settings.iban) && settings.accountHolder.trim().length >= 3;
 }
 
-/** Bank details stay on the server. The payment page collects by card. */
+/** Customer-facing bank details for havale / EFT checkout. */
 export function customerPaymentSettings(settings: PaymentSettings): PaymentSettings {
-  return { ...settings, bankName: "", accountHolder: "", iban: "", instructions: "" };
+  return { ...settings };
 }
 
 export function buildPublicCatalog(ov: CatalogOverrides = {}): PublicCatalog {
@@ -141,7 +141,8 @@ export function buildPublicCatalog(ov: CatalogOverrides = {}): PublicCatalog {
   return {
     settings,
     paymentReady: paymentReady(settings),
-    cardPayments: Boolean(process.env.SHOPIER_PAT?.trim() || (process.env.SHOPIER_API_KEY?.trim() && process.env.SHOPIER_API_SECRET?.trim())),
+    // Shopier kart ödemesi geçici olarak kapalı; tahsilat IBAN havale / EFT ile.
+    cardPayments: false,
     addons,
     themes: themesLive,
     newspapers: papers,

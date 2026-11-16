@@ -36,7 +36,7 @@ export default function DashboardView() {
       <header className="adm-h">
         <div>
           <h1>Özet</h1>
-          <p>Kart ödemeleri Shopier POS ile alınır ve onaylanınca sipariş kendiliğinden açılır.</p>
+          <p>Gelen havaleleri onaylayın. Ödeme yalnızca IBAN ile alınır; Shopier şimdilik kapalı.</p>
         </div>
       </header>
 
@@ -61,8 +61,23 @@ export default function DashboardView() {
 
       <section className="adm-card">
         <h2>Ödeme</h2>
-        <p>Müşteri ödeme sayfasında IBAN görmez. Tahsilat Shopier kart ekranından yapılır.</p>
+        {!data.paymentReady ? (
+          <div className="alert alert--warn" role="status">
+            <span>
+              Havale hesabı eksik. Müşteri sipariş oluşturabilir ama nereye yatıracağını göremez.{" "}
+              <Link href="/yonetim/odeme">Ödeme hesabını tanımlayın</Link>.
+            </span>
+          </div>
+        ) : (
+          <p>
+            {data.accountHolder}
+            <br />
+            <span className="num">{data.iban}</span>
+          </p>
+        )}
+        <p className="muted">Shopier kart ödemesi şimdilik kapalı.</p>
         <div className="adm-actions">
+          <Link href="/yonetim/odeme" className="btn btn--outline btn--sm">IBAN ayarı</Link>
           <Link href="/yonetim/siparisler?durum=bekliyor" className="btn btn--outline btn--sm">Ödeme bekleyenler</Link>
           <Link href="/yonetim/siparisler?durum=bildirildi" className="btn btn--outline btn--sm">Onay kuyruğu</Link>
         </div>
@@ -82,7 +97,7 @@ export default function DashboardView() {
       <section>
         <h2 style={{ margin: "8px 0" }}>Son siparişler</h2>
         {data.recent.length === 0 ? (
-          <p className="muted">Henüz sipariş yok. Kart ödemesi Shopier’de onaylanınca sipariş burada görünür.</p>
+          <p className="muted">Henüz sipariş yok. Müşteri ad soyad ve dekont gönderince bildirim burada görünür.</p>
         ) : (
           <div className="ord-list">
             {data.recent.map((o) => (

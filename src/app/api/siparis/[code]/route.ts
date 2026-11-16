@@ -15,9 +15,11 @@ export async function GET(req: Request, ctx: { params: Promise<{ code: string }>
   const sync = url.searchParams.get("odeme") === "1";
   const order = sync ? await syncShopierPayment(found) : found;
   const share = await shareForOrder(order.code);
-  if (!sync) return NextResponse.json({ order, share }, { headers: { "Cache-Control": "no-store" } });
   const cat = await getPublicCatalog();
-  return NextResponse.json({ order, share, settings: customerPaymentSettings(cat.settings), paymentReady: cat.cardPayments });
+  return NextResponse.json(
+    { order, share, settings: customerPaymentSettings(cat.settings), paymentReady: cat.paymentReady },
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }
 
 export async function POST(req: Request, ctx: { params: Promise<{ code: string }> }) {
@@ -67,5 +69,5 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
   const cat = await getPublicCatalog();
-  return NextResponse.json({ order: result.order, settings: customerPaymentSettings(cat.settings), paymentReady: cat.cardPayments });
+  return NextResponse.json({ order: result.order, settings: customerPaymentSettings(cat.settings), paymentReady: cat.paymentReady });
 }

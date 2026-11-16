@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
-import { deskSummary, nudgeShopierSync } from "@/lib/store";
+import { deskSummary } from "@/lib/store";
 
 export async function GET() {
-  await nudgeShopierSync();
   const desk = await deskSummary();
   return NextResponse.json({
     paymentReady: desk.paymentReady,
-    bankName: "",
-    accountHolder: "",
-    iban: "",
+    bankName: desk.bankName,
+    accountHolder: desk.accountHolder,
+    iban: desk.iban,
     counts: desk.counts,
     approvedTotal: desk.approvedTotal,
     recent: desk.recent,

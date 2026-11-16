@@ -73,5 +73,5 @@ export async function POST(req: Request) {
     locale: body.locale === "en" ? "en" : "tr",
   });
   const cat = await getPublicCatalog();
-  return NextResponse.json({ order: result.order, share, settings: customerPaymentSettings(cat.settings), paymentReady: cat.cardPayments });
+  return NextResponse.json({ order: result.order, share, settings: customerPaymentSettings(cat.settings), paymentReady: cat.paymentReady });
 }
