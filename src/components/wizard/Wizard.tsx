@@ -69,7 +69,13 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
   const steps = wizardSteps(locale);
   const base = lp(locale, "/davetiye-olustur");
   const copy = marketing(locale);
-  const heading = titles(locale)[step];
+  const baseHeading = titles(locale)[step];
+  const heading = step === "odeme" && cat.cardPayments
+    ? {
+        h: tx(locale, "Shopier ile ödeme", "Pay with Shopier"),
+        sub: tx(locale, "Sipariş tutarı kadar ürün açılır. Ödeme doğrulanınca ürün silinir.", "A product is opened for the order amount. It is deleted once the payment is verified."),
+      }
+    : baseHeading;
 
   const idx = steps.findIndex((s) => s.id === step);
   const prev = steps[idx - 1];

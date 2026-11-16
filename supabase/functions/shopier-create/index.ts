@@ -3,6 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 const SHOPIER_API = "https://api.shopier.com/v1";
 
 type Body = {
+  action?: string;
+  productId?: string;
   code?: string;
   kind?: "davetiye" | "gazete";
   total?: number;
@@ -52,6 +54,17 @@ Deno.serve(async (req) => {
     body = (await req.json()) as Body;
   } catch {
     return json({ error: "body" }, 400);
+  }
+
+  if (body.action === "delete") {
+    const productId = String(body.productId || "").trim();
+    if (!/^\d+$/.test(productId)) return json({ error: "product" }, 400);
+    const removed = await shopier(pat, `/products/${productId}`, { method: "DELETE" });
+    if (removed.status !== 200 && removed.status !== 204 && removed.status !== 404) {
+      console.error("shopier delete failed", removed.status, removed.raw.slice(0, 400));
+      return json({ error: "shopier", status: removed.status }, 502);
+    }
+    return json({ ok: true });
   }
 
   const code = String(body.code || "").trim().toUpperCase();

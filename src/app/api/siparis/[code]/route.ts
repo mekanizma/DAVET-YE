@@ -12,12 +12,12 @@ export async function GET(req: Request, ctx: { params: Promise<{ code: string }>
     return NextResponse.json({ error: "Sipariş bulunamadı." }, { status: 404 });
   }
   const url = new URL(req.url);
-  const sync = url.searchParams.get("odeme") === "1";
+  const sync = url.searchParams.get("odeme") === "1" || Boolean(found.snapshot.__shopier);
   const order = sync ? await syncShopierPayment(found) : found;
   const share = await shareForOrder(order.code);
   const cat = await getPublicCatalog();
   return NextResponse.json(
-    { order, share, settings: customerPaymentSettings(cat.settings), paymentReady: cat.paymentReady },
+    { order, share, settings: customerPaymentSettings(cat.settings), paymentReady: cat.paymentReady, cardPayments: cat.cardPayments },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

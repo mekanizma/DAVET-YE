@@ -45,6 +45,10 @@ function pat(): string {
   return token;
 }
 
+function blockedShopier(status: number, raw: string): boolean {
+  return /cloudflare|just a moment|cf-ray|attention required/i.test(raw) || (status === 403 && !raw.trim().startsWith("{"));
+}
+
 async function shopier<T>(path: string, init?: { method?: string; body?: unknown }): Promise<{ status: number; data: T | null; raw: string }> {
   const res = await fetch(`${API}${path}`, {
     method: init?.method || "GET",
@@ -55,6 +59,7 @@ async function shopier<T>(path: string, init?: { method?: string; body?: unknown
     },
     body: init?.body ? JSON.stringify(init.body) : undefined,
     cache: "no-store",
+    signal: AbortSignal.timeout(12_000),
   });
   const raw = await res.text();
   if (!raw) return { status: res.status, data: null, raw: "" };
@@ -110,9 +115,34 @@ function imageUrl(): string {
   return `${siteUrl()}/og.jpg`;
 }
 
+async function deleteShopierProductViaEdge(productId: string) {
+  const url = edgeCreateUrl();
+  const secret = createSecret();
+  const bearer = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
+  if (!url || !secret || !bearer) return;
+  await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-shopier-create-secret": secret,
+      Authorization: `Bearer ${bearer}`,
+    },
+    body: JSON.stringify({ action: "delete", productId }),
+    cache: "no-store",
+    signal: AbortSignal.timeout(12_000),
+  });
+}
+
 export async function deleteShopierProduct(productId: string) {
   if (!/^\d+$/.test(productId)) return;
-  await shopier(`/products/${productId}`, { method: "DELETE" });
+  try {
+    const { status, raw } = await shopier(`/products/${productId}`, { method: "DELETE" });
+    if (status === 200 || status === 204 || status === 404) return;
+    if (!blockedShopier(status, raw)) return;
+  } catch (error) {
+    console.error(error);
+  }
+  await deleteShopierProductViaEdge(productId);
 }
 
 function createSecret(): string {
@@ -152,6 +182,7 @@ async function createShopierProductViaEdge(input: {
       imageUrl: imageUrl(),
     }),
     cache: "no-store",
+    signal: AbortSignal.timeout(12_000),
   });
   const raw = await res.text();
   let data: { productId?: string; productUrl?: string; status?: number } | null = null;
@@ -191,7 +222,7 @@ async function createShopierProductDirect(input: {
   const productId = String(data?.id || "");
   if (status < 200 || status >= 300 || !/^\d+$/.test(productId)) {
     console.error("shopier product create failed", status, raw.slice(0, 400));
-    const blocked = status === 403 || status === 401 || /cloudflare|just a moment|cf-ray|attention required/i.test(raw);
+    const blocked = blockedShopier(status, raw) || status === 401 || status === 403;
     throw new Error(`Shopier ürün açılamadı (${blocked ? status || 403 : status || 0}).`);
   }
   if (input.previousProductId && input.previousProductId !== productId) {
@@ -201,7 +232,8 @@ async function createShopierProductDirect(input: {
       console.error(error);
     }
   }
-  return { productId, productUrl: `https://www.shopier.com/${productId}` };
+  const productUrl = typeof data?.url === "string" && /^https:\/\//i.test(data.url) ? data.url : `https://www.shopier.com/${productId}`;
+  return { productId, productUrl };
 }
 
 export async function createShopierCheckout(input: {

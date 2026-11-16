@@ -58,7 +58,7 @@ export default function SettingsView() {
       <header className="adm-h">
         <div>
           <h1>Ödeme hesabı</h1>
-          <p>İlk aşamada tahsilat yalnızca bu IBAN’a havale veya EFT ile yapılır. Kart, sanal POS veya kapıda ödeme yoktur.</p>
+          <p>Kart ödemesi Shopier üzerinden alınır. Bu IBAN, havale veya EFT ile ödemek isteyen müşteri içindir.</p>
         </div>
       </header>
 

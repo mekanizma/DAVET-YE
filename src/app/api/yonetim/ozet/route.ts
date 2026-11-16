@@ -5,6 +5,7 @@ export async function GET() {
   const desk = await deskSummary();
   return NextResponse.json({
     paymentReady: desk.paymentReady,
+    cardPayments: desk.cardPayments,
     bankName: desk.bankName,
     accountHolder: desk.accountHolder,
     iban: desk.iban,

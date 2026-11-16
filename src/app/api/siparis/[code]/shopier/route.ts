@@ -47,18 +47,16 @@ async function start(req: Request, code: string, email: string, fresh: boolean) 
   if (order.status !== "bekliyor" && order.status !== "reddedildi") {
     return html(shopierMessageHtml("Bu sipariş için ödeme alınamıyor."), 400);
   }
-  // Classic form is signed on the server and posted by the browser to Shopier.
-  // It does not need Render to call api.shopier.com, so it works when PAT product-create is blocked.
-  if (shopierClassicConfigured()) {
-    try {
-      return html(classicShopierCheckoutHtml(order));
-    } catch (error) {
-      console.error(error);
-      return html(shopierMessageHtml("Shopier ödeme sayfası açılamadı. Biraz sonra yeniden deneyin."));
-    }
-  }
 
   if (!shopierPatConfigured()) {
+    if (shopierClassicConfigured()) {
+      try {
+        return html(classicShopierCheckoutHtml(order));
+      } catch (error) {
+        console.error(error);
+        return html(shopierMessageHtml("Shopier ödeme sayfası açılamadı. Biraz sonra yeniden deneyin."));
+      }
+    }
     return html(shopierMessageHtml("Kart ödemesi henüz açılmadı."));
   }
 

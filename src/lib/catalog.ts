@@ -141,7 +141,7 @@ export function buildPublicCatalog(ov: CatalogOverrides = {}): PublicCatalog {
   return {
     settings,
     paymentReady: paymentReady(settings),
-    // Shopier kart ödemesi geçici olarak kapalı; tahsilat IBAN havale / EFT ile.
+    // Shopier açıksa getPublicCatalog bunu true yapar. Varsayılan kapalıdır.
     cardPayments: false,
     addons,
     themes: themesLive,

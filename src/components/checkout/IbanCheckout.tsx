@@ -30,6 +30,10 @@ function tx(locale: Locale, tr: string, en: string) {
   return locale === "en" ? en : tr;
 }
 
+function shopierPayUrl(code: string, email: string) {
+  return `/api/siparis/${encodeURIComponent(code)}/shopier?email=${encodeURIComponent(email)}`;
+}
+
 function stamp(iso: string, locale: Locale) {
   return new Date(iso).toLocaleString(locale === "en" ? "en-GB" : "tr-TR", {
     day: "numeric",
@@ -83,13 +87,14 @@ export default function IbanCheckout({
   const [pathName, setPathName] = useState(shareSlug);
   const [settings, setSettings] = useState<PaymentSettings>(cat.settings);
   const [ready, setReady] = useState(cat.paymentReady);
+  const [cards, setCards] = useState(cat.cardPayments);
 
   useEffect(() => {
     if (!resume?.code || !resume.email) return;
     let cancelled = false;
     let timer = 0;
     async function load(silent = false) {
-      const res = await fetch(`/api/siparis/${encodeURIComponent(resume!.code)}?email=${encodeURIComponent(resume!.email)}`);
+      const res = await fetch(`/api/siparis/${encodeURIComponent(resume!.code)}?email=${encodeURIComponent(resume!.email)}&odeme=1`);
       if (cancelled) return;
       if (!res.ok) {
         if (!silent) {
@@ -104,6 +109,7 @@ export default function IbanCheckout({
       setShare(data.share || null);
       setSettings(data.settings);
       setReady(data.paymentReady);
+      if (typeof data.cardPayments === "boolean") setCards(data.cardPayments);
       if (!silent) setSender("");
       setPhase("pay");
       onUpdate?.({
@@ -116,7 +122,7 @@ export default function IbanCheckout({
       return true;
     }
     load().then((found) => {
-      if (!cancelled && found) timer = window.setInterval(() => load(true), 15000);
+      if (!cancelled && found) timer = window.setInterval(() => load(true), 8000);
     });
     return () => {
       cancelled = true;
@@ -166,11 +172,15 @@ export default function IbanCheckout({
       }
       setSettings(data.settings);
       setReady(data.paymentReady);
+      if (typeof data.cardPayments === "boolean") setCards(data.cardPayments);
       setShare(data.share || null);
       remember(data.order);
       setSender("");
       setFile(null);
       setPhase("pay");
+      if (data.cardPayments && data.order.total > 0 && data.order.status !== "onaylandi") {
+        window.location.assign(shopierPayUrl(data.order.code, data.order.customer.email));
+      }
     } catch {
       setFailure(tx(locale, "Bağlantı kurulamadı. Yeniden deneyin.", "The connection could not be made. Please try again."));
     } finally {
@@ -227,6 +237,38 @@ export default function IbanCheckout({
   const showNotify = status === "bekliyor" || status === "reddedildi" || (status === "bildirildi" && !receiptSent);
   const canSend = sender.trim().length >= 3 && Boolean(file) && ready && !busy;
   const statusText = status ? statusLabel(status, locale, STATUS_LABEL[status] ?? status) : "";
+  const unpaid = Boolean(order && order.total > 0 && status !== "onaylandi");
+  const transferForm = showNotify ? (
+    <form onSubmit={report} noValidate>
+      {status === "reddedildi" && (
+        <div className="alert alert--error" role="alert">
+          <Icon name="alert" size={18} />
+          <span>{order?.adminNote || tx(locale, "Ödeme onaylanmadı. Havale bilgilerinizi kontrol edip yeniden bildirin.", "The payment was not confirmed. Check the transfer details and send them again.")}</span>
+        </div>
+      )}
+      <TextField id="pay-sender" label={tx(locale, "Ad soyad", "Full name")} required value={sender} onChange={(e) => setSender(e.target.value)} error={errors.sender} autoComplete="name" hint={tx(locale, "Dekonttaki gönderen adıyla aynı olsun.", "Use the same name as the sender on the receipt.")} />
+      <div className="dekont">
+        <label htmlFor="pay-dekont">{tx(locale, "Dekont", "Receipt")}</label>
+        <input
+          id="pay-dekont"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf"
+          onChange={(e) => {
+            setFile(e.target.files?.[0] ?? null);
+            setErrors((prev) => ({ ...prev, dekont: "" }));
+          }}
+        />
+        <small>{file ? file.name : tx(locale, "Fotoğraf veya PDF seçin. En fazla 5 MB.", "Choose a photograph or a PDF. 5 MB at most.")}</small>
+        {errors.dekont && <p className="field__error" role="alert">{errors.dekont}</p>}
+        {preview && <img className="dekont__preview" src={preview} alt={tx(locale, "Seçilen dekontun önizlemesi", "Preview of the selected receipt")} />}
+      </div>
+      {failure && <div className="alert alert--error" role="alert"><Icon name="alert" size={18} /><span>{failure}</span></div>}
+      <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={!canSend}>
+        {busy ? tx(locale, "Gönderiliyor…", "Sending…") : status === "reddedildi" ? tx(locale, "Yeniden gönder", "Send again") : tx(locale, "Gönder", "Send")}
+      </button>
+      {!ready && <p className="field__hint">{tx(locale, "Hesap bilgisi yayınlanmadan havale bildirimi kapalıdır.", "A transfer notice stays closed until the account details are published.")}</p>}
+    </form>
+  ) : null;
 
   if (phase === "form") {
     return (
@@ -234,7 +276,17 @@ export default function IbanCheckout({
         <div className="alert alert--info" role="note">
           <Icon name="info" size={18} />
           <span>
-            {locale === "en" ? (
+            {cards ? (
+              locale === "en" ? (
+                <>
+                  Payment is taken on <strong>Shopier</strong>. A one-off product is opened for this amount in TL. After the payment is verified, that product is deleted and the order is confirmed.
+                </>
+              ) : (
+                <>
+                  Ödeme <strong>Shopier</strong> kart sayfasında alınır. Tutar kadar tek kullanımlık ürün açılır. Ödeme doğrulanınca ürün silinir ve sipariş onaylanır.
+                </>
+              )
+            ) : locale === "en" ? (
               <>
                 Payment is by <strong>bank transfer</strong> only. Card details are never asked for. After the order code is created, write the amount and the code in the transfer reference.
               </>
@@ -246,7 +298,7 @@ export default function IbanCheckout({
             )}
           </span>
         </div>
-        {!ready && (
+        {!cards && !ready && (
           <div className="alert alert--warn" role="status">
             <Icon name="alert" size={18} />
             <span>{tx(locale, "Havale hesabı henüz yayınlanmadı. Siparişinizi yine de oluşturabilirsiniz; hesap eklendiğinde bu ekranda görünür.", "The transfer account has not been published yet. You can still place the order; the account appears on this screen once it is added.")}</span>
@@ -273,7 +325,7 @@ export default function IbanCheckout({
         <TextAreaField id="pay-note" label={tx(locale, "Not (isteğe bağlı)", "Note (optional)")} value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} />
         {failure && <div className="alert alert--error" role="alert"><Icon name="alert" size={18} /><span>{failure}</span></div>}
         <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={busy}>
-          <Icon name="envelope" size={16} /> {busy ? tx(locale, "Kaydediliyor…", "Saving…") : tx(locale, "Siparişi oluştur", "Create the order")}
+          <Icon name="envelope" size={16} /> {busy ? (cards ? tx(locale, "Shopier açılıyor…", "Opening Shopier…") : tx(locale, "Kaydediliyor…", "Saving…")) : cards ? tx(locale, "Shopier ile ödemeye geç", "Continue to Shopier") : tx(locale, "Siparişi oluştur", "Create the order")}
         </button>
       </form>
     );
@@ -287,53 +339,46 @@ export default function IbanCheckout({
         {status && <span className={`pill pill--${status}`}>{statusText}</span>}
       </p>
 
-      {order?.total === 0 || status === "onaylandi" ? null : (
+      {unpaid && cards && order ? (
+        <div className="pay-shopier">
+          <ol className="iban-steps">
+            <li>{tx(locale, "Sipariş tutarı kadar tek kullanımlık Shopier ürünü açılır.", "A one-off Shopier product is opened for the order amount.")}</li>
+            <li>{tx(locale, "Ödemeyi Shopier kart sayfasında tamamlayın.", "Complete the payment on Shopier’s card page.")}</li>
+            <li>{tx(locale, "Ödeme doğrulanınca ürün silinir ve sipariş onaylanır.", "Once the payment is verified, the product is deleted and the order is confirmed.")}</li>
+          </ol>
+          <a className="btn btn--dark btn--lg btn--block btn--serif" href={shopierPayUrl(order.code, order.customer.email)}>
+            {tx(locale, "Shopier ile öde", "Pay with Shopier")} · {formatTL(total, locale)}
+          </a>
+          <p className="field__hint">{tx(locale, "Ödeme bitince bu sayfaya dönün. Onay kısa süre içinde burada görünür.", "Come back to this page after paying. Confirmation shows up here shortly.")}</p>
+        </div>
+      ) : unpaid ? (
         <ol className="iban-steps">
           <li>{tx(locale, "Aşağıdaki hesaba sipariş tutarının tamamını havale veya EFT ile gönderin.", "Send the full order amount to the account below by bank transfer.")}</li>
           <li>{tx(locale, "Açıklama kısmına yalnızca sipariş kodunu yazın. Kod olmadan ödeme eşleşmeyebilir.", "Write only the order code in the reference. Without the code, the payment may not be matched.")}</li>
           <li>{tx(locale, "Ad soyadınızı ve dekontu gönderin. Ödeme sistem tarafından kontrol edilip onaylanır. Karttan çekim yapılmaz.", "Send your full name and the receipt. The payment is checked and confirmed by the system. Nothing is charged to a card.")}</li>
         </ol>
-      )}
+      ) : null}
 
-      {status !== "onaylandi" && <IbanCard settings={settings} total={total} code={order?.code} title={title} />}
-      {settings.instructions && status !== "onaylandi" && <p className="field__hint">{settings.instructions}</p>}
+      {unpaid && cards && ready ? (
+        <details className="pay-alt">
+          <summary>{tx(locale, "Havale / EFT ile ödemek istiyorum", "I want to pay by bank transfer")}</summary>
+          <div className="pay-shopier">
+            <IbanCard settings={settings} total={total} code={order?.code} title={title} />
+            {settings.instructions ? <p className="field__hint">{settings.instructions}</p> : null}
+            {transferForm}
+          </div>
+        </details>
+      ) : null}
+
+      {status !== "onaylandi" && !cards && <IbanCard settings={settings} total={total} code={order?.code} title={title} />}
+      {!cards && settings.instructions && status !== "onaylandi" && <p className="field__hint">{settings.instructions}</p>}
       {(settings.supportEmail || settings.supportPhone) && (
         <p className="field__hint">
           {tx(locale, "Destek:", "Support:")} {settings.supportPhone} {settings.supportEmail && <a href={`mailto:${settings.supportEmail}`}>{settings.supportEmail}</a>}
         </p>
       )}
 
-      {showNotify ? (
-        <form onSubmit={report} noValidate>
-          {status === "reddedildi" && (
-            <div className="alert alert--error" role="alert">
-              <Icon name="alert" size={18} />
-              <span>{order?.adminNote || tx(locale, "Ödeme onaylanmadı. Havale bilgilerinizi kontrol edip yeniden bildirin.", "The payment was not confirmed. Check the transfer details and send them again.")}</span>
-            </div>
-          )}
-          <TextField id="pay-sender" label={tx(locale, "Ad soyad", "Full name")} required value={sender} onChange={(e) => setSender(e.target.value)} error={errors.sender} autoComplete="name" hint={tx(locale, "Dekonttaki gönderen adıyla aynı olsun.", "Use the same name as the sender on the receipt.")} />
-          <div className="dekont">
-            <label htmlFor="pay-dekont">{tx(locale, "Dekont", "Receipt")}</label>
-            <input
-              id="pay-dekont"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf"
-              onChange={(e) => {
-                setFile(e.target.files?.[0] ?? null);
-                setErrors((prev) => ({ ...prev, dekont: "" }));
-              }}
-            />
-            <small>{file ? file.name : tx(locale, "Fotoğraf veya PDF seçin. En fazla 5 MB.", "Choose a photograph or a PDF. 5 MB at most.")}</small>
-            {errors.dekont && <p className="field__error" role="alert">{errors.dekont}</p>}
-            {preview && <img className="dekont__preview" src={preview} alt={tx(locale, "Seçilen dekontun önizlemesi", "Preview of the selected receipt")} />}
-          </div>
-          {failure && <div className="alert alert--error" role="alert"><Icon name="alert" size={18} /><span>{failure}</span></div>}
-          <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={!canSend}>
-            {busy ? tx(locale, "Gönderiliyor…", "Sending…") : status === "reddedildi" ? tx(locale, "Yeniden gönder", "Send again") : tx(locale, "Gönder", "Send")}
-          </button>
-          {!ready && <p className="field__hint">{tx(locale, "Hesap bilgisi yayınlanmadan havale bildirimi kapalıdır.", "A transfer notice stays closed until the account details are published.")}</p>}
-        </form>
-      ) : null}
+      {!cards ? transferForm : null}
 
       {status === "bildirildi" && receiptSent && (
         <div className="alert alert--success" role="status">

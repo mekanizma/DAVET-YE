@@ -771,7 +771,7 @@ export default function NewspaperStudio({
                     </>
                   ) : (
                     <>
-                      <p className="ns-hint">{tx("Taslak tarayıcıda saklanır. Ödeme havale / EFT ile alınır.", "The draft is saved in this browser. Payment is by bank transfer.")}</p>
+                      <p className="ns-hint">{cat.cardPayments ? tx("Taslak tarayıcıda saklanır. Ödeme Shopier ile alınır.", "The draft is saved in this browser. Payment is taken through Shopier.") : tx("Taslak tarayıcıda saklanır. Ödeme havale / EFT ile alınır.", "The draft is saved in this browser. Payment is by bank transfer.")}</p>
                       {payOpen || draft.orderCode ? (
                         <IbanCheckout
                           kind="gazete"

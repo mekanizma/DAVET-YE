@@ -543,6 +543,21 @@
 .iban-pay .btn { max-width: 100%; white-space: normal; text-align: center; }
 .iban-pay form { display: grid; gap: 14px; }
 .iban-pay form .field { margin-bottom: 0; }
+.pay-shopier { display: grid; gap: 10px; }
+.pay-shopier .btn { width: 100%; }
+.pay-alt {
+  border: 1px solid rgba(28, 36, 28, 0.14);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+.pay-alt summary {
+  cursor: pointer;
+  font-weight: 650;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.pay-alt form { margin-top: 12px; }
 .iban-steps {
   display: grid;
   gap: 8px;

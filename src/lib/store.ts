@@ -22,7 +22,7 @@ import type { OrderStatus } from "@/lib/orderStatus";
 import type { OrderLine, OrderRecord } from "@/lib/orderTypes";
 import { invitationQuote, paperQuote } from "@/lib/pricing";
 import { publishShare, releaseShare } from "@/lib/shareLink";
-import { deleteShopierProduct, findPaidShopierOrder, listShopierOrdersSince, shopierPaidHit } from "@/lib/shopier";
+import { deleteShopierProduct, findPaidShopierOrder, listShopierOrdersSince, shopierPaidHit, shopierPatConfigured } from "@/lib/shopier";
 import { createSupabaseAnon, createSupabaseServer, createSupabaseService } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseUrl } from "@/lib/supabase/env";
@@ -195,6 +195,7 @@ export const getPublicCatalog = cache(async (): Promise<PublicCatalog> => {
     studioPrice: s.studioPrice ?? undefined,
     features: s.features,
   });
+  data.cardPayments = shopierPatConfigured();
   catalogMemo = { at: Date.now(), data };
   return data;
 });
@@ -248,6 +249,7 @@ export async function deskSummary() {
   const cat = await getPublicCatalog();
   return {
     paymentReady: cat.paymentReady,
+    cardPayments: cat.cardPayments,
     bankName: cat.settings.bankName,
     accountHolder: cat.settings.accountHolder,
     iban: cat.settings.iban,
