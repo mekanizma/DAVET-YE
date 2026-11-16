@@ -8,7 +8,10 @@ import { useIv } from "./ctx";
 import { sampleFor } from "@/data/sample";
 import { useLocale } from "@/i18n/provider";
 import { formatIban } from "@/lib/format";
+import AlbumCarousel from "./AlbumCarousel";
 import { uploadSharePhoto } from "@/lib/albumClient";
+import { lensFilter, LENS_FILTERS, type LensFilterId } from "@/lib/lensFilters";
+import { postShareRsvp } from "@/lib/rsvpClient";
 import { listShareWishes, postShareWish } from "@/lib/wishClient";
 import { getLocalJson, setLocalJson, type Rsvp, type Wish } from "@/lib/storage";
 
@@ -20,78 +23,76 @@ export interface WallPhoto {
 
 /* ----------------------------- RSVP ----------------------------- */
 
-export function RsvpSection() {
+export function RsvpSection({ albumSlug = "" }: { albumSlug?: string }) {
   const { theme, style } = useIv();
   const en = useLocale() === "en";
   const uid = useId();
   const [name, setName] = useState("");
-  const [attending, setAttending] = useState<"" | "yes" | "no">("");
-  const [count, setCount] = useState(1);
-  const [note, setNote] = useState("");
-  const [errors, setErrors] = useState<{ name?: string; attending?: string; count?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string }>({});
   const [sent, setSent] = useState<Rsvp | null>(null);
-  const [storeError, setStoreError] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [storeError, setStoreError] = useState("");
   const errRef = useRef<HTMLDivElement>(null);
 
-  function validate() {
-    const e: typeof errors = {};
-    if (name.trim().length < 2) e.name = en ? "Please enter your first and last name." : "Lütfen adınızı ve soyadınızı yazın.";
-    if (!attending) e.attending = en ? "Please choose whether you will attend." : "Lütfen katılım durumunuzu seçin.";
-    if (attending === "yes" && (!Number.isInteger(count) || count < 1 || count > 10))
-      e.count = en ? "The number of guests must be between 1 and 10." : "Kişi sayısı 1 ile 10 arasında olmalıdır.";
-    return e;
-  }
-
-  function submit(ev: React.FormEvent) {
-    ev.preventDefault();
-    const e = validate();
-    setErrors(e);
-    if (Object.keys(e).length) {
+  async function reply(attending: boolean) {
+    if (busy) return;
+    const trimmed = name.trim();
+    if (trimmed.length < 2) {
+      setErrors({ name: en ? "Please enter your first and last name." : "Lütfen adınızı ve soyadınızı yazın." });
       setTimeout(() => errRef.current?.focus(), 0);
       return;
     }
+    setErrors({});
     const entry: Rsvp = {
-      name: name.trim(),
-      attending: attending === "yes",
-      count: attending === "yes" ? count : 0,
-      note: note.trim(),
+      name: trimmed,
+      attending,
+      count: attending ? 1 : 0,
+      note: "",
       at: new Date().toISOString(),
     };
-    const key = `rsvp:${theme.slug}`;
-    const list = getLocalJson<Rsvp[]>(key, []);
-    const ok = setLocalJson(key, [...list, entry]);
-    setStoreError(!ok);
-    setSent(entry);
+    setBusy(true);
+    setStoreError("");
+    try {
+      if (albumSlug) {
+        await postShareRsvp(albumSlug, {
+          name: entry.name,
+          attending: entry.attending,
+          count: entry.count,
+        });
+      } else {
+        const key = `rsvp:${theme.slug}`;
+        const list = getLocalJson<Rsvp[]>(key, []);
+        const ok = setLocalJson(key, [...list, entry]);
+        if (!ok) throw new Error(en ? "Could not save on this device." : "Bu cihazda kaydedilemedi.");
+      }
+      setSent(entry);
+    } catch (err) {
+      setStoreError(err instanceof Error ? err.message : (en ? "Your reply could not be saved." : "Yanıt kaydedilemedi."));
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (sent) {
     return (
-      <Sec id="katilim" title={en ? "RSVP" : "Katılım formu"}>
-        <p className="iv-kicker">{en ? "Will you attend?" : "Katılım Durumu"}</p>
+      <Sec id="katilim" title={en ? "RSVP" : "Katılım"}>
+        <p className="iv-kicker">{en ? "Your reply" : "Yanıtınız"}</p>
         <Divider kind={style.ornament} />
-        <div className="iv-success" role="status">
+        <div className="iv-rsvp iv-rsvp--done" role="status">
           <Icon name="check" size={28} />
-          <p>
-            <strong>{en ? `Thank you, ${sent.name}!` : `Teşekkürler, ${sent.name}!`}</strong>
-            <br />
+          <p className="iv-rsvp__thanks">
+            <strong>{en ? `Thank you, ${sent.name}` : `Teşekkürler, ${sent.name}`}</strong>
+          </p>
+          <p className="iv-rsvp__msg">
             {sent.attending
               ? en
-                ? `Your reply is saved for ${sent.count} ${sent.count === 1 ? "guest" : "guests"}.`
-                : `${sent.count} kişi olarak katılımınız kaydedildi.`
+                ? "We look forward to celebrating with you."
+                : "Sizi aramızda görmeyi sabırsızlıkla bekliyoruz."
               : en
-                ? "We have noted that you cannot attend."
-                : "Katılamayacağınız bilgisi kaydedildi."}
+                ? "Thank you for letting us know."
+                : "Bizi bilgilendirdiğiniz için teşekkür ederiz."}
           </p>
-          <p className="iv-note">
-            {storeError
-              ? en
-                ? "The reply could not be saved because this browser's storage is unavailable."
-                : "Tarayıcı depolaması kullanılamadığı için yanıt kaydedilemedi."
-              : en
-                ? "Preview: your reply stays in this browser only and is not sent to anyone."
-                : "Önizleme: yanıtınız yalnızca bu tarayıcıda saklanır, kimseye gönderilmez."}
-          </p>
-          <button type="button" className="iv-btn" onClick={() => { setSent(null); setName(""); setAttending(""); setCount(1); setNote(""); }}>
+          <button type="button" className="iv-btn" onClick={() => { setSent(null); setName(""); }}>
             {en ? "Add another reply" : "Yeni yanıt ekle"}
           </button>
         </div>
@@ -100,19 +101,17 @@ export function RsvpSection() {
   }
 
   return (
-    <Sec id="katilim" title={en ? "RSVP" : "Katılım formu"}>
-      <p className="iv-kicker">{en ? "Will you attend?" : "Katılım Durumu"}</p>
+    <Sec id="katilim" title={en ? "RSVP" : "Katılım"}>
+      <p className="iv-kicker">{en ? "Will you join us?" : "Bizimle olacak mısınız?"}</p>
       <Divider kind={style.ornament} />
-      <form className="iv-form" onSubmit={submit} noValidate>
-        {Object.keys(errors).length > 0 && (
+      <div className="iv-rsvp">
+        {errors.name ? (
           <div ref={errRef} tabIndex={-1} className="iv-error-sum" role="alert">
-            {en ? "Please correct the marked fields." : "Lütfen işaretli alanları düzeltin."}
+            {errors.name}
           </div>
-        )}
-        <div className="iv-field">
-          <label htmlFor={`${uid}-n`}>
-            {en ? "Full name" : "Adınız Soyadınız"} <span aria-hidden="true">*</span>
-          </label>
+        ) : null}
+        <div className="iv-field iv-rsvp__name">
+          <label htmlFor={`${uid}-n`}>{en ? "Full name" : "Adınız Soyadınız"}</label>
           <input
             id={`${uid}-n`}
             value={name}
@@ -120,61 +119,23 @@ export function RsvpSection() {
             placeholder={en ? "First and last name" : "Ad Soyad"}
             autoComplete="name"
             required
-            aria-required="true"
             aria-invalid={Boolean(errors.name)}
-            aria-describedby={errors.name ? `${uid}-n-e` : undefined}
+            disabled={busy}
           />
-          {errors.name && <p id={`${uid}-n-e`} className="iv-field__err">{errors.name}</p>}
         </div>
-
-        <fieldset className="iv-field" aria-describedby={errors.attending ? `${uid}-a-e` : undefined}>
-          <legend>{en ? "Will you attend?" : "Katılım durumunuz"} <span aria-hidden="true">*</span></legend>
-          <div className="iv-radios" role="radiogroup" aria-required="true">
-            <label className={attending === "yes" ? "is-on" : ""}>
-              <input type="radio" name={`${uid}-att`} checked={attending === "yes"} onChange={() => setAttending("yes")} />
-              {en ? "I'll attend" : "Katılıyorum"}
-            </label>
-            <label className={attending === "no" ? "is-on" : ""}>
-              <input type="radio" name={`${uid}-att`} checked={attending === "no"} onChange={() => setAttending("no")} />
-              {en ? "I can't attend" : "Katılamıyorum"}
-            </label>
-          </div>
-          {errors.attending && <p id={`${uid}-a-e`} className="iv-field__err">{errors.attending}</p>}
-        </fieldset>
-
-        {attending !== "no" && (
-          <div className="iv-field">
-            <label htmlFor={`${uid}-c`}>{en ? "How many guests?" : "Kaç kişi katılacaksınız?"}</label>
-            <div className="iv-stepper">
-              <button type="button" aria-label={en ? "Decrease the number of guests" : "Kişi sayısını azalt"} onClick={() => setCount((c) => Math.max(1, c - 1))}>
-                −
-              </button>
-              <input
-                id={`${uid}-c`}
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={10}
-                value={count}
-                onChange={(e) => setCount(Number(e.target.value))}
-                aria-invalid={Boolean(errors.count)}
-              />
-              <button type="button" aria-label={en ? "Increase the number of guests" : "Kişi sayısını artır"} onClick={() => setCount((c) => Math.min(10, c + 1))}>
-                +
-              </button>
-            </div>
-            {errors.count && <p className="iv-field__err">{errors.count}</p>}
-          </div>
-        )}
-
-        <div className="iv-field">
-          <label htmlFor={`${uid}-note`}>{en ? "Your note" : "Notunuz"}</label>
-          <textarea id={`${uid}-note`} rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder={en ? "Anything you would like us to know" : "İletmek istedikleriniz"} maxLength={400} />
+        <div className="iv-rsvp__choices" role="group" aria-label={en ? "Attendance" : "Katılım"}>
+          <button type="button" className="iv-rsvp__choice iv-rsvp__choice--yes" disabled={busy} onClick={() => void reply(true)}>
+            <strong>{en ? "Yes" : "Evet"}</strong>
+            <span>{en ? "I'll be there" : "Katılacağım"}</span>
+          </button>
+          <button type="button" className="iv-rsvp__choice iv-rsvp__choice--no" disabled={busy} onClick={() => void reply(false)}>
+            <strong>{en ? "No" : "Hayır"}</strong>
+            <span>{en ? "I can't attend" : "Katılamıyorum"}</span>
+          </button>
         </div>
-        <button type="submit" className="iv-btn iv-btn--solid iv-btn--block">
-          {en ? "Send" : "Gönder"}
-        </button>
-      </form>
+        {storeError ? <p className="iv-field__err" role="alert">{storeError}</p> : null}
+        {busy ? <p className="iv-rsvp__busy" aria-live="polite">{en ? "Saving…" : "Kaydediliyor…"}</p> : null}
+      </div>
     </Sec>
   );
 }
@@ -312,6 +273,8 @@ export function LensSection({ onCapture, albumSlug = "" }: { onCapture: (p: Wall
   const [flash, setFlash] = useState(false);
   const [note, setNote] = useState<{ ok: boolean; text: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [filterId, setFilterId] = useState<LensFilterId>("classic");
+  const filter = lensFilter(filterId);
 
   const stop = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -377,6 +340,7 @@ export function LensSection({ onCapture, albumSlug = "" }: { onCapture: (p: Wall
     ctx.fillStyle = "#fffcf7";
     ctx.fillRect(0, 0, c.width, c.height);
     ctx.save();
+    ctx.filter = filter.canvas;
     ctx.translate(w, 0);
     ctx.scale(-1, 1); // mirror like a selfie preview
     ctx.drawImage(v, 0, 0, w, h);
@@ -421,11 +385,25 @@ export function LensSection({ onCapture, albumSlug = "" }: { onCapture: (p: Wall
           : "Etkinlik günü kameranızı açın; yakaladığınız anlar doğrudan albümümüze düşsün."}
       </p>
       {state === "live" && (
-        <div className={`iv-lens${flash ? " is-flash" : ""}`}>
-          <video ref={videoRef} playsInline muted aria-label={en ? "Camera preview" : "Kamera önizlemesi"} />
-          <span className="iv-lens__frame" aria-hidden="true" />
-          <span className="iv-lens__cap" aria-hidden="true">{data.partnerA} &amp; {data.partnerB}</span>
-        </div>
+        <>
+          <div className="iv-lens-filters" role="group" aria-label={en ? "Photo filter" : "Fotoğraf filtresi"}>
+            {LENS_FILTERS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={filterId === item.id ? "is-on" : undefined}
+                onClick={() => setFilterId(item.id)}
+              >
+                {en ? item.en : item.tr}
+              </button>
+            ))}
+          </div>
+          <div className={`iv-lens${flash ? " is-flash" : ""}`}>
+            <video ref={videoRef} playsInline muted aria-label={en ? "Camera preview" : "Kamera önizlemesi"} style={{ filter: filter.css }} />
+            <span className="iv-lens__frame" aria-hidden="true" />
+            <span className="iv-lens__cap" aria-hidden="true">{data.partnerA} &amp; {data.partnerB}</span>
+          </div>
+        </>
       )}
       <div className="iv-actions">
         {state !== "live" ? (
@@ -453,19 +431,14 @@ export function LensSection({ onCapture, albumSlug = "" }: { onCapture: (p: Wall
 
 export function AlbumCollageSection({ photos }: { photos: string[] }) {
   const { style } = useIv();
-  const en = useLocale() === "en";
+  const locale = useLocale();
+  const en = locale === "en";
   return (
     <Sec id="album" title={en ? "Our album" : "Albümümüz"}>
       <p className="iv-kicker">{en ? "Our photos" : "Fotoğraflarımız"}</p>
       <Divider kind={style.ornament} />
       {photos.length ? (
-        <ul className={`iv-album${photos.length >= 3 ? " iv-album--dense" : ""}`}>
-          {photos.map((url, index) => (
-            <li key={`${index}-${url.slice(-24)}`}>
-              <img src={url} alt="" />
-            </li>
-          ))}
-        </ul>
+        <AlbumCarousel photos={photos} locale={locale} />
       ) : (
         <p className="iv-note">{en ? "Photos will appear here once they are added." : "Fotoğraflar eklendiğinde burada görünür."}</p>
       )}

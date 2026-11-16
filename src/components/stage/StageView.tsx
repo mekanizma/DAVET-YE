@@ -9,7 +9,11 @@ import { useLocale } from "@/i18n/provider";
 import GiftBox from "@/components/stage/GiftBox";
 import { sampleFor } from "@/data/sample";
 import { uploadSharePhoto } from "@/lib/albumClient";
+import AlbumCarousel from "@/components/invitation/AlbumCarousel";
+import LiveDayStrip from "@/components/invitation/LiveDayStrip";
 import { musicTrackSrc } from "@/lib/musicCatalog";
+import { nameFontFaceCss, nameFontOf, nameFontStack } from "@/lib/nameFonts";
+import { postShareRsvp } from "@/lib/rsvpClient";
 import { listShareWishes, postShareWish } from "@/lib/wishClient";
 import type { InvitationDraft } from "@/lib/storage";
 import { useDraft } from "@/lib/storage";
@@ -725,7 +729,7 @@ export default function StageView({
     let touchY = 0;
     const nestedScroll = (target: EventTarget | null): HTMLElement | null => {
       if (!(target instanceof HTMLElement)) return null;
-      return target.closest(".stg-messages__list, .stg-gift__sheet, .stg-album__grid");
+      return target.closest(".stg-messages__list, .stg-gift__sheet, .album-rail__viewport");
     };
     const pageIndex = () => {
       const nodes = [...root.querySelectorAll<HTMLElement>(".stg-page")];
@@ -1139,12 +1143,14 @@ export default function StageView({
     return () => observer.disconnect();
   }, [design, canvasW, canvasH]);
 
-  const fontCss = (stage.fonts || [])
-    .map((f) => {
+  const chosenNameFont = live ? nameFontOf(draft.info.nameFont) : nameFontOf("default");
+  const fontCss = [
+    ...(stage.fonts || []).map((f) => {
       const weight = f.minWeight === f.maxWeight ? String(f.minWeight) : `${f.minWeight} ${f.maxWeight}`;
       return `@font-face{font-family:"${f.family.replace(/"/g, "")}";src:url("${f.url}") format("woff2");font-weight:${weight};font-display:swap}`;
-    })
-    .join("");
+    }),
+    nameFontFaceCss(chosenNameFont.id),
+  ].filter(Boolean).join("");
 
   const bgImage = design.background?.image;
   const gateImage = (en && intro?.neutralPoster ? intro.neutralPoster : intro?.poster) || bgImage;
@@ -1168,6 +1174,9 @@ export default function StageView({
       {(stage.fonts || []).map((f) => (
         <link key={f.url} rel="preload" href={f.url} as="font" type="font/woff2" crossOrigin="anonymous" />
       ))}
+      {chosenNameFont.url ? (
+        <link key={`name-${chosenNameFont.url}`} rel="preload" href={chosenNameFont.url} as="font" type="font/woff2" crossOrigin="anonymous" />
+      ) : null}
       {warmImages.map((src) => (
         <link key={src} rel="preload" href={src} as="image" fetchPriority="high" />
       ))}
@@ -1184,6 +1193,15 @@ export default function StageView({
               <img className="stg-media stg-media--screen" src={bgImage} alt="" draggable={false} decoding="async" fetchPriority="high" />
             </div>
           ) : null}
+          {phase === "open" && live ? (
+            <LiveDayStrip
+              className="live-day--stage"
+              locale={locale}
+              eventDate={draft.info.date}
+              program={(draft.program || []).map((row) => ({ time: row.time, title: row.title, note: row.note }))}
+              liveNote={draft.info.liveNote || ""}
+            />
+          ) : null}
           {phase === "open" ? (
           <div ref={scrollRef} className="stg-pages">
             {pages.map((page, pageIndex) => (
@@ -1194,11 +1212,7 @@ export default function StageView({
                       <div className="stg-album">
                         <p className="stg-album__title">{en ? "Our album" : "Albümümüz"}</p>
                         {albumPhotos.length ? (
-                          <div className="stg-album__grid">
-                            {albumPhotos.map((url, index) => (
-                              <img key={`${index}-${url.slice(-32)}`} src={url} alt="" />
-                            ))}
-                          </div>
+                          <AlbumCarousel photos={albumPhotos} locale={locale} className="album-rail--stage" />
                         ) : (
                           <p className="stg-album__empty">{en ? "Photos will appear here." : "Fotoğraflar burada görünecek."}</p>
                         )}
@@ -1222,10 +1236,27 @@ export default function StageView({
                         wishes={wishes}
                         photos={photos}
                         endTime={draft.info.endTime || ""}
+                        nameFontId={chosenNameFont.id}
                         rsvpDone={rsvpDone}
                         wishDone={wishDone}
                         onAddPhoto={addShot}
-                        onRsvp={() => setRsvpDone(true)}
+                        onRsvp={async (payload) => {
+                          if (!payload) {
+                            setRsvpDone(true);
+                            return true;
+                          }
+                          if (!albumSlug) {
+                            setRsvpDone(true);
+                            return true;
+                          }
+                          try {
+                            await postShareRsvp(albumSlug, payload);
+                            setRsvpDone(true);
+                            return true;
+                          } catch {
+                            return false;
+                          }
+                        }}
                         onWish={async (name, text) => {
                           const cleanName = name.trim();
                           const cleanText = text.trim();
@@ -1287,7 +1318,7 @@ export default function StageView({
                 {gateImage ? <img className="stg-media stg-media--screen" src={gateImage} alt="" draggable={false} decoding="async" fetchPriority="high" /> : null}
                 <div className="stg-art">
                   {(intro?.gate?.elements || []).filter((el) => !el.hidden).map((el) => (
-                    <Element key={el.id} el={el} canvasW={canvasW} values={values} lists={{}} places={{}} wishes={[]} photos={[]} endTime="" rsvpDone={false} wishDone={false} onAddPhoto={() => undefined} onRsvp={() => undefined} onWish={() => false} onAction={onAction} locale={locale} eager />
+                    <Element key={el.id} el={el} canvasW={canvasW} values={values} lists={{}} places={{}} wishes={[]} photos={[]} endTime="" nameFontId="default" rsvpDone={false} wishDone={false} onAddPhoto={() => undefined} onRsvp={() => false} onWish={() => false} onAction={onAction} locale={locale} eager />
                   ))}
                 </div>
               </div>
@@ -1407,6 +1438,7 @@ function Element({
   wishes,
   photos,
   endTime = "",
+  nameFontId = "default",
   rsvpDone,
   wishDone,
   wishNote,
@@ -1425,11 +1457,20 @@ function Element({
   wishes: Array<{ name?: string; text?: string }>;
   photos: Shot[];
   endTime?: string;
+  nameFontId?: string;
   rsvpDone: boolean;
   wishDone: boolean;
   wishNote?: { ok: boolean; text: string } | null;
   onAddPhoto: (file: File, source: "wall" | "lens") => void;
-  onRsvp: () => void;
+  onRsvp: (payload?: {
+    name: string;
+    attending: boolean;
+    count: number;
+    children: number;
+    meal: string;
+    transfer: string;
+    note: string;
+  }) => boolean | Promise<boolean>;
   onWish: (name: string, text: string) => boolean | Promise<boolean>;
   onAction: (el: StageElement, node: HTMLElement) => void;
   locale: Locale;
@@ -1443,7 +1484,12 @@ function Element({
   let body: ReactNode = null;
   if (el.type === "text" || el.type === "field") {
     const raw = el.type === "field" && el.fieldId ? values[el.fieldId] || "" : el.text || "";
-    body = <TextBlock el={el} canvasW={canvasW} value={el.type === "field" ? formatField(raw, el.format, locale, endTime) : raw} />;
+    const nameFields = el.fieldId === "f_first" || el.fieldId === "f_second";
+    const override = nameFields ? nameFontStack(nameFontId) : "";
+    const styled = override
+      ? ({ ...el, style: { ...(el.style || {}), font: nameFontOf(nameFontId).family || el.style?.font } } as StageElement)
+      : el;
+    body = <TextBlock el={styled} canvasW={canvasW} value={el.type === "field" ? formatField(raw, el.format, locale, endTime) : raw} />;
   } else if (el.type === "image" && el.src) {
     body = (
       <img
@@ -1600,75 +1646,102 @@ function formVars(el: StageElement, canvasW: number): CSSProperties {
   };
 }
 
-function attendingChoice(form: NonNullable<StageElement["form"]>) {
-  const question = (form.questions || []).find((item) => item.type === "attendance");
-  return question?.options?.[0] || "Katılıyorum";
-}
-
-function RsvpForm({ el, canvasW, done, onDone, locale }: { el: StageElement; canvasW: number; done: boolean; onDone: () => void; locale: Locale }) {
+function RsvpForm({
+  el,
+  canvasW,
+  done,
+  onDone,
+  locale,
+}: {
+  el: StageElement;
+  canvasW: number;
+  done: boolean;
+  onDone: (payload?: {
+    name: string;
+    attending: boolean;
+    count: number;
+    children: number;
+    meal: string;
+    transfer: string;
+    note: string;
+  }) => boolean | Promise<boolean>;
+  locale: Locale;
+}) {
   const form = el.form || {};
   const s = form.style || {};
   const en = locale === "en";
-  const yes = attendingChoice(form);
-  const [attend, setAttend] = useState(yes);
-  const [guests, setGuests] = useState(1);
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   if (done) {
-    return <p className="stg-form__success" style={textCss(el.style, canvasW)}>{form.successText || (en ? "Thank you for your reply!" : "Yanıtınız için teşekkür ederiz!")}</p>;
+    return (
+      <div className="stg-rsvp stg-rsvp--done" style={formVars(el, canvasW)}>
+        <p className="stg-form__success" style={textCss(el.style, canvasW)}>
+          {form.successText || (en ? "Thank you for your reply!" : "Yanıtınız için teşekkür ederiz!")}
+        </p>
+      </div>
+    );
   }
+
+  function reply(attending: boolean) {
+    if (busy) return;
+    const guestName = name.trim();
+    if (guestName.length < 2) {
+      setError(en ? "Please enter your first and last name." : "Lütfen adınızı ve soyadınızı yazın.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    Promise.resolve(
+      onDone({
+        name: guestName,
+        attending,
+        count: attending ? 1 : 0,
+        children: 0,
+        meal: "",
+        transfer: "",
+        note: "",
+      }),
+    )
+      .then((ok) => {
+        if (!ok) setError(en ? "Your reply could not be saved." : "Yanıt kaydedilemedi.");
+      })
+      .finally(() => setBusy(false));
+  }
+
   return (
-    <form
-      className="stg-form has-panel"
+    <div
+      className="stg-form stg-rsvp has-panel"
       data-look={s.look || "filled"}
       data-label-caps={s.labelCaps === false ? undefined : ""}
       style={formVars(el, canvasW)}
-      onSubmit={(e) => {
-        e.preventDefault();
-        onDone();
-      }}
     >
-      {(form.questions || []).map((q) => {
-        if (q.onlyIfAttending && attend !== yes) return null;
-        if (q.type === "attendance") {
-          return (
-            <div key={q.id} className="stg-form__row">
-              <span className="stg-form__label">{q.label}{q.required ? " *" : ""}</span>
-              <div className="stg-form__options">
-                {(q.options || []).map((opt: string) => (
-                  <label key={opt} className="stg-form__option">
-                    <input type="radio" name={q.id} checked={attend === opt} onChange={() => setAttend(opt)} />
-                    {opt}
-                  </label>
-                ))}
-              </div>
-            </div>
-          );
-        }
-        if (q.type === "guests") {
-          const min = q.min || 1;
-          const max = q.max || 10;
-          return (
-            <div key={q.id} className="stg-form__row">
-              <span className="stg-form__label">{q.label}{q.required ? " *" : ""}</span>
-              <div className="stg-stepper">
-                <button type="button" className="stg-stepper__btn" aria-label="-1" onClick={() => setGuests((n) => Math.max(min, n - 1))}>−</button>
-                <input className="stg-form__input" readOnly value={guests} aria-label={q.label} />
-                <button type="button" className="stg-stepper__btn" aria-label="+1" onClick={() => setGuests((n) => Math.min(max, n + 1))}>+</button>
-              </div>
-            </div>
-          );
-        }
-        return (
-          <label key={q.id} className="stg-form__row">
-            <span className="stg-form__label">{q.label}{q.required ? " *" : ""}</span>
-            <input className="stg-form__input" required={q.required} placeholder={q.placeholder} maxLength={q.max} />
-          </label>
-        );
-      })}
-      <button type="submit" className="stg-form__submit">
-        <StageIcon name="envelope" size={1.05} strokeWidth={1.6} />
-        {form.submitLabel || (en ? "Send" : "Gönder")}
-      </button>
-    </form>
+      <label className="stg-form__row">
+        <span className="stg-form__label">{en ? "Full name" : "Adınız Soyadınız"}</span>
+        <input
+          className="stg-form__input"
+          name="name"
+          autoComplete="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={en ? "First and last name" : "Ad Soyad"}
+          maxLength={80}
+          disabled={busy}
+        />
+      </label>
+      <div className="stg-rsvp__choices" role="group" aria-label={en ? "Attendance" : "Katılım"}>
+        <button type="button" className="stg-rsvp__choice stg-rsvp__choice--yes" disabled={busy} onClick={() => reply(true)}>
+          <strong>{en ? "Yes" : "Evet"}</strong>
+          <span>{en ? "I'll be there" : "Katılacağım"}</span>
+        </button>
+        <button type="button" className="stg-rsvp__choice stg-rsvp__choice--no" disabled={busy} onClick={() => reply(false)}>
+          <strong>{en ? "No" : "Hayır"}</strong>
+          <span>{en ? "I can't attend" : "Katılamıyorum"}</span>
+        </button>
+      </div>
+      {error ? <p className="stg-form__success" role="alert">{error}</p> : null}
+      {busy ? <p className="stg-rsvp__busy" aria-live="polite">{en ? "Saving…" : "Kaydediliyor…"}</p> : null}
+    </div>
   );
 }
 

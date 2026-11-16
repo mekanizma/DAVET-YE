@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Locale } from "@/i18n/locale";
 import { shareMonths, type SharePublic } from "@/lib/shareSlug";
+import WhatsAppAssist from "./WhatsAppAssist";
 
 function tx(locale: Locale, tr: string, en: string) {
   return locale === "en" ? en : tr;
@@ -16,7 +17,15 @@ function when(iso: string, locale: Locale) {
   });
 }
 
-export default function ShareLinkCard({ share, locale }: { share: SharePublic | null; locale: Locale }) {
+export default function ShareLinkCard({
+  share,
+  locale,
+  names = "",
+}: {
+  share: SharePublic | null;
+  locale: Locale;
+  names?: string;
+}) {
   const [copied, setCopied] = useState(false);
   if (!share) return null;
   const months = shareMonths(share.kind);
@@ -62,6 +71,7 @@ export default function ShareLinkCard({ share, locale }: { share: SharePublic | 
               )
             : tx(locale, "Süre bitince adres başkasına açılabilir.", "After the term ends, the address can be given to someone else.")}
       </p>
+      {share.status === "live" ? <WhatsAppAssist url={share.url} locale={locale} names={names} /> : null}
     </div>
   );
 }

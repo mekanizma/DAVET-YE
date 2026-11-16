@@ -7,7 +7,7 @@ export type IconName =
   | "share" | "globe" | "chevron-down" | "chevron-up" | "expand" | "instagram"
   | "plus" | "minus" | "sparkle" | "ring" | "candle" | "lock" | "print"
   | "download" | "trash" | "home" | "sliders" | "upload" | "route" | "chevron-left"
-  | "chevron-right" | "envelope" | "type" | "info" | "alert" | "user";
+  | "chevron-right" | "envelope" | "type" | "info" | "alert" | "user" | "whatsapp" | "chat";
 
 const paths: Record<IconName, React.ReactNode> = {
   mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3.5 7 8.5 6 8.5-6" /></>,
@@ -60,6 +60,8 @@ const paths: Record<IconName, React.ReactNode> = {
   info: <><circle cx="12" cy="12" r="8.5" /><path d="M12 11v5M12 8v.01" /></>,
   alert: <><path d="M12 4 3 19.5h18z" /><path d="M12 10v4.5M12 17v.01" /></>,
   user: <><circle cx="12" cy="8.5" r="3.5" /><path d="M5 20c.5-4 3.4-6 7-6s6.5 2 7 6" /></>,
+  whatsapp: <path d="M12 3.5a8.5 8.5 0 0 0-7.3 12.8L4 20.5l4.4-.7A8.5 8.5 0 1 0 12 3.5zm4.7 11.7c-.2.6-1.1 1.1-1.8 1.2-.5.1-1.1.2-3.2-.7-2.6-1.1-4.3-3.8-4.4-4-.1-.2-.9-1.2-.9-2.3 0-1.1.6-1.6.8-1.8.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2 0 .4-.1.5l-.3.4c-.1.1-.3.3-.1.6.2.3.7 1.1 1.5 1.8 1 .8 1.8 1.1 2.1 1.2.3.1.5.1.7-.1l.5-.6c.2-.2.4-.2.6-.1l1.8.8c.2.1.4.2.5.3.1.2.1.9-.3 1.5z" />,
+  chat: <><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v7A2.5 2.5 0 0 1 16.5 16H10l-4.5 3.2V16H7.5A2.5 2.5 0 0 1 5 13.5z" /><path d="M8.5 9h7M8.5 12h4.5" /></>,
 };
 
 export default function Icon({
@@ -67,14 +69,15 @@ export default function Icon({
   size = 20,
   ...rest
 }: { name: IconName; size?: number } & Omit<SVGProps<SVGSVGElement>, "name">) {
+  const solid = name === "whatsapp";
   return (
     <svg
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.6}
+      fill={solid ? "currentColor" : "none"}
+      stroke={solid ? "none" : "currentColor"}
+      strokeWidth={solid ? undefined : 1.6}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"

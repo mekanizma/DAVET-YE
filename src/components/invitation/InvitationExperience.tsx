@@ -24,6 +24,7 @@ import {
   WishesSection,
   type WallPhoto,
 } from "./InteractiveSections";
+import LiveDayStrip from "./LiveDayStrip";
 import { IvProvider, type InvData } from "./ctx";
 import { getInvitationStyle } from "@/data/invitationStyles";
 import { sampleDate, sampleFor } from "@/data/sample";
@@ -34,6 +35,7 @@ import { useLocale } from "@/i18n/provider";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
 import { coverOf, openingVideoOf, type Theme } from "@/data/themes";
 import { musicTrackSrc } from "@/lib/musicCatalog";
+import { nameFontFaceCss, nameFontOf, nameFontStack } from "@/lib/nameFonts";
 import { useAmbientMusic } from "@/lib/music";
 import { useDraft, type InvitationDraft } from "@/lib/storage";
 
@@ -121,9 +123,11 @@ export default function InvitationExperience({
       kina.setDate(kina.getDate() - 1);
     }
     const pick = (v: string, fallback: string) => (live && v.trim() ? v.trim() : fallback);
+    const nameFont = live ? nameFontOf(info.nameFont) : nameFontOf("default");
     return {
       partnerA: pick(info.partnerA, sample.partnerA),
       partnerB: pick(info.partnerB, sample.partnerB),
+      nameFontFamily: nameFontStack(nameFont.id) || undefined,
       brideFamily: pick(info.brideFamily, sample.brideFamily),
       groomFamily: pick(info.groomFamily, sample.groomFamily),
       date,
@@ -283,6 +287,8 @@ export default function InvitationExperience({
   } as CSSProperties;
 
   const initials = `${data.partnerA[0] ?? ""}${data.partnerB[0] ?? ""}`;
+  const liveNameFont = live ? nameFontOf(info.nameFont) : nameFontOf("default");
+  const nameFace = nameFontFaceCss(liveNameFont.id);
 
   return (
     <IvProvider value={{ theme, style, data, embed, reduced, hidden }}>
@@ -295,6 +301,8 @@ export default function InvitationExperience({
         data-open={interactive ? "1" : "0"}
         data-theme={theme.slug}
       >
+        {nameFace ? <style>{nameFace}</style> : null}
+        {liveNameFont.url ? <link rel="preload" href={liveNameFont.url} as="font" type="font/woff2" crossOrigin="anonymous" /> : null}
         <div className="iv__stage">
           <div
             ref={scrollRef}
@@ -304,13 +312,21 @@ export default function InvitationExperience({
             inert={!interactive}
             aria-hidden={!interactive}
           >
+            {live ? (
+              <LiveDayStrip
+                locale={locale}
+                eventDate={info.date}
+                program={(draft.program || []).map((row) => ({ time: row.time, title: row.title, note: row.note }))}
+                liveNote={info.liveNote || ""}
+              />
+            ) : null}
             <NamesSection />
             {show("aileler") && <FamiliesSection />}
             {show("tarih") && <DateSection />}
             {show("konum") && <LocationSection />}
             {show("geri-sayim") && <CountdownSection />}
             {show("program") && <ProgramSection />}
-            {show("katilim") && <RsvpSection />}
+            {show("katilim") && <RsvpSection albumSlug={albumSlug} />}
             {show("album") && <AlbumCollageSection photos={albumPhotos} />}
             {show("ani-duvari") && <MemoryWallSection photos={photos} onAdd={addPhoto} onRemove={removePhoto} albumSlug={albumSlug} />}
             {show("ani-cekimi") && <LensSection onCapture={addPhoto} albumSlug={albumSlug} />}

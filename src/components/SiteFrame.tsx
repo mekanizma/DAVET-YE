@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import SupportWidget from "./SupportWidget";
 
 /** Marketing chrome stays off the invitation studio so the steps match the original flow. */
 export default function SiteFrame({
@@ -25,6 +26,7 @@ export default function SiteFrame({
       <main id="main" tabIndex={-1}>{children}</main>
       {footer}
       {banner}
+      <SupportWidget />
     </div>
   );
 }

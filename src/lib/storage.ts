@@ -17,6 +17,8 @@ export { WIZARD_STEPS, type WizardStepId } from "./wizardSteps";
 export interface DraftInfo {
   partnerA: string;
   partnerB: string;
+  /** Name display font id from nameFonts catalog; "default" keeps the theme font. */
+  nameFont: string;
   brideFamily: string;
   groomFamily: string;
   date: string;
@@ -39,6 +41,8 @@ export interface DraftInfo {
   music: string;
   /** Couple’s own album photos (compressed data URLs) shown as a collage. */
   albumPhotos: string[];
+  /** Short live-day announcement shown on the invitation on the event day. */
+  liveNote: string;
   ibanHolder: string;
   iban: string;
   kinaDate: string;
@@ -88,6 +92,7 @@ export interface InvitationDraft {
 export const emptyInfo: DraftInfo = {
   partnerA: "",
   partnerB: "",
+  nameFont: "default",
   brideFamily: "",
   groomFamily: "",
   date: "",
@@ -105,6 +110,7 @@ export const emptyInfo: DraftInfo = {
   menu: "",
   music: "default",
   albumPhotos: [],
+  liveNote: "",
   ibanHolder: "",
   iban: "",
   kinaDate: "",
@@ -289,6 +295,9 @@ export interface Rsvp {
   name: string;
   attending: boolean;
   count: number;
+  children?: number;
+  meal?: string;
+  transfer?: string;
   note: string;
   at: string;
 }

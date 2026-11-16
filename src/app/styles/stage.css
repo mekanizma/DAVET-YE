@@ -390,60 +390,76 @@ textarea.stg-form__input {
   resize: vertical;
   min-height: 4.5em;
 }
-.stg-form__options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5em;
-}
-.stg-form__option {
-  display: flex;
-  align-items: center;
+.stg-rsvp {
   justify-content: center;
-  gap: 0.45em;
-  padding: 0.5em 0.8em;
-  border: 1px solid var(--f-border, currentColor);
+  gap: 0.85em;
+}
+.stg-rsvp .stg-form__input {
+  text-align: center;
   border-radius: 999px;
-  background: var(--f-bg, transparent);
-  color: var(--f-color, inherit);
-  cursor: pointer;
-  flex: 1 1 auto;
-  text-align: center;
+  letter-spacing: 0.02em;
 }
-.stg-form__option input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
+.stg-rsvp__choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55em;
 }
-.stg-form__option:has(input:checked) {
-  background: var(--f-accent);
-  border-color: var(--f-accent);
-  color: var(--f-btn-color, #fff);
-}
-.stg-stepper {
-  display: inline-flex;
-  align-items: stretch;
-  align-self: flex-start;
+.stg-rsvp__choice {
+  display: grid;
+  gap: 0.15em;
+  align-content: center;
+  min-height: 3.6em;
+  padding: 0.7em 0.55em;
   border: var(--f-bw, 1px) solid var(--f-border, currentColor);
-  border-radius: var(--f-radius, 8px);
+  border-radius: 1em;
   background: var(--f-bg, transparent);
-  overflow: hidden;
+  color: var(--f-color, inherit);
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
 }
-.stg-stepper .stg-form__input {
-  width: 3.6em;
-  min-height: 2.6em;
-  border-width: 0 var(--f-bw, 1px);
-  border-radius: 0;
-  background: transparent;
+.stg-rsvp__choice strong {
+  font-size: 1.05em;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+}
+.stg-rsvp__choice span {
+  font-size: 0.72em;
+  opacity: 0.75;
+  letter-spacing: 0.01em;
+}
+.stg-rsvp__choice--yes {
+  border-color: var(--f-accent);
+  background: color-mix(in srgb, var(--f-accent) 16%, transparent);
+}
+.stg-rsvp__choice:hover:not([disabled]),
+.stg-rsvp__choice:focus-visible {
+  transform: translateY(-1px);
+  outline: none;
+}
+.stg-rsvp__choice--yes:hover:not([disabled]),
+.stg-rsvp__choice--yes:focus-visible {
+  background: color-mix(in srgb, var(--f-accent) 24%, transparent);
+}
+.stg-rsvp__choice[disabled] {
+  opacity: 0.62;
+  cursor: wait;
+}
+.stg-rsvp__busy {
+  margin: 0;
+  text-align: center;
+  font-size: 0.78em;
+  opacity: 0.75;
+}
+.stg-rsvp--done {
+  justify-content: center;
+  align-items: center;
   text-align: center;
 }
-.stg-stepper__btn {
-  width: 2.8em;
-  border: 0;
-  background: transparent;
-  color: var(--f-color, inherit);
-  font-size: 1.25em;
-  line-height: 1;
-  cursor: pointer;
+@media (max-width: 420px) {
+  .stg-rsvp__choices {
+    grid-template-columns: 1fr;
+  }
 }
 .stg-form__submit {
   display: flex;
@@ -669,10 +685,11 @@ textarea.stg-form__input {
 }
 .stg-album {
   position: absolute;
-  inset: 8% 7% 14%;
+  inset: 8% 7% 12%;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 2.4cqw;
+  gap: 2.2cqw;
+  place-items: center;
   color: var(--stg-chrome, #fff);
   text-align: center;
 }
@@ -688,29 +705,29 @@ textarea.stg-form__input {
   opacity: 0.85;
   font-size: 3.6cqw;
 }
-.stg-album__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2cqw;
-  align-content: start;
-  overflow: auto;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
-  padding: 0.5cqw;
-}
-.stg-album__grid img {
+.stg-album .album-rail {
   width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 2.4cqw;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+  margin-top: 0;
 }
-.stg-album__grid:has(img:nth-child(3)) {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.stg-album .album-rail__viewport {
+  width: min(78cqw, 280px);
 }
-.stg-album__grid:has(img:nth-child(3)) img:first-child {
-  grid-column: span 2;
-  aspect-ratio: 4 / 3;
+.stg-album .album-rail__nav {
+  width: min(78cqw, 280px);
+  color: var(--stg-chrome, #fff);
+}
+.stg-album .album-rail__btn {
+  border-color: color-mix(in srgb, #fff 35%, transparent);
+  background: color-mix(in srgb, #000 28%, transparent);
+  color: #fff;
+}
+.stg-album .album-rail__frame {
+  background:
+    linear-gradient(145deg, #fff8ee 0%, #f0dfc8 50%, #ddc4a4 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 12px 30px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 .stg-chrome--next {
   position: relative;

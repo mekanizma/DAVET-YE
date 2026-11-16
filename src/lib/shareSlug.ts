@@ -70,6 +70,7 @@ export function invitationShareDesign(draft: InvitationDraft) {
     info: {
       partnerA: info.partnerA,
       partnerB: info.partnerB,
+      nameFont: info.nameFont || "default",
       brideFamily: info.brideFamily,
       groomFamily: info.groomFamily,
       date: info.date,
@@ -87,6 +88,7 @@ export function invitationShareDesign(draft: InvitationDraft) {
       menu: info.menu,
       music: info.music,
       albumPhotos: (info.albumPhotos || []).filter((url) => typeof url === "string" && url.startsWith("data:image/")).slice(0, 8),
+      liveNote: info.liveNote,
       ibanHolder: info.ibanHolder,
       iban: info.iban,
       kinaDate: info.kinaDate,
@@ -136,6 +138,7 @@ export function sanitizeShareDesign(kind: ShareKind, raw: unknown) {
     info: {
       partnerA: text(info.partnerA, 80),
       partnerB: text(info.partnerB, 80),
+      nameFont: text(info.nameFont, 40) || "default",
       brideFamily: text(info.brideFamily, 160),
       groomFamily: text(info.groomFamily, 160),
       date: text(info.date, 20),
@@ -155,6 +158,7 @@ export function sanitizeShareDesign(kind: ShareKind, raw: unknown) {
       albumPhotos: (Array.isArray(info.albumPhotos) ? info.albumPhotos : [])
         .filter((url): url is string => typeof url === "string" && url.startsWith("data:image/") && url.length <= 400_000)
         .slice(0, 8),
+      liveNote: text(info.liveNote, 280),
       ibanHolder: text(info.ibanHolder, 80),
       iban: text(info.iban, 40),
       kinaDate: text(info.kinaDate, 20),

@@ -1,5 +1,5 @@
-/** Katılım formu geçici olarak kapalı. Davetiyelerde tekrar göstermek için true yapın. */
-export const RSVP_FORM_ENABLED = false;
+/** Katılım formu açık; yanıtlar canlı linkte sunucuya kaydedilir. */
+export const RSVP_FORM_ENABLED = true;
 
 export interface InvitationSection {
   id: string;

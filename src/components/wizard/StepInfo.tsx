@@ -12,6 +12,7 @@ import { formatIban, formatTL } from "@/lib/format";
 import { saveDraft, type DraftInfo, type DraftProgramItem, type InvitationDraft } from "@/lib/storage";
 import { fileToDraftPhoto } from "@/lib/newspaperDraft";
 import { MUSIC_TRACKS } from "@/lib/musicCatalog";
+import { NAME_FONTS, nameFontFaceCss, nameFontOf, nameFontStack } from "@/lib/nameFonts";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
 import Time24 from "./Time24";
 import { gapSentence, INFO_FIELDS, type Errors } from "./validate";
@@ -127,6 +128,13 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
       >
         <Field id="alan-partnerA" label={tx(locale, "Gelinin adı", "Bride’s name")} required error={errors.partnerA} max={24} value={i.partnerA} onChange={set("partnerA")} placeholder="Ayşe" />
         <Field id="alan-partnerB" label={tx(locale, "Damadın adı", "Groom’s name")} required error={errors.partnerB} max={24} value={i.partnerB} onChange={set("partnerB")} placeholder="Mehmet" />
+        <NameFontPicker
+          locale={locale}
+          value={i.nameFont || "default"}
+          partnerA={i.partnerA}
+          partnerB={i.partnerB}
+          onChange={set("nameFont")}
+        />
         <label className="info-field">
           <span>{tx(locale, "Etkinlik tarihi ve saati", "Event date and time")} <i>{tx(locale, "Zorunlu", "Required")}</i></span>
           <span className="info-field__row">
@@ -287,6 +295,17 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
         </div>
       </Group>
 
+      <Group id="canli" icon="sparkle" title={tx(locale, "Düğün günü duyurusu", "Wedding-day announcement")} meta={fieldsLabel(locale, 1)} missing={0} open={open === "canli"} enabled locked onOpen={() => setOpen(open === "canli" ? "" : "canli")} onToggle={() => {}}>
+        <Area
+          label={tx(locale, "Canlı gün notu", "Live-day note")}
+          optional
+          max={280}
+          value={i.liveNote || ""}
+          onChange={set("liveNote")}
+          hint={tx(locale, "Etkinlik günü davetiyenin üstünde görünür (ör. “Nikâh 20:00’de salon B’de”).", "Shown at the top of the invitation on the event day (e.g. “Ceremony at 20:00 in hall B”).")}
+        />
+      </Group>
+
       <PrintCards draft={draft} />
     </div>
   );
@@ -380,6 +399,56 @@ function AddonGroup({ id, icon, title, price, enabled, onToggle }: { id: string;
       </div>
       <span className="sr-only">{id}</span>
     </section>
+  );
+}
+
+function NameFontPicker({
+  locale,
+  value,
+  partnerA,
+  partnerB,
+  onChange,
+}: {
+  locale: Locale;
+  value: string;
+  partnerA: string;
+  partnerB: string;
+  onChange: (v: string) => void;
+}) {
+  const font = nameFontOf(value);
+  const stack = nameFontStack(value);
+  const a = partnerA.trim() || "Ayşe";
+  const b = partnerB.trim() || "Mehmet";
+  return (
+    <div className="info-field name-font">
+      <style>{nameFontFaceCss(value)}</style>
+      {font.url ? <link rel="preload" href={font.url} as="font" type="font/woff2" crossOrigin="anonymous" /> : null}
+      <label htmlFor="alan-nameFont">
+        <span>{tx(locale, "İsim fontu", "Name font")}</span>
+      </label>
+      <select
+        id="alan-nameFont"
+        className="input"
+        value={font.id}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label={tx(locale, "İsim fontu", "Name font")}
+      >
+        {NAME_FONTS.map((item) => (
+          <option key={item.id} value={item.id}>
+            {locale === "en" ? item.en : item.tr}
+          </option>
+        ))}
+      </select>
+      <div className="name-font__preview" aria-live="polite">
+        <p className="name-font__label">{tx(locale, "Canlı önizleme", "Live preview")}</p>
+        <p className="name-font__sample" style={stack ? { fontFamily: stack } : undefined}>
+          <span>{a}</span>
+          <span className="name-font__amp" aria-hidden="true">&amp;</span>
+          <span>{b}</span>
+        </p>
+        <p className="name-font__meta">{locale === "en" ? font.en : font.tr}</p>
+      </div>
+    </div>
   );
 }
 

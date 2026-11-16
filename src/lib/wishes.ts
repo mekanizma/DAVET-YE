@@ -12,6 +12,9 @@ export type ShareWish = {
   name: string;
   text: string;
   createdAt: string;
+  orderCode?: string;
+  title?: string;
+  slug?: string;
 };
 
 function admin(): SupabaseClient | null {
@@ -91,4 +94,48 @@ export async function saveShareWish(
   });
   if (insertError) return { ok: false, status: 500, error: "Dilek kaydedilemedi." };
   return { ok: true, wish: { id, name: guestName, text: body, createdAt } };
+}
+
+async function ownedCodes(userId: string, email: string) {
+  const db = admin();
+  if (!db) return new Map<string, string>();
+  const titles = new Map<string, string>();
+  const { data: byUser } = await db.from("dv_orders").select("code,title").eq("user_id", userId).limit(200);
+  for (const row of byUser || []) titles.set(String(row.code), String(row.title || row.code));
+  const mail = email.trim();
+  if (mail && /^[^\s%_,\\]{3,160}$/.test(mail)) {
+    const { data: byMail } = await db.from("dv_orders").select("code,title,customer_email").ilike("customer_email", mail).limit(200);
+    for (const row of byMail || []) {
+      if (String(row.customer_email || "").toLowerCase() !== mail.toLowerCase()) continue;
+      titles.set(String(row.code), String(row.title || row.code));
+    }
+  }
+  return titles;
+}
+
+export async function listUserWishes(userId: string, email: string): Promise<ShareWish[] | null> {
+  const db = admin();
+  if (!db || !userId) return null;
+  const titles = await ownedCodes(userId, email);
+  const codes = [...titles.keys()];
+  if (!codes.length) return [];
+  const { data, error } = await db
+    .from("dv_wishes")
+    .select("id,order_code,slug,guest_name,body,created_at")
+    .in("order_code", codes)
+    .order("created_at", { ascending: false })
+    .limit(MAX_PER_ORDER);
+  if (error || !data) return null;
+  return data.map((row) => {
+    const orderCode = String(row.order_code || "");
+    return {
+      id: String(row.id),
+      name: String(row.guest_name || ""),
+      text: String(row.body || ""),
+      createdAt: String(row.created_at || ""),
+      orderCode,
+      title: titles.get(orderCode) || orderCode,
+      slug: String(row.slug || ""),
+    };
+  });
 }

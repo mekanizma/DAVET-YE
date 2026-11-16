@@ -7,6 +7,8 @@ import type { Theme } from "@/data/themes";
 export interface InvData {
   partnerA: string;
   partnerB: string;
+  /** CSS font-family stack for names; empty keeps theme class. */
+  nameFontFamily?: string;
   brideFamily: string;
   groomFamily: string;
   date: Date;

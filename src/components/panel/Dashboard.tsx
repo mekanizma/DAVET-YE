@@ -68,7 +68,7 @@ function themeName(slug: string, locale: Locale) {
   return theme ? themeTitle(theme, locale) : slug;
 }
 
-function OrderShare({ code, email, locale, known }: { code: string; email: string; locale: Locale; known: SharePublic | null }) {
+function OrderShare({ code, email, locale, known, names = "" }: { code: string; email: string; locale: Locale; known: SharePublic | null; names?: string }) {
   const [share, setShare] = useState<SharePublic | null>(known);
   useEffect(() => {
     setShare(known);
@@ -84,7 +84,7 @@ function OrderShare({ code, email, locale, known }: { code: string; email: strin
       stop = true;
     };
   }, [known, code, email]);
-  return <ShareLinkCard share={share} locale={locale} />;
+  return <ShareLinkCard share={share} locale={locale} names={names} />;
 }
 
 function orderTitle(order: OrderRecord, locale: Locale) {
@@ -166,13 +166,13 @@ export default function Dashboard() {
 
   function exportCsv() {
     const head = locale === "en"
-      ? ["Invitation", "Name", "RSVP", "Guests", "Note", "Date"]
-      : ["Davetiye", "Ad", "Katılım", "Kişi", "Not", "Tarih"];
+      ? ["Invitation", "Name", "Reply", "Date"]
+      : ["Davetiye", "Ad Soyad", "Yanıt", "Tarih"];
     const lines = [head.map(csvCell).join(",")].concat(
       rsvps.map((r) => {
-        const attending = r.attending ? tx(locale, "Katılıyor", "Attending") : tx(locale, "Katılmıyor", "Not attending");
+        const attending = r.attending ? tx(locale, "Evet", "Yes") : tx(locale, "Hayır", "No");
         const when = Number.isNaN(Date.parse(r.at)) ? r.at : longDate(new Date(r.at), locale);
-        return [themeName(r.slug, locale), r.name, attending, r.count, r.note, when].map(csvCell).join(",");
+        return [themeName(r.slug, locale), r.name, attending, when].map(csvCell).join(",");
       }),
     );
     downloadBlob(locale === "en" ? "rsvp-replies.csv" : "katilim-yanitlari.csv", new Blob(["\ufeff" + lines.join("\n")], { type: "text/csv;charset=utf-8" }));
@@ -210,11 +210,11 @@ export default function Dashboard() {
           <strong>{tx(locale, "Albüm", "Album")}</strong>
           <span>{tx(locale, "Anı duvarı ve çekimler", "Memory wall and shots")}</span>
         </Link>
-        <a href="#katilim" className="desk-tile">
+        <Link href="/panel/misafir" className="desk-tile">
           <Icon name="heart" size={18} />
-          <strong>{tx(locale, "Katılım yanıtları", "RSVPs")}</strong>
-          <span>{replyCount}</span>
-        </a>
+          <strong>{tx(locale, "Misafir panosu", "Guest board")}</strong>
+          <span>{tx(locale, "Katılım, dilek, fotoğraf", "RSVP, wishes, photos")}</span>
+        </Link>
         <a href="#siparisler" className="desk-tile">
           <Icon name="wallet" size={18} />
           <strong>{tx(locale, "Siparişler", "Orders")}</strong>
@@ -244,7 +244,7 @@ export default function Dashboard() {
                   <div className="dash__actions">
                     <Link href={action.href} className="btn btn--outline btn--sm">{action.label}</Link>
                   </div>
-                  <OrderShare code={o.code} email={o.customer.email} locale={locale} known={account.shares?.[o.code] || null} />
+                  <OrderShare code={o.code} email={o.customer.email} locale={locale} known={account.shares?.[o.code] || null} names={orderTitle(o, locale)} />
                 </li>
               );
             })}
@@ -263,9 +263,8 @@ export default function Dashboard() {
                 <caption className="sr-only">{tx(locale, "Katılım yanıtları", "RSVPs")}</caption>
                 <thead>
                   <tr>
-                    <th scope="col">{tx(locale, "Ad", "Name")}</th>
-                    <th scope="col">{tx(locale, "Durum", "Status")}</th>
-                    <th scope="col">{tx(locale, "Kişi", "Guests")}</th>
+                    <th scope="col">{tx(locale, "Ad Soyad", "Full name")}</th>
+                    <th scope="col">{tx(locale, "Yanıt", "Reply")}</th>
                     <th scope="col">{tx(locale, "Davetiye", "Invitation")}</th>
                   </tr>
                 </thead>
@@ -273,8 +272,7 @@ export default function Dashboard() {
                   {rsvps.map((r, i) => (
                     <tr key={`${r.slug}-${r.at}-${i}`}>
                       <th scope="row">{r.name}</th>
-                      <td>{r.attending ? tx(locale, "Katılıyor", "Attending") : tx(locale, "Katılmıyor", "Not attending")}</td>
-                      <td className="num">{r.attending ? r.count : "—"}</td>
+                      <td>{r.attending ? tx(locale, "Evet", "Yes") : tx(locale, "Hayır", "No")}</td>
                       <td>{themeName(r.slug, locale)}</td>
                     </tr>
                   ))}

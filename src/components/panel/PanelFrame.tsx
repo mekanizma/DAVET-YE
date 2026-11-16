@@ -18,6 +18,7 @@ function tx(locale: Locale, tr: string, en: string) {
 function links(locale: Locale): { href: string; label: string; icon: IconName; exact?: boolean }[] {
   return [
     { href: "/panel", label: tx(locale, "Özet", "Overview"), icon: "home", exact: true },
+    { href: "/panel/misafir", label: tx(locale, "Misafirler", "Guests"), icon: "heart" },
     { href: "/panel/tasarimlar", label: tx(locale, "Tasarımlarım", "My designs"), icon: "sparkle" },
     { href: "/panel/album", label: tx(locale, "Albüm", "Album"), icon: "image" },
     { href: "/panel/hesap", label: tx(locale, "Hesap", "Account"), icon: "user" },

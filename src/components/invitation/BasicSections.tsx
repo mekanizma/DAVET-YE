@@ -52,10 +52,14 @@ export function NamesSection() {
   const { data, style } = useIv();
   const locale = useLocale();
   const en = locale === "en";
+  const custom = Boolean(data.nameFontFamily);
   return (
     <Sec id="isimler" title={en ? "Names" : "İsimler"} bare>
       <p className="iv-lead">{style.lead}</p>
-      <h2 className={`iv-names iv-names--${style.nameFont}`}>
+      <h2
+        className={custom ? "iv-names iv-names--custom" : `iv-names iv-names--${style.nameFont}`}
+        style={custom ? { fontFamily: data.nameFontFamily } : undefined}
+      >
         <span>{data.partnerA}</span>
         <span className="iv-names__amp" aria-hidden="true">&amp;</span>
         <span className="sr-only">{en ? " and " : " ve "}</span>

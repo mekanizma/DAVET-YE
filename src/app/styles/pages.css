@@ -910,3 +910,30 @@ html.is-locked { overflow: hidden; }
   .album-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .album-lightbox { place-items: center; }
 }
+
+.guest-board__photos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+}
+.guest-board__photos li {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #eee;
+}
+.guest-board__photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.guest-board__photos span {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.65);
+  color: #fff;
+  font-size: 11px;
+}
