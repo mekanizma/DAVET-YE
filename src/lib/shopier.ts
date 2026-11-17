@@ -253,12 +253,45 @@ async function createShopierProductViaEdge(input: {
   return { productId, productUrl: data?.productUrl || `https://www.shopier.com/${productId}` };
 }
 
+async function createShopierProductViaDb(input: {
+  code: string;
+  kind: "davetiye" | "gazete";
+  total: number;
+  previousProductId?: string;
+}): Promise<{ productId: string; productUrl: string } | null> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "";
+  const key = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
+  if (!url || !key) return null;
+  const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data, error } = await db.rpc("shopier_create_product", {
+    order_code: input.code,
+    kind: input.kind,
+    total: input.total,
+    image_url: imageUrl(),
+    previous_product_id: input.previousProductId || null,
+  });
+  if (error) {
+    console.error("shopier_create_product rpc error", error.message);
+    return null;
+  }
+  const row = (data || {}) as { ok?: boolean; productId?: string; productUrl?: string; error?: string; status?: number };
+  const productId = String(row.productId || "");
+  if (!row.ok || !/^\d+$/.test(productId)) {
+    console.error("shopier_create_product failed", row);
+    return null;
+  }
+  return { productId, productUrl: row.productUrl || `https://www.shopier.com/${productId}` };
+}
+
 async function createShopierProductDirect(input: {
   code: string;
   kind: "davetiye" | "gazete";
   total: number;
   previousProductId?: string;
 }): Promise<{ productId: string; productUrl: string }> {
+  const viaDb = await createShopierProductViaDb(input);
+  if (viaDb) return viaDb;
+
   const label = input.kind === "gazete" ? "Dijital gazete" : "Dijital davetiye";
   const { status, data, raw } = await shopier<{ id?: string; url?: string }>("/products", {
     method: "POST",
