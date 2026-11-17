@@ -108,7 +108,9 @@ async function start(req: Request, code: string, email: string, fresh: boolean) 
       if (status === "429") {
         return html(shopierMessageHtml("Shopier şu an yoğun. Biraz sonra yeniden deneyin."));
       }
-      return html(shopierMessageHtml(`Shopier ödeme sayfası açılamadı${status ? ` (${status})` : ""}. Biraz sonra yeniden deneyin.`));
+      // Keep a short technical hint so deploy/version mismatches are visible in the wild.
+      const hint = detail.replace(/^Shopier\s+/i, "").slice(0, 80);
+      return html(shopierMessageHtml(`Shopier ödeme sayfası açılamadı${status ? ` (${status})` : ""}${hint ? `: ${hint}` : ""}. Biraz sonra yeniden deneyin.`));
     }
   } catch (error) {
     console.error(error);

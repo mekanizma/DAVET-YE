@@ -220,12 +220,13 @@ async function createShopierProductViaEdge(input: {
   const url = edgeCreateUrl();
   const secret = createSecret();
   const bearer = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
-  if (!url || !secret || !bearer) return null;
+  // Secret is optional: the edge function also accepts a valid service-role bearer.
+  if (!url || !bearer) return null;
   const res = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-shopier-create-secret": secret,
+      ...(secret ? { "x-shopier-create-secret": secret } : {}),
       Authorization: `Bearer ${bearer}`,
     },
     body: JSON.stringify({
