@@ -7,7 +7,9 @@ import type { Locale } from "@/i18n/locale";
 import { editorLabel } from "@/i18n/editorLabel";
 import { useLocale } from "@/i18n/provider";
 import GiftBox from "@/components/stage/GiftBox";
+import BabyShowerInvite from "@/components/stage/BabyShowerInvite";
 import NamingCeremonyInvite from "@/components/stage/NamingCeremonyInvite";
+import PartyInvite from "@/components/stage/PartyInvite";
 import { sampleFor } from "@/data/sample";
 import { uploadSharePhoto } from "@/lib/albumClient";
 import AlbumCarousel from "@/components/invitation/AlbumCarousel";
@@ -1170,6 +1172,51 @@ export default function StageView({
     return srcs.slice(0, 3);
   }, [gateImage, bgImage, pages]);
 
+  if ((stage.flags as { layout?: string } | undefined)?.layout === "party") {
+    const flow = (stage.lists?.f_flow || []) as { time?: string; title?: string; note?: string }[];
+    const sampleDraft: InvitationDraft = {
+      ...draft,
+      info: {
+        ...draft.info,
+        partnerA: live ? draft.info.partnerA : values.f_first || "Deniz Yılmaz",
+        partnerB: live ? draft.info.partnerB : values.f_second || "",
+        message: live ? draft.info.message : values.f_intro || "",
+        venue: live ? draft.info.venue : values.f_venueName || "",
+        address: live ? draft.info.address : values.f_address || "",
+        familyNote: live ? draft.info.familyNote : values.f_familyNote || (locale === "en" ? "Tonight Is Ours" : "Bu Gece Bizim"),
+        partyKind: live ? draft.info.partyKind : values.f_partyKind || (locale === "en" ? "Birthday · neon night" : "Doğum günü · neon gece"),
+        closing: live ? draft.info.closing : values.f_closing || "0532 000 00 00",
+        dressCode: live ? draft.info.dressCode : values.f_dress || "",
+        menu: live ? draft.info.menu : values.f_menu || "",
+        guestNote: live ? draft.info.guestNote : values.f_guest || "",
+        ageNote: live ? draft.info.ageNote : values.f_age || "",
+        ticketNote: live ? draft.info.ticketNote : values.f_ticket || "",
+        transportNote: live ? draft.info.transportNote : values.f_transport || "",
+        extraNote: live ? draft.info.extraNote : values.f_notes || "",
+        place: live ? draft.info.place : values.f_venueName || "",
+        mapUrl: live ? draft.info.mapUrl : "",
+        date: live ? draft.info.date : "2026-11-21",
+        time: live ? draft.info.time || "21:00" : "21:00",
+        endTime: live ? draft.info.endTime : values.f_endTime || "01:00",
+        kinaDate: live ? draft.info.kinaDate : "2026-11-18",
+      },
+      program: live
+        ? draft.program || []
+        : flow.map((row) => ({ time: row.time || "", title: row.title || "", note: row.note || "" })),
+    };
+    return (
+      <div className="iv stg-root" data-embed={embed ? "1" : undefined} data-kayit={record ? "1" : undefined} data-slug={slug} style={{ ["--stg-desk" as string]: desk }}>
+        <PartyInvite
+          locale={locale}
+          draft={sampleDraft}
+          watermark={showWatermark}
+          coverSrc={typeof stage.flags?.cover === "string" ? stage.flags.cover : "/img/davetiye/gece-isigi-parti/kapak.jpg"}
+          decorSrc={typeof stage.flags?.decor === "string" ? stage.flags.decor : "/img/davetiye/gece-isigi-parti/dekor.jpg"}
+        />
+      </div>
+    );
+  }
+
   if ((stage.flags as { layout?: string } | undefined)?.layout === "namingCeremony") {
     const sampleDraft: InvitationDraft = {
       ...draft,
@@ -1194,6 +1241,68 @@ export default function StageView({
           draft={sampleDraft}
           live
           title={stage.title}
+          samplePhoto={stage.photos?.[0]}
+          watermark={showWatermark}
+        />
+      </div>
+    );
+  }
+
+  if ((stage.flags as { layout?: string } | undefined)?.layout === "babyShower") {
+    const babyFlags = stage.flags as {
+      layout?: string;
+      palette?: string;
+      cover?: string;
+      decor?: string;
+    };
+    const flow = (stage.lists?.f_flow || []) as { time?: string; title?: string; note?: string }[];
+    const sampleDraft: InvitationDraft = {
+      ...draft,
+      info: {
+        ...draft.info,
+        partnerA: live ? draft.info.partnerA : values.f_first || "Elif",
+        partnerB: live ? draft.info.partnerB : values.f_second || "Can",
+        message: live ? draft.info.message : values.f_intro || "",
+        story: live ? draft.info.story : values.f_storyText || "",
+        venue: live ? draft.info.venue : values.f_venueName || "",
+        address: live ? draft.info.address : values.f_address || "",
+        brideFamily: live ? draft.info.brideFamily : values.f_familyA || "",
+        groomFamily: live ? draft.info.groomFamily : values.f_familyB || "",
+        familyNote: live ? draft.info.familyNote : values.f_familyNote || (locale === "en" ? "A Little Miracle Is Coming!" : "Minik Bir Mucize Geliyor!"),
+        closing: live ? draft.info.closing : values.f_closing || "0532 000 00 00",
+        dressCode:
+          live && draft.info.dressCode.trim()
+            ? draft.info.dressCode
+            : draft.info.dressCode.trim() || (locale === "en" ? "Pastel blue & cream" : "Pastel mavi & krem"),
+        liveNote: live ? draft.info.liveNote : "",
+        place: live ? draft.info.place : values.f_venueName || "",
+        mapUrl: live ? draft.info.mapUrl : "",
+        date: live ? draft.info.date : "2026-06-14",
+        time: live ? draft.info.time || "15:00" : "15:00",
+        kinaDate: live ? draft.info.kinaDate : "2026-06-01",
+        albumPhotos: live ? draft.info.albumPhotos || [] : [],
+      },
+      program: live ? draft.program || [] : flow.map((row) => ({
+        time: row.time || "",
+        title: row.title || "",
+        note: row.note || "",
+      })),
+    };
+    const coverSrc =
+      babyFlags.cover ||
+      stage.design?.intro?.poster ||
+      "/img/davetiye/pastel-bulut-baby-shower/kapak.jpg";
+    const decorSrc = babyFlags.decor || "/img/davetiye/pastel-bulut-baby-shower/dekor.jpg";
+    return (
+      <div className="iv stg-root" data-embed={embed ? "1" : undefined} data-kayit={record ? "1" : undefined} data-slug={slug} style={{ ["--stg-desk" as string]: desk }}>
+        <BabyShowerInvite
+          locale={locale}
+          draft={sampleDraft}
+          live
+          title={stage.title}
+          coverSrc={coverSrc}
+          decorSrc={decorSrc}
+          palette={babyFlags.palette === "sage" || babyFlags.palette === "sky" ? babyFlags.palette : "peach"}
           samplePhoto={stage.photos?.[0]}
           watermark={showWatermark}
         />

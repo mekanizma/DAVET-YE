@@ -26,7 +26,7 @@ export function invitationDraftFromShare(
     : {};
   const eventRaw = text(design.event, 40);
   const event: EventType | null =
-    eventRaw === "nisan-dugun" || eventRaw === "coklu" || eventRaw === "kina"
+    eventRaw === "nisan-dugun" || eventRaw === "coklu" || eventRaw === "kina" || eventRaw === "bebek" || eventRaw === "parti"
       ? eventRaw
       : null;
   const languages = Array.isArray(design.languages)
@@ -84,6 +84,12 @@ export function invitationDraftFromShare(
       iban: text(infoRaw.iban, 40),
       kinaDate: text(infoRaw.kinaDate, 20),
       kinaTime: text(infoRaw.kinaTime, 8) || "19:00",
+      partyKind: text(infoRaw.partyKind, 80),
+      guestNote: text(infoRaw.guestNote, 120),
+      ageNote: text(infoRaw.ageNote, 120),
+      ticketNote: text(infoRaw.ticketNote, 200),
+      transportNote: text(infoRaw.transportNote, 300),
+      extraNote: text(infoRaw.extraNote, 400),
     },
     termsAccepted: true,
     order: {

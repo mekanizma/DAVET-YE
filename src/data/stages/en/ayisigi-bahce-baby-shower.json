@@ -1,0 +1,80 @@
+{
+  "design": {
+    "schemaVersion": 1,
+    "canvas": { "width": 390, "height": 844 },
+    "flow": "snap",
+    "background": { "color": "#eef4fa" },
+    "intro": {
+      "mode": "gate",
+      "skippable": true,
+      "poster": "/img/davetiye/ayisigi-bahce-baby-shower/kapak-mavi.jpg",
+      "gate": {
+        "id": "gate",
+        "name": "Baby shower cover",
+        "kind": "cover",
+        "backgroundImage": "/img/davetiye/ayisigi-bahce-baby-shower/kapak-mavi.jpg",
+        "backgroundFit": "screen"
+      }
+    },
+    "chrome": { "color": "#3d4a5c", "background": "#eef4facc" },
+    "fonts": [],
+    "colors": { "accent": "#6f8fb8", "ink": "#3d4a5c" },
+    "fields": [
+      { "id": "f_first", "type": "text", "label": "Mom / host" },
+      { "id": "f_second", "type": "text", "label": "Dad / host" },
+      { "id": "f_storyText", "type": "text", "label": "Baby name / title" },
+      { "id": "f_mainDate", "type": "dateTime", "label": "Date and time" },
+      { "id": "f_intro", "type": "longText", "label": "Welcome text" },
+      { "id": "f_venueName", "type": "text", "label": "Venue" },
+      { "id": "f_address", "type": "longText", "label": "Address" },
+      { "id": "f_familyA", "type": "longText", "label": "Mom’s side" },
+      { "id": "f_familyB", "type": "longText", "label": "Dad’s side" },
+      { "id": "f_familyNote", "type": "text", "label": "When & where title" },
+      { "id": "f_closing", "type": "longText", "label": "RSVP / contact" },
+      { "id": "f_storyPhoto", "type": "image", "label": "Baby photo" }
+    ],
+    "pages": [
+      {
+        "id": "p_names",
+        "name": "Baby Shower",
+        "kind": "names",
+        "elements": []
+      }
+    ]
+  },
+  "values": {
+    "f_first": "Elif",
+    "f_second": "Can",
+    "f_storyText": "Little Ada",
+    "f_mainDate": "2026-06-14T15:00:00+03:00",
+    "f_intro": "While we wait for our baby, you're invited to share this sweet excitement with us.",
+    "f_venueName": "Garden Terrace",
+    "f_address": "Ataturk Mah. Gazi Bulvari No: 12, Istanbul",
+    "f_familyA": "",
+    "f_familyB": "",
+    "f_familyNote": "A Little Miracle Is Coming!",
+    "f_closing": "0532 000 00 00"
+  },
+  "places": {},
+  "lists": {
+    "f_flow": []
+  },
+  "music": null,
+  "locale": "en",
+  "locales": ["en"],
+  "ceremonies": [],
+  "flags": {
+    "layout": "babyShower",
+    "palette": "sky",
+    "mode": "preview",
+    "showSamples": true,
+    "watermark": true,
+    "cover": "/img/davetiye/ayisigi-bahce-baby-shower/kapak-mavi.jpg",
+    "decor": "/img/davetiye/ayisigi-bahce-baby-shower/dekor-sayfa.jpg"
+  },
+  "photos": ["/img/davetiye/ayisigi-bahce-baby-shower/ornek-mavi.jpg"],
+  "guestPhotos": [],
+  "messages": [],
+  "fonts": [],
+  "title": "Blue Teddy Baby Shower"
+}

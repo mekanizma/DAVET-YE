@@ -2,7 +2,7 @@ import raw from "./themes.json";
 import openingVideos from "./openingVideos.json";
 
 export type OpeningType = "envelope" | "door" | "seal" | "curtain";
-export type EventType = "nisan-dugun" | "coklu" | "kina";
+export type EventType = "nisan-dugun" | "coklu" | "kina" | "bebek" | "parti";
 
 const OPENING_VIDEO_MAP = openingVideos as Record<string, string>;
 
@@ -40,12 +40,16 @@ export const EVENT_LABELS: Record<EventType, string> = {
   "nisan-dugun": "Nişan & Düğün",
   coklu: "Çoklu Etkinlik",
   kina: "Kına",
+  bebek: "Bebek & Baby Shower",
+  parti: "Parti",
 };
 
 export const EVENT_DESCRIPTIONS: Record<EventType, string> = {
   "nisan-dugun": "Nişan veya düğün davetiyesi",
   coklu: "Kına, nikâh, düğün… birden fazla töreni tek davetiyede birleştirin",
   kina: "Kına gecesi davetiyesi",
+  bebek: "Baby shower ve bebek kutlaması davetiyesi",
+  parti: "Doğum günü, gece ve davetli parti davetiyesi",
 };
 
 export const OPENING_LABELS: Record<OpeningType, string> = {

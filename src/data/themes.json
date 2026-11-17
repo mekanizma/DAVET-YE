@@ -1548,5 +1548,98 @@
       "tint2": "#ebe4db",
       "gold": "#b8894e"
     }
+  },
+  {
+    "slug": "pastel-bulut-baby-shower",
+    "title": "Pastel Bulut Baby Shower",
+    "price": 690,
+    "compareAt": 990,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/pastel-bulut-baby-shower.jpg",
+    "opening": "envelope",
+    "featured": true,
+    "order": 56,
+    "eventTypes": [
+      "bebek"
+    ],
+    "tags": [
+      "baby shower",
+      "bebek",
+      "pastel",
+      "çocuk",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Pastel Bulutlar ve Balonlu Animasyonlu Açılış Eşliğinde Baby Shower Davetiyesi",
+    "description": "Çocuklara özel pastel baby shower davetiyesi; animasyonlu zarf açılışı ile başlar, bebek adı, ebeveynler, tarih, mekân, program ve RSVP alanları doldurulabilir; mobil uyumludur.",
+    "colors": {
+      "accent": "#e0896a",
+      "accentDeep": "#b5674d",
+      "tint": "#fff8f1",
+      "tint2": "#f3e4d6",
+      "gold": "#f2dfb2"
+    }
+  },
+  {
+    "slug": "ayisigi-bahce-baby-shower",
+    "title": "Mavi Ayıcık Baby Shower",
+    "price": 690,
+    "compareAt": 990,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/ayisigi-bahce-baby-shower-mavi.jpg",
+    "opening": "envelope",
+    "featured": true,
+    "order": 57,
+    "eventTypes": [
+      "bebek"
+    ],
+    "tags": [
+      "baby shower",
+      "bebek",
+      "mavi",
+      "ayıcık",
+      "bulut",
+      "balon",
+      "çocuk",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Mavi Gökyüzü, Ayıcık ve Balonlu Animasyonlu Açılış Eşliğinde Baby Shower Davetiyesi",
+    "description": "Mavi gökyüzü, bulutlar, ayıcık ve sıcak hava balonu temalı baby shower davetiyesi; animasyonlu kapak açılışı, bebek adı, ebeveynler, tarih, mekân ve LCV alanları doldurulabilir; mobil uyumludur.",
+    "colors": {
+      "accent": "#6f8fb8",
+      "accentDeep": "#4a6688",
+      "tint": "#eef4fa",
+      "tint2": "#d7e4f2",
+      "gold": "#b7cce6"
+    }
+  },
+  {
+    "slug": "gece-isigi-parti",
+    "title": "Gece Işığı Parti",
+    "price": 690,
+    "compareAt": 990,
+    "badge": "new",
+    "cover": "/img/davetiye/covers/gece-isigi-parti-v3.jpg",
+    "opening": "envelope",
+    "featured": true,
+    "order": 58,
+    "eventTypes": [
+      "parti"
+    ],
+    "tags": [
+      "parti",
+      "doğum günü",
+      "gece",
+      "davet",
+      "zarf açılışı"
+    ],
+    "eyebrow": "Gece Işığında Bilet Gibi Açılan Parti Davetiyesi",
+    "description": "Doğum günü ve gece partileri için mobil davetiye. Parti adı, tema, ev sahibi, mesaj, tarih ve saat aralığı, mekân, harita, katılım, WhatsApp, kıyafet, program, yiyecek, yaş sınırı, ücret, ulaşım ve takvime ekle.",
+    "colors": {
+      "accent": "#c23b45",
+      "accentDeep": "#8e2430",
+      "tint": "#f6f1e7",
+      "tint2": "#e7dcc8",
+      "gold": "#c6a15a"
+    }
   }
 ]

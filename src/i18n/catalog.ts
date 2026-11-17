@@ -6,6 +6,9 @@ import type { OpeningType, Theme } from "@/data/themes";
 const COVER_EN = coversEn as Record<string, string>;
 
 const THEME_TITLES: Record<string, string> = {
+  "gece-isigi-parti": "Night Light Party",
+  "pastel-bulut-baby-shower": "Pastel Cloud Baby Shower",
+  "ayisigi-bahce-baby-shower": "Blue Teddy Baby Shower",
   "zumrut-yesili-cocukluk-aski": "Emerald Childhood Love",
   "akdeniz-masali": "Mediterranean Tale",
   "gun-batimi-davetiyem": "Sunset",
@@ -101,6 +104,21 @@ const THEME_SPECIAL: Record<string, { eyebrow: string; description: string }> = 
   "bordo-muhur": {
     eyebrow: "Digital invitation with a burgundy seal and couture details",
     description: "A couture opening of burgundy velvet and a gold seal.",
+  },
+  "gece-isigi-parti": {
+    eyebrow: "Midnight party invitation with a ticket opening and every guest detail",
+    description:
+      "A phone-first party invite: name, theme, host, message, date and hours, venue and map, RSVP, dress, program, food, age, ticket, transport and a calendar button.",
+  },
+  "pastel-bulut-baby-shower": {
+    eyebrow: "Pastel baby shower invitation with an animated envelope opening",
+    description:
+      "A child-friendly pastel baby shower invite with fillable baby name, parents, date, venue, schedule and RSVP — opens with a playful animated envelope on any phone.",
+  },
+  "ayisigi-bahce-baby-shower": {
+    eyebrow: "Blue sky baby shower invitation with teddy bear and balloon opening",
+    description:
+      "A soft blue sky baby shower invite with teddy and hot-air balloon cover art, fillable baby name, parents, date, venue and RSVP — opens with an animated cover on any phone.",
   },
 };
 

@@ -59,7 +59,7 @@ export default function StepReview({ draft, errors }: { draft: InvitationDraft; 
               return (
                 <li key={key}>
                   <Link href={href} scroll={false}>
-                    <b>{infoFieldLabel(key, locale)}</b>
+                    <b>{infoFieldLabel(key, locale, draft)}</b>
                     <span>{message}</span>
                   </Link>
                 </li>

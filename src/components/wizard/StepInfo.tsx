@@ -9,7 +9,8 @@ import { marketing } from "@/i18n/marketing";
 import { useLocale } from "@/i18n/provider";
 import type { Locale } from "@/i18n/locale";
 import { formatIban, formatTL } from "@/lib/format";
-import { saveDraft, type DraftInfo, type DraftProgramItem, type InvitationDraft } from "@/lib/storage";
+import { BABY_HIDDEN_SECTIONS, isBabyShowerTemplate, isPartyTemplate, saveDraft, type DraftInfo, type DraftProgramItem, type InvitationDraft } from "@/lib/storage";
+import PartyInfo from "./PartyInfo";
 import { fileToDraftPhoto } from "@/lib/newspaperDraft";
 import { MUSIC_TRACKS } from "@/lib/musicCatalog";
 import { NAME_FONTS, nameFontFaceCss, nameFontOf, nameFontStack } from "@/lib/nameFonts";
@@ -52,11 +53,25 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
   const included = tx(locale, "Dahil", "Included");
   const none = tx(locale, "doldurulacak alan yok", "nothing to fill in");
 
+  const baby = draft.event === "bebek" || isBabyShowerTemplate(draft.template);
+  const party = draft.event === "parti" || isPartyTemplate(draft.template);
+
   useEffect(() => {
+    if (party) return;
+    if (baby) {
+      const keepOn = new Set(["konum", "kapanis", "kiyafet"]);
+      const next = Array.from(new Set([...draft.hiddenSections, ...BABY_HIDDEN_SECTIONS])).filter(
+        (id) => !keepOn.has(id),
+      );
+      const same =
+        next.length === draft.hiddenSections.length && next.every((id) => draft.hiddenSections.includes(id));
+      if (!same) saveDraft({ hiddenSections: next });
+      return;
+    }
     if (draft.hiddenSections.length) return;
     if (i.partnerA.trim() || i.venue.trim()) return;
     saveDraft({ hiddenSections: DEFAULT_OFF });
-  }, [draft.hiddenSections.length, i.partnerA, i.venue]);
+  }, [draft.hiddenSections, i.partnerA, i.venue, baby, party]);
 
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("alan") || "";
@@ -106,6 +121,8 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
 
   const groups = countGroups(draft);
 
+  if (party) return <PartyInfo draft={draft} errors={errors} />;
+
   return (
     <div className="info-step">
       <div className="info-progress" role="status">
@@ -117,9 +134,9 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
       <Group
         id="isimler"
         icon="user"
-        title={sec("isimler")}
-        meta={fieldsLabel(locale, 4)}
-        missing={missingOf(errors, ["partnerA", "partnerB", "date"])}
+        title={baby ? tx(locale, "Davetiye bilgileri", "Invitation details") : sec("isimler")}
+        meta={fieldsLabel(locale, baby ? 7 : 4)}
+        missing={missingOf(errors, baby ? ["partnerA", "partnerB", "story", "familyNote", "message", "date"] : ["partnerA", "partnerB", "date"])}
         open={open === "isimler"}
         enabled
         locked
@@ -128,33 +145,73 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
       >
         <Field
           id="alan-partnerA"
-          label={tx(locale, "Gelinin adı", "Bride’s name")}
+          label={baby ? tx(locale, "Anne adayı", "Expectant mother") : tx(locale, "Gelinin adı", "Bride’s name")}
           required
           error={errors.partnerA}
           max={24}
           value={i.partnerA}
           onChange={set("partnerA")}
-          placeholder="Ayşe"
+          placeholder={baby ? "Elif" : "Ayşe"}
         />
         <Field
           id="alan-partnerB"
-          label={tx(locale, "Damadın adı", "Groom’s name")}
+          label={baby ? tx(locale, "Baba adayı", "Expectant father") : tx(locale, "Damadın adı", "Groom’s name")}
           required
           error={errors.partnerB}
           max={24}
           value={i.partnerB}
           onChange={set("partnerB")}
-          placeholder="Mehmet"
+          placeholder={baby ? "Can" : "Mehmet"}
         />
-        <NameFontPicker
-          locale={locale}
-          value={i.nameFont || "default"}
-          partnerA={i.partnerA}
-          partnerB={i.partnerB}
-          onChange={set("nameFont")}
-        />
+        {baby ? (
+          <>
+            <Field
+              id="alan-babyName"
+              label={tx(locale, "Bebeğin adı", "Baby’s name")}
+              required
+              error={errors.story}
+              max={40}
+              value={i.story}
+              onChange={set("story")}
+              placeholder={tx(locale, "Minik Ada", "Little Ada")}
+            />
+            <Field
+              id="alan-inviteTitle"
+              label={tx(locale, "Davet başlığı", "Invitation title")}
+              required
+              error={errors.familyNote}
+              max={48}
+              value={i.familyNote}
+              onChange={set("familyNote")}
+              placeholder={tx(locale, "Minik Bir Mucize Geliyor!", "A Little Miracle Is Coming!")}
+            />
+            <Area
+              id="alan-inviteMessage"
+              label={tx(locale, "Kısa davet metni", "Short invitation text")}
+              required
+              error={errors.message}
+              max={180}
+              value={i.message}
+              onChange={set("message")}
+              hint={tx(
+                locale,
+                "Örnek: Bebeğimizi beklerken bu tatlı heyecanı bizimle paylaşmaya davetlisiniz.",
+                "Example: While we wait for our baby, you're invited to share this sweet excitement with us.",
+              )}
+            />
+          </>
+        ) : null}
+        {!baby ? (
+          <NameFontPicker
+            locale={locale}
+            value={i.nameFont || "default"}
+            partnerA={i.partnerA}
+            partnerB={i.partnerB}
+            onChange={set("nameFont")}
+          />
+        ) : null}
         <label className="info-field">
-          <span>{tx(locale, "Etkinlik tarihi ve saati", "Event date and time")} <i>{tx(locale, "Zorunlu", "Required")}</i></span>
+          <span>{tx(locale, "Tarih ve saat", "Date and time")} <i>{tx(locale, "Zorunlu", "Required")}</i></span>
           <span className="info-field__row">
             <input id="alan-date" className="input" type="date" value={i.date} onChange={(e) => set("date")(e.target.value)} aria-invalid={errors.date ? true : undefined} />
             <Time24 id="alan-time" value={i.time} onChange={set("time")} aria-label={tx(locale, "Etkinlik saati", "Event time")} aria-invalid={Boolean(errors.time)} />
@@ -162,7 +219,7 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
           {errors.date && <small className="field__error">{errors.date}</small>}
           {errors.time && <small className="field__error">{errors.time}</small>}
         </label>
-        {draft.event === "coklu" && (
+        {!baby && draft.event === "coklu" && (
           <label className="info-field">
             <span>{tx(locale, "Kına tarihi ve saati", "Henna date and time")} <i>{tx(locale, "Zorunlu", "Required")}</i></span>
             <span className="info-field__row">
@@ -172,132 +229,227 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
             {errors.kinaDate && <small className="field__error">{errors.kinaDate}</small>}
           </label>
         )}
-        <label className="info-field">
-          <span>{tx(locale, "Bitiş saati (isteğe bağlı)", "End time (optional)")}</span>
-          <Time24 value={i.endTime || ""} onChange={set("endTime")} aria-label={tx(locale, "Bitiş saati", "End time")} optional />
-          <small>{tx(locale, "Girerseniz saat aralık olarak görünür (ör. 19:00–23:00).", "If you enter it, the time is shown as a range (for example 19:00–23:00).")}</small>
-        </label>
-        <Area label={tx(locale, "Davet metni", "Invitation line")} optional max={100} value={i.message} onChange={set("message")} hint={tx(locale, "Kısa bir cümle en iyi sonucu verir.", "A short sentence works best.")} />
+        {!baby ? (
+          <label className="info-field">
+            <span>{tx(locale, "Bitiş saati (isteğe bağlı)", "End time (optional)")}</span>
+            <Time24 value={i.endTime || ""} onChange={set("endTime")} aria-label={tx(locale, "Bitiş saati", "End time")} optional />
+            <small>{tx(locale, "Girerseniz saat aralık olarak görünür (ör. 19:00–23:00).", "If you enter it, the time is shown as a range (for example 19:00–23:00).")}</small>
+          </label>
+        ) : null}
+        {!baby ? (
+          <Area
+            label={tx(locale, "Davet metni", "Invitation line")}
+            optional
+            max={100}
+            value={i.message}
+            onChange={set("message")}
+            hint={tx(locale, "Kısa bir cümle en iyi sonucu verir.", "A short sentence works best.")}
+          />
+        ) : null}
       </Group>
 
-      <Group id="aileler" icon="home" title={sec("aileler")} meta={fieldsLabel(locale, 3)} missing={missingOf(errors, ["brideFamily", "groomFamily"])} open={open === "aileler"} enabled={on(draft, "aileler")} onOpen={() => setOpen(open === "aileler" ? "" : "aileler")} onToggle={(v) => toggle("aileler", v)}>
-        <Area id="alan-brideFamily" label={tx(locale, "Gelinin ailesi", "Bride’s family")} required error={errors.brideFamily} max={60} value={i.brideFamily} onChange={set("brideFamily")} hint={tx(locale, "İki satır en iyi sonucu verir: adlar, alt satırda soyadı.", "Two lines work best: the names, then the surname on the line below.")} />
-        <Area id="alan-groomFamily" label={tx(locale, "Damadın ailesi", "Groom’s family")} required error={errors.groomFamily} max={60} value={i.groomFamily} onChange={set("groomFamily")} hint={tx(locale, "İki satır en iyi sonucu verir: adlar, alt satırda soyadı.", "Two lines work best: the names, then the surname on the line below.")} />
-        <Area label={tx(locale, "Aileler sayfasındaki söz", "Line on the families page")} optional max={140} value={i.familyNote} onChange={set("familyNote")} />
-      </Group>
+      {!baby ? (
+        <Group id="aileler" icon="home" title={sec("aileler")} meta={fieldsLabel(locale, 3)} missing={missingOf(errors, ["brideFamily", "groomFamily"])} open={open === "aileler"} enabled={on(draft, "aileler")} onOpen={() => setOpen(open === "aileler" ? "" : "aileler")} onToggle={(v) => toggle("aileler", v)}>
+          <Area id="alan-brideFamily" label={tx(locale, "Gelinin ailesi", "Bride’s family")} required error={errors.brideFamily} max={60} value={i.brideFamily} onChange={set("brideFamily")} hint={tx(locale, "İki satır en iyi sonucu verir: adlar, alt satırda soyadı.", "Two lines work best: the names, then the surname on the line below.")} />
+          <Area id="alan-groomFamily" label={tx(locale, "Damadın ailesi", "Groom’s family")} required error={errors.groomFamily} max={60} value={i.groomFamily} onChange={set("groomFamily")} hint={tx(locale, "İki satır en iyi sonucu verir: adlar, alt satırda soyadı.", "Two lines work best: the names, then the surname on the line below.")} />
+          <Area label={tx(locale, "Aileler sayfasındaki söz", "Line on the families page")} optional max={140} value={i.familyNote} onChange={set("familyNote")} />
+        </Group>
+      ) : null}
 
-      <Group id="tarih" icon="calendar" title={sec("tarih")} meta={none} missing={0} open={false} enabled={on(draft, "tarih")} onOpen={() => {}} onToggle={(v) => toggle("tarih", v)} />
+      {!baby ? <Group id="tarih" icon="calendar" title={sec("tarih")} meta={none} missing={0} open={false} enabled={on(draft, "tarih")} onOpen={() => {}} onToggle={(v) => toggle("tarih", v)} /> : null}
 
-      <Group id="konum" icon="pin" title={sec("konum")} meta={fieldsLabel(locale, 3)} missing={missingOf(errors, ["place", "venue"])} open={open === "konum"} enabled={on(draft, "konum")} onOpen={() => setOpen(open === "konum" ? "" : "konum")} onToggle={(v) => toggle("konum", v)}>
-        <Field id="alan-place" label={tx(locale, "Mekân konumu", "Venue location")} required error={errors.place} value={i.place} onChange={set("place")} placeholder={tx(locale, "Mekân adı veya adres", "Venue name or address")} />
+      <Group id="konum" icon="pin" title={baby ? tx(locale, "Mekân", "Venue") : sec("konum")} meta={fieldsLabel(locale, baby ? 2 : 3)} missing={missingOf(errors, baby ? ["venue", "address"] : ["place", "venue"])} open={open === "konum"} enabled={on(draft, "konum")} onOpen={() => setOpen(open === "konum" ? "" : "konum")} onToggle={baby ? () => {} : (v) => toggle("konum", v)} locked={baby}>
+        <Field
+          id="alan-venue"
+          label={tx(locale, "Mekân adı", "Venue name")}
+          required
+          error={errors.venue}
+          max={48}
+          value={i.venue}
+          onChange={(v) => {
+            const next = { ...i, venue: v };
+            if (baby && (!i.place.trim() || i.place === i.venue)) next.place = v;
+            saveDraft({ info: next });
+          }}
+        />
+        <Field
+          id="alan-address"
+          label={tx(locale, "Açık adres", "Full address")}
+          required={baby}
+          error={errors.address}
+          max={110}
+          value={i.address}
+          onChange={set("address")}
+        />
+        {!baby ? (
+          <Field id="alan-place" label={tx(locale, "Mekân konumu", "Venue location")} required error={errors.place} value={i.place} onChange={set("place")} placeholder={tx(locale, "Mekân adı veya adres", "Venue name or address")} />
+        ) : null}
         <Field label={tx(locale, "Google Haritalar bağlantısı (isteğe bağlı)", "Google Maps link (optional)")} value={i.mapUrl} onChange={set("mapUrl")} placeholder="https://maps.google.com/…" />
-        <p className="field__hint">{tx(locale, "Bağlantıyı yapıştırırsanız harita tam noktayı gösterir. Adresi yazın ya da Google Haritalar bağlantısını yapıştırın.", "Paste a link and the map shows the exact spot. Type the address, or paste a Google Maps link.")}</p>
-        <Field id="alan-venue" label={tx(locale, "Mekân adı", "Venue name")} required error={errors.venue} max={48} value={i.venue} onChange={set("venue")} />
-        <Field label={tx(locale, "Adres", "Address")} optional max={110} value={i.address} onChange={set("address")} />
+        <p className="field__hint">{tx(locale, "Bağlantıyı yapıştırırsanız Konumu Göster bunu açar. Yoksa mekân adından harita aranır.", "If you paste a link, Show location opens it. Otherwise the venue name is used for map search.")}</p>
       </Group>
 
-      <Group id="geri-sayim" icon="clock" title={sec("geri-sayim")} meta={none} missing={0} open={false} enabled={on(draft, "geri-sayim")} onOpen={() => {}} onToggle={(v) => toggle("geri-sayim", v)} />
+      {!baby ? <Group id="geri-sayim" icon="clock" title={sec("geri-sayim")} meta={none} missing={0} open={false} enabled={on(draft, "geri-sayim")} onOpen={() => {}} onToggle={(v) => toggle("geri-sayim", v)} /> : null}
 
-      <Group id="hikaye" icon="heart" title={sec("hikaye")} meta={on(draft, "hikaye") ? fieldsLabel(locale, 1) : closedMeta(locale)} missing={0} open={open === "hikaye"} enabled={on(draft, "hikaye")} onOpen={() => setOpen(open === "hikaye" ? "" : "hikaye")} onToggle={(v) => toggle("hikaye", v)}>
-        <Area label={tx(locale, "Hikâyeniz", "Your story")} optional max={480} value={i.story} onChange={set("story")} />
+      {!baby ? (
+        <Group id="hikaye" icon="heart" title={sec("hikaye")} meta={on(draft, "hikaye") ? fieldsLabel(locale, 1) : closedMeta(locale)} missing={0} open={open === "hikaye"} enabled={on(draft, "hikaye")} onOpen={() => setOpen(open === "hikaye" ? "" : "hikaye")} onToggle={(v) => toggle("hikaye", v)}>
+          <Area label={tx(locale, "Hikâyeniz", "Your story")} optional max={480} value={i.story} onChange={set("story")} />
+        </Group>
+      ) : null}
+
+      {!baby ? (
+        <Group id="program" icon="sliders" title={sec("program")} meta={fieldsLabel(locale, 1)} missing={errors.program ? 1 : 0} open={open === "program"} enabled={on(draft, "program")} onOpen={() => setOpen(open === "program" ? "" : "program")} onToggle={(v) => toggle("program", v)}>
+          <Program draft={draft} />
+          {errors.program && <p className="field__error">{errors.program}</p>}
+        </Group>
+      ) : null}
+
+      <Group
+        id="kiyafet"
+        icon="tag"
+        title={baby ? tx(locale, "Kıyafet / tema", "Outfit / theme") : sec("kiyafet")}
+        meta={on(draft, "kiyafet") ? fieldsLabel(locale, 1) : closedMeta(locale)}
+        missing={0}
+        open={open === "kiyafet"}
+        enabled={on(draft, "kiyafet")}
+        onOpen={() => setOpen(open === "kiyafet" ? "" : "kiyafet")}
+        onToggle={baby ? () => {} : (v) => toggle("kiyafet", v)}
+        locked={baby}
+      >
+        <Field
+          label={baby ? tx(locale, "Kıyafet renkleri / tema", "Clothing colors / theme") : tx(locale, "Kıyafet kodu", "Dress code")}
+          optional
+          max={60}
+          value={i.dressCode}
+          onChange={set("dressCode")}
+          placeholder={baby ? tx(locale, "Pastel mavi & krem", "Pastel blue & cream") : tx(locale, "Kokteyl", "Cocktail")}
+        />
       </Group>
 
-      <Group id="program" icon="sliders" title={sec("program")} meta={fieldsLabel(locale, 1)} missing={errors.program ? 1 : 0} open={open === "program"} enabled={on(draft, "program")} onOpen={() => setOpen(open === "program" ? "" : "program")} onToggle={(v) => toggle("program", v)}>
-        <Program draft={draft} />
-        {errors.program && <p className="field__error">{errors.program}</p>}
-      </Group>
-
-      <Group id="kiyafet" icon="tag" title={sec("kiyafet")} meta={on(draft, "kiyafet") ? fieldsLabel(locale, 1) : closedMeta(locale)} missing={0} open={open === "kiyafet"} enabled={on(draft, "kiyafet")} onOpen={() => setOpen(open === "kiyafet" ? "" : "kiyafet")} onToggle={(v) => toggle("kiyafet", v)}>
-        <Field label={tx(locale, "Kıyafet kodu", "Dress code")} optional max={40} value={i.dressCode} onChange={set("dressCode")} placeholder={tx(locale, "Kokteyl", "Cocktail")} />
-      </Group>
-
-      <Group id="album" icon="image" title={sec("album")} meta={on(draft, "album") ? tx(locale, `${(i.albumPhotos || []).length} fotoğraf`, `${(i.albumPhotos || []).length} photos`) : closedMeta(locale)} missing={0} open={open === "album"} enabled={on(draft, "album")} onOpen={() => setOpen(open === "album" ? "" : "album")} onToggle={(v) => toggle("album", v)}>
-        <p className="field__hint">{tx(locale, "En fazla 8 fotoğraf ekleyin; davetiyede kolaj olarak görünür.", "Add up to 8 photos; they appear as a collage on the invitation.")}</p>
-        <div className="wz-album">
-          <ul className="wz-album__grid">
-            {(i.albumPhotos || []).map((url, index) => (
-              <li key={`${index}-${url.slice(-24)}`}>
-                <img src={url} alt="" />
-                <button
-                  type="button"
-                  className="wz-album__remove"
-                  aria-label={tx(locale, `Fotoğraf ${index + 1} kaldır`, `Remove photo ${index + 1}`)}
-                  onClick={() => setAlbumPhotos((i.albumPhotos || []).filter((_, n) => n !== index))}
-                >
-                  ×
-                </button>
-              </li>
-            ))}
-          </ul>
-          {(i.albumPhotos || []).length < ALBUM_MAX ? (
-            <label className="wz-album__add">
-              <span>{tx(locale, "Fotoğraf ekle", "Add photos")}</span>
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                hidden
-                onChange={async (e) => {
-                  const files = [...(e.target.files || [])];
-                  e.currentTarget.value = "";
-                  if (!files.length) return;
-                  const room = ALBUM_MAX - (i.albumPhotos || []).length;
-                  const next = [...(i.albumPhotos || [])];
-                  for (const file of files.slice(0, room)) {
-                    try {
-                      next.push(await fileToDraftPhoto(file, 960, 0.7));
-                    } catch {
-                      /* skip bad files */
+      {!baby ? (
+        <Group id="album" icon="image" title={sec("album")} meta={on(draft, "album") ? tx(locale, `${(i.albumPhotos || []).length} fotoğraf`, `${(i.albumPhotos || []).length} photos`) : closedMeta(locale)} missing={0} open={open === "album"} enabled={on(draft, "album")} onOpen={() => setOpen(open === "album" ? "" : "album")} onToggle={(v) => toggle("album", v)}>
+          <p className="field__hint">{tx(locale, "En fazla 8 fotoğraf ekleyin; davetiyede kolaj olarak görünür.", "Add up to 8 photos; they appear as a collage on the invitation.")}</p>
+          <div className="wz-album">
+            <ul className="wz-album__grid">
+              {(i.albumPhotos || []).map((url, index) => (
+                <li key={`${index}-${url.slice(-24)}`}>
+                  <img src={url} alt="" />
+                  <button
+                    type="button"
+                    className="wz-album__remove"
+                    aria-label={tx(locale, `Fotoğraf ${index + 1} kaldır`, `Remove photo ${index + 1}`)}
+                    onClick={() => setAlbumPhotos((i.albumPhotos || []).filter((_, n) => n !== index))}
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {(i.albumPhotos || []).length < ALBUM_MAX ? (
+              <label className="wz-album__add">
+                <span>{tx(locale, "Fotoğraf ekle", "Add photos")}</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  hidden
+                  onChange={async (e) => {
+                    const files = [...(e.target.files || [])];
+                    e.currentTarget.value = "";
+                    if (!files.length) return;
+                    const room = ALBUM_MAX - (i.albumPhotos || []).length;
+                    const next = [...(i.albumPhotos || [])];
+                    for (const file of files.slice(0, room)) {
+                      try {
+                        next.push(await fileToDraftPhoto(file, 960, 0.7));
+                      } catch {
+                        /* skip bad files */
+                      }
                     }
-                  }
-                  setAlbumPhotos(next);
-                }}
-              />
-            </label>
-          ) : null}
-        </div>
-      </Group>
+                    setAlbumPhotos(next);
+                  }}
+                />
+              </label>
+            ) : null}
+          </div>
+        </Group>
+      ) : null}
 
-      <Group id="menu" icon="doc" title={sec("menu")} meta={on(draft, "menu") ? fieldsLabel(locale, 1) : closedMeta(locale)} missing={0} open={open === "menu"} enabled={on(draft, "menu")} onOpen={() => setOpen(open === "menu" ? "" : "menu")} onToggle={(v) => toggle("menu", v)}>
-        <Area label={tx(locale, "Menü", "Menu")} optional max={400} value={i.menu} onChange={set("menu")} />
-      </Group>
+      {!baby ? (
+        <Group id="menu" icon="doc" title={sec("menu")} meta={on(draft, "menu") ? fieldsLabel(locale, 1) : closedMeta(locale)} missing={0} open={open === "menu"} enabled={on(draft, "menu")} onOpen={() => setOpen(open === "menu" ? "" : "menu")} onToggle={(v) => toggle("menu", v)}>
+          <Area label={tx(locale, "Menü", "Menu")} optional max={400} value={i.menu} onChange={set("menu")} />
+        </Group>
+      ) : null}
 
-      {RSVP_FORM_ENABLED && (
+      {!baby && RSVP_FORM_ENABLED ? (
         <Group id="katilim" icon="check" title={sec("katilim")} meta={none} missing={0} open={false} enabled={on(draft, "katilim")} onOpen={() => {}} onToggle={(v) => toggle("katilim", v)} />
-      )}
+      ) : null}
 
-      <AddonGroup
-        id="ani-duvari"
-        icon="camera"
-        title={sec("ani-duvari")}
-        price={wall?.included ? included : wall ? `+${formatTL(wall.price, locale)}` : ""}
-        enabled={on(draft, "ani-duvari")}
-        onToggle={(v) => {
-          toggle("ani-duvari", v);
-          if (wall && !wall.included) toggleAddon(wall.id, v);
-        }}
-      />
-      <AddonGroup
-        id="ani-cekimi"
-        icon="camera"
-        title={sec("ani-cekimi")}
-        price={lens?.included || !lens?.price ? copy.free : `+${formatTL(lens.price, locale)}`}
-        enabled={on(draft, "ani-cekimi")}
-        onToggle={(v) => {
-          toggle("ani-cekimi", v);
-          if (lens && !lens.included) toggleAddon(lens.id, v);
-        }}
-      />
+      {!baby ? (
+        <>
+          <AddonGroup
+            id="ani-duvari"
+            icon="camera"
+            title={sec("ani-duvari")}
+            price={wall?.included ? included : wall ? `+${formatTL(wall.price, locale)}` : ""}
+            enabled={on(draft, "ani-duvari")}
+            onToggle={(v) => {
+              toggle("ani-duvari", v);
+              if (wall && !wall.included) toggleAddon(wall.id, v);
+            }}
+          />
+          <AddonGroup
+            id="ani-cekimi"
+            icon="camera"
+            title={sec("ani-cekimi")}
+            price={lens?.included || !lens?.price ? copy.free : `+${formatTL(lens.price, locale)}`}
+            enabled={on(draft, "ani-cekimi")}
+            onToggle={(v) => {
+              toggle("ani-cekimi", v);
+              if (lens && !lens.included) toggleAddon(lens.id, v);
+            }}
+          />
+          <Group id="dilekler" icon="heart" title={sec("dilekler")} meta={none} missing={0} open={false} enabled={on(draft, "dilekler")} onOpen={() => {}} onToggle={(v) => toggle("dilekler", v)} />
+          <Group id="iban" icon="gift" title={sec("iban")} meta={fieldsLabel(locale, 2)} missing={missingOf(errors, ["ibanHolder", "iban"])} open={open === "iban"} enabled={on(draft, "iban")} onOpen={() => setOpen(open === "iban" ? "" : "iban")} onToggle={(v) => toggle("iban", v)}>
+            <Field id="alan-ibanHolder" label={tx(locale, "Hesap sahibi", "Account holder")} required error={errors.ibanHolder} max={40} value={i.ibanHolder} onChange={set("ibanHolder")} />
+            <Field id="alan-iban" label="IBAN" required error={errors.iban} value={i.iban} onChange={(v) => set("iban")(formatIban(v))} placeholder="TR00 0000 0000 0000 0000 0000 00" />
+          </Group>
+        </>
+      ) : null}
 
-      <Group id="dilekler" icon="heart" title={sec("dilekler")} meta={none} missing={0} open={false} enabled={on(draft, "dilekler")} onOpen={() => {}} onToggle={(v) => toggle("dilekler", v)} />
-
-      <Group id="iban" icon="gift" title={sec("iban")} meta={fieldsLabel(locale, 2)} missing={missingOf(errors, ["ibanHolder", "iban"])} open={open === "iban"} enabled={on(draft, "iban")} onOpen={() => setOpen(open === "iban" ? "" : "iban")} onToggle={(v) => toggle("iban", v)}>
-        <Field id="alan-ibanHolder" label={tx(locale, "Hesap sahibi", "Account holder")} required error={errors.ibanHolder} max={40} value={i.ibanHolder} onChange={set("ibanHolder")} />
-        <Field id="alan-iban" label="IBAN" required error={errors.iban} value={i.iban} onChange={(v) => set("iban")(formatIban(v))} placeholder="TR00 0000 0000 0000 0000 0000 00" />
-      </Group>
-
-      <Group id="kapanis" icon="sparkle" title={sec("kapanis")} meta={fieldsLabel(locale, 1)} missing={0} open={open === "kapanis"} enabled={on(draft, "kapanis")} onOpen={() => setOpen(open === "kapanis" ? "" : "kapanis")} onToggle={(v) => toggle("kapanis", v)}>
-        <Area label={tx(locale, "Kapanış metni", "Closing line")} optional max={140} value={i.closing} onChange={set("closing")} />
+      <Group id="kapanis" icon="sparkle" title={baby ? tx(locale, "Katılım bildirimi (LCV)", "RSVP") : sec("kapanis")} meta={fieldsLabel(locale, baby ? 2 : 1)} missing={missingOf(errors, baby ? ["closing"] : [])} open={open === "kapanis"} enabled={on(draft, "kapanis")} onOpen={() => setOpen(open === "kapanis" ? "" : "kapanis")} onToggle={baby ? () => {} : (v) => toggle("kapanis", v)} locked={baby}>
+        {baby ? (
+          <>
+            <Field
+              id="alan-rsvpPhone"
+              label={tx(locale, "İletişim numarası", "Contact number")}
+              required
+              error={errors.closing}
+              max={40}
+              value={i.closing}
+              onChange={set("closing")}
+              placeholder="0532 000 00 00"
+            />
+            <label className="info-field">
+              <span>{tx(locale, "Son yanıt tarihi", "RSVP deadline")} <em>{tx(locale, "İsteğe bağlı", "Optional")}</em></span>
+              <input
+                id="alan-rsvpDeadline"
+                className="input"
+                type="date"
+                value={i.kinaDate || ""}
+                onChange={(e) => set("kinaDate")(e.target.value)}
+              />
+              <small>{tx(locale, "Misafirlerin LCV için son günü.", "Last day for guests to RSVP.")}</small>
+            </label>
+          </>
+        ) : (
+          <Area
+            label={tx(locale, "Kapanış metni", "Closing line")}
+            optional
+            max={140}
+            value={i.closing}
+            onChange={set("closing")}
+          />
+        )}
       </Group>
 
       <Group id="muzik" icon="music" title={tx(locale, "Fon müziği", "Background music")} meta="" missing={0} open={open === "muzik"} enabled locked onOpen={() => setOpen(open === "muzik" ? "" : "muzik")} onToggle={() => {}}>
@@ -313,49 +465,71 @@ export default function StepInfo({ draft, errors }: { draft: InvitationDraft; er
         </div>
       </Group>
 
-      <Group id="canli" icon="sparkle" title={tx(locale, "Düğün günü duyurusu", "Wedding-day announcement")} meta={fieldsLabel(locale, 1)} missing={0} open={open === "canli"} enabled locked onOpen={() => setOpen(open === "canli" ? "" : "canli")} onToggle={() => {}}>
-        <Area
-          label={tx(locale, "Canlı gün notu", "Live-day note")}
-          optional
-          max={280}
-          value={i.liveNote || ""}
-          onChange={set("liveNote")}
-          hint={tx(locale, "Etkinlik günü davetiyenin üstünde görünür (ör. “Nikâh 20:00’de salon B’de”).", "Shown at the top of the invitation on the event day (e.g. “Ceremony at 20:00 in hall B”).")}
-        />
-      </Group>
-
-      <PrintCards draft={draft} />
+      {!baby ? (
+        <>
+          <Group id="canli" icon="sparkle" title={tx(locale, "Düğün günü duyurusu", "Wedding-day announcement")} meta={fieldsLabel(locale, 1)} missing={0} open={open === "canli"} enabled locked onOpen={() => setOpen(open === "canli" ? "" : "canli")} onToggle={() => {}}>
+            <Area
+              label={tx(locale, "Canlı gün notu", "Live-day note")}
+              optional
+              max={280}
+              value={i.liveNote || ""}
+              onChange={set("liveNote")}
+              hint={tx(locale, "Etkinlik günü davetiyenin üstünde görünür (ör. “Nikâh 20:00’de salon B’de”).", "Shown at the top of the invitation on the event day (e.g. “Ceremony at 20:00 in hall B”).")}
+            />
+          </Group>
+          <PrintCards draft={draft} />
+        </>
+      ) : null}
     </div>
   );
 }
 
 function countGroups(draft: InvitationDraft) {
   const i = draft.info;
+  const baby = draft.event === "bebek" || isBabyShowerTemplate(draft.template);
   const groups = [
-    { on: true, bad: i.partnerA.trim().length < 2 || i.partnerB.trim().length < 2 || !i.date },
-    { on: on(draft, "aileler"), bad: i.brideFamily.trim().length < 2 || i.groomFamily.trim().length < 2 },
-    { on: on(draft, "konum"), bad: i.venue.trim().length < 2 || i.place.trim().length < 2 },
-    { on: on(draft, "program"), bad: !draft.program.some((p) => p.title.trim() || p.time.trim()) },
-    { on: on(draft, "iban"), bad: i.ibanHolder.trim().length < 2 || i.iban.replace(/\s/g, "").length < 26 },
-    { on: on(draft, "kapanis"), bad: false },
+    {
+      on: true,
+      bad:
+        i.partnerA.trim().length < 2 ||
+        i.partnerB.trim().length < 2 ||
+        !i.date ||
+        (baby && (i.story.trim().length < 2 || i.familyNote.trim().length < 2 || i.message.trim().length < 2)),
+    },
+    { on: !baby && on(draft, "aileler"), bad: i.brideFamily.trim().length < 2 || i.groomFamily.trim().length < 2 },
+    {
+      on: on(draft, "konum"),
+      bad: baby
+        ? i.venue.trim().length < 2 || i.address.trim().length < 2
+        : i.venue.trim().length < 2 || i.place.trim().length < 2,
+    },
+    { on: !baby && on(draft, "program"), bad: !draft.program.some((p) => p.title.trim() || p.time.trim()) },
+    { on: !baby && on(draft, "iban"), bad: i.ibanHolder.trim().length < 2 || i.iban.replace(/\s/g, "").length < 26 },
+    { on: on(draft, "kapanis"), bad: baby ? i.closing.trim().length < 7 : false },
+    { on: baby && on(draft, "kiyafet"), bad: false },
   ].filter((g) => g.on);
   let missing = 0;
   if (i.partnerA.trim().length < 2) missing++;
   if (i.partnerB.trim().length < 2) missing++;
+  if (baby && i.story.trim().length < 2) missing++;
+  if (baby && i.familyNote.trim().length < 2) missing++;
+  if (baby && i.message.trim().length < 2) missing++;
   if (!i.date) missing++;
-  if (on(draft, "aileler")) {
+  if (!baby && on(draft, "aileler")) {
     if (i.brideFamily.trim().length < 2) missing++;
     if (i.groomFamily.trim().length < 2) missing++;
   }
   if (on(draft, "konum")) {
-    if (i.place.trim().length < 2) missing++;
+    if (!baby && i.place.trim().length < 2) missing++;
     if (i.venue.trim().length < 2) missing++;
+    if (baby && i.address.trim().length < 2) missing++;
   }
-  if (on(draft, "program") && !draft.program.some((p) => p.title.trim() || p.time.trim())) missing++;
-  if (on(draft, "iban")) {
+  if (!baby && on(draft, "program") && !draft.program.some((p) => p.title.trim() || p.time.trim())) missing++;
+  if (!baby && on(draft, "iban")) {
     if (i.ibanHolder.trim().length < 2) missing++;
     if (i.iban.replace(/\s/g, "").length < 26) missing++;
   }
+  if (baby && i.closing.trim().length < 7) missing++;
   return { total: groups.length, done: groups.filter((g) => !g.bad).length, missing };
 }
 

@@ -12,7 +12,7 @@ import { useLocale } from "@/i18n/provider";
 import { applyTheme } from "@/lib/catalog";
 import { coverOf, themes } from "@/data/themes";
 import { foldTr, formatTL } from "@/lib/format";
-import { saveDraft, type InvitationDraft } from "@/lib/storage";
+import { applyBabyShowerDefaults, applyPartyDefaults, saveDraft, type InvitationDraft } from "@/lib/storage";
 import type { Errors } from "./validate";
 
 const PAGE = 12;
@@ -94,7 +94,25 @@ export default function StepTemplate({ draft, errors }: { draft: InvitationDraft
                     name="tpl"
                     value={t.slug}
                     checked={on}
-                    onChange={() => saveDraft({ template: t.slug, order: draft.template === t.slug ? draft.order : null })}
+                    onChange={() => {
+                      if (t.eventTypes.includes("bebek")) {
+                        saveDraft({
+                          template: t.slug,
+                          order: draft.template === t.slug ? draft.order : null,
+                          ...applyBabyShowerDefaults(draft, en ? "en" : "tr"),
+                        });
+                        return;
+                      }
+                      if (t.eventTypes.includes("parti")) {
+                        saveDraft({
+                          template: t.slug,
+                          order: draft.template === t.slug ? draft.order : null,
+                          ...applyPartyDefaults(draft, en ? "en" : "tr"),
+                        });
+                        return;
+                      }
+                      saveDraft({ template: t.slug, order: draft.template === t.slug ? draft.order : null });
+                    }}
                   />
                   <span className="tpl__img">
                     <Image src={coverOf(t)} alt="" width={240} height={400} sizes="(max-width: 600px) 44vw, 180px" />

@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/locale";
 import { isEmail, isValidIban } from "@/lib/format";
-import type { InvitationDraft, WizardStepId } from "@/lib/storage";
+import { isBabyShowerTemplate, isPartyTemplate, type InvitationDraft, type WizardStepId } from "@/lib/storage";
 
 export type Errors = Record<string, string>;
 
@@ -71,7 +71,34 @@ const INFO_LABEL_EN: Record<string, string> = {
   iban: "IBAN",
 };
 
-export function infoFieldLabel(key: string, locale: Locale): string {
+const PARTY_LABEL_TR: Record<string, string> = {
+  partnerA: "Ev sahibi",
+  familyNote: "Parti adı",
+  message: "Davet mesajı",
+  date: "Etkinlik tarihi",
+  time: "Başlangıç saati",
+  venue: "Mekân adı",
+  address: "Açık adres",
+  closing: "WhatsApp numarası",
+};
+
+const PARTY_LABEL_EN: Record<string, string> = {
+  partnerA: "Host",
+  familyNote: "Party name",
+  message: "Invitation message",
+  date: "Event date",
+  time: "Start time",
+  venue: "Venue name",
+  address: "Full address",
+  closing: "WhatsApp number",
+};
+
+export function infoFieldLabel(key: string, locale: Locale, draft?: InvitationDraft): string {
+  const party = draft && (draft.event === "parti" || isPartyTemplate(draft.template));
+  if (party) {
+    const label = (locale === "en" ? PARTY_LABEL_EN : PARTY_LABEL_TR)[key];
+    if (label) return label;
+  }
   const row = INFO_FIELDS[key];
   if (!row) return say(locale, "Eksik alan", "Missing field");
   if (locale !== "en") return row.label;
@@ -91,26 +118,65 @@ export function gapSentence(count: number, locale: Locale): string {
 export function infoIssues(draft: InvitationDraft, locale: Locale = "tr"): Errors {
   const e: Errors = {};
   const i = draft.info;
-  if (i.partnerA.trim().length < 2) e.partnerA = say(locale, "Gelinin adını yazın.", "Enter the bride’s name.");
-  else if (i.partnerA.trim().length > 24) e.partnerA = say(locale, "En fazla 24 karakter.", "24 characters at most.");
-  if (i.partnerB.trim().length < 2) e.partnerB = say(locale, "Damadın adını yazın.", "Enter the groom’s name.");
-  else if (i.partnerB.trim().length > 24) e.partnerB = say(locale, "En fazla 24 karakter.", "24 characters at most.");
+  const party = draft.event === "parti" || isPartyTemplate(draft.template);
+  const baby = !party && (draft.event === "bebek" || isBabyShowerTemplate(draft.template));
+  if (party) {
+    if (i.partnerA.trim().length < 2) e.partnerA = say(locale, "Ev sahibinin adını yazın.", "Enter the host’s name.");
+    else if (i.partnerA.trim().length > 40) e.partnerA = say(locale, "En fazla 40 karakter.", "40 characters at most.");
+    if (i.partnerB.trim().length > 40) e.partnerB = say(locale, "En fazla 40 karakter.", "40 characters at most.");
+    if (i.familyNote.trim().length < 2) e.familyNote = say(locale, "Parti adını yazın.", "Enter the party name.");
+    if (i.message.trim().length < 2) e.message = say(locale, "Kısa davet mesajını yazın.", "Enter the short invitation message.");
+    if (!i.date) e.date = say(locale, "Etkinlik tarihini seçin.", "Choose the event date.");
+    else if (i.date < todayStr()) e.date = say(locale, "Tarih bugünden önce olamaz.", "The date cannot be before today.");
+    if (!i.time) e.time = say(locale, "Başlangıç saatini seçin.", "Choose a start time.");
+    if (i.venue.trim().length < 2) e.venue = say(locale, "Mekân adını yazın.", "Enter the venue name.");
+    if (i.address.trim().length < 2) e.address = say(locale, "Açık adresi yazın.", "Enter the full address.");
+    if (i.closing.trim().length < 7) e.closing = say(locale, "WhatsApp numarasını yazın.", "Enter a WhatsApp number.");
+    return e;
+  }
+  if (i.partnerA.trim().length < 2) {
+    e.partnerA = baby
+      ? say(locale, "Anne adayının adını yazın.", "Enter the expectant mother’s name.")
+      : say(locale, "Gelinin adını yazın.", "Enter the bride’s name.");
+  } else if (i.partnerA.trim().length > 24) e.partnerA = say(locale, "En fazla 24 karakter.", "24 characters at most.");
+  if (i.partnerB.trim().length < 2) {
+    e.partnerB = baby
+      ? say(locale, "Baba adayının adını yazın.", "Enter the expectant father’s name.")
+      : say(locale, "Damadın adını yazın.", "Enter the groom’s name.");
+  } else if (i.partnerB.trim().length > 24) e.partnerB = say(locale, "En fazla 24 karakter.", "24 characters at most.");
+  if (baby && i.story.trim().length < 2) {
+    e.story = say(locale, "Bebeğin adını yazın.", "Enter the baby’s name.");
+  }
+  if (baby && i.familyNote.trim().length < 2) {
+    e.familyNote = say(locale, "Davet başlığını yazın.", "Enter the invitation title.");
+  }
+  if (baby && i.message.trim().length < 2) {
+    e.message = say(locale, "Kısa davet metnini yazın.", "Enter the short invitation text.");
+  }
   if (!i.date) e.date = say(locale, "Etkinlik tarihini seçin.", "Choose the event date.");
   else if (i.date < todayStr()) e.date = say(locale, "Tarih bugünden önce olamaz.", "The date cannot be before today.");
   if (!i.time) e.time = say(locale, "Saati seçin.", "Choose a time.");
-  if (draft.event === "coklu") {
+  if (!baby && draft.event === "coklu") {
     if (!i.kinaDate) e.kinaDate = say(locale, "Kına gecesinin tarihini seçin.", "Choose the date of the henna night.");
     else if (i.date && i.kinaDate > i.date) e.kinaDate = say(locale, "Kına tarihi düğün tarihinden sonra olamaz.", "The henna night cannot be after the wedding date.");
   }
-  if (!off(draft, "aileler")) {
-    if (i.brideFamily.trim().length < 2) e.brideFamily = say(locale, "Gelinin ailesini yazın.", "Enter the bride’s family.");
-    if (i.groomFamily.trim().length < 2) e.groomFamily = say(locale, "Damadın ailesini yazın.", "Enter the groom’s family.");
+  if (!baby && !off(draft, "aileler")) {
+    if (i.brideFamily.trim().length < 2) {
+      e.brideFamily = say(locale, "Gelinin ailesini yazın.", "Enter the bride’s family.");
+    }
+    if (i.groomFamily.trim().length < 2) {
+      e.groomFamily = say(locale, "Damadın ailesini yazın.", "Enter the groom’s family.");
+    }
   }
   if (!off(draft, "konum")) {
-    if (i.place.trim().length < 2) e.place = say(locale, "Mekân konumunu yazın.", "Enter the venue location.");
+    if (!baby && i.place.trim().length < 2) e.place = say(locale, "Mekân konumunu yazın.", "Enter the venue location.");
     if (i.venue.trim().length < 2) e.venue = say(locale, "Mekân adını yazın.", "Enter the venue name.");
+    if (baby && i.address.trim().length < 2) e.address = say(locale, "Açık adresi yazın.", "Enter the full address.");
   }
-  if (!off(draft, "program")) {
+  if (baby && i.closing.trim().length < 7) {
+    e.closing = say(locale, "LCV için iletişim numarasını yazın.", "Enter a contact number for RSVP.");
+  }
+  if (!baby && !off(draft, "program")) {
     const rows = draft.program.filter((p) => p.title.trim() || p.time.trim());
     if (!rows.length) e.program = say(locale, "En az bir program satırı ekleyin.", "Add at least one line to the order of the day.");
   }

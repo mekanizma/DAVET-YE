@@ -47,6 +47,18 @@ export interface DraftInfo {
   iban: string;
   kinaDate: string;
   kinaTime: string;
+  /** Party type or theme, shown under the title. */
+  partyKind: string;
+  /** Attendance note and expected guest count. */
+  guestNote: string;
+  /** Age limit or whether children are welcome. */
+  ageNote: string;
+  /** Ticket price, or a note that the party is free. */
+  ticketNote: string;
+  /** How to get there, and parking. */
+  transportNote: string;
+  /** Extra note for guests. */
+  extraNote: string;
 }
 
 export interface DraftProgramItem {
@@ -61,6 +73,136 @@ export const DEFAULT_PROGRAM: DraftProgramItem[] = [
   { time: "20:45", title: "Akşam Yemeği", note: "" },
   { time: "22:00", title: "Pasta & Dans", note: "Pist açılıyor" },
 ];
+
+/** Sections kept off for baby shower invites — wizard only shows the rest. */
+export const BABY_HIDDEN_SECTIONS = [
+  "aileler",
+  "tarih",
+  "geri-sayim",
+  "hikaye",
+  "menu",
+  "katilim",
+  "ani-duvari",
+  "ani-cekimi",
+  "dilekler",
+  "iban",
+  "program",
+  "album",
+] as const;
+
+export const BABY_DEFAULT_TITLE_TR = "Minik Bir Mucize Geliyor!";
+export const BABY_DEFAULT_TITLE_EN = "A Little Miracle Is Coming!";
+export const BABY_DEFAULT_MESSAGE_TR =
+  "Bebeğimizi beklerken bu tatlı heyecanı bizimle paylaşmaya davetlisiniz.";
+export const BABY_DEFAULT_MESSAGE_EN =
+  "While we wait for our baby, you're invited to share this sweet excitement with us.";
+
+export function isBabyShowerTemplate(template: string | null | undefined): boolean {
+  return Boolean(template && /(^|-)baby-shower$/.test(template));
+}
+
+export function isPartyTemplate(template: string | null | undefined): boolean {
+  return Boolean(template && /(^|-)parti$/.test(template));
+}
+
+/** Wedding-only sections stay off on a party invite. */
+export const PARTY_HIDDEN_SECTIONS = [
+  "aileler",
+  "tarih",
+  "soz",
+  "nisan",
+  "kina",
+  "nikah",
+  "dugun",
+  "after",
+  "geri-sayim",
+  "hikaye",
+  "album",
+  "katilim",
+  "ani-duvari",
+  "ani-cekimi",
+  "dilekler",
+  "iban",
+] as const;
+
+export const PARTY_DEFAULT_TITLE_TR = "Bu Gece Bizim";
+export const PARTY_DEFAULT_TITLE_EN = "Tonight Is Ours";
+export const PARTY_DEFAULT_KIND_TR = "Doğum günü · neon gece";
+export const PARTY_DEFAULT_KIND_EN = "Birthday · neon night";
+export const PARTY_DEFAULT_MESSAGE_TR =
+  "Işıklar yanınca yeriniz hazır. Dans, sohbet ve iyi bir gece için sizi bekliyoruz.";
+export const PARTY_DEFAULT_MESSAGE_EN =
+  "Your place is ready when the lights come up. Come for the dancing, the conversation, and a good night.";
+
+export function babyProgram(locale: "tr" | "en" = "tr"): DraftProgramItem[] {
+  return locale === "en"
+    ? [
+        { time: "15:00", title: "Welcome", note: "Pastel balloons and treats" },
+        { time: "15:30", title: "Games", note: "Little contests" },
+        { time: "16:00", title: "Cake", note: "Baby cake" },
+        { time: "16:30", title: "Gifts", note: "Thanks and closing" },
+      ]
+    : [
+        { time: "15:00", title: "Karşılama", note: "Pastel balonlar ve ikram" },
+        { time: "15:30", title: "Oyunlar", note: "Minik yarışmalar" },
+        { time: "16:00", title: "Pasta", note: "Bebek pastası" },
+        { time: "16:30", title: "Hediyeler", note: "Teşekkür ve kapanış" },
+      ];
+}
+
+export function partyProgram(locale: "tr" | "en" = "tr"): DraftProgramItem[] {
+  return locale === "en"
+    ? [
+        { time: "21:00", title: "Welcome", note: "Doors and a first drink" },
+        { time: "22:00", title: "DJ", note: "The floor opens" },
+        { time: "00:00", title: "Cake", note: "A short pause, then more music" },
+      ]
+    : [
+        { time: "21:00", title: "Karşılama", note: "Kapı ve ilk içki" },
+        { time: "22:00", title: "DJ", note: "Pist açılır" },
+        { time: "00:00", title: "Pasta", note: "Kısa bir mola, sonra müzik" },
+      ];
+}
+
+export function applyPartyDefaults(
+  draft: InvitationDraft,
+  locale: "tr" | "en" = "tr",
+): Partial<InvitationDraft> {
+  const en = locale === "en";
+  return {
+    event: "parti",
+    hiddenSections: [...PARTY_HIDDEN_SECTIONS],
+    program: partyProgram(en ? "en" : "tr"),
+    addons: [],
+    info: {
+      ...draft.info,
+      time: draft.info.time && draft.info.time !== "19:00" ? draft.info.time : "21:00",
+      endTime: draft.info.endTime.trim() || "01:00",
+      familyNote: draft.info.familyNote.trim() || (en ? PARTY_DEFAULT_TITLE_EN : PARTY_DEFAULT_TITLE_TR),
+      partyKind: draft.info.partyKind.trim() || (en ? PARTY_DEFAULT_KIND_EN : PARTY_DEFAULT_KIND_TR),
+      message: draft.info.message.trim() || (en ? PARTY_DEFAULT_MESSAGE_EN : PARTY_DEFAULT_MESSAGE_TR),
+    },
+  };
+}
+
+export function applyBabyShowerDefaults(
+  draft: InvitationDraft,
+  locale: "tr" | "en" = "tr",
+): Partial<InvitationDraft> {
+  const en = locale === "en";
+  return {
+    event: "bebek",
+    hiddenSections: [...BABY_HIDDEN_SECTIONS],
+    program: [],
+    addons: [],
+    info: {
+      ...draft.info,
+      time: draft.info.time && draft.info.time !== "19:00" ? draft.info.time : "15:00",
+      familyNote: draft.info.familyNote.trim() || (en ? BABY_DEFAULT_TITLE_EN : BABY_DEFAULT_TITLE_TR),
+      message: draft.info.message.trim() || (en ? BABY_DEFAULT_MESSAGE_EN : BABY_DEFAULT_MESSAGE_TR),
+    },
+  };
+}
 
 export interface InvitationDraft {
   event: EventType | null;
@@ -115,6 +257,12 @@ export const emptyInfo: DraftInfo = {
   iban: "",
   kinaDate: "",
   kinaTime: "19:00",
+  partyKind: "",
+  guestNote: "",
+  ageNote: "",
+  ticketNote: "",
+  transportNote: "",
+  extraNote: "",
 };
 
 export const emptyDraft: InvitationDraft = {

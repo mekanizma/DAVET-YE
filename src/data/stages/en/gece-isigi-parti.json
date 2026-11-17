@@ -1,0 +1,80 @@
+{
+  "design": {
+    "schemaVersion": 1,
+    "canvas": { "width": 390, "height": 844 },
+    "flow": "snap",
+    "background": { "color": "#1a1214" },
+    "intro": {
+      "mode": "gate",
+      "skippable": true,
+      "poster": "/img/davetiye/gece-isigi-parti/kapak.jpg",
+      "gate": {
+        "id": "gate",
+        "name": "Party cover",
+        "kind": "cover",
+        "backgroundImage": "/img/davetiye/gece-isigi-parti/kapak.jpg",
+        "backgroundFit": "screen"
+      }
+    },
+    "chrome": { "color": "#f6f1e7", "background": "#1a1214cc" },
+    "fonts": [],
+    "colors": { "accent": "#c23b45", "ink": "#1c1915" },
+    "fields": [
+      { "id": "f_familyNote", "type": "text", "label": "Party name" },
+      { "id": "f_partyKind", "type": "text", "label": "Party type" },
+      { "id": "f_first", "type": "text", "label": "Host" },
+      { "id": "f_intro", "type": "longText", "label": "Invitation message" },
+      { "id": "f_mainDate", "type": "dateTime", "label": "Date and time" },
+      { "id": "f_venueName", "type": "text", "label": "Venue" },
+      { "id": "f_address", "type": "longText", "label": "Address" },
+      { "id": "f_closing", "type": "text", "label": "WhatsApp" }
+    ],
+    "pages": [
+      { "id": "p_party", "name": "Party", "kind": "names", "elements": [] }
+    ]
+  },
+  "values": {
+    "f_familyNote": "Tonight Is Ours",
+    "f_partyKind": "Birthday · neon night",
+    "f_first": "Deniz Yilmaz",
+    "f_second": "",
+    "f_intro": "Your place is ready when the lights come up. Come for the dancing, the conversation, and a good night.",
+    "f_mainDate": "2026-11-21T21:00:00+03:00",
+    "f_endTime": "01:00",
+    "f_venueName": "Loft 34",
+    "f_address": "Kemankes St. No. 34, Karakoy, Istanbul",
+    "f_closing": "0532 000 00 00",
+    "f_guest": "Confirmed · 40 guests",
+    "f_dress": "Black and metallic",
+    "f_menu": "Cocktails and small plates. Cake at midnight.",
+    "f_age": "18+",
+    "f_ticket": "Free",
+    "f_transport": "Four minutes from the Karakoy tram. Valet and parking available.",
+    "f_notes": "Please, no surprise gifts."
+  },
+  "places": {},
+  "lists": {
+    "f_flow": [
+      { "time": "21:00", "title": "Welcome", "note": "Doors and a first drink" },
+      { "time": "22:00", "title": "DJ", "note": "The floor opens" },
+      { "time": "00:00", "title": "Cake", "note": "A short pause, then more music" }
+    ]
+  },
+  "music": null,
+  "locale": "en",
+  "locales": ["en"],
+  "ceremonies": [],
+  "flags": {
+    "layout": "party",
+    "cover": "/img/davetiye/gece-isigi-parti/kapak.jpg",
+    "decor": "/img/davetiye/gece-isigi-parti/dekor.jpg",
+    "mode": "preview",
+    "showSamples": true,
+    "watermark": true
+  },
+  "photos": [],
+  "guestPhotos": [],
+  "messages": [],
+  "fonts": [],
+  "title": "Night Light Party"
+}

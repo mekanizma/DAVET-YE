@@ -93,6 +93,12 @@ export function invitationShareDesign(draft: InvitationDraft) {
       iban: info.iban,
       kinaDate: info.kinaDate,
       kinaTime: info.kinaTime,
+      partyKind: info.partyKind,
+      guestNote: info.guestNote,
+      ageNote: info.ageNote,
+      ticketNote: info.ticketNote,
+      transportNote: info.transportNote,
+      extraNote: info.extraNote,
     } satisfies DraftInfo,
     program: (draft.program || []).slice(0, 16).map((row) => ({
       time: row.time,
@@ -163,6 +169,12 @@ export function sanitizeShareDesign(kind: ShareKind, raw: unknown) {
       iban: text(info.iban, 40),
       kinaDate: text(info.kinaDate, 20),
       kinaTime: text(info.kinaTime, 8),
+      partyKind: text(info.partyKind, 80),
+      guestNote: text(info.guestNote, 120),
+      ageNote: text(info.ageNote, 120),
+      ticketNote: text(info.ticketNote, 200),
+      transportNote: text(info.transportNote, 300),
+      extraNote: text(info.extraNote, 400),
     },
     program: program.slice(0, 16).map((row) => {
       const item = (row || {}) as Record<string, unknown>;

@@ -20,7 +20,7 @@ import { marketing } from "@/i18n/marketing";
 import { useLocale } from "@/i18n/provider";
 import { formatTL } from "@/lib/format";
 import { priceLines, priceTotal } from "@/lib/pricing";
-import { saveDraft, useDraft, type WizardStepId } from "@/lib/storage";
+import { applyBabyShowerDefaults, applyPartyDefaults, saveDraft, useDraft, type WizardStepId } from "@/lib/storage";
 import { wizardSteps } from "@/lib/wizardSteps";
 
 function tx(locale: Locale, tr: string, en: string) {
@@ -104,11 +104,26 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
       if (cancelled) return;
       const t = sablon ? getTheme(sablon) : undefined;
       if (t && draft.template !== t.slug) {
-        saveDraft({
-          template: t.slug,
-          event: draft.event && t.eventTypes.includes(draft.event) ? draft.event : t.eventTypes[0] ?? "nisan-dugun",
-          order: null,
-        });
+        const event = draft.event && t.eventTypes.includes(draft.event) ? draft.event : t.eventTypes[0] ?? "nisan-dugun";
+        if (event === "bebek" || t.eventTypes.includes("bebek")) {
+          saveDraft({
+            template: t.slug,
+            order: null,
+            ...applyBabyShowerDefaults(draft, locale === "en" ? "en" : "tr"),
+          });
+        } else if (event === "parti" || t.eventTypes.includes("parti")) {
+          saveDraft({
+            template: t.slug,
+            order: null,
+            ...applyPartyDefaults(draft, locale === "en" ? "en" : "tr"),
+          });
+        } else {
+          saveDraft({
+            template: t.slug,
+            event,
+            order: null,
+          });
+        }
       }
       setSeeded(true);
     }

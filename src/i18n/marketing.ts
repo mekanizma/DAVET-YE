@@ -192,11 +192,15 @@ export function marketing(locale: Locale) {
       "nisan-dugun": en ? "Engagement & wedding" : "Nişan & Düğün",
       coklu: en ? "Multiple events" : "Çoklu Etkinlik",
       kina: en ? "Henna night" : "Kına",
+      bebek: en ? "Baby & baby shower" : "Bebek & Baby Shower",
+      parti: en ? "Party" : "Parti",
     } as const,
     eventDescriptions: {
       "nisan-dugun": en ? "An engagement or wedding invitation" : "Nişan veya düğün davetiyesi",
       coklu: en ? "Bring a henna night, a nikah, a wedding, and more into one invitation" : "Kına, nikâh, düğün… birden fazla töreni tek davetiyede birleştirin",
       kina: en ? "A henna-night invitation" : "Kına gecesi davetiyesi",
+      bebek: en ? "A baby shower or baby celebration invitation" : "Baby shower ve bebek kutlaması davetiyesi",
+      parti: en ? "A birthday, night-out, or hosted party invitation" : "Doğum günü, gece ve davetli parti davetiyesi",
     } as const,
     openings: {
       envelope: en ? "Envelope opening" : "Zarf açılışı",

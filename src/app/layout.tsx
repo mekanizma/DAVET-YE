@@ -66,6 +66,13 @@ const bebas = localFont({
   display: "swap",
 });
 
+const josefin = localFont({
+  src: "../../public/fonts/josefinsans.woff2",
+  variable: "--font-josefin",
+  weight: "100 700",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
@@ -159,7 +166,7 @@ export default async function RootLayout({
   return (
     <html
       lang={htmlLang(locale)}
-      className={`${playfair.variable} ${inter.variable} ${allura.variable} ${fraunces.variable} ${cinzel.variable} ${greatVibes.variable} ${cormorant.variable} ${bebas.variable}`}
+      className={`${playfair.variable} ${inter.variable} ${allura.variable} ${fraunces.variable} ${cinzel.variable} ${greatVibes.variable} ${cormorant.variable} ${bebas.variable} ${josefin.variable}`}
     >
       <body>
         <LocaleProvider locale={locale}>

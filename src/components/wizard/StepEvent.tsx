@@ -4,11 +4,11 @@ import Icon, { type IconName } from "../Icon";
 import { getTheme, type EventType } from "@/data/themes";
 import { marketing } from "@/i18n/marketing";
 import { useLocale } from "@/i18n/provider";
-import { saveDraft, type InvitationDraft } from "@/lib/storage";
+import { applyBabyShowerDefaults, applyPartyDefaults, DEFAULT_PROGRAM, saveDraft, type InvitationDraft } from "@/lib/storage";
 import type { Errors } from "./validate";
 
-const ICONS: Record<EventType, IconName> = { "nisan-dugun": "ring", kina: "candle", coklu: "calendar" };
-const ORDER: EventType[] = ["nisan-dugun", "coklu", "kina"];
+const ICONS: Record<EventType, IconName> = { "nisan-dugun": "ring", kina: "candle", coklu: "calendar", bebek: "gift", parti: "sparkle" };
+const ORDER: EventType[] = ["nisan-dugun", "coklu", "kina", "bebek", "parti"];
 
 export default function StepEvent({ draft, errors }: { draft: InvitationDraft; errors: Errors }) {
   const locale = useLocale();
@@ -16,7 +16,27 @@ export default function StepEvent({ draft, errors }: { draft: InvitationDraft; e
   const en = locale === "en";
   function choose(ev: EventType) {
     const tpl = draft.template ? getTheme(draft.template) : undefined;
-    saveDraft({ event: ev, template: tpl && tpl.eventTypes.includes(ev) ? draft.template : null });
+    const keepTemplate = tpl && tpl.eventTypes.includes(ev) ? draft.template : null;
+    if (ev === "bebek") {
+      saveDraft({
+        template: keepTemplate,
+        ...applyBabyShowerDefaults(draft, en ? "en" : "tr"),
+      });
+      return;
+    }
+    if (ev === "parti") {
+      saveDraft({
+        template: keepTemplate,
+        ...applyPartyDefaults(draft, en ? "en" : "tr"),
+      });
+      return;
+    }
+    const leaving = draft.event === "bebek" || draft.event === "parti";
+    saveDraft({
+      event: ev,
+      template: keepTemplate,
+      ...(leaving ? { hiddenSections: [], program: DEFAULT_PROGRAM.map((row) => ({ ...row })) } : {}),
+    });
   }
   return (
     <fieldset className="wz-fieldset">

@@ -1,0 +1,80 @@
+{
+  "design": {
+    "schemaVersion": 1,
+    "canvas": { "width": 390, "height": 844 },
+    "flow": "snap",
+    "background": { "color": "#fff8f1" },
+    "intro": {
+      "mode": "gate",
+      "skippable": true,
+      "poster": "/img/davetiye/pastel-bulut-baby-shower/kapak.jpg",
+      "gate": {
+        "id": "gate",
+        "name": "Baby shower kapağı",
+        "kind": "cover",
+        "backgroundImage": "/img/davetiye/pastel-bulut-baby-shower/kapak.jpg",
+        "backgroundFit": "screen"
+      }
+    },
+    "chrome": { "color": "#4a3a32", "background": "#fff8f1cc" },
+    "fonts": [],
+    "colors": { "accent": "#e0896a", "ink": "#4a3a32" },
+    "fields": [
+      { "id": "f_first", "type": "text", "label": "Anne / ev sahibi" },
+      { "id": "f_second", "type": "text", "label": "Baba / ev sahibi" },
+      { "id": "f_storyText", "type": "text", "label": "Bebek adı / başlık" },
+      { "id": "f_mainDate", "type": "dateTime", "label": "Tarih ve saat" },
+      { "id": "f_intro", "type": "longText", "label": "Karşılama metni" },
+      { "id": "f_venueName", "type": "text", "label": "Mekân" },
+      { "id": "f_address", "type": "longText", "label": "Adres" },
+      { "id": "f_familyA", "type": "longText", "label": "Anne tarafı" },
+      { "id": "f_familyB", "type": "longText", "label": "Baba tarafı" },
+      { "id": "f_familyNote", "type": "text", "label": "Ne zaman & nerede başlığı" },
+      { "id": "f_closing", "type": "longText", "label": "RSVP / iletişim" },
+      { "id": "f_storyPhoto", "type": "image", "label": "Bebek fotoğrafı" }
+    ],
+    "pages": [
+      {
+        "id": "p_names",
+        "name": "Baby Shower",
+        "kind": "names",
+        "elements": []
+      }
+    ]
+  },
+  "values": {
+    "f_first": "Elif",
+    "f_second": "Can",
+    "f_storyText": "Minik Ada",
+    "f_mainDate": "2026-06-14T15:00:00+03:00",
+    "f_intro": "Bebeğimizi beklerken bu tatlı heyecanı bizimle paylaşmaya davetlisiniz.",
+    "f_venueName": "Garden Terrace",
+    "f_address": "Atatürk Mah. Gazi Bulvarı No: 12, İstanbul",
+    "f_familyA": "",
+    "f_familyB": "",
+    "f_familyNote": "Minik Bir Mucize Geliyor!",
+    "f_closing": "0532 000 00 00"
+  },
+  "places": {},
+  "lists": {
+    "f_flow": []
+  },
+  "music": null,
+  "locale": "tr",
+  "locales": ["tr"],
+  "ceremonies": [],
+  "flags": {
+    "layout": "babyShower",
+    "palette": "peach",
+    "mode": "preview",
+    "showSamples": true,
+    "watermark": true,
+    "cover": "/img/davetiye/pastel-bulut-baby-shower/kapak.jpg",
+    "decor": "/img/davetiye/pastel-bulut-baby-shower/dekor-sayfa.jpg"
+  },
+  "photos": ["/img/davetiye/pastel-bulut-baby-shower/ornek-foto.jpg"],
+  "guestPhotos": [],
+  "messages": [],
+  "fonts": [],
+  "title": "Pastel Bulut Baby Shower"
+}
