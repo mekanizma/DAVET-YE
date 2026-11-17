@@ -259,29 +259,47 @@ async function createShopierProductViaDb(input: {
   kind: "davetiye" | "gazete";
   total: number;
   previousProductId?: string;
-}): Promise<{ productId: string; productUrl: string } | null> {
+}): Promise<{ productId: string; productUrl: string }> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "";
-  const key = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
-  if (!url || !key) return null;
-  const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { data, error } = await db.rpc("shopier_create_product", {
-    order_code: input.code,
-    kind: input.kind,
-    total: input.total,
-    image_url: imageUrl(),
-    previous_product_id: input.previousProductId || null,
-  });
-  if (error) {
-    console.error("shopier_create_product rpc error", error.message);
-    return null;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || "";
+  const service = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
+  const secret = process.env.SUPABASE_SERVER_SECRET?.trim() || process.env.SHOPIER_CREATE_SECRET?.trim() || "";
+  if (!url) throw new Error("Shopier ürün açılamadı (db:url).");
+
+  // Prefer the same secret-gated path orders use (anon + server_secret). Falls back to service role.
+  const clients: { label: string; key: string; useSecret: boolean }[] = [];
+  if (anon && secret) clients.push({ label: "anon", key: anon, useSecret: true });
+  if (service) clients.push({ label: "service", key: service, useSecret: Boolean(secret) });
+  if (!clients.length) throw new Error("Shopier ürün açılamadı (db:key).");
+
+  let last = "db:fail";
+  for (const client of clients) {
+    const db = createClient(url, client.key, { auth: { persistSession: false, autoRefreshToken: false } });
+    const args: Record<string, unknown> = {
+      order_code: input.code,
+      kind: input.kind,
+      total: input.total,
+      image_url: imageUrl(),
+      previous_product_id: input.previousProductId || null,
+    };
+    const rpcName = client.useSecret ? "shopier_create_product_auth" : "shopier_create_product";
+    if (client.useSecret) args.server_secret = secret;
+    const { data, error } = await db.rpc(rpcName, args);
+    if (error) {
+      console.error(rpcName, client.label, error.message);
+      last = `db:${client.label}:${error.message.slice(0, 60)}`;
+      continue;
+    }
+    const row = (data || {}) as { ok?: boolean; productId?: string; productUrl?: string; error?: string; status?: number };
+    const productId = String(row.productId || "");
+    if (!row.ok || !/^\d+$/.test(productId)) {
+      console.error(rpcName, client.label, row);
+      last = `db:${client.label}:${row.error || row.status || "fail"}`;
+      continue;
+    }
+    return { productId, productUrl: row.productUrl || `https://www.shopier.com/${productId}` };
   }
-  const row = (data || {}) as { ok?: boolean; productId?: string; productUrl?: string; error?: string; status?: number };
-  const productId = String(row.productId || "");
-  if (!row.ok || !/^\d+$/.test(productId)) {
-    console.error("shopier_create_product failed", row);
-    return null;
-  }
-  return { productId, productUrl: row.productUrl || `https://www.shopier.com/${productId}` };
+  throw new Error(`Shopier ürün açılamadı (${last})`);
 }
 
 async function createShopierProductDirect(input: {
@@ -290,9 +308,6 @@ async function createShopierProductDirect(input: {
   total: number;
   previousProductId?: string;
 }): Promise<{ productId: string; productUrl: string }> {
-  const viaDb = await createShopierProductViaDb(input);
-  if (viaDb) return viaDb;
-
   const label = input.kind === "gazete" ? "Dijital gazete" : "Dijital davetiye";
   const { status, data, raw } = await shopier<{ id?: string; url?: string }>("/products", {
     method: "POST",
@@ -333,15 +348,35 @@ export async function createShopierCheckout(input: {
 }): Promise<ShopierCheckout> {
   if (!Number.isInteger(input.total) || input.total <= 0) throw new Error("Ödenecek tutar geçersiz.");
   const slug = await shopierShopSlug();
-  // Relay/direct first: Postgres http leaves from Supabase. Edge is optional backup when its secrets are set.
+  const errors: string[] = [];
+
+  // 1) Edge first: uses DB-stored PAT and does not leave from Render.
+  try {
+    const viaEdge = await createShopierProductViaEdge(input);
+    if (viaEdge) return { productId: viaEdge.productId, productUrl: viaEdge.productUrl, slug };
+    errors.push("edge:null");
+  } catch (error) {
+    console.error(error);
+    errors.push(`edge:${error instanceof Error ? error.message.slice(0, 40) : "err"}`);
+  }
+
+  // 2) Direct DB RPC with service role (same path orders use).
+  try {
+    const viaDb = await createShopierProductViaDb(input);
+    return { productId: viaDb.productId, productUrl: viaDb.productUrl, slug };
+  } catch (error) {
+    console.error(error);
+    errors.push(error instanceof Error ? error.message : "db:err");
+  }
+
+  // 3) Last resort: relay/direct Shopier API call.
   try {
     const created = await createShopierProductDirect(input);
     return { productId: created.productId, productUrl: created.productUrl, slug };
   } catch (error) {
     console.error(error);
-    const viaEdge = await createShopierProductViaEdge(input);
-    if (viaEdge) return { productId: viaEdge.productId, productUrl: viaEdge.productUrl, slug };
-    throw error;
+    const detail = error instanceof Error ? error.message : "api:err";
+    throw new Error(`${detail} [${errors.join(" | ")}]`);
   }
 }
 
