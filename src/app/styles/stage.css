@@ -345,6 +345,9 @@
   flex-direction: column;
   scrollbar-width: thin;
 }
+.stg-memory {
+  overflow: hidden;
+}
 .stg-form {
   gap: var(--f-gap, 10px);
   padding: 2px;
@@ -650,13 +653,15 @@ textarea.stg-form__input {
   overscroll-behavior: none;
 }
 .stg-root .iv__stage {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   background: #111;
 }
 @media (min-width: 560px) {
   .stg-root.iv:not([data-embed]) .iv__stage {
-    height: var(--iv-stage-h, 100svh);
+    height: auto;
     border-radius: 0;
     box-shadow: none;
   }
@@ -668,20 +673,74 @@ textarea.stg-form__input {
     object-position: center;
   }
 }
-.stg-gallery {
+.stg-toast {
   position: absolute;
-  inset: 0;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  left: 50%;
+  z-index: 35;
+  translate: -50% 0;
+  max-width: min(86%, 22rem);
+  margin: 0;
+  padding: 0.55em 0.9em;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--stg-desk, #111) 72%, #000);
+  color: #f4efdc;
+  font: 600 0.78rem/1.35 system-ui, sans-serif;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+.stg-toast--ok {
+  color: #d9f0df;
+}
+.stg-toast--err {
+  color: #ffd0c8;
+}
+.stg-memory {
+  gap: 0.55em;
+  padding: 0.15em;
+  align-items: stretch;
+  overflow: hidden;
+}
+.stg-memory__hint {
+  position: relative;
+  flex: 0 0 auto;
+  margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.stg-gallery {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
   align-content: start;
   overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .stg-gallery img {
+  display: block;
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
   border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+}
+.stg-memory__upload {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 100%;
+  max-width: 100%;
+  margin-top: auto;
+  justify-content: center;
+  gap: 0.4em;
+  padding-inline: 0.9em;
+  box-sizing: border-box;
+  cursor: pointer;
 }
 .stg-album {
   position: absolute;

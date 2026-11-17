@@ -13,6 +13,23 @@ import { isDesignStart, safeReturnPath } from "@/lib/returnTo";
 import { authErrorMessage } from "@/lib/supabase/errors";
 import { createSupabaseBrowser } from "@/lib/supabase/browser";
 
+function mailOrigin() {
+  const origin = window.location.origin;
+  try {
+    const host = new URL(origin).hostname;
+    if (host !== "0.0.0.0" && host !== "::") return origin;
+  } catch {
+    return origin;
+  }
+  const site = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!site) return "https://davetanisi.com";
+  try {
+    return new URL(site).origin;
+  } catch {
+    return "https://davetanisi.com";
+  }
+}
+
 type Mode = "giris" | "kayit" | "sifre";
 
 function tx(locale: Locale, tr: string, en: string) {
@@ -95,7 +112,7 @@ function AuthFields({ mode }: { mode: Mode }) {
     setBusy(true);
     try {
       const supabase = createSupabaseBrowser();
-      const origin = window.location.origin;
+      const origin = mailOrigin();
       if (mode === "sifre") {
         const { error } = await supabase.auth.resetPasswordForEmail(emailNow.trim().toLowerCase(), {
           redirectTo: `${origin}/auth/callback?next=/panel/sifre-yenile`,

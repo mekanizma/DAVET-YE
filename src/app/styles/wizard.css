@@ -732,6 +732,17 @@ html:has(.wz__nav) {
   max-width: 34rem;
   color: var(--ink-soft);
 }
+.pay-done__note {
+  max-width: 34rem;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent, #8a6d4b) 10%, var(--surface, #fff));
+  border: 1px solid color-mix(in srgb, var(--accent, #8a6d4b) 22%, var(--line, #ddd));
+  color: var(--ink, #1c241c);
+  font-weight: 600;
+  line-height: 1.45;
+}
 .pay-done__cta {
   display: flex;
   flex-wrap: wrap;

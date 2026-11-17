@@ -401,6 +401,13 @@ export default function IbanCheckout({
             {order?.adminNote || tx(locale, "Siparişiniz onaylandı. Davetiyeniz hazırlanırken bu kodu saklayın: ", "Your order is confirmed. Keep this code while your invitation is prepared: ")}
             {order?.adminNote ? null : <strong className="num">{order?.code}</strong>}
           </p>
+          <p className="pay-done__note">
+            {tx(
+              locale,
+              "Lütfen panelinize dönüp işlemlere paneliniz üzerinden devam edin.",
+              "Please return to your panel and continue with the next steps from there.",
+            )}
+          </p>
           <div className="pay-done__cta">
             {kind === "davetiye" && (
               <Link href={withLocaleQuery(locale, `/onizleme/tema/${template}?taslak=1&odendi=1`)} className="btn btn--dark btn--lg btn--serif">{tx(locale, "Davetiyemi aç", "Open my invitation")}</Link>

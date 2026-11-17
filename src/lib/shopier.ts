@@ -509,11 +509,13 @@ export function shopierMessageHtml(message: string): string {
     body { margin: 0; font-family: Georgia, serif; background: #f6f1e8; color: #1c241c; }
     main { max-width: 28rem; margin: 0 auto; padding: 2.5rem 1.25rem; }
     a { color: #1c241c; }
+    .note { margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 12px; background: #efe6d6; line-height: 1.45; font-weight: 600; }
   </style>
 </head>
 <body>
   <main>
     <p>${text}</p>
+    <p class="note">Lütfen panelinize dönüp işlemlere paneliniz üzerinden devam edin.</p>
     <p><a href="/panel">Panele dön</a></p>
   </main>
 </body>

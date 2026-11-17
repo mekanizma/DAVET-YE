@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { LOCALE_COOKIE, localeFromPath, type Locale } from "@/i18n/locale";
+import { requestOrigin } from "@/lib/publicOrigin";
 import { isDesignStart, isEtsyPage, safeReturnPath } from "@/lib/returnTo";
 import { supabaseConfigured } from "@/lib/supabase/env";
 
@@ -41,7 +42,8 @@ function redirectToCanonical(req: NextRequest) {
   if (hosts.some((host) => host === PUBLIC_HOST || host === `www.${PUBLIC_HOST}` || host === "localhost" || host === "127.0.0.1")) {
     return null;
   }
-  if (!hosts.some((host) => host.endsWith(".onrender.com"))) return null;
+  const internal = hosts.some((host) => host === "0.0.0.0" || host === "::" || host.endsWith(".onrender.com"));
+  if (!internal) return null;
   const url = req.nextUrl.clone();
   url.protocol = "https:";
   url.hostname = PUBLIC_HOST;
@@ -133,7 +135,7 @@ export async function middleware(req: NextRequest) {
 
   if (openPanel) {
     if (user && (pathname === "/panel/giris" || pathname === "/panel/kayit")) {
-      const dest = new URL(safeReturnPath(req.nextUrl.searchParams.get("next")), req.nextUrl.origin);
+      const dest = new URL(safeReturnPath(req.nextUrl.searchParams.get("next")), requestOrigin(req.headers));
       return copyCookies(supabaseResponse, NextResponse.redirect(dest));
     }
     return rememberLocale(supabaseResponse, locale, fromPath);

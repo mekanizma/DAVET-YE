@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Icon from "../Icon";
 import { getNewspaper } from "@/data/newspapers";
@@ -115,6 +116,8 @@ function orderTitle(order: OrderRecord, locale: Locale) {
 
 export default function Dashboard() {
   const locale = useLocale();
+  const params = useSearchParams();
+  const paidCode = (params.get("odeme") || "").trim();
   const { account, failed } = useAccount();
   const { draft } = useDraft();
   const [paper] = useLocalJson(NEWSPAPER_DRAFT, EMPTY_NEWSPAPER_DRAFT);
@@ -212,6 +215,21 @@ export default function Dashboard() {
           <p className="dash__mail">{account.email}</p>
         </div>
       </header>
+
+      {paidCode ? (
+        <div className="alert alert--success" role="status">
+          <Icon name="check" size={18} />
+          <span>
+            {tx(
+              locale,
+              "Ödemeniz alındı. Lütfen işlemlere paneliniz üzerinden devam edin.",
+              "Your payment was received. Please continue with the next steps from your panel.",
+            )}
+            {" "}
+            <strong className="num">{paidCode}</strong>
+          </span>
+        </div>
+      ) : null}
 
       <div className="desk-tiles">
         <Link href="/panel/tasarimlar#kartlar" className="desk-tile">

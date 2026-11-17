@@ -89,7 +89,14 @@ interface StageElement {
     iconAnimSpeed?: number;
     iconSize?: number;
     text?: TextStyle;
+    radius?: number;
+    height?: number;
+    stroke?: string;
+    strokeWidth?: number;
+    shadow?: { x?: number; y?: number; blur?: number; color?: string };
   };
+  columns?: number;
+  gap?: number;
   zoom?: number;
   countdown?: {
     showSeconds?: boolean;
@@ -680,15 +687,30 @@ export default function StageView({
     };
   }, [albumSlug]);
 
+  const uploadLockTimer = useRef(0);
+  function lockUploadShell(on: boolean) {
+    window.clearTimeout(uploadLockTimer.current);
+    document.querySelectorAll(".stg-root").forEach((node) => node.classList.toggle("is-uploading", on));
+    if (on) {
+      // Clear if the guest cancels the iOS/Android file picker without choosing a file.
+      uploadLockTimer.current = window.setTimeout(() => {
+        document.querySelectorAll(".stg-root").forEach((node) => node.classList.remove("is-uploading"));
+      }, 12000);
+    }
+  }
+
   async function addShot(file: File, source: "wall" | "lens") {
     if (!file.type.startsWith("image/") || file.size > 8 * 1024 * 1024) {
+      lockUploadShell(false);
       setPhotoNote({ ok: false, text: en ? "Use a JPG, PNG or WEBP under 8 MB." : "JPG, PNG veya WEBP yükleyin; 8 MB’ı geçmesin." });
       return;
     }
     if (!albumSlug) {
       setPhotos((cur) => [...cur, { id: `local-${Date.now()}`, url: URL.createObjectURL(file) }]);
+      lockUploadShell(false);
       return;
     }
+    lockUploadShell(true);
     setPhotoNote({ ok: true, text: en ? "Saving the photo…" : "Fotoğraf kaydediliyor…" });
     try {
       const saved = await uploadSharePhoto(albumSlug, file, source, file.name || "foto.jpg");
@@ -696,6 +718,8 @@ export default function StageView({
       setPhotoNote({ ok: true, text: en ? "Saved to the album." : "Albüme kaydedildi." });
     } catch (err) {
       setPhotoNote({ ok: false, text: err instanceof Error ? err.message : (en ? "The photo could not be saved." : "Fotoğraf kaydedilemedi.") });
+    } finally {
+      window.setTimeout(() => lockUploadShell(false), 450);
     }
   }
 
@@ -706,6 +730,7 @@ export default function StageView({
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const intro = design.intro;
   const introVideo = en && intro?.neutralVideo ? intro.neutralVideo : intro?.video;
   const desk = design.background?.color || "#cb6715";
@@ -829,10 +854,14 @@ export default function StageView({
     const apply = () => {
       const editing =
         shell.classList.contains("is-typing") ||
+        shell.classList.contains("is-uploading") ||
         !!shell.querySelector("input:focus, textarea:focus, select:focus");
       if (editing) return;
       const vv = window.visualViewport;
-      const h = Math.round(vv?.height || window.innerHeight);
+      const layoutH = Math.round(window.innerHeight);
+      let h = Math.round(vv?.height || layoutH);
+      // iOS photo picker briefly reports a tiny visual viewport; keep the layout height.
+      if (h < layoutH * 0.85) h = layoutH;
       const top = Math.round(vv?.offsetTop || 0);
       shell.style.setProperty("--vvh", `${h}px`);
       shell.style.setProperty("--vv-top", `${top}px`);
@@ -1095,7 +1124,6 @@ export default function StageView({
     }
   };
 
-  const stageRef = useRef<HTMLDivElement>(null);
   const gateCount = intro?.gate ? 1 : 0;
 
   useEffect(() => {
@@ -1129,6 +1157,7 @@ export default function StageView({
     if (!node) return;
     const reach = contentReach(design);
     const apply = () => {
+      if (node.closest(".stg-root")?.classList.contains("is-uploading")) return;
       const viewW = node.clientWidth;
       const viewH = node.clientHeight;
       if (!viewW || !viewH) return;
@@ -1312,7 +1341,6 @@ export default function StageView({
 
   return (
       <div className="iv stg-root" data-embed={embed ? "1" : undefined} data-kayit={record ? "1" : undefined} data-slug={slug} style={{ ["--stg-desk" as string]: desk }}>
-      <p className={photoNote ? `iv-status iv-status--${photoNote.ok ? "ok" : "err"}` : "sr-only"} role="status" aria-live="polite">{photoNote?.text}</p>
       <style>{fontCss}</style>
       {(stage.fonts || []).map((f) => (
         <link key={f.url} rel="preload" href={f.url} as="font" type="font/woff2" crossOrigin="anonymous" />
@@ -1331,6 +1359,7 @@ export default function StageView({
           data-flow="snap"
           data-phase={phase}
         >
+          <p className={photoNote ? `stg-toast stg-toast--${photoNote.ok ? "ok" : "err"}` : "sr-only"} role="status" aria-live="polite">{photoNote?.text || ""}</p>
           {phase === "open" && bgImage ? (
             <div className="stg-fit stg-bg" aria-hidden="true">
               <img className="stg-media stg-media--screen" src={bgImage} alt="" draggable={false} decoding="async" fetchPriority="high" />
@@ -1694,10 +1723,13 @@ function Element({
           color: el.style?.color || "#fff",
         }}
       >
-        {el.action === "lens" && <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onChange={(e) => {
+        {el.action === "lens" && <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden
+          onClick={() => document.querySelectorAll(".stg-root").forEach((node) => node.classList.add("is-uploading"))}
+          onChange={(e) => {
           const file = e.target.files?.[0];
           e.currentTarget.value = "";
           if (file) onAddPhoto(file, "lens");
+          else window.setTimeout(() => document.querySelectorAll(".stg-root").forEach((node) => node.classList.remove("is-uploading")), 300);
         }} />}
         <StageIcon name={el.icon || b.icon} anim={b.iconAnim} speed={b.iconAnimSpeed} size={b.iconSize || 1.35} />
         {el.text ? <span className="stg-btn__label">{el.text}</span> : null}
@@ -1727,25 +1759,57 @@ function Element({
   } else if (el.type === "messages") {
     body = <WishWall el={el} canvasW={canvasW} wishes={wishes} done={wishDone} note={wishNote} onWish={onWish} locale={locale} />;
   } else if (el.type === "memoryWall") {
+    const b = el.button || {};
+    const fill = b.fill || "#dc690c";
+    const fillTo = b.fillTo;
+    const cols = Math.max(2, Math.min(el.columns || 3, 4));
     body = (
       <div className="stg-memory" style={{ color: el.style?.color }}>
-        {el.hint ? <p style={{ ...textCss(el.style, canvasW), position: "relative", marginBottom: 8 }}>{el.hint}</p> : null}
-        <div className="stg-gallery">
+        {el.hint ? <p className="stg-memory__hint" style={textCss(el.style, canvasW)}>{el.hint}</p> : null}
+        <div
+          className="stg-gallery"
+          style={{
+            gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+            gap: el.gap != null ? cq(el.gap, canvasW) : undefined,
+          }}
+        >
           {photos.map((shot) => (
             <img key={shot.id} src={shot.url} alt="" />
           ))}
         </div>
-        <label className="stg-btn" style={{ position: "relative", marginTop: 8, background: el.button?.fill || "#dc690c", color: "#fff", borderRadius: 10, minHeight: 38 }}>
-          <StageIcon name={el.button?.icon || "camera"} size={1.1} />
+        <label
+          className="stg-btn stg-memory__upload"
+          style={{
+            ...textCss(b.text || el.style, canvasW),
+            position: "relative",
+            background: fillTo ? `linear-gradient(${b.gradientAngle || 160}deg, ${fill}, ${fillTo})` : fill,
+            color: b.text?.color || "#fff",
+            borderRadius: b.radius != null ? cq(b.radius, canvasW) : 10,
+            minHeight: b.height ? cq(b.height, canvasW) : 38,
+            border: b.strokeWidth ? `${cq(b.strokeWidth, canvasW)} solid ${b.stroke || "transparent"}` : "0",
+            boxShadow: b.shadow
+              ? `${cq(b.shadow.x || 0, canvasW)} ${cq(b.shadow.y || 0, canvasW)} ${cq(b.shadow.blur || 0, canvasW)} ${b.shadow.color || "transparent"}`
+              : undefined,
+          }}
+        >
+          <StageIcon name={b.icon || "camera"} size={b.iconSize || 1.1} />
           <span>{el.text || (locale === "en" ? "Upload a photo" : "Fotoğraf Yükle")}</span>
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp"
             hidden
+            onClick={() => {
+              const shell = (document.activeElement as HTMLElement | null)?.closest(".stg-root") || document.querySelector(".stg-root:not([data-embed='1'])");
+              shell?.classList.add("is-uploading");
+            }}
             onChange={(e) => {
               const file = e.target.files?.[0];
               e.currentTarget.value = "";
               if (file) onAddPhoto(file, "wall");
+              else {
+                const shell = e.currentTarget.closest(".stg-root");
+                window.setTimeout(() => shell?.classList.remove("is-uploading"), 300);
+              }
             }}
           />
         </label>
