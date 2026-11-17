@@ -88,9 +88,20 @@ async function start(req: Request, code: string, email: string, fresh: boolean) 
     } catch (error) {
       console.error(error);
       if (existing) return openExisting(existing);
+      // PAT product-create may be blocked from the web host; classic form is signed locally and posted by the browser.
+      if (shopierClassicConfigured()) {
+        try {
+          return html(classicShopierCheckoutHtml(order));
+        } catch (classicError) {
+          console.error(classicError);
+        }
+      }
       const detail = error instanceof Error ? error.message : "";
       const codeMatch = /\((\d+)\)/.exec(detail);
       const status = codeMatch?.[1] || "";
+      if (/blocked/i.test(detail)) {
+        return html(shopierMessageHtml("Kart ödeme isteği Shopier tarafından engellendi. Biraz sonra yeniden deneyin."));
+      }
       if (status === "401" || status === "403") {
         return html(shopierMessageHtml(`Kart ödeme isteği Shopier tarafından reddedildi (${status}). Biraz sonra yeniden deneyin.`));
       }

@@ -47,7 +47,13 @@ function pat(): string {
 }
 
 function blockedShopier(status: number, raw: string): boolean {
-  return /cloudflare|just a moment|cf-ray|attention required/i.test(raw) || (status === 403 && !raw.trim().startsWith("{"));
+  const body = raw.trim();
+  if (/cloudflare|just a moment|cf-ray|attention required/i.test(body)) return true;
+  // Shopier/Cloudflare often returns a bare HTML error page with 400 from blocked egress.
+  if (status === 403 && !body.startsWith("{")) return true;
+  if ((status === 400 || status === 502 || status === 503) && /^</.test(body)) return true;
+  if ((status === 400 || status === 403) && /<title>\s*Error\s*<\/title>/i.test(body)) return true;
+  return false;
 }
 
 async function shopierDirect<T>(path: string, init?: { method?: string; body?: unknown }): Promise<{ status: number; data: T | null; raw: string }> {
@@ -75,7 +81,10 @@ async function shopierDirect<T>(path: string, init?: { method?: string; body?: u
 async function shopierViaRelay<T>(path: string, init?: { method?: string; body?: unknown }): Promise<{ status: number; data: T | null; raw: string } | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "";
   const key = process.env.SUPABASE_SECRET_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "";
-  if (!url || !key) return null;
+  if (!url || !key) {
+    console.error("shopier relay skipped: missing SUPABASE url or secret key");
+    return null;
+  }
   const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data, error } = await db.rpc("shopier_relay", {
     method: init?.method || "GET",
@@ -83,9 +92,19 @@ async function shopierViaRelay<T>(path: string, init?: { method?: string; body?:
     payload: init?.body ?? null,
     token: pat(),
   });
-  if (error || !data || typeof data !== "object") return null;
+  if (error) {
+    console.error("shopier relay rpc error", error.message);
+    return null;
+  }
+  if (!data || typeof data !== "object") {
+    console.error("shopier relay empty response");
+    return null;
+  }
   const row = data as { status?: number; raw?: string };
-  if (typeof row.status !== "number" || row.status <= 0) return null;
+  if (typeof row.status !== "number" || row.status <= 0) {
+    console.error("shopier relay bad status", row);
+    return null;
+  }
   const raw = String(row.raw || "");
   if (!raw) return { status: row.status, data: null, raw: "" };
   try {
@@ -98,7 +117,11 @@ async function shopierViaRelay<T>(path: string, init?: { method?: string; body?:
 async function shopier<T>(path: string, init?: { method?: string; body?: unknown }): Promise<{ status: number; data: T | null; raw: string }> {
   const relayed = await shopierViaRelay<T>(path, init);
   if (relayed && !blockedShopier(relayed.status, relayed.raw)) return relayed;
-  return shopierDirect<T>(path, init);
+  const direct = await shopierDirect<T>(path, init);
+  if (!blockedShopier(direct.status, direct.raw)) return direct;
+  // Prefer a real relay payload (even an API error) over a Cloudflare HTML block page.
+  if (relayed) return relayed;
+  return direct;
 }
 
 function tl(value: unknown): number | null {
@@ -253,8 +276,9 @@ async function createShopierProductDirect(input: {
   const productId = String(data?.id || "");
   if (status < 200 || status >= 300 || !/^\d+$/.test(productId)) {
     console.error("shopier product create failed", status, raw.slice(0, 400));
-    const blocked = blockedShopier(status, raw) || status === 401 || status === 403;
-    throw new Error(`Shopier ürün açılamadı (${blocked ? status || 403 : status || 0}).`);
+    const blocked = blockedShopier(status, raw);
+    if (blocked) throw new Error("Shopier ürün açılamadı (blocked).");
+    throw new Error(`Shopier ürün açılamadı (${status || 0}).`);
   }
   if (input.previousProductId && input.previousProductId !== productId) {
     try {
@@ -275,14 +299,16 @@ export async function createShopierCheckout(input: {
 }): Promise<ShopierCheckout> {
   if (!Number.isInteger(input.total) || input.total <= 0) throw new Error("Ödenecek tutar geçersiz.");
   const slug = await shopierShopSlug();
-  // Prefer the Supabase Edge Function so product create does not leave from Render's blocked egress.
-  const viaEdge = await createShopierProductViaEdge(input);
-  const created = viaEdge || (await createShopierProductDirect(input));
-  return {
-    productId: created.productId,
-    productUrl: created.productUrl,
-    slug,
-  };
+  // Relay/direct first: Postgres http leaves from Supabase. Edge is optional backup when its secrets are set.
+  try {
+    const created = await createShopierProductDirect(input);
+    return { productId: created.productId, productUrl: created.productUrl, slug };
+  } catch (error) {
+    console.error(error);
+    const viaEdge = await createShopierProductViaEdge(input);
+    if (viaEdge) return { productId: viaEdge.productId, productUrl: viaEdge.productUrl, slug };
+    throw error;
+  }
 }
 
 function asOrders(data: unknown): RemoteOrder[] {
