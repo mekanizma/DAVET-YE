@@ -234,15 +234,16 @@ async function createShopierProductViaEdge(input: {
       kind: input.kind,
       total: input.total,
       previousProductId: input.previousProductId || "",
-      imageUrl: imageUrl(),
+      imageUrl: "https://davetanisi.com/og.jpg",
+      ...(secret ? { serverSecret: secret } : {}),
     }),
     cache: "no-store",
-    signal: AbortSignal.timeout(12_000),
+    signal: AbortSignal.timeout(20_000),
   });
   const raw = await res.text();
-  let data: { productId?: string; productUrl?: string; status?: number } | null = null;
+  let data: { productId?: string; productUrl?: string; status?: number; detail?: string; raw?: string } | null = null;
   try {
-    data = raw ? (JSON.parse(raw) as { productId?: string; productUrl?: string; status?: number }) : null;
+    data = raw ? (JSON.parse(raw) as { productId?: string; productUrl?: string; status?: number; detail?: string; raw?: string }) : null;
   } catch {
     data = null;
   }
@@ -279,7 +280,7 @@ async function createShopierProductViaDb(input: {
       order_code: input.code,
       kind: input.kind,
       total: input.total,
-      image_url: imageUrl(),
+      image_url: "https://davetanisi.com/og.jpg",
       previous_product_id: input.previousProductId || null,
     };
     const rpcName = client.useSecret ? "shopier_create_product_auth" : "shopier_create_product";
@@ -290,11 +291,11 @@ async function createShopierProductViaDb(input: {
       last = `db:${client.label}:${error.message.slice(0, 60)}`;
       continue;
     }
-    const row = (data || {}) as { ok?: boolean; productId?: string; productUrl?: string; error?: string; status?: number };
+    const row = (data || {}) as { ok?: boolean; productId?: string; productUrl?: string; error?: string; status?: number; raw?: string };
     const productId = String(row.productId || "");
     if (!row.ok || !/^\d+$/.test(productId)) {
       console.error(rpcName, client.label, row);
-      last = `db:${client.label}:${row.error || row.status || "fail"}`;
+      last = `db:${client.label}:${row.error || "fail"}${row.status ? `:${row.status}` : ""}`;
       continue;
     }
     return { productId, productUrl: row.productUrl || `https://www.shopier.com/${productId}` };
@@ -347,10 +348,26 @@ export async function createShopierCheckout(input: {
   previousProductId?: string;
 }): Promise<ShopierCheckout> {
   if (!Number.isInteger(input.total) || input.total <= 0) throw new Error("Ödenecek tutar geçersiz.");
-  const slug = await shopierShopSlug();
+  // Never block checkout on Shopier shop-settings lookup from Render.
+  let slug = "";
+  try {
+    slug = await shopierShopSlug();
+  } catch (error) {
+    console.error(error);
+    slug = slugFrom(process.env.SHOPIER_SHOP_SLUG || "") || "mekanizmabt";
+  }
   const errors: string[] = [];
 
-  // 1) Edge first: uses DB-stored PAT and does not leave from Render.
+  // 1) DB RPC first (anon+server_secret or service role). Leaves from Supabase, not Render.
+  try {
+    const viaDb = await createShopierProductViaDb(input);
+    return { productId: viaDb.productId, productUrl: viaDb.productUrl, slug };
+  } catch (error) {
+    console.error(error);
+    errors.push(error instanceof Error ? error.message : "db:err");
+  }
+
+  // 2) Edge function with server secret in body (matches dv_private.server_secret).
   try {
     const viaEdge = await createShopierProductViaEdge(input);
     if (viaEdge) return { productId: viaEdge.productId, productUrl: viaEdge.productUrl, slug };
@@ -358,15 +375,6 @@ export async function createShopierCheckout(input: {
   } catch (error) {
     console.error(error);
     errors.push(`edge:${error instanceof Error ? error.message.slice(0, 40) : "err"}`);
-  }
-
-  // 2) Direct DB RPC with service role (same path orders use).
-  try {
-    const viaDb = await createShopierProductViaDb(input);
-    return { productId: viaDb.productId, productUrl: viaDb.productUrl, slug };
-  } catch (error) {
-    console.error(error);
-    errors.push(error instanceof Error ? error.message : "db:err");
   }
 
   // 3) Last resort: relay/direct Shopier API call.

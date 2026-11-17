@@ -8,6 +8,7 @@ type Body = {
   total?: number;
   previousProductId?: string;
   imageUrl?: string;
+  serverSecret?: string;
 };
 
 function json(data: unknown, status = 200) {
@@ -24,13 +25,18 @@ function db(key?: string) {
   return createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-async function authorized(req: Request, serviceClient: NonNullable<ReturnType<typeof db>>): Promise<boolean> {
-  const given = (req.headers.get("x-shopier-create-secret") || "").trim();
-  const { data: authRow } = await serviceClient.rpc("shopier_edge_auth", { given_secret: given });
-  if (authRow && (authRow as { ok?: boolean }).ok === true) return true;
+async function authorized(
+  req: Request,
+  bodySecret: string,
+  serviceClient: NonNullable<ReturnType<typeof db>>,
+): Promise<boolean> {
+  const headerSecret = (req.headers.get("x-shopier-create-secret") || "").trim();
+  for (const given of [headerSecret, bodySecret]) {
+    if (!given) continue;
+    const { data } = await serviceClient.rpc("shopier_edge_auth", { given_secret: given });
+    if (data && (data as { ok?: boolean }).ok === true) return true;
+  }
 
-  // Render may use a different SUPABASE_SERVER_SECRET than the DB copy.
-  // Accept the caller's service-role bearer instead.
   const bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim();
   if (!bearer) return false;
   const asCaller = db(bearer);
@@ -44,13 +50,16 @@ Deno.serve(async (req) => {
 
   const client = db();
   if (!client) return json({ error: "db" }, 503);
-  if (!(await authorized(req, client))) return json({ error: "auth" }, 401);
 
   let body: Body = {};
   try {
     body = (await req.json()) as Body;
   } catch {
     return json({ error: "body" }, 400);
+  }
+
+  if (!(await authorized(req, String(body.serverSecret || "").trim(), client))) {
+    return json({ error: "auth" }, 401);
   }
 
   if (body.action === "delete") {
@@ -81,11 +90,11 @@ Deno.serve(async (req) => {
     console.error("shopier_create_product error", error.message);
     return json({ error: "shopier", detail: error.message }, 502);
   }
-  const row = (data || {}) as { ok?: boolean; productId?: string; productUrl?: string; error?: string; status?: number };
+  const row = (data || {}) as { ok?: boolean; productId?: string; productUrl?: string; error?: string; status?: number; raw?: string };
   const productId = String(row.productId || "");
   if (!row.ok || !/^\d+$/.test(productId)) {
     console.error("shopier_create_product failed", row);
-    return json({ error: "shopier", status: row.status || 0, detail: row.error || "" }, 502);
+    return json({ error: "shopier", status: row.status || 0, detail: row.error || "", raw: row.raw || "" }, 502);
   }
 
   return json({
