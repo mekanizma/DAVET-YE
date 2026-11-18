@@ -35,7 +35,11 @@ export default function ThemesView() {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  if (query.data && rows === null) setRows(query.data.items.map((i) => ({ ...i, ...i.current })));
+  useEffect(() => {
+    if (query.data && rows === null) {
+      setRows(query.data.items.map((i) => ({ ...i, ...i.current })));
+    }
+  }, [query.data, rows]);
 
   const shown = useMemo(() => {
     const f = foldTr(q.trim());

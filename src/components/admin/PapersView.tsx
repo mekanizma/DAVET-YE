@@ -27,17 +27,19 @@ export default function PapersView() {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  if (query.data && rows === null) {
-    setRows(query.data.items.map((i) => ({
-      slug: i.slug,
-      title: i.title,
-      cover: i.cover,
-      price: i.current.price,
-      compareAt: i.current.compareAt,
-      hidden: i.current.hidden,
-      base: i.base,
-    })));
-  }
+  useEffect(() => {
+    if (query.data && rows === null) {
+      setRows(query.data.items.map((i) => ({
+        slug: i.slug,
+        title: i.title,
+        cover: i.cover,
+        price: i.current.price,
+        compareAt: i.current.compareAt,
+        hidden: i.current.hidden,
+        base: i.base,
+      })));
+    }
+  }, [query.data, rows]);
 
   function patch(slug: string, p: Partial<Row>) {
     setRows((list) => list?.map((r) => (r.slug === slug ? { ...r, ...p } : r)) ?? list);

@@ -609,15 +609,76 @@
   padding: 12px 14px;
   border-top: 1px solid var(--line-soft);
 }
+.iban-row > div {
+  min-width: 0;
+  flex: 1 1 auto;
+}
 .iban-row span { display: block; font-size: 0.75rem; color: var(--ink-muted); }
 .iban-row strong {
   display: block;
   margin-top: 2px;
   font-size: 1rem;
   overflow-wrap: anywhere;
+  word-break: break-word;
   font-variant-numeric: tabular-nums;
 }
 .iban-row .btn { min-height: 44px; flex: 0 0 auto; }
+
+@media (max-width: 560px) {
+  .iban-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .iban-row .btn {
+    width: 100%;
+  }
+  .iban-card__head strong {
+    font-size: 1.15rem;
+    overflow-wrap: anywhere;
+  }
+  .iban-pay {
+    gap: 12px;
+  }
+  .pay-alt {
+    padding: 10px 12px;
+  }
+}
+
+.adm-toggles {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.adm-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  cursor: pointer;
+}
+.adm-toggle input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  flex: 0 0 auto;
+  accent-color: var(--emerald);
+}
+.adm-toggle span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.adm-toggle strong {
+  font-size: 1rem;
+}
+.adm-toggle small {
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+}
 
 .timeline { display: grid; gap: 6px; margin-top: 8px; }
 .timeline li { font-size: 0.9rem; color: var(--ink-soft); }

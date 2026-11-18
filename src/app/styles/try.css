@@ -1,4 +1,51 @@
-/* “Kendi isminle dene” — account-free first try + continue bar */
+/* Fullscreen preview exit + “Kendi isminle dene” sheet / continue bar */
+
+.preview-exit {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(10px, env(safe-area-inset-left));
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px 0 10px;
+  border-radius: 999px;
+  background: rgba(20, 14, 8, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  text-decoration: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 650;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 24px -16px rgba(0, 0, 0, 0.55);
+}
+.preview-exit:hover,
+.preview-exit:focus-visible {
+  background: rgba(20, 14, 8, 0.78);
+  color: #fff;
+  outline: none;
+}
+.preview-exit span {
+  line-height: 1;
+}
+
+@media (max-width: 419px) {
+  .preview-exit {
+    padding: 0;
+    width: 44px;
+    justify-content: center;
+  }
+  .preview-exit span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
 
 .try-modal {
   position: fixed;

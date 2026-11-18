@@ -36,7 +36,7 @@ export default function LiveTraffic() {
         });
     };
     pull();
-    const timer = window.setInterval(pull, 15_000);
+    const timer = window.setInterval(pull, 45_000);
     window.addEventListener("focus", pull);
     return () => {
       stop = true;

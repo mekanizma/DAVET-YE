@@ -15,6 +15,10 @@ export interface PaymentSettings {
   instructions: string;
   supportEmail: string;
   supportPhone: string;
+  /** Show Shopier card checkout when the server key is also configured. */
+  shopierEnabled: boolean;
+  /** Show havale / EFT checkout when IBAN details are ready. */
+  ibanEnabled: boolean;
 }
 
 export const DEFAULT_SETTINGS: PaymentSettings = {
@@ -25,6 +29,8 @@ export const DEFAULT_SETTINGS: PaymentSettings = {
     "Havale veya EFT yaparken açıklama kısmına sipariş kodunu eksiksiz yazın. Tutar, sipariş özetindeki toplamla aynı olmalıdır. Ödeme hesaba geçince sipariş onaylanır.",
   supportEmail: "",
   supportPhone: "",
+  shopierEnabled: true,
+  ibanEnabled: false,
 };
 
 export interface CatalogAddon extends Addon {
@@ -50,8 +56,10 @@ export interface PaperLive {
 export interface PublicCatalog {
   settings: PaymentSettings;
   paymentReady: boolean;
-  /** Shopier card checkout is configured on the server. */
+  /** Shopier card checkout is configured on the server and turned on in admin. */
   cardPayments: boolean;
+  /** Havale / EFT is turned on in admin and IBAN details are ready. */
+  bankTransfer: boolean;
   addons: CatalogAddon[];
   themes: Record<string, ThemeLive>;
   newspapers: Record<string, PaperLive>;
@@ -143,6 +151,7 @@ export function buildPublicCatalog(ov: CatalogOverrides = {}): PublicCatalog {
     paymentReady: paymentReady(settings),
     // Shopier açıksa getPublicCatalog bunu true yapar. Varsayılan kapalıdır.
     cardPayments: false,
+    bankTransfer: Boolean(settings.ibanEnabled) && paymentReady(settings),
     addons,
     themes: themesLive,
     newspapers: papers,

@@ -5,7 +5,12 @@ import { getPublicCatalog, saveSettings } from "@/lib/store";
 
 export async function GET() {
   const cat = await getPublicCatalog();
-  return NextResponse.json({ settings: cat.settings, paymentReady: cat.paymentReady });
+  return NextResponse.json({
+    settings: cat.settings,
+    paymentReady: cat.paymentReady,
+    cardPayments: cat.cardPayments,
+    bankTransfer: cat.bankTransfer,
+  });
 }
 
 export async function PUT(req: Request) {
@@ -26,6 +31,8 @@ export async function PUT(req: Request) {
     instructions: String(body.instructions || ""),
     supportEmail: String(body.supportEmail || ""),
     supportPhone: String(body.supportPhone || ""),
+    shopierEnabled: body.shopierEnabled !== false,
+    ibanEnabled: body.ibanEnabled === true,
   });
   return NextResponse.json({ ok: true });
 }

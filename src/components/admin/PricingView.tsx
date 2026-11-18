@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { adminSend, useAdminQuery } from "./AdminShell";
 import type { CatalogAddon } from "@/lib/catalog";
 
@@ -23,12 +23,14 @@ export default function PricingView() {
   const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
 
-  if (query.data && data === null) {
-    setData(query.data);
-    setAddons(query.data.addons);
-    setStudio(query.data.studioPrice);
-    setFeatures(query.data.features.join("\n"));
-  }
+  useEffect(() => {
+    if (query.data && data === null) {
+      setData(query.data);
+      setAddons(query.data.addons);
+      setStudio(query.data.studioPrice);
+      setFeatures(query.data.features.join("\n"));
+    }
+  }, [query.data, data]);
 
   function patch(id: string, p: Partial<CatalogAddon>) {
     setAddons((list) => list.map((a) => (a.id === id ? { ...a, ...p } : a)));

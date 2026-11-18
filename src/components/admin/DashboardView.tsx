@@ -10,6 +10,9 @@ import type { OrderRecord } from "@/lib/orderTypes";
 interface Summary {
   paymentReady: boolean;
   cardPayments: boolean;
+  bankTransfer: boolean;
+  shopierEnabled?: boolean;
+  ibanEnabled?: boolean;
   bankName: string;
   accountHolder: string;
   iban: string;
@@ -38,7 +41,7 @@ export default function DashboardView() {
       <header className="adm-h">
         <div>
           <h1>Özet</h1>
-          <p>Gelen ödemeleri Shopier doğrular. Kart tahsilatı Shopier üzerinden alınır.</p>
+          <p>Aktif ödeme yöntemleri ve son siparişler.</p>
         </div>
       </header>
 
@@ -65,9 +68,14 @@ export default function DashboardView() {
 
       <section className="adm-card">
         <h2>Ödeme</h2>
-        <p className="muted">{data.cardPayments ? "Shopier kart ödemesi açık. Ödeme doğrulanınca ürün silinir. Havale seçeneği müşteriye kapalı." : "Shopier kart ödemesi kapalı. SHOPIER_PAT tanımlı değil."}</p>
+        <p className="muted">
+          {[
+            data.cardPayments ? "Shopier açık" : "Shopier kapalı",
+            data.bankTransfer ? "IBAN / havale açık" : "IBAN / havale kapalı",
+          ].join(" · ")}
+        </p>
         <div className="adm-actions">
-          <Link href="/yonetim/odeme" className="btn btn--outline btn--sm">IBAN ayarı</Link>
+          <Link href="/yonetim/odeme" className="btn btn--outline btn--sm">Ödeme ayarı</Link>
           <Link href="/yonetim/siparisler?durum=bekliyor" className="btn btn--outline btn--sm">Ödeme bekleyenler</Link>
           <Link href="/yonetim/siparisler?durum=bildirildi" className="btn btn--outline btn--sm">Onay kuyruğu</Link>
         </div>

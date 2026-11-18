@@ -17,7 +17,14 @@ export async function GET(req: Request, ctx: { params: Promise<{ code: string }>
   const share = await shareForOrder(order.code);
   const cat = await getPublicCatalog();
   return NextResponse.json(
-    { order, share, settings: customerPaymentSettings(cat.settings), paymentReady: cat.paymentReady, cardPayments: cat.cardPayments },
+    {
+      order,
+      share,
+      settings: customerPaymentSettings(cat.settings),
+      paymentReady: cat.paymentReady,
+      cardPayments: cat.cardPayments,
+      bankTransfer: cat.bankTransfer,
+    },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

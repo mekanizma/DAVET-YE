@@ -3,6 +3,7 @@ import path from "node:path";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import InvitationExperience from "@/components/invitation/InvitationExperience";
+import PreviewExit from "@/components/PreviewExit";
 import StageView from "@/components/stage/StageView";
 import TryContinueBar from "@/components/TryContinueBar";
 import { themeTitle } from "@/i18n/catalog";
@@ -73,13 +74,15 @@ export default async function PreviewPage({
           watermark={!paid}
           locale={locale}
         />
+        {!embed ? <PreviewExit slug={slug} locale={locale} /> : null}
         {!embed ? <TryContinueBar slug={slug} locale={locale} /> : null}
       </>
     );
   }
   return (
     <>
-      <InvitationExperience theme={theme} embed={embed} mode={mode} useDraftData={sp.taslak === "1"} watermark={!paid} locale={locale} />
+      <InvitationExperience theme={theme} embed={embed} mode={mode} useDraftData={sp.taslak === "1"} watermark={!paid} locale={locale} hideExit />
+      {!embed ? <PreviewExit slug={slug} locale={locale} /> : null}
       {!embed ? <TryContinueBar slug={slug} locale={locale} /> : null}
     </>
   );

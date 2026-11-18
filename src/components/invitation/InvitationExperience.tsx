@@ -47,6 +47,7 @@ export default function InvitationExperience({
   locale: localeProp,
   guestDraft = null,
   albumSlug = "",
+  hideExit = false,
 }: {
   theme: Theme;
   embed?: boolean;
@@ -58,6 +59,8 @@ export default function InvitationExperience({
   locale?: Locale;
   guestDraft?: InvitationDraft | null;
   albumSlug?: string;
+  /** When the page already mounts a global PreviewExit control. */
+  hideExit?: boolean;
 }) {
   const contextLocale = useLocale();
   const locale = localeProp ?? contextLocale;
@@ -391,12 +394,12 @@ export default function InvitationExperience({
             </>
           ) : null}
 
-          {!embed && (
+          {!embed && !hideExit ? (
             <Link href={lp(locale, `/temalar/${theme.slug}`)} className="iv__exit" aria-label={en ? "Back to the invitation page" : "Davetiye sayfasına dön"}>
               <Icon name="chevron-left" size={18} />
               <span>{title}</span>
             </Link>
-          )}
+          ) : null}
         </div>
       </div>
     </IvProvider>

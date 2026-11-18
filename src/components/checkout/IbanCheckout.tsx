@@ -34,9 +34,6 @@ function shopierPayUrl(code: string, email: string) {
   return `/api/siparis/${encodeURIComponent(code)}/shopier?email=${encodeURIComponent(email)}`;
 }
 
-/** Müşteriye havale / EFT kapalı. Ödeme yalnızca Shopier. */
-const SHOW_BANK_TRANSFER = false;
-
 function stamp(iso: string, locale: Locale) {
   return new Date(iso).toLocaleString(locale === "en" ? "en-GB" : "tr-TR", {
     day: "numeric",
@@ -91,6 +88,7 @@ export default function IbanCheckout({
   const [settings, setSettings] = useState<PaymentSettings>(cat.settings);
   const [ready, setReady] = useState(cat.paymentReady);
   const [cards, setCards] = useState(cat.cardPayments);
+  const [bank, setBank] = useState(Boolean(cat.bankTransfer));
 
   useEffect(() => {
     if (!resume?.code || !resume.email) return;
@@ -113,6 +111,7 @@ export default function IbanCheckout({
       setSettings(data.settings);
       setReady(data.paymentReady);
       if (typeof data.cardPayments === "boolean") setCards(data.cardPayments);
+      if (typeof data.bankTransfer === "boolean") setBank(data.bankTransfer);
       if (!silent) setSender("");
       setPhase("pay");
       onUpdate?.({
@@ -175,13 +174,17 @@ export default function IbanCheckout({
       }
       setSettings(data.settings);
       setReady(data.paymentReady);
-      if (typeof data.cardPayments === "boolean") setCards(data.cardPayments);
+      const nextCards = typeof data.cardPayments === "boolean" ? data.cardPayments : cards;
+      const nextBank = typeof data.bankTransfer === "boolean" ? data.bankTransfer : bank;
+      setCards(nextCards);
+      setBank(nextBank);
       setShare(data.share || null);
       remember(data.order);
       setSender("");
       setFile(null);
       setPhase("pay");
-      if (data.cardPayments && data.order.total > 0 && data.order.status !== "onaylandi") {
+      // Only auto-open Shopier when it is the sole active method.
+      if (nextCards && !nextBank && data.order.total > 0 && data.order.status !== "onaylandi") {
         window.location.assign(shopierPayUrl(data.order.code, data.order.customer.email));
       }
     } catch {
@@ -241,6 +244,48 @@ export default function IbanCheckout({
   const canSend = sender.trim().length >= 3 && Boolean(file) && ready && !busy;
   const statusText = status ? statusLabel(status, locale, STATUS_LABEL[status] ?? status) : "";
   const unpaid = Boolean(order && order.total > 0 && status !== "onaylandi");
+  const shopierOnly = cards && !bank;
+  const bankOnly = bank && !cards;
+  const both = cards && bank;
+  const none = !cards && !bank;
+
+  const formHint = (() => {
+    if (shopierOnly) {
+      return locale === "en" ? (
+        <>Payment is taken on <strong>Shopier</strong>. After verification the order is confirmed.</>
+      ) : (
+        <>Ödeme <strong>Shopier</strong> kart sayfasında alınır. Doğrulanınca sipariş onaylanır.</>
+      );
+    }
+    if (bankOnly) {
+      return locale === "en" ? (
+        <>Payment is by <strong>bank transfer</strong> only. After the order code is created, write the amount and the code in the transfer reference.</>
+      ) : (
+        <>Ödeme yalnızca <strong>havale veya EFT</strong> ile alınır. Sipariş kodu oluştuktan sonra tutarı ve kodu açıklamaya yazın.</>
+      );
+    }
+    if (both) {
+      return locale === "en" ? (
+        <>You can pay with <strong>Shopier</strong> or by <strong>bank transfer</strong>. Choose after the order is created.</>
+      ) : (
+        <>Ödemeyi <strong>Shopier</strong> veya <strong>havale / EFT</strong> ile yapabilirsiniz. Sipariş oluşunca yönteminizi seçin.</>
+      );
+    }
+    return locale === "en" ? (
+      <>Online payment is temporarily unavailable. You can still create the order; support will contact you.</>
+    ) : (
+      <>Online ödeme şu an kapalı. Siparişi yine de oluşturabilirsiniz; destek sizinle iletişime geçer.</>
+    );
+  })();
+
+  const submitLabel = busy
+    ? shopierOnly
+      ? tx(locale, "Shopier açılıyor…", "Opening Shopier…")
+      : tx(locale, "Kaydediliyor…", "Saving…")
+    : shopierOnly
+      ? tx(locale, "Shopier ile ödemeye geç", "Continue to Shopier")
+      : tx(locale, "Siparişi oluştur", "Create the order");
+
   const transferForm = showNotify ? (
     <form onSubmit={report} noValidate>
       {status === "reddedildi" && (
@@ -278,33 +323,18 @@ export default function IbanCheckout({
       <form className="iban-pay" onSubmit={create} noValidate>
         <div className="alert alert--info" role="note">
           <Icon name="info" size={18} />
-          <span>
-            {cards || !SHOW_BANK_TRANSFER ? (
-              locale === "en" ? (
-                <>
-                  Payment is taken on <strong>Shopier</strong>. A one-off product is opened for this amount in TL. After the payment is verified, that product is deleted and the order is confirmed.
-                </>
-              ) : (
-                <>
-                  Ödeme <strong>Shopier</strong> kart sayfasında alınır. Tutar kadar tek kullanımlık ürün açılır. Ödeme doğrulanınca ürün silinir ve sipariş onaylanır.
-                </>
-              )
-            ) : locale === "en" ? (
-              <>
-                Payment is by <strong>bank transfer</strong> only. Card details are never asked for. After the order code is created, write the amount and the code in the transfer reference.
-              </>
-            ) : (
-              <>
-                Ödeme yalnızca <strong>havale veya EFT</strong> ile alınır. Kart bilgisi istenmez. Sipariş kodu oluştuktan
-                sonra tutarı ve kodu açıklamaya yazmanız gerekir.
-              </>
-            )}
-          </span>
+          <span>{formHint}</span>
         </div>
-        {SHOW_BANK_TRANSFER && !cards && !ready && (
+        {bankOnly && !ready && (
           <div className="alert alert--warn" role="status">
             <Icon name="alert" size={18} />
             <span>{tx(locale, "Havale hesabı henüz yayınlanmadı. Siparişinizi yine de oluşturabilirsiniz; hesap eklendiğinde bu ekranda görünür.", "The transfer account has not been published yet. You can still place the order; the account appears on this screen once it is added.")}</span>
+          </div>
+        )}
+        {none && (
+          <div className="alert alert--warn" role="status">
+            <Icon name="alert" size={18} />
+            <span>{tx(locale, "Şu an aktif ödeme yöntemi yok. Sipariş kaydı alınır; ödeme için destek yazın.", "No payment method is active right now. The order is still saved; contact support to pay.")}</span>
           </div>
         )}
         <p className="pay__total">{tx(locale, "Ödenecek tutar", "Amount to pay")} <strong className="num">{formatTL(previewTotal, locale)}</strong></p>
@@ -328,7 +358,7 @@ export default function IbanCheckout({
         <TextAreaField id="pay-note" label={tx(locale, "Not (isteğe bağlı)", "Note (optional)")} value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} />
         {failure && <div className="alert alert--error" role="alert"><Icon name="alert" size={18} /><span>{failure}</span></div>}
         <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={busy}>
-          <Icon name="envelope" size={16} /> {busy ? (cards || !SHOW_BANK_TRANSFER ? tx(locale, "Shopier açılıyor…", "Opening Shopier…") : tx(locale, "Kaydediliyor…", "Saving…")) : cards || !SHOW_BANK_TRANSFER ? tx(locale, "Shopier ile ödemeye geç", "Continue to Shopier") : tx(locale, "Siparişi oluştur", "Create the order")}
+          <Icon name="envelope" size={16} /> {submitLabel}
         </button>
       </form>
     );
@@ -342,7 +372,7 @@ export default function IbanCheckout({
         {status && <span className={`pill pill--${status}`}>{statusText}</span>}
       </p>
 
-      {unpaid && (cards || !SHOW_BANK_TRANSFER) && order ? (
+      {unpaid && cards && order ? (
         <div className="pay-shopier">
           <ol className="iban-steps">
             <li>{tx(locale, "Sipariş tutarı kadar tek kullanımlık Shopier ürünü açılır.", "A one-off Shopier product is opened for the order amount.")}</li>
@@ -354,15 +384,17 @@ export default function IbanCheckout({
           </a>
           <p className="field__hint">{tx(locale, "Ödeme bitince bu sayfaya dönün. Onay kısa süre içinde burada görünür.", "Come back to this page after paying. Confirmation shows up here shortly.")}</p>
         </div>
-      ) : unpaid && SHOW_BANK_TRANSFER ? (
+      ) : null}
+
+      {unpaid && bankOnly ? (
         <ol className="iban-steps">
           <li>{tx(locale, "Aşağıdaki hesaba sipariş tutarının tamamını havale veya EFT ile gönderin.", "Send the full order amount to the account below by bank transfer.")}</li>
           <li>{tx(locale, "Açıklama kısmına yalnızca sipariş kodunu yazın. Kod olmadan ödeme eşleşmeyebilir.", "Write only the order code in the reference. Without the code, the payment may not be matched.")}</li>
-          <li>{tx(locale, "Ad soyadınızı ve dekontu gönderin. Ödeme sistem tarafından kontrol edilip onaylanır. Karttan çekim yapılmaz.", "Send your full name and the receipt. The payment is checked and confirmed by the system. Nothing is charged to a card.")}</li>
+          <li>{tx(locale, "Ad soyadınızı ve dekontu gönderin. Ödeme sistem tarafından kontrol edilip onaylanır.", "Send your full name and the receipt. The payment is checked and confirmed by the system.")}</li>
         </ol>
       ) : null}
 
-      {SHOW_BANK_TRANSFER && unpaid && cards && ready ? (
+      {unpaid && both && ready ? (
         <details className="pay-alt">
           <summary>{tx(locale, "Havale / EFT ile ödemek istiyorum", "I want to pay by bank transfer")}</summary>
           <div className="pay-shopier">
@@ -373,15 +405,15 @@ export default function IbanCheckout({
         </details>
       ) : null}
 
-      {SHOW_BANK_TRANSFER && status !== "onaylandi" && !cards && <IbanCard settings={settings} total={total} code={order?.code} title={title} />}
-      {SHOW_BANK_TRANSFER && !cards && settings.instructions && status !== "onaylandi" && <p className="field__hint">{settings.instructions}</p>}
+      {bankOnly && status !== "onaylandi" && <IbanCard settings={settings} total={total} code={order?.code} title={title} />}
+      {bankOnly && settings.instructions && status !== "onaylandi" && <p className="field__hint">{settings.instructions}</p>}
       {(settings.supportEmail || settings.supportPhone) && (
         <p className="field__hint">
           {tx(locale, "Destek:", "Support:")} {settings.supportPhone} {settings.supportEmail && <a href={`mailto:${settings.supportEmail}`}>{settings.supportEmail}</a>}
         </p>
       )}
 
-      {SHOW_BANK_TRANSFER && !cards ? transferForm : null}
+      {bankOnly ? transferForm : null}
 
       {status === "bildirildi" && receiptSent && (
         <div className="alert alert--success" role="status">

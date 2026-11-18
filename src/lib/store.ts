@@ -64,6 +64,8 @@ interface SettingsRow {
   instructions: string;
   support_email: string;
   support_phone: string;
+  shopier_enabled: boolean | null;
+  iban_enabled: boolean | null;
 }
 
 interface SiteRow {
@@ -117,7 +119,7 @@ async function readCatalog(): Promise<{
 }> {
   const db = createSupabaseAnon();
   const [settingsRes, themeRes, paperRes, addonRes, siteRes] = await Promise.all([
-    db.from("dv_payment_settings").select("bank_name, account_holder, iban, instructions, support_email, support_phone").eq("id", 1).maybeSingle(),
+    db.from("dv_payment_settings").select("bank_name, account_holder, iban, instructions, support_email, support_phone, shopier_enabled, iban_enabled").eq("id", 1).maybeSingle(),
     db.from("dv_theme_overrides").select("slug, price, compare_at, featured, hidden, badge"),
     db.from("dv_paper_overrides").select("slug, price, compare_at, hidden"),
     db.from("dv_addon_overrides").select("id, title, note, blurb, price, was, was_set, active, included"),
@@ -137,6 +139,8 @@ async function readCatalog(): Promise<{
     instructions: clean(s.instructions, 600) || DEFAULT_SETTINGS.instructions,
     supportEmail: clean(s.support_email, 120),
     supportPhone: clean(s.support_phone, 30),
+    shopierEnabled: s.shopier_enabled !== false,
+    ibanEnabled: s.iban_enabled === true,
   };
 
   const themeOverrides: Record<string, ThemeOverride> = {};
@@ -195,7 +199,8 @@ export const getPublicCatalog = cache(async (): Promise<PublicCatalog> => {
     studioPrice: s.studioPrice ?? undefined,
     features: s.features,
   });
-  data.cardPayments = shopierPatConfigured();
+  data.cardPayments = shopierPatConfigured() && data.settings.shopierEnabled !== false;
+  data.bankTransfer = Boolean(data.settings.ibanEnabled) && data.paymentReady;
   catalogMemo = { at: Date.now(), data };
   return data;
 });
@@ -222,49 +227,84 @@ function cardOrder(row: DbOrder & { dekont?: string | null }): OrderRecord {
 }
 
 /** Order list rows without the invitation snapshot or line items. */
-export async function listOrderCards(): Promise<OrderRecord[]> {
+export async function listOrderCards(opts?: { status?: string; q?: string; limit?: number }): Promise<OrderRecord[]> {
   noStore();
   const db = await createSupabaseServer();
-  const { data, error } = await db.from("dv_orders").select(ORDER_CARD).order("created_at", { ascending: false }).limit(2000);
+  const limit = Math.min(Math.max(opts?.limit ?? 200, 20), 500);
+  let query = db.from("dv_orders").select(ORDER_CARD).order("created_at", { ascending: false }).limit(limit);
+  if (opts?.status) query = query.eq("status", opts.status);
+  const { data, error } = await query;
   check(error);
-  return ((data || []) as (DbOrder & { dekont?: string | null })[]).map(cardOrder);
+  let rows = ((data || []) as (DbOrder & { dekont?: string | null })[]).map(cardOrder);
+  const q = (opts?.q || "").trim().toLocaleLowerCase("tr");
+  if (q) {
+    rows = rows.filter((o) => {
+      const blob = `${o.code} ${o.title} ${o.customer.name} ${o.customer.email} ${o.customer.phone} ${o.senderName}`.toLocaleLowerCase("tr");
+      return blob.includes(q);
+    });
+  }
+  return rows;
 }
 
 /** Counts and the latest orders for the admin home. Skips the full catalog and full snapshots. */
 export async function deskSummary() {
   noStore();
   const db = await createSupabaseServer();
-  const [statRes, recentRes, hiddenRes] = await Promise.all([
-    db.from("dv_orders").select("status, total"),
+  const countOf = (status: string) =>
+    db.from("dv_orders").select("code", { count: "exact", head: true }).eq("status", status);
+  const [bekliyorRes, bildirildiRes, onaylandiRes, reddedildiRes, approvedRes, recentRes, hiddenRes, cat] = await Promise.all([
+    countOf("bekliyor"),
+    countOf("bildirildi"),
+    countOf("onaylandi"),
+    countOf("reddedildi"),
+    db.from("dv_orders").select("total").eq("status", "onaylandi"),
     db.from("dv_orders").select(ORDER_CARD).order("created_at", { ascending: false }).limit(8),
     db.from("dv_theme_overrides").select("slug").eq("hidden", true),
+    getPublicCatalog(),
   ]);
-  check(statRes.error);
+  check(bekliyorRes.error);
+  check(bildirildiRes.error);
+  check(onaylandiRes.error);
+  check(reddedildiRes.error);
+  check(approvedRes.error);
   check(recentRes.error);
   check(hiddenRes.error);
-  const stats = (statRes.data || []) as { status: string; total: number }[];
-  const sum = (status: string) => stats.filter((o) => o.status === status).length;
   const known = new Set(themes.map((t) => t.slug));
   const hiddenThemes = ((hiddenRes.data || []) as { slug: string }[]).filter((row) => known.has(row.slug)).length;
-  const cat = await getPublicCatalog();
+  const approvedTotal = ((approvedRes.data || []) as { total: number }[]).reduce((s, o) => s + (Number(o.total) || 0), 0);
   return {
     paymentReady: cat.paymentReady,
     cardPayments: cat.cardPayments,
+    bankTransfer: cat.bankTransfer,
+    shopierEnabled: cat.settings.shopierEnabled,
+    ibanEnabled: cat.settings.ibanEnabled,
     bankName: cat.settings.bankName,
     accountHolder: cat.settings.accountHolder,
     iban: cat.settings.iban,
     counts: {
-      bekliyor: sum("bekliyor"),
-      bildirildi: sum("bildirildi"),
-      onaylandi: sum("onaylandi"),
-      reddedildi: sum("reddedildi"),
+      bekliyor: bekliyorRes.count ?? 0,
+      bildirildi: bildirildiRes.count ?? 0,
+      onaylandi: onaylandiRes.count ?? 0,
+      reddedildi: reddedildiRes.count ?? 0,
       themes: themes.length,
       hiddenThemes,
       newspapers: newspapers.length,
     },
-    approvedTotal: stats.filter((o) => o.status === "onaylandi").reduce((s, o) => s + (Number(o.total) || 0), 0),
+    approvedTotal,
     recent: ((recentRes.data || []) as (DbOrder & { dekont?: string | null })[]).map(cardOrder),
   };
+}
+
+/** Tiny badge count for the admin shell — avoids the full desk summary. */
+export async function pendingPaymentCount(): Promise<number> {
+  noStore();
+  const db = await createSupabaseServer();
+  const { count, error } = await db
+    .from("dv_orders")
+    .select("code", { count: "exact", head: true })
+    .eq("status", "bildirildi");
+  if (error) return 0;
+  return count ?? 0;
 }
 
 export async function findOrder(code: string): Promise<OrderRecord | undefined> {
@@ -777,6 +817,8 @@ export async function saveSettings(input: PaymentSettings) {
     instructions: clean(input.instructions, 600) || DEFAULT_SETTINGS.instructions,
     support_email: clean(input.supportEmail, 120),
     support_phone: clean(input.supportPhone, 30),
+    shopier_enabled: input.shopierEnabled !== false,
+    iban_enabled: input.ibanEnabled === true,
     updated_at: new Date().toISOString(),
   }).eq("id", 1);
   check(error);

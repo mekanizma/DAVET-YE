@@ -6,6 +6,9 @@ export async function GET() {
   return NextResponse.json({
     paymentReady: desk.paymentReady,
     cardPayments: desk.cardPayments,
+    bankTransfer: desk.bankTransfer,
+    shopierEnabled: desk.shopierEnabled,
+    ibanEnabled: desk.ibanEnabled,
     bankName: desk.bankName,
     accountHolder: desk.accountHolder,
     iban: desk.iban,
