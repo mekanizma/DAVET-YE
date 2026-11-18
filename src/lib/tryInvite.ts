@@ -27,8 +27,13 @@ export function previewTryUrl(slug: string, locale: Locale) {
   return withLocaleQuery(locale, `/onizleme/tema/${encodeURIComponent(slug)}?taslak=1&dene=1`);
 }
 
-export function continueAfterTryUrl(slug: string, locale: Locale) {
-  const wizard = `/${locale}/davetiye-olustur/bilgiler?sablon=${encodeURIComponent(slug)}`;
+export function wizardAfterTryUrl(slug: string, locale: Locale) {
+  return `/${locale}/davetiye-olustur/bilgiler?sablon=${encodeURIComponent(slug)}`;
+}
+
+export function continueAfterTryUrl(slug: string, locale: Locale, signedIn = false) {
+  const wizard = wizardAfterTryUrl(slug, locale);
+  if (signedIn) return wizard;
   return `/panel/kayit?next=${encodeURIComponent(wizard)}`;
 }
 

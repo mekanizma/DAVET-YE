@@ -3,9 +3,12 @@
 import Image from "next/image";
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
 import Icon from "./Icon";
+import { useCatalog } from "@/components/CatalogProvider";
 import { coverOf, type Theme } from "@/data/themes";
 import { localizeTheme } from "@/i18n/catalog";
 import { useLocale } from "@/i18n/provider";
+import { applyTheme } from "@/lib/catalog";
+import { formatTL } from "@/lib/format";
 import { applyTryInvite, previewTryUrl } from "@/lib/tryInvite";
 
 type Props = {
@@ -18,6 +21,7 @@ type Props = {
 
 export default function TryWithName({ themes, initialSlug = "", className, children }: Props) {
   const locale = useLocale();
+  const cat = useCatalog();
   const en = locale === "en";
   const titleId = useId();
   const [open, setOpen] = useState(false);
@@ -28,7 +32,10 @@ export default function TryWithName({ themes, initialSlug = "", className, child
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
-  const list = useMemo(() => themes.map((t) => localizeTheme(t, locale)), [themes, locale]);
+  const list = useMemo(
+    () => themes.map((t) => localizeTheme(applyTheme(t, cat), locale)),
+    [themes, locale, cat],
+  );
   const selected = list.find((t) => t.slug === slug) || list[0];
 
   useEffect(() => {
@@ -137,79 +144,93 @@ export default function TryWithName({ themes, initialSlug = "", className, child
             </header>
 
             <form className="try-modal__form" onSubmit={onSubmit} noValidate>
-              {!initialSlug && list.length > 1 ? (
-                <fieldset className="try-modal__themes">
-                  <legend>{en ? "Choose an invitation" : "Bir davetiye seçin"}</legend>
-                  <div className="try-modal__rail" role="listbox" aria-label={en ? "Invitations" : "Davetiyeler"}>
-                    {list.map((t) => {
-                      const on = t.slug === selected?.slug;
-                      return (
-                        <button
-                          key={t.slug}
-                          type="button"
-                          role="option"
-                          aria-selected={on}
-                          className={on ? "try-pick is-on" : "try-pick"}
-                          onClick={() => setSlug(t.slug)}
-                        >
-                          <Image src={coverOf(t)} alt="" width={120} height={214} sizes="88px" />
-                          <span>{t.title}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </fieldset>
-              ) : selected ? (
-                <p className="try-modal__chosen">
-                  <strong>{selected.title}</strong>
-                  <span className="muted"> · {selected.price} TL</span>
-                </p>
-              ) : null}
+              <div className="try-modal__body">
+                {!initialSlug && list.length > 1 ? (
+                  <fieldset className="try-modal__themes">
+                    <legend>{en ? "Choose an invitation" : "Bir davetiye seçin"}</legend>
+                    <div className="try-modal__rail" role="listbox" aria-label={en ? "Invitations" : "Davetiyeler"}>
+                      {list.map((t) => {
+                        const on = t.slug === selected?.slug;
+                        return (
+                          <button
+                            key={t.slug}
+                            type="button"
+                            role="option"
+                            aria-selected={on}
+                            className={on ? "try-pick is-on" : "try-pick"}
+                            onClick={() => setSlug(t.slug)}
+                          >
+                            <Image src={coverOf(t)} alt="" width={120} height={214} sizes="78px" />
+                            <span>{t.title}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                ) : null}
 
-              <div className="try-modal__fields">
-                <label className="field">
-                  <span>{labels.a}</span>
-                  <input
-                    value={partnerA}
-                    onChange={(e) => setPartnerA(e.target.value)}
-                    autoComplete="given-name"
-                    required
-                    maxLength={60}
-                    placeholder={en ? "Elif" : "Elif"}
-                  />
-                </label>
-                <label className="field">
-                  <span>{labels.b}</span>
-                  <input
-                    value={partnerB}
-                    onChange={(e) => setPartnerB(e.target.value)}
-                    autoComplete="family-name"
-                    required
-                    maxLength={60}
-                    placeholder={en ? "Can" : "Can"}
-                  />
-                </label>
-                <label className="field">
-                  <span>{en ? "Event date" : "Etkinlik tarihi"}</span>
-                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-                </label>
+                {selected ? (
+                  <p className="try-modal__chosen">
+                    <strong>{selected.title}</strong>
+                    <span className="muted"> · {formatTL(selected.price, locale)}</span>
+                    {selected.compareAt > selected.price ? (
+                      <>
+                        {" "}
+                        <s className="muted">{formatTL(selected.compareAt, locale)}</s>
+                      </>
+                    ) : null}
+                  </p>
+                ) : null}
+
+                <div className="try-modal__fields">
+                  <label className="field">
+                    <span>{labels.a}</span>
+                    <input
+                      value={partnerA}
+                      onChange={(e) => setPartnerA(e.target.value)}
+                      autoComplete="given-name"
+                      required
+                      maxLength={60}
+                      placeholder={en ? "Elif" : "Elif"}
+                      enterKeyHint="next"
+                    />
+                  </label>
+                  <label className="field">
+                    <span>{labels.b}</span>
+                    <input
+                      value={partnerB}
+                      onChange={(e) => setPartnerB(e.target.value)}
+                      autoComplete="family-name"
+                      required
+                      maxLength={60}
+                      placeholder={en ? "Can" : "Can"}
+                      enterKeyHint="next"
+                    />
+                  </label>
+                  <label className="field">
+                    <span>{en ? "Event date" : "Etkinlik tarihi"}</span>
+                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+                  </label>
+                </div>
+
+                {error ? (
+                  <p className="alert alert--error" role="alert">
+                    {error}
+                  </p>
+                ) : null}
               </div>
 
-              {error ? (
-                <p className="alert alert--error" role="alert">
-                  {error}
-                </p>
-              ) : null}
-
-              <button type="submit" className="btn btn--dark btn--lg btn--block btn--serif" disabled={busy || !selected} aria-busy={busy}>
-                {busy
-                  ? en
-                    ? "Opening…"
-                    : "Açılıyor…"
-                  : en
-                    ? "Open the animation"
-                    : "Animasyonu aç"}
-              </button>
+              <div className="try-modal__foot">
+                <button type="submit" className="btn btn--dark btn--lg btn--serif" disabled={busy || !selected} aria-busy={busy}>
+                  {busy
+                    ? en
+                      ? "Opening…"
+                      : "Açılıyor…"
+                    : en
+                      ? "Open the animation"
+                      : "Animasyonu aç"}
+                </button>
+              </div>
             </form>
           </div>
         </div>
