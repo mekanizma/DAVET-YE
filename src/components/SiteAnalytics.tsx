@@ -79,23 +79,36 @@ function send(kind: "pageview" | "click" | "engage" | "ping", path: string, labe
   }).catch(() => undefined);
 }
 
-function clickLabel(el: HTMLElement) {
-  const tracked = el.closest<HTMLElement>("[data-track]");
-  if (tracked?.dataset.track) return tracked.dataset.track.slice(0, 120);
-  const text = (el.innerText || el.getAttribute("aria-label") || el.getAttribute("title") || "").trim();
+/** Clicks often land on a Text node inside a button/link — those have no closest(). */
+function eventElement(ev: Event): Element | null {
+  const raw = ev.target;
+  if (raw instanceof Element) return raw;
+  if (raw instanceof Node) return raw.parentElement;
+  return null;
+}
+
+function clickLabel(el: Element) {
+  const tracked = el.closest("[data-track]");
+  if (tracked instanceof HTMLElement && tracked.dataset.track) return tracked.dataset.track.slice(0, 120);
+  const host = el instanceof HTMLElement ? el : el.parentElement;
+  if (!host) return "";
+  const text = (host.innerText || host.getAttribute("aria-label") || host.getAttribute("title") || "").trim();
   return text.replace(/\s+/g, " ").slice(0, 80);
 }
 
-function isMeaningfulClick(el: HTMLElement) {
+function isMeaningfulClick(el: Element) {
   if (el.closest("[data-no-track]")) return false;
   if (el.closest("[data-track]")) return true;
-  const target = el.closest<HTMLElement>("a,button,[role='button']");
+  const target = el.closest("a,button,[role='button']");
   if (!target) return false;
   if (target.tagName === "A") {
     const href = target.getAttribute("href") || "";
     if (!href || href === "#" || href.startsWith("javascript:")) return false;
   }
-  return Boolean(target.className?.toString().includes("btn") || target.dataset.track);
+  const className = typeof (target as HTMLElement).className === "string"
+    ? (target as HTMLElement).className
+    : String((target as HTMLElement).className || "");
+  return Boolean(className.includes("btn") || (target instanceof HTMLElement && target.dataset.track));
 }
 
 export default function SiteAnalytics() {
@@ -108,31 +121,51 @@ export default function SiteAnalytics() {
     if (lastPath.current === pathname) return;
     lastPath.current = pathname;
     engaged.current = false;
-    send("pageview", pathname);
+    try {
+      send("pageview", pathname);
+    } catch {
+      /* never break the page for analytics */
+    }
 
     const onClick = (ev: MouseEvent) => {
-      const el = ev.target as HTMLElement | null;
-      if (!el || !isMeaningfulClick(el)) return;
-      const hit = el.closest<HTMLElement>("a,button,[role='button'],[data-track]") || el;
-      send("click", pathname, clickLabel(hit));
+      try {
+        const el = eventElement(ev);
+        if (!el || !isMeaningfulClick(el)) return;
+        const hit = el.closest("a,button,[role='button'],[data-track]") || el;
+        send("click", pathname, clickLabel(hit));
+      } catch {
+        /* ignore analytics failures */
+      }
     };
 
     const markEngage = () => {
-      if (engaged.current) return;
-      engaged.current = true;
-      send("engage", pathname);
+      try {
+        if (engaged.current) return;
+        engaged.current = true;
+        send("engage", pathname);
+      } catch {
+        /* ignore */
+      }
     };
 
     const onScroll = () => {
-      const doc = document.documentElement;
-      const max = doc.scrollHeight - window.innerHeight;
-      if (max > 0 && window.scrollY / max >= 0.45) markEngage();
+      try {
+        const doc = document.documentElement;
+        const max = doc.scrollHeight - window.innerHeight;
+        if (max > 0 && window.scrollY / max >= 0.45) markEngage();
+      } catch {
+        /* ignore */
+      }
     };
 
     const engageTimer = window.setTimeout(markEngage, 12_000);
     const ping = () => {
-      if (document.visibilityState === "hidden") return;
-      send("ping", pathname);
+      try {
+        if (document.visibilityState === "hidden") return;
+        send("ping", pathname);
+      } catch {
+        /* ignore */
+      }
     };
     const pingTimer = window.setInterval(ping, PING_MS);
 

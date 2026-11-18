@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { Inter, Playfair_Display } from "next/font/google";
 import localFont from "next/font/local";
 import { CatalogProvider } from "@/components/CatalogProvider";
+import ClientRecovery from "@/components/ClientRecovery";
 import SiteAnalytics from "@/components/SiteAnalytics";
 import { SITE } from "@/data/site";
 import { LocaleProvider } from "@/i18n/provider";
@@ -172,6 +173,7 @@ export default async function RootLayout({
       <body>
         <LocaleProvider locale={locale}>
           <CatalogProvider catalog={catalog}>
+            <ClientRecovery />
             <SiteAnalytics />
             {children}
           </CatalogProvider>

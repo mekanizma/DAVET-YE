@@ -70,6 +70,7 @@ export default function Icon({
   ...rest
 }: { name: IconName; size?: number } & Omit<SVGProps<SVGSVGElement>, "name">) {
   const solid = name === "whatsapp";
+  const body = paths[name] ?? paths.close;
   return (
     <svg
       width={size}
@@ -84,7 +85,7 @@ export default function Icon({
       focusable="false"
       {...rest}
     >
-      {paths[name]}
+      {body}
     </svg>
   );
 }
