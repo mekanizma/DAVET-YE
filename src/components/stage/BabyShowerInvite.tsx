@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Icon from "@/components/Icon";
+import InviteMusic from "@/components/InviteMusic";
 import { usePagedGestures } from "@/hooks/usePagedGestures";
 import type { Locale } from "@/i18n/locale";
 import { buildIcs, downloadBlob } from "@/lib/format";
@@ -23,6 +24,7 @@ type Props = {
   palette?: "peach" | "sage" | "sky";
   samplePhoto?: string;
   watermark?: boolean;
+  musicSrc?: string | null;
 };
 
 type PageId = "welcome" | "when" | "theme" | "rsvp";
@@ -70,6 +72,7 @@ export default function BabyShowerInvite({
   decorSrc,
   palette = "peach",
   watermark,
+  musicSrc = null,
 }: Props) {
   const en = locale === "en";
   const info = draft.info;
@@ -307,6 +310,13 @@ export default function BabyShowerInvite({
           </div>
         )}
         {watermark ? <div className="bsi-mark">{en ? "Preview" : "Önizleme"}</div> : null}
+        <InviteMusic
+          src={musicSrc}
+          play={phase !== "gate"}
+          floating
+          labelOn={en ? "Mute music" : "Müziği kapat"}
+          labelOff={en ? "Play music" : "Müziği aç"}
+        />
       </div>
     </div>
   );

@@ -1,0 +1,222 @@
+/* “Kendi isminle dene” — account-free first try + continue bar */
+
+.try-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background: rgba(18, 21, 28, 0.48);
+  backdrop-filter: blur(6px);
+}
+
+.try-modal__panel {
+  width: min(560px, 100%);
+  max-height: min(92dvh, 760px);
+  overflow: auto;
+  border-radius: 22px 22px 18px 18px;
+  background: var(--surface, #fffcf7);
+  color: var(--ink, #13201c);
+  border: 1px solid var(--line, #e6d9c3);
+  box-shadow: 0 24px 60px -28px rgba(18, 21, 28, 0.55);
+  padding: 18px 16px 16px;
+  outline: none;
+}
+
+.try-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.try-modal__head h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(1.35rem, 4vw, 1.7rem);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 2px 0 6px;
+}
+.try-modal__close {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--line, #e6d9c3);
+  background: var(--paper, #f8f4ec);
+  color: inherit;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.try-modal__form {
+  display: grid;
+  gap: 14px;
+}
+.try-modal__themes {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.try-modal__themes legend {
+  font-size: 0.85rem;
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+.try-modal__rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 92px;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.try-pick {
+  scroll-snap-align: start;
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.try-pick img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line, #e6d9c3);
+  background: #eee;
+}
+.try-pick span {
+  font-size: 0.72rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.try-pick.is-on {
+  border-color: color-mix(in srgb, var(--emerald, #0d3229) 70%, #b8894e);
+}
+.try-pick.is-on img {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--emerald, #0d3229) 35%, transparent);
+}
+.try-modal__chosen {
+  margin: 0;
+  font-size: 0.95rem;
+}
+.try-modal__fields {
+  display: grid;
+  gap: 10px;
+}
+.try-modal__fields .field {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.try-modal__fields .field > span {
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+.try-modal__fields input {
+  min-height: 48px;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--line, #e6d9c3);
+  background: #fff;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 16px;
+  color: inherit;
+}
+
+body:has(.try-bar) .iv,
+body:has(.try-bar) .stg-root {
+  padding-bottom: calc(132px + env(safe-area-inset-bottom));
+}
+
+.try-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background:
+    linear-gradient(180deg, transparent, rgba(18, 21, 28, 0.18) 30%),
+    color-mix(in srgb, var(--surface, #fffcf7) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(230, 217, 195, 0.7);
+}
+.try-bar__inner {
+  width: min(720px, 100%);
+  margin-inline: auto;
+  display: grid;
+  gap: 10px;
+}
+.try-bar__copy {
+  display: grid;
+  gap: 2px;
+}
+.try-bar__copy strong {
+  font-size: 0.95rem;
+}
+.try-bar__copy span {
+  font-size: 0.8rem;
+}
+.try-bar__cta {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.25;
+  min-height: 52px;
+}
+
+.pcard__actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+.pcard__actions .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (min-width: 720px) {
+  .try-modal {
+    align-items: center;
+    padding: 24px;
+  }
+  .try-modal__panel {
+    border-radius: 22px;
+    padding: 22px 22px 18px;
+  }
+  .try-modal__fields {
+    grid-template-columns: 1fr 1fr;
+  }
+  .try-modal__fields .field:last-child {
+    grid-column: 1 / -1;
+  }
+  .try-bar__inner {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 16px;
+  }
+  .try-bar__cta {
+    width: auto;
+    min-width: min(320px, 100%);
+  }
+}

@@ -309,6 +309,23 @@
   font-size: var(--fs-lg);
   color: var(--hv-ink-soft, var(--ink-soft));
 }
+.hero__try {
+  margin-top: clamp(16px, 2.2vw, 22px);
+  display: grid;
+  gap: 8px;
+  max-width: 26rem;
+}
+.hero__try-btn {
+  width: 100%;
+  justify-content: center;
+  min-height: 52px;
+}
+.hero__try-note {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--hv-ink-muted, var(--ink-muted));
+  line-height: 1.4;
+}
 .hero__cards {
   display: grid;
   gap: 12px;

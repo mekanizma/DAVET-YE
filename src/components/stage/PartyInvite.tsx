@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
+import InviteMusic from "@/components/InviteMusic";
 import { usePagedGestures } from "@/hooks/usePagedGestures";
 import type { Locale } from "@/i18n/locale";
 import { buildIcs, downloadBlob } from "@/lib/format";
@@ -19,6 +20,7 @@ type Props = {
   watermark?: boolean;
   coverSrc?: string;
   decorSrc?: string;
+  musicSrc?: string | null;
 };
 
 function formatDay(date: string, locale: Locale) {
@@ -59,7 +61,7 @@ function spanMinutes(date: string, start: string, end: string) {
   return Math.max(30, Math.round((b - a) / 60000));
 }
 
-export default function PartyInvite({ locale, draft, watermark, coverSrc, decorSrc }: Props) {
+export default function PartyInvite({ locale, draft, watermark, coverSrc, decorSrc, musicSrc = null }: Props) {
   const en = locale === "en";
   const info = draft.info;
   const cover = coverSrc || COVER;
@@ -173,6 +175,7 @@ export default function PartyInvite({ locale, draft, watermark, coverSrc, decorS
             type="button"
             className={`pti-gate${phase === "opening" ? " is-opening" : ""}`}
             onClick={() => setPhase((current) => (current === "gate" ? "opening" : current))}
+            data-music-open="1"
           >
             <span className="pti-gate__art" aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -338,6 +341,13 @@ export default function PartyInvite({ locale, draft, watermark, coverSrc, decorS
           </div>
         )}
         {watermark && phase !== "open" ? <div className="pti-mark">{en ? "Preview" : "Önizleme"}</div> : null}
+        <InviteMusic
+          src={musicSrc}
+          play={phase !== "gate"}
+          floating
+          labelOn={en ? "Mute music" : "Müziği kapat"}
+          labelOff={en ? "Play music" : "Müziği aç"}
+        />
       </div>
     </div>
   );

@@ -21,3 +21,19 @@ export function musicTrackSrc(id: string | undefined | null): string | null {
   if (!id || id === "default" || id === "none") return null;
   return MUSIC_TRACKS.find((track) => track.id === id)?.src || null;
 }
+
+/** Fallback track when a theme has no custom stage music. */
+export const DEFAULT_INVITE_MUSIC_SRC =
+  MUSIC_TRACKS.find((track) => track.id === "davet")?.src || MUSIC_TRACKS[0]?.src || "";
+
+/** Resolve the playable URL for an invitation (honours "none"). */
+export function resolveInviteMusicSrc(
+  choice: string | undefined | null,
+  stageSrc?: string | null,
+): string | null {
+  if (choice === "none") return null;
+  const catalog = musicTrackSrc(choice);
+  if (catalog) return catalog;
+  const fallback = (stageSrc || DEFAULT_INVITE_MUSIC_SRC).trim();
+  return fallback || null;
+}

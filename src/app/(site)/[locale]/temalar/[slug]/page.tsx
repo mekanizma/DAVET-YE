@@ -7,6 +7,7 @@ import Icon, { type IconName } from "@/components/Icon";
 import ProductCard from "@/components/ProductCard";
 import SectionHead from "@/components/SectionHead";
 import ThemePhonePreview from "@/components/ThemePhonePreview";
+import TryWithName from "@/components/TryWithName";
 import JsonLd from "@/components/JsonLd";
 import { ADDONS } from "@/data/pricing";
 import { discountPercent, getTheme, similarThemes, themes } from "@/data/themes";
@@ -134,14 +135,17 @@ export default async function ThemeDetailPage({
               </div>
 
               <div className="detail__cta">
-                <Link
-                  href={`${lp(locale, "/davetiye-olustur")}?sablon=${encodeURIComponent(theme.slug)}`}
-                  className="btn btn--dark btn--lg btn--serif"
-                >
-                  <Icon name="sparkle" size={16} /> {en ? "Start with this invitation" : "Bu Davetiyeyle Başla"} <Icon name="arrow" size={16} />
-                </Link>
+                <TryWithName themes={[theme]} initialSlug={theme.slug} className="btn btn--dark btn--lg btn--serif">
+                  <Icon name="sparkle" size={16} /> {en ? "Try with your name" : "Kendi isminle dene"}
+                </TryWithName>
                 <Link href={withLocaleQuery(locale, `/onizleme/tema/${theme.slug}`)} className="btn btn--outline btn--lg btn--serif">
                   <Icon name="expand" size={16} /> {en ? "Full-screen preview" : "Tam Ekran Önizle"}
+                </Link>
+                <Link
+                  href={`${lp(locale, "/davetiye-olustur")}?sablon=${encodeURIComponent(theme.slug)}`}
+                  className="btn btn--ghost btn--lg"
+                >
+                  {en ? "Start with this invitation" : "Bu davetiyeyle başla"} <Icon name="arrow" size={16} />
                 </Link>
               </div>
 

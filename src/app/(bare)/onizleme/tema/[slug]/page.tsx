@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import InvitationExperience from "@/components/invitation/InvitationExperience";
 import StageView from "@/components/stage/StageView";
+import TryContinueBar from "@/components/TryContinueBar";
 import { themeTitle } from "@/i18n/catalog";
 import type { Locale } from "@/i18n/locale";
 import { getLocale } from "@/i18n/server";
@@ -62,16 +63,24 @@ export default async function PreviewPage({
   const stage = loadStage(slug, locale);
   if (stage) {
     return (
-      <StageView
-        stage={stage}
-        slug={slug}
-        embed={embed}
-        useDraftData={sp.taslak === "1"}
-        record={sp.kayit === "1"}
-        watermark={!paid}
-        locale={locale}
-      />
+      <>
+        <StageView
+          stage={stage}
+          slug={slug}
+          embed={embed}
+          useDraftData={sp.taslak === "1"}
+          record={sp.kayit === "1"}
+          watermark={!paid}
+          locale={locale}
+        />
+        {!embed ? <TryContinueBar slug={slug} locale={locale} /> : null}
+      </>
     );
   }
-  return <InvitationExperience theme={theme} embed={embed} mode={mode} useDraftData={sp.taslak === "1"} watermark={!paid} />;
+  return (
+    <>
+      <InvitationExperience theme={theme} embed={embed} mode={mode} useDraftData={sp.taslak === "1"} watermark={!paid} locale={locale} />
+      {!embed ? <TryContinueBar slug={slug} locale={locale} /> : null}
+    </>
+  );
 }

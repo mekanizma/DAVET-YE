@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import InviteMusic from "@/components/InviteMusic";
 import type { Locale } from "@/i18n/locale";
 import type { InvitationDraft } from "@/lib/storage";
 
@@ -11,6 +12,7 @@ type Props = {
   title?: string;
   samplePhoto?: string;
   watermark?: boolean;
+  musicSrc?: string | null;
 };
 
 function formatWhen(date: string, time: string, locale: Locale) {
@@ -36,7 +38,7 @@ function formatWhen(date: string, time: string, locale: Locale) {
   return `${day} | ${rest} | ${clock}`.toLocaleUpperCase(locale === "en" ? "en-GB" : "tr-TR");
 }
 
-export default function NamingCeremonyInvite({ locale, draft, live, title, samplePhoto, watermark }: Props) {
+export default function NamingCeremonyInvite({ locale, draft, live, title, samplePhoto, watermark, musicSrc = null }: Props) {
   const en = locale === "en";
   const info = draft.info;
   const photo = (live ? info.albumPhotos?.[0] : "") || samplePhoto || "";
@@ -110,6 +112,13 @@ export default function NamingCeremonyInvite({ locale, draft, live, title, sampl
           <p className="nci-rsvp">{copy.rsvp}</p>
         </div>
         {watermark ? <div className="nci-mark">{en ? "Preview" : "Önizleme"}</div> : null}
+        <InviteMusic
+          src={musicSrc}
+          play
+          floating
+          labelOn={en ? "Mute music" : "Müziği kapat"}
+          labelOff={en ? "Play music" : "Müziği aç"}
+        />
       </div>
     </div>
   );

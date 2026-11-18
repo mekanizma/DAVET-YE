@@ -30,7 +30,8 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         <h2>Essential storage</h2>
         <p>Browser storage is used to keep your session, your drafts, and your preferences.</p>
         <h2>Optional</h2>
-        <p>Analytics or advertising cookies are not used unless you later choose to allow them.</p>
+        <p>If you allow analytics, a first-party visitor id is stored so the admin panel can count returning visitors. Advertising cookies are not used.</p>
+        <p>Basic visit counts (page views, clicks, live presence) use a temporary session id and do not require advertising cookies.</p>
         <h2>Your choice</h2>
         <p>You can change your cookie-notice preference again below.</p>
         <ConsentButton />
@@ -42,7 +43,8 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       <h2>Zorunlu depolama</h2>
       <p>Oturumunuzu, taslaklarınızı ve tercihlerinizi tutmak için tarayıcı depolaması kullanılır.</p>
       <h2>İsteğe bağlı</h2>
-      <p>Analiz veya reklam amaçlı çerezler, siz açıkça izin vermedikçe kullanılmaz.</p>
+      <p>Analitiğe izin verirseniz, yönetim panelinde dönüş ziyaretlerini saymak için birinci taraf bir ziyaretçi kimliği saklanır. Reklam çerezi kullanılmaz.</p>
+      <p>Temel ziyaret sayıları (sayfa görüntüleme, tıklama, canlı varlık) geçici oturum kimliğiyle tutulur; reklam çerezi gerektirmez.</p>
       <h2>Tercihiniz</h2>
       <p>Çerez bildirimi tercihinizi aşağıdan yeniden değiştirebilirsiniz.</p>
       <ConsentButton />

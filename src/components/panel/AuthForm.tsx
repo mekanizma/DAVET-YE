@@ -161,7 +161,12 @@ function AuthFields({ mode }: { mode: Mode }) {
     }
   }
 
-  const lead = designing && mode === "kayit"
+  const continuingTry = designing && next.includes("/davetiye-olustur/bilgiler");
+  const lead = continuingTry && mode === "kayit"
+    ? tx(locale, "Kayıt olun; denediğiniz tasarım ve isimleriniz sizi bekliyor.", "Create an account; the design and names you tried are waiting for you.")
+    : continuingTry && mode === "giris"
+      ? tx(locale, "Giriş yapın; denediğiniz tasarımla kaldığınız yerden devam edin.", "Sign in and continue with the design you just tried.")
+    : designing && mode === "kayit"
     ? tx(locale, "Tasarıma başlamak için hesap oluşturun. Hesabınız varsa giriş yapın.", "Create an account to start designing. If you already have one, sign in.")
     : designing && mode === "giris"
       ? tx(locale, "Tasarıma başlamak için giriş yapın. Hesabınız yoksa kayıt olabilirsiniz.", "Sign in to start designing. If you do not have an account, you can create one.")

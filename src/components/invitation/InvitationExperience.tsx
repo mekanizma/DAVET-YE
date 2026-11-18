@@ -34,9 +34,8 @@ import { lp, type Locale } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
 import { RSVP_FORM_ENABLED } from "@/data/sections";
 import { coverOf, openingVideoOf, type Theme } from "@/data/themes";
-import { musicTrackSrc } from "@/lib/musicCatalog";
+import { resolveInviteMusicSrc } from "@/lib/musicCatalog";
 import { nameFontFaceCss, nameFontOf, nameFontStack } from "@/lib/nameFonts";
-import { useAmbientMusic } from "@/lib/music";
 import { useDraft, type InvitationDraft } from "@/lib/storage";
 
 export default function InvitationExperience({
@@ -76,39 +75,46 @@ export default function InvitationExperience({
   const [phase, setPhase] = useState<OpeningPhase>("closed");
   const [photos, setPhotos] = useState<WallPhoto[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const ambient = useAmbientMusic();
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [trackOn, setTrackOn] = useState(false);
+  const [musicOn, setMusicOn] = useState(false);
+  const musicStarted = useRef(false);
   const photosRef = useRef<WallPhoto[]>([]);
   photosRef.current = photos;
   const openingVideo = useMemo(() => openingVideoOf(theme), [theme]);
   const musicChoice = live ? draft.info.music : "default";
-  const trackSrc = musicChoice === "none" ? null : musicTrackSrc(musicChoice);
-  const musicEnabled = musicChoice !== "none";
-  const musicOn = trackSrc ? trackOn : ambient.on;
+  const trackSrc = resolveInviteMusicSrc(musicChoice);
+  const musicEnabled = Boolean(trackSrc);
   const albumPhotos = live ? (draft.info.albumPhotos || []).filter(Boolean).slice(0, 8) : [];
 
   useEffect(() => {
-    setTrackOn(false);
+    musicStarted.current = false;
+    setMusicOn(false);
     audioRef.current?.pause();
+  }, [trackSrc]);
+
+  const startMusic = useCallback(() => {
+    const a = audioRef.current;
+    if (!a || !trackSrc) return;
+    a.volume = 0.6;
+    a.play()
+      .then(() => {
+        musicStarted.current = true;
+        setMusicOn(true);
+      })
+      .catch(() => setMusicOn(false));
   }, [trackSrc]);
 
   const toggleMusic = useCallback(() => {
     if (!musicEnabled) return;
-    if (trackSrc) {
-      const a = audioRef.current;
-      if (!a) return;
-      if (trackOn) {
-        a.pause();
-        setTrackOn(false);
-        return;
-      }
-      a.volume = 0.6;
-      a.play().then(() => setTrackOn(true)).catch(() => setTrackOn(false));
+    const a = audioRef.current;
+    if (!a) return;
+    if (musicOn) {
+      a.pause();
+      setMusicOn(false);
       return;
     }
-    ambient.toggle();
-  }, [musicEnabled, trackSrc, trackOn, ambient.toggle, ambient]);
+    startMusic();
+  }, [musicEnabled, musicOn, startMusic]);
 
   const info = draft.info;
   const data: InvData = useMemo(() => {
@@ -153,20 +159,26 @@ export default function InvitationExperience({
 
   const open = useCallback(() => {
     if (phase !== "closed") return;
+    startMusic();
     if (reduced) {
       setPhase("done");
       return;
     }
     setPhase("opening");
-  }, [phase, reduced]);
+  }, [phase, reduced, startMusic]);
 
   const finishOpen = useCallback(() => {
+    startMusic();
     setPhase((p) => (p === "done" ? p : "done"));
-  }, []);
+  }, [startMusic]);
 
   useEffect(() => {
     if (phase === "done") scrollRef.current?.focus({ preventScroll: true });
   }, [phase]);
+
+  useEffect(() => {
+    if ((phase === "opening" || phase === "done") && trackSrc && !musicStarted.current) startMusic();
+  }, [phase, trackSrc, startMusic]);
 
   /**
    * Mobile: focusing name/RSVP fields opens the keyboard. Browser scroll-into-view
@@ -365,15 +377,14 @@ export default function InvitationExperience({
 
           {musicEnabled ? (
             <>
-              {trackSrc ? <audio ref={audioRef} src={trackSrc} loop preload="none" /> : null}
+              <audio ref={audioRef} src={trackSrc || undefined} loop preload="auto" playsInline />
               <button
                 type="button"
                 className="iv__music"
                 onClick={toggleMusic}
                 aria-pressed={musicOn}
                 aria-label={en ? "Turn music on or off" : "Müziği aç/kapat"}
-                title={trackSrc || ambient.supported ? (en ? "Turn music on or off" : "Müziği aç/kapat") : en ? "This browser cannot play generated sound" : "Bu tarayıcı ses üretimini desteklemiyor"}
-                disabled={!trackSrc && !ambient.supported}
+                title={en ? "Turn music on or off" : "Müziği aç/kapat"}
               >
                 <Icon name={musicOn ? "music" : "music-off"} size={18} />
               </button>

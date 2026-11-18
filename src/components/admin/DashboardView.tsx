@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAdminQuery } from "./AdminShell";
+import LiveTraffic from "./LiveTraffic";
 import { formatTL } from "@/lib/format";
 import { STATUS_LABEL } from "@/lib/orderStatus";
 import type { OrderRecord } from "@/lib/orderTypes";
@@ -40,6 +41,8 @@ export default function DashboardView() {
           <p>Gelen ödemeleri Shopier doğrular. Kart tahsilatı Shopier üzerinden alınır.</p>
         </div>
       </header>
+
+      <LiveTraffic />
 
       <div className="adm-stats">
         <article className="adm-stat adm-stat--alert">

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Icon from "./Icon";
 import HomeAmbient from "./home/HomeAmbient";
 import PhoneCarousel, { usePrefersReducedMotion } from "./PhoneCarousel";
+import TryWithName from "./TryWithName";
 import { newspapers } from "@/data/newspapers";
 import { localizeNewspaper } from "@/i18n/catalog";
 import { marketing } from "@/i18n/marketing";
@@ -53,6 +54,17 @@ export default function Hero({ featured }: { featured: Theme[] }) {
               ? "Make an elegant digital invitation that opens on a phone, and a newspaper that puts your story on the front page, in a few minutes. Share one link, and follow every reply from a single account."
               : "Telefonda açılan zarif dijital davetiyenizi ve hikâyenizi manşete taşıyan gazetenizi dakikalar içinde hazırlayın; tek bağlantıyla paylaşın, yanıtları tek panelden izleyin."}
           </p>
+
+          <div className="hero__try">
+            <TryWithName themes={featured} className="btn btn--dark btn--lg btn--serif hero__try-btn">
+              <Icon name="sparkle" size={16} /> {en ? "Try with your name" : "Kendi isminle dene"}
+            </TryWithName>
+            <p className="hero__try-note">
+              {en
+                ? "No account for the first try — watch the animation open with your names."
+                : "İlk deneme için hesap yok — animasyonu kendi isimlerinizle izleyin."}
+            </p>
+          </div>
 
           <ul className="hero__cards">
             <li className="hcard hcard--primary">

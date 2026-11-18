@@ -14,7 +14,7 @@ import { sampleFor } from "@/data/sample";
 import { uploadSharePhoto } from "@/lib/albumClient";
 import AlbumCarousel from "@/components/invitation/AlbumCarousel";
 import LiveDayStrip from "@/components/invitation/LiveDayStrip";
-import { musicTrackSrc } from "@/lib/musicCatalog";
+import { resolveInviteMusicSrc } from "@/lib/musicCatalog";
 import { nameFontFaceCss, nameFontOf, nameFontStack } from "@/lib/nameFonts";
 import { postShareRsvp } from "@/lib/rsvpClient";
 import { listShareWishes, postShareWish } from "@/lib/wishClient";
@@ -638,15 +638,13 @@ export default function StageView({
     return [...base.slice(0, at), albumPage, ...base.slice(at)];
   }, [design.pages, hidden, live, en]);
   const musicChoice = live ? draft.info.music : "default";
-  const musicSrc =
-    musicChoice === "none"
-      ? null
-      : musicTrackSrc(musicChoice) || (musicChoice === "default" ? stage.music?.src || null : null);
+  const musicSrc = resolveInviteMusicSrc(musicChoice, stage.music?.src || null);
 
   const reduced = usePrefersReduced();
   const [phase, setPhase] = useState<"gate" | "video" | "open">(design.intro?.gate ? "gate" : "open");
   const [shot, setShot] = useState(0);
   const [musicOn, setMusicOn] = useState(false);
+  const musicStarted = useRef(false);
   const [photos, setPhotos] = useState<Shot[]>([]);
   const [photoNote, setPhotoNote] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -1036,8 +1034,49 @@ export default function StageView({
     setPhase("open");
   }, []);
 
+  useEffect(() => {
+    musicStarted.current = false;
+    const a = audioRef.current;
+    if (!a || !musicSrc) {
+      setMusicOn(false);
+      return;
+    }
+    a.pause();
+    a.currentTime = 0;
+    setMusicOn(false);
+  }, [musicSrc]);
+
+  const startMusic = useCallback(() => {
+    const a = audioRef.current;
+    if (!a || !musicSrc || record) return;
+    a.volume = stage.music?.volume ?? 0.6;
+    a.play()
+      .then(() => {
+        musicStarted.current = true;
+        setMusicOn(true);
+      })
+      .catch(() => setMusicOn(false));
+  }, [musicSrc, record, stage.music?.volume]);
+
+  const toggleMusic = () => {
+    const a = audioRef.current;
+    if (!a || !musicSrc) return;
+    if (musicOn) {
+      a.pause();
+      setMusicOn(false);
+      return;
+    }
+    startMusic();
+  };
+
+  useEffect(() => {
+    if (record || phase === "gate" || !musicSrc || musicStarted.current) return;
+    startMusic();
+  }, [phase, musicSrc, record, startMusic]);
+
   const openInvite = useCallback(() => {
     if (record || phase !== "gate") return;
+    startMusic();
     const video = introVideo;
     if (reduced || !video) {
       setPhase("open");
@@ -1059,31 +1098,7 @@ export default function StageView({
       el.muted = true;
       el.play().catch(() => setPhase("open"));
     });
-  }, [record, phase, introVideo, intro?.videoMuted, reduced]);
-
-  useEffect(() => {
-    const a = audioRef.current;
-    if (!a || !musicSrc) {
-      setMusicOn(false);
-      return;
-    }
-    a.pause();
-    setMusicOn(false);
-  }, [musicSrc]);
-
-  const toggleMusic = () => {
-    const a = audioRef.current;
-    if (!a || !musicSrc) return;
-    if (musicOn) {
-      a.pause();
-      setMusicOn(false);
-      return;
-    }
-    a.volume = stage.music?.volume ?? 0.6;
-    a.play()
-      .then(() => setMusicOn(true))
-      .catch(() => setMusicOn(false));
-  };
+  }, [record, phase, introVideo, intro?.videoMuted, reduced, startMusic]);
 
   const goNext = (from: HTMLElement) => {
     const root = scrollRef.current;
@@ -1241,6 +1256,7 @@ export default function StageView({
           watermark={showWatermark}
           coverSrc={typeof stage.flags?.cover === "string" ? stage.flags.cover : "/img/davetiye/gece-isigi-parti/kapak.jpg"}
           decorSrc={typeof stage.flags?.decor === "string" ? stage.flags.decor : "/img/davetiye/gece-isigi-parti/dekor.jpg"}
+          musicSrc={record ? null : musicSrc}
         />
       </div>
     );
@@ -1272,6 +1288,7 @@ export default function StageView({
           title={stage.title}
           samplePhoto={stage.photos?.[0]}
           watermark={showWatermark}
+          musicSrc={record ? null : musicSrc}
         />
       </div>
     );
@@ -1334,6 +1351,7 @@ export default function StageView({
           palette={babyFlags.palette === "sage" || babyFlags.palette === "sky" ? babyFlags.palette : "peach"}
           samplePhoto={stage.photos?.[0]}
           watermark={showWatermark}
+          musicSrc={record ? null : musicSrc}
         />
       </div>
     );
@@ -1524,7 +1542,7 @@ export default function StageView({
 
           {musicSrc && !record ? (
             <>
-              <audio ref={audioRef} src={musicSrc} loop={stage.music?.loop !== false} preload="none" />
+              <audio ref={audioRef} src={musicSrc} loop={stage.music?.loop !== false} preload="auto" playsInline />
               <button type="button" className="stg-chrome stg-chrome--right" aria-pressed={musicOn} aria-label={en ? "Turn music on or off" : "Müziği aç/kapat"} onClick={toggleMusic}>
                 <StageIcon name={musicOn ? "volume" : "music"} size={1.1} />
               </button>

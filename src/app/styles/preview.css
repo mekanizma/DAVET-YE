@@ -969,6 +969,24 @@
 .iv__music[disabled] {
   opacity: 0.5;
 }
+.invite-music {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(20, 14, 8, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+.invite-music[aria-pressed="true"] {
+  background: color-mix(in srgb, #c9a46a 85%, #fff);
+  color: #1b1209;
+}
 .iv__exit {
   left: 12px;
 }
