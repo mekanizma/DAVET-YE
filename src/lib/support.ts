@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { isEmail } from "@/lib/format";
+import { notifySupportRequest } from "@/lib/mail";
 import { supabaseUrl } from "@/lib/supabase/env";
 
 const MAX_LIST = 500;
@@ -82,10 +83,23 @@ export async function saveSupportRequest(
   });
   if (error) return { ok: false, status: 500, error: "Talebiniz kaydedilemedi." };
 
-  return {
-    ok: true,
-    request: { id, firstName, lastName, email, message, source, status: "new", createdAt },
+  const request: SupportRequest = {
+    id,
+    firstName,
+    lastName,
+    email,
+    message,
+    source,
+    status: "new",
+    createdAt,
   };
+
+  // DB kaydı başarılı; mail hatası formu düşürmesin.
+  void notifySupportRequest(request).catch((err) => {
+    console.error("[support-mail]", err instanceof Error ? err.message : err);
+  });
+
+  return { ok: true, request };
 }
 
 export async function listSupportRequests(status?: string): Promise<SupportRequest[] | null> {

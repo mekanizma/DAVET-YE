@@ -38,5 +38,7 @@ Depodaki `render.yaml` Frankfurt bölgesinde bir Node web servisi tanımlar. Ren
 - `SUPABASE_SERVER_SECRET`
 - `SUPABASE_SECRET_KEY`
 - `ADMIN_PASSWORD`
+- `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` (destek talebi e-postası)
+- `SUPPORT_NOTIFY_EMAILS` (varsayılan olarak `info@mekanizma.com` her zaman eklenir)
 
 Servis `npm ci && npm run build` ile derlenir ve `next start` ile `0.0.0.0` üzerinde, Render’ın verdiği `PORT` ile açılır. Sağlık kontrolü `/tr` yoluna bakar. Dekontlar Supabase’te herkese kapalı `dekont` bucket’ına yazılır; bunun için `SUPABASE_SECRET_KEY` gerekir.
