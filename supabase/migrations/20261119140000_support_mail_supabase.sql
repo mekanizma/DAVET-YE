@@ -70,7 +70,7 @@ begin
     url := 'https://mpsfwjdoykijxkzeazfq.supabase.co/functions/v1/send-support-mail',
     body := jsonb_build_object('secret', secret, 'id', NEW.id),
     headers := jsonb_build_object('Content-Type', 'application/json'),
-    timeout_milliseconds := 20000
+    timeout_milliseconds := 60000
   );
   return NEW;
 exception
@@ -82,7 +82,6 @@ $fn$;
 
 revoke all on function dv_private.enqueue_support_mail() from public, anon, authenticated;
 
+-- Delivery is done by the Next.js server on port 587.
+-- The edge function cannot open SMTP ports, so this trigger stays off.
 drop trigger if exists dv_support_mail on public.dv_support;
-create trigger dv_support_mail
-  after insert on public.dv_support
-  for each row execute function dv_private.enqueue_support_mail();

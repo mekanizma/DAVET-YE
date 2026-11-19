@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
@@ -57,39 +58,6 @@ type Payload = {
   html?: string;
   replyTo?: string;
 };
-
-function supportMailUrl() {
-  const base = env("NEXT_PUBLIC_SUPABASE_URL").replace(/\/$/, "");
-  if (!base) return "";
-  return `${base}/functions/v1/send-support-mail`;
-}
-
-/** Same side of the network as verification / password-reset mail. */
-async function sendViaSupabase(input: {
-  id?: string;
-  test?: boolean;
-}): Promise<{ ok: true; via: "supabase"; duplicate?: boolean } | { ok: false; error: string }> {
-  const url = supportMailUrl();
-  const secret = env("SUPABASE_SERVER_SECRET");
-  if (!url || !secret) return { ok: false, error: "Supabase mail ayarı yok." };
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ secret, id: input.id, test: input.test || undefined }),
-      signal: AbortSignal.timeout(25_000),
-    });
-    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; duplicate?: boolean };
-    if (!res.ok || data.ok === false) {
-      return { ok: false, error: data.error || `Supabase mail HTTP ${res.status}` };
-    }
-    return { ok: true, via: "supabase", duplicate: data.duplicate };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Supabase mail gönderimi başarısız.";
-    console.error("[mail-supabase]", message);
-    return { ok: false, error: message };
-  }
-}
 
 async function sendViaResend(input: Payload): Promise<{ ok: true; via: "resend" } | { ok: false; error: string }> {
   const key = env("RESEND_API_KEY");
@@ -159,6 +127,62 @@ async function sendViaBrevo(input: Payload): Promise<{ ok: true; via: "brevo" } 
   } catch (err) {
     const message = err instanceof Error ? err.message : "Brevo gönderimi başarısız.";
     console.error("[mail-brevo]", message);
+    return { ok: false, error: message };
+  }
+}
+
+type StoredSmtp = {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  from: string;
+  from_name: string;
+  notify: string;
+};
+
+/** SMTP lives in Supabase, not in Render env. Port 465 is closed; 587 answers. */
+async function storedSmtp(): Promise<StoredSmtp | null> {
+  const url = env("NEXT_PUBLIC_SUPABASE_URL");
+  const key = env("SUPABASE_SECRET_KEY") || env("SUPABASE_SERVICE_ROLE_KEY");
+  const secret = env("SUPABASE_SERVER_SECRET");
+  if (!url || !key || !secret) return null;
+  const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data, error } = await db.rpc("dv_mail_smtp", { given_secret: secret });
+  if (error || !data || typeof data !== "object") return null;
+  const row = data as StoredSmtp;
+  if (!row.host || !row.user || !row.pass || !row.from) return null;
+  return row;
+}
+
+async function sendViaStoredSmtp(input: Payload): Promise<{ ok: true; via: "smtp" } | { ok: false; error: string }> {
+  const smtp = await storedSmtp();
+  if (!smtp) return { ok: false, error: "SMTP ayarı yok." };
+  const port = Number(smtp.port) === 465 ? 587 : Number(smtp.port) || 587;
+  const transport = nodemailer.createTransport({
+    host: smtp.host,
+    port,
+    secure: false,
+    requireTLS: true,
+    auth: { user: smtp.user, pass: smtp.pass },
+    connectionTimeout: 12_000,
+    greetingTimeout: 12_000,
+    socketTimeout: 20_000,
+    tls: { servername: smtp.host },
+  });
+  try {
+    await transport.sendMail({
+      from: `"${(smtp.from_name || "Davetanisi").replace(/"/g, "")}" <${smtp.from}>`,
+      to: input.to.join(", "),
+      replyTo: input.replyTo || undefined,
+      subject: input.subject,
+      text: input.text,
+      html: input.html || undefined,
+    });
+    return { ok: true, via: "smtp" };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "SMTP gönderimi başarısız.";
+    console.error("[mail-smtp]", message);
     return { ok: false, error: message };
   }
 }
@@ -260,10 +284,15 @@ export async function probeMail(): Promise<{
     brevo: brevoConfigured(),
     smtp: smtpConfigured(),
   };
-  if (configured.supabase) {
-    const viaSupabase = await sendViaSupabase({ test: true });
-    if (viaSupabase.ok) return { ok: true, via: "supabase", configured };
-    return { ok: false, error: viaSupabase.error, configured };
+  const stored = await storedSmtp();
+  if (stored) {
+    const viaStored = await sendViaStoredSmtp({
+      to: stored.notify.split(/[,;\s]+/).map((v) => v.trim()).filter((v) => v.includes("@")),
+      subject: "[Davetanisi] Mail test",
+      text: "Bu bir test mesajıdır. Destek bildirimi çalışıyor.",
+    });
+    if (viaStored.ok) return { ok: true, via: viaStored.via, configured };
+    return { ok: false, error: viaStored.error, configured };
   }
   if (!configured.resend && !configured.brevo && !configured.smtp) {
     return { ok: false, error: "Supabase mail veya RESEND_API_KEY / SMTP yok.", configured };
@@ -294,13 +323,10 @@ export async function notifySupportRequest(input: {
   source: string;
   createdAt: string;
 }): Promise<{ ok: true; via: MailVia } | { ok: false; error: string }> {
-  if (supabaseMailConfigured()) {
-    // The dv_support insert trigger queues send-support-mail on Supabase.
-    // Waiting here would hold the form for the SMTP round-trip (~20s).
-    return { ok: true, via: "supabase" };
-  }
-
-  const to = supportNotifyEmails();
+  const stored = await storedSmtp();
+  const to = stored
+    ? stored.notify.split(/[,;\s]+/).map((v) => v.trim().toLowerCase()).filter((v) => v.includes("@"))
+    : supportNotifyEmails();
   if (!to.length || !mailConfigured()) {
     console.warn("[support-mail] skipped: mail not configured");
     return { ok: false, error: "Mail yapılandırılmamış." };
@@ -338,13 +364,9 @@ export async function notifySupportRequest(input: {
     </div>
   `;
 
-  const result = await sendMail({
-    to,
-    subject,
-    text,
-    html,
-    replyTo: input.email,
-  });
+  const result = stored
+    ? await sendViaStoredSmtp({ to, subject, text, html, replyTo: input.email })
+    : await sendMail({ to, subject, text, html, replyTo: input.email });
   if (!result.ok) {
     console.error("[support-mail] failed:", result.error);
     return result;
