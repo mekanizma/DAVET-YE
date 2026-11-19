@@ -186,11 +186,11 @@ export async function notifySupportRequest(input: {
   message: string;
   source: string;
   createdAt: string;
-}): Promise<void> {
+}): Promise<{ ok: true; via: "relay" | "smtp" } | { ok: false; error: string }> {
   const to = supportNotifyEmails();
   if (!to.length || !mailConfigured()) {
     console.warn("[support-mail] skipped: mail not configured");
-    return;
+    return { ok: false, error: "Mail yapılandırılmamış." };
   }
 
   const who = `${input.firstName} ${input.lastName}`.trim();
@@ -234,7 +234,8 @@ export async function notifySupportRequest(input: {
   });
   if (!result.ok) {
     console.error("[support-mail] failed:", result.error);
-  } else {
-    console.log("[support-mail] sent via", result.via, "→", to.join(", "));
+    return result;
   }
+  console.log("[support-mail] sent via", result.via, "→", to.join(", "));
+  return result;
 }

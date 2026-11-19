@@ -29,5 +29,11 @@ export async function POST(req: Request) {
   if (!saved.ok) {
     return NextResponse.json({ error: saved.error }, { status: saved.status });
   }
-  return NextResponse.json({ id: saved.request.id }, { status: 201 });
+  return NextResponse.json(
+    {
+      id: saved.request.id,
+      mail: saved.mail,
+    },
+    { status: 201 },
+  );
 }

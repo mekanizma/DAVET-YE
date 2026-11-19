@@ -54,7 +54,10 @@ function mapRow(row: Record<string, unknown>): SupportRequest {
 
 export async function saveSupportRequest(
   input: SupportInput,
-): Promise<{ ok: true; request: SupportRequest } | { ok: false; status: number; error: string }> {
+): Promise<
+  | { ok: true; request: SupportRequest; mail: { ok: true; via: "relay" | "smtp" } | { ok: false; error: string } }
+  | { ok: false; status: number; error: string }
+> {
   const db = admin();
   if (!db) return { ok: false, status: 503, error: "Destek formu şu an kullanılamıyor." };
 
@@ -96,13 +99,19 @@ export async function saveSupportRequest(
 
   // Await mail so Render does not drop the work after the HTTP response.
   // Failure must not break the saved support ticket.
+  let mail: { ok: true; via: "relay" | "smtp" } | { ok: false; error: string } = {
+    ok: false,
+    error: "Mail atlanmadı.",
+  };
   try {
-    await notifySupportRequest(request);
+    mail = await notifySupportRequest(request);
   } catch (err) {
-    console.error("[support-mail]", err instanceof Error ? err.message : err);
+    const error = err instanceof Error ? err.message : "Mail hatası";
+    console.error("[support-mail]", error);
+    mail = { ok: false, error };
   }
 
-  return { ok: true, request };
+  return { ok: true, request, mail };
 }
 
 export async function listSupportRequests(status?: string): Promise<SupportRequest[] | null> {
