@@ -51,3 +51,7 @@ services:
         sync: false
       - key: SUPPORT_NOTIFY_EMAILS
         sync: false
+      - key: MAIL_RELAY_URL
+        sync: false
+      - key: MAIL_RELAY_SECRET
+        sync: false

@@ -40,5 +40,8 @@ Depodaki `render.yaml` Frankfurt bölgesinde bir Node web servisi tanımlar. Ren
 - `ADMIN_PASSWORD`
 - `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` (destek talebi e-postası)
 - `SUPPORT_NOTIFY_EMAILS` (varsayılan olarak `info@mekanizma.com` her zaman eklenir)
+- `MAIL_RELAY_URL` / `MAIL_RELAY_SECRET` (Render free SMTP engeli için; `scripts/mail-relay/` PHP’sini mekanizma.com’a yükleyin)
+
+> Render **free** web servislerinde dışarıya SMTP (`25`/`465`/`587`) kapalıdır. Ya instance’ı **Starter** yapın, ya da HTTPS mail-relay kullanın.
 
 Servis `npm ci && npm run build` ile derlenir ve `next start` ile `0.0.0.0` üzerinde, Render’ın verdiği `PORT` ile açılır. Sağlık kontrolü `/tr` yoluna bakar. Dekontlar Supabase’te herkese kapalı `dekont` bucket’ına yazılır; bunun için `SUPABASE_SECRET_KEY` gerekir.

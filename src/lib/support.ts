@@ -94,10 +94,13 @@ export async function saveSupportRequest(
     createdAt,
   };
 
-  // DB kaydı başarılı; mail hatası formu düşürmesin.
-  void notifySupportRequest(request).catch((err) => {
+  // Await mail so Render does not drop the work after the HTTP response.
+  // Failure must not break the saved support ticket.
+  try {
+    await notifySupportRequest(request);
+  } catch (err) {
     console.error("[support-mail]", err instanceof Error ? err.message : err);
-  });
+  }
 
   return { ok: true, request };
 }
