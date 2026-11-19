@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { probeMail } from "@/lib/mail";
 
-/** Admin-only (middleware). Sends a test message to SUPPORT_NOTIFY_EMAILS / info@mekanizma.com. */
+/** Admin-only. Sends a test message to info@mekanizma.com (+ SUPPORT_NOTIFY_EMAILS). */
 export async function POST() {
   const result = await probeMail();
   if (!result.ok) {
@@ -10,8 +10,7 @@ export async function POST() {
         ok: false,
         error: result.error,
         configured: result.configured,
-        hint:
-          "Render free plan SMTP 465/587 kapalıdır. Starter’a geçin veya mekanizma.com üzerine mail-relay yükleyip MAIL_RELAY_URL / MAIL_RELAY_SECRET ekleyin.",
+        hint: "Render'da RESEND_API_KEY ekleyin (https://resend.com). HTTPS ile gönderir; SMTP portuna ihtiyaç yok.",
       },
       { status: 502 },
     );
@@ -20,6 +19,6 @@ export async function POST() {
     ok: true,
     via: result.via,
     configured: result.configured,
-    to: "info@mekanizma.com (+ SUPPORT_NOTIFY_EMAILS)",
+    to: "info@mekanizma.com",
   });
 }

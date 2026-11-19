@@ -1,20 +1,27 @@
 import nodemailer from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
+export type MailVia = "resend" | "brevo" | "smtp";
+
 function env(name: string) {
   return (process.env[name] || "").trim();
+}
+
+export function resendConfigured() {
+  return Boolean(env("RESEND_API_KEY"));
+}
+
+export function brevoConfigured() {
+  return Boolean(env("BREVO_API_KEY"));
 }
 
 export function smtpConfigured() {
   return Boolean(env("SMTP_HOST") && env("SMTP_USER") && env("SMTP_PASS"));
 }
 
-export function mailRelayConfigured() {
-  return Boolean(env("MAIL_RELAY_URL") && env("MAIL_RELAY_SECRET"));
-}
-
+/** HTTPS providers work on Render; SMTP is for local / paid instances. */
 export function mailConfigured() {
-  return mailRelayConfigured() || smtpConfigured();
+  return resendConfigured() || brevoConfigured() || smtpConfigured();
 }
 
 /** Always includes info@mekanizma.com; merges SUPPORT_NOTIFY_EMAILS / ADMIN_EMAIL. */
@@ -28,6 +35,94 @@ export function supportNotifyEmails(): string[] {
     }
   }
   return [...set];
+}
+
+function fromHeader() {
+  const named = env("MAIL_FROM");
+  if (named) return named;
+  const addr = env("SMTP_FROM") || env("SMTP_USER") || "onboarding@resend.dev";
+  const name = env("SMTP_FROM_NAME") || "Davetanisi";
+  return `${name} <${addr}>`;
+}
+
+type Payload = {
+  to: string[];
+  subject: string;
+  text: string;
+  html?: string;
+  replyTo?: string;
+};
+
+async function sendViaResend(input: Payload): Promise<{ ok: true; via: "resend" } | { ok: false; error: string }> {
+  const key = env("RESEND_API_KEY");
+  if (!key) return { ok: false, error: "RESEND_API_KEY yok." };
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: fromHeader(),
+        to: input.to,
+        subject: input.subject,
+        text: input.text,
+        html: input.html || undefined,
+        reply_to: input.replyTo || undefined,
+      }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    const data = (await res.json().catch(() => ({}))) as { id?: string; message?: string; name?: string };
+    if (!res.ok) {
+      return { ok: false, error: data.message || data.name || `Resend HTTP ${res.status}` };
+    }
+    return { ok: true, via: "resend" };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Resend gönderimi başarısız.";
+    console.error("[mail-resend]", message);
+    return { ok: false, error: message };
+  }
+}
+
+async function sendViaBrevo(input: Payload): Promise<{ ok: true; via: "brevo" } | { ok: false; error: string }> {
+  const key = env("BREVO_API_KEY");
+  if (!key) return { ok: false, error: "BREVO_API_KEY yok." };
+
+  const fromMatch = fromHeader().match(/^(.*?)\s*<([^>]+)>$/);
+  const sender = fromMatch
+    ? { name: fromMatch[1]!.replace(/^"|"$/g, "").trim(), email: fromMatch[2]!.trim() }
+    : { name: "Davetanisi", email: fromHeader() };
+
+  try {
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": key,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        sender,
+        to: input.to.map((email) => ({ email })),
+        subject: input.subject,
+        textContent: input.text,
+        htmlContent: input.html || undefined,
+        replyTo: input.replyTo ? { email: input.replyTo } : undefined,
+      }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    const data = (await res.json().catch(() => ({}))) as { messageId?: string; message?: string };
+    if (!res.ok) {
+      return { ok: false, error: data.message || `Brevo HTTP ${res.status}` };
+    }
+    return { ok: true, via: "brevo" };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Brevo gönderimi başarısız.";
+    console.error("[mail-brevo]", message);
+    return { ok: false, error: message };
+  }
 }
 
 function transporter() {
@@ -50,53 +145,8 @@ function transporter() {
   return nodemailer.createTransport(options);
 }
 
-async function sendViaRelay(input: {
-  to: string[];
-  subject: string;
-  text: string;
-  html?: string;
-  replyTo?: string;
-}): Promise<{ ok: true; via: "relay" } | { ok: false; error: string }> {
-  const url = env("MAIL_RELAY_URL");
-  const secret = env("MAIL_RELAY_SECRET");
-  if (!url || !secret) return { ok: false, error: "MAIL_RELAY yapılandırılmamış." };
-
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        secret,
-        to: input.to,
-        subject: input.subject,
-        text: input.text,
-        html: input.html || "",
-        replyTo: input.replyTo || "",
-      }),
-      signal: AbortSignal.timeout(20_000),
-    });
-    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
-    if (!res.ok || !data.ok) {
-      return { ok: false, error: data.error || `Relay HTTP ${res.status}` };
-    }
-    return { ok: true, via: "relay" };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Relay gönderimi başarısız.";
-    console.error("[mail-relay]", message);
-    return { ok: false, error: message };
-  }
-}
-
-async function sendViaSmtp(input: {
-  to: string[];
-  subject: string;
-  text: string;
-  html?: string;
-  replyTo?: string;
-}): Promise<{ ok: true; via: "smtp" } | { ok: false; error: string }> {
-  if (!smtpConfigured()) {
-    return { ok: false, error: "SMTP yapılandırılmamış." };
-  }
+async function sendViaSmtp(input: Payload): Promise<{ ok: true; via: "smtp" } | { ok: false; error: string }> {
+  if (!smtpConfigured()) return { ok: false, error: "SMTP yapılandırılmamış." };
   const fromAddr = env("SMTP_FROM") || env("SMTP_USER");
   const fromName = env("SMTP_FROM_NAME") || "Davetanisi";
   try {
@@ -122,13 +172,13 @@ export async function sendMail(input: {
   text: string;
   html?: string;
   replyTo?: string;
-}): Promise<{ ok: true; via: "relay" | "smtp" } | { ok: false; error: string }> {
+}): Promise<{ ok: true; via: MailVia } | { ok: false; error: string }> {
   const to = (Array.isArray(input.to) ? input.to : [input.to])
     .map((v) => v.trim())
     .filter(Boolean);
   if (!to.length) return { ok: false, error: "Alıcı yok." };
 
-  const payload = {
+  const payload: Payload = {
     to,
     subject: input.subject,
     text: input.text,
@@ -136,34 +186,46 @@ export async function sendMail(input: {
     replyTo: input.replyTo,
   };
 
-  // Prefer HTTPS relay on Render (free plans block outbound SMTP 465/587).
-  if (mailRelayConfigured()) {
-    const relay = await sendViaRelay(payload);
-    if (relay.ok) return relay;
-    if (!smtpConfigured()) return relay;
-    console.warn("[mail] relay failed, trying SMTP:", relay.error);
+  // Prefer HTTPS APIs (work on Render). SMTP only as local fallback.
+  if (resendConfigured()) {
+    const r = await sendViaResend(payload);
+    if (r.ok) return r;
+    console.warn("[mail] Resend failed:", r.error);
+    if (!brevoConfigured() && !smtpConfigured()) return r;
   }
 
-  if (smtpConfigured()) {
-    return sendViaSmtp(payload);
+  if (brevoConfigured()) {
+    const r = await sendViaBrevo(payload);
+    if (r.ok) return r;
+    console.warn("[mail] Brevo failed:", r.error);
+    if (!smtpConfigured()) return r;
   }
 
-  return { ok: false, error: "Ne MAIL_RELAY ne SMTP yapılandırılmamış." };
+  if (smtpConfigured()) return sendViaSmtp(payload);
+
+  return {
+    ok: false,
+    error: "RESEND_API_KEY (önerilen) veya BREVO_API_KEY / SMTP ayarlayın.",
+  };
 }
 
 export async function probeMail(): Promise<{
   ok: boolean;
-  via?: "relay" | "smtp";
+  via?: MailVia;
   error?: string;
-  configured: { relay: boolean; smtp: boolean };
+  configured: { resend: boolean; brevo: boolean; smtp: boolean };
 }> {
-  const configured = { relay: mailRelayConfigured(), smtp: smtpConfigured() };
-  if (!configured.relay && !configured.smtp) {
-    return { ok: false, error: "SMTP/MAIL_RELAY env yok.", configured };
+  const configured = {
+    resend: resendConfigured(),
+    brevo: brevoConfigured(),
+    smtp: smtpConfigured(),
+  };
+  if (!configured.resend && !configured.brevo && !configured.smtp) {
+    return { ok: false, error: "RESEND_API_KEY / BREVO_API_KEY / SMTP yok.", configured };
   }
   const result = await sendMail({
     to: supportNotifyEmails(),
-    subject: "[Davetanisi] SMTP / relay test",
+    subject: "[Davetanisi] Mail test",
     text: "Bu bir test mesajıdır. Destek bildirimi kanalı çalışıyor.",
   });
   if (result.ok) return { ok: true, via: result.via, configured };
@@ -186,11 +248,11 @@ export async function notifySupportRequest(input: {
   message: string;
   source: string;
   createdAt: string;
-}): Promise<{ ok: true; via: "relay" | "smtp" } | { ok: false; error: string }> {
+}): Promise<{ ok: true; via: MailVia } | { ok: false; error: string }> {
   const to = supportNotifyEmails();
   if (!to.length || !mailConfigured()) {
     console.warn("[support-mail] skipped: mail not configured");
-    return { ok: false, error: "Mail yapılandırılmamış." };
+    return { ok: false, error: "Mail yapılandırılmamış (RESEND_API_KEY ekleyin)." };
   }
 
   const who = `${input.firstName} ${input.lastName}`.trim();

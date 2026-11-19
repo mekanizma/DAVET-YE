@@ -35,6 +35,14 @@ services:
         sync: false
       - key: SHOPIER_API_SECRET
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: SUPPORT_NOTIFY_EMAILS
+        sync: false
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT
@@ -48,10 +56,4 @@ services:
       - key: SMTP_FROM
         sync: false
       - key: SMTP_FROM_NAME
-        sync: false
-      - key: SUPPORT_NOTIFY_EMAILS
-        sync: false
-      - key: MAIL_RELAY_URL
-        sync: false
-      - key: MAIL_RELAY_SECRET
         sync: false

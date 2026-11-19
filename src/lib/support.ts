@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { isEmail } from "@/lib/format";
-import { notifySupportRequest } from "@/lib/mail";
+import { notifySupportRequest, type MailVia } from "@/lib/mail";
 import { supabaseUrl } from "@/lib/supabase/env";
 
 const MAX_LIST = 500;
@@ -55,7 +55,7 @@ function mapRow(row: Record<string, unknown>): SupportRequest {
 export async function saveSupportRequest(
   input: SupportInput,
 ): Promise<
-  | { ok: true; request: SupportRequest; mail: { ok: true; via: "relay" | "smtp" } | { ok: false; error: string } }
+  | { ok: true; request: SupportRequest; mail: { ok: true; via: MailVia } | { ok: false; error: string } }
   | { ok: false; status: number; error: string }
 > {
   const db = admin();
@@ -97,18 +97,15 @@ export async function saveSupportRequest(
     createdAt,
   };
 
-  // Await mail so Render does not drop the work after the HTTP response.
-  // Failure must not break the saved support ticket.
-  let mail: { ok: true; via: "relay" | "smtp" } | { ok: false; error: string } = {
+  let mail: { ok: true; via: MailVia } | { ok: false; error: string } = {
     ok: false,
-    error: "Mail atlanmadı.",
+    error: "Mail denenmedi.",
   };
   try {
     mail = await notifySupportRequest(request);
   } catch (err) {
-    const error = err instanceof Error ? err.message : "Mail hatası";
-    console.error("[support-mail]", error);
-    mail = { ok: false, error };
+    mail = { ok: false, error: err instanceof Error ? err.message : "Mail hatası" };
+    console.error("[support-mail]", mail.error);
   }
 
   return { ok: true, request, mail };

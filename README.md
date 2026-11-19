@@ -38,11 +38,11 @@ Depodaki `render.yaml` Frankfurt bölgesinde bir Node web servisi tanımlar. Ren
 - `SUPABASE_SERVER_SECRET`
 - `SUPABASE_SECRET_KEY`
 - `ADMIN_PASSWORD`
-- `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` (destek talebi e-postası)
-- `SUPPORT_NOTIFY_EMAILS` (varsayılan olarak `info@mekanizma.com` her zaman eklenir)
-- `MAIL_RELAY_URL` = `https://waai.mekanizma.com/internal/davetanisi-mail`
-- `MAIL_RELAY_SECRET` = Waai’deki `DAVETANISI_MAIL_SECRET` / `MAIL_RELAY_SECRET` ile aynı
+- `RESEND_API_KEY` — canlı destek mailleri (HTTPS → api.resend.com)
+- `MAIL_FROM` — örn. `Davetanisi <onboarding@resend.dev>` (domain doğrulanınca kendi adresiniz)
+- `SUPPORT_NOTIFY_EMAILS` — varsayılan olarak `info@mekanizma.com` her zaman eklenir
+- `SMTP_*` — yalnızca lokal (opsiyonel)
 
-> Render **free** web servislerinde dışarıya SMTP (`25`/`465`/`587`) kapalıdır. Canlıda mail, Waai HTTPS relay üzerinden gider.
+> Canlıda mail **Resend HTTP API** ile gider. Render free SMTP portlarını kapatır; HTTPS açıktır.
 
 Servis `npm ci && npm run build` ile derlenir ve `next start` ile `0.0.0.0` üzerinde, Render’ın verdiği `PORT` ile açılır. Sağlık kontrolü `/tr` yoluna bakar. Dekontlar Supabase’te herkese kapalı `dekont` bucket’ına yazılır; bunun için `SUPABASE_SECRET_KEY` gerekir.
