@@ -14,13 +14,13 @@ export default function EtsyLogin() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [session, setSession] = useState<{ slug: string; title: string; code: string } | null>(null);
+  const [session, setSession] = useState<{ slug: string; title: string; code: string; kind: "gazete" | "davetiye" } | null>(null);
 
   useEffect(() => {
     fetch("/api/etsy/oturum")
       .then((r) => r.json())
       .then((d) => {
-        if (d?.ok) setSession({ slug: d.slug, title: d.title, code: d.code });
+        if (d?.ok) setSession({ slug: d.slug, title: d.title, code: d.code, kind: d.kind === "davetiye" ? "davetiye" : "gazete" });
       })
       .catch(() => undefined);
   }, []);
@@ -40,7 +40,7 @@ export default function EtsyLogin() {
         setError((data as { error?: string }).error || (en ? "Could not sign in." : "Giriş yapılamadı."));
         return;
       }
-      router.push(lp(locale, "/etsy/tasarla"));
+      router.push(lp(locale, (data as { needsPick?: boolean }).needsPick ? "/etsy/sec" : "/etsy/tasarla"));
     } catch {
       setError(en ? "Network error. Try again." : "Bağlantı hatası. Yeniden deneyin.");
     } finally {
@@ -57,11 +57,11 @@ export default function EtsyLogin() {
     <div className="etsy-gate">
       <div className="etsy-gate__card">
         <p className="etsy-gate__brand">Davetanisi</p>
-        <h1>{en ? "Etsy newspaper access" : "Etsy gazete erişimi"}</h1>
+        <h1>{en ? "Your free Etsy product" : "Ücretsiz Etsy ürününüz"}</h1>
         <p className="etsy-gate__lead">
           {en
-            ? "Enter the access code from your PDF download to open the studio, design your newspaper, and print or save it."
-            : "PDF’deki erişim kodunu girin; stüdyoda gazetenizi tasarlayıp yazdırın veya kaydedin."}
+            ? "Enter the access code from your PDF. It unlocks one free newspaper or invitation: design it, then download or share — no payment on this site."
+            : "PDF’deki erişim kodunu girin. Kod 1 ücretsiz gazete veya davetiye açar: tasarlayın, sonra indirin veya paylaşın — sitede ödeme yok."}
         </p>
 
         {session ? (
@@ -72,7 +72,9 @@ export default function EtsyLogin() {
               <span className="etsy-gate__code">{session.code}</span>
             </p>
             <Link href={lp(locale, "/etsy/tasarla")} className="btn btn--dark btn--lg btn--block">
-              {en ? "Continue designing" : "Tasarıma devam et"}
+              {session.kind === "davetiye"
+                ? en ? "Continue invitation" : "Davetiyeye devam et"
+                : en ? "Continue newspaper" : "Gazeteye devam et"}
             </Link>
             <button type="button" className="btn btn--ghost btn--block" onClick={logout}>
               {en ? "Sign out of this code" : "Bu koddan çık"}
@@ -107,7 +109,9 @@ export default function EtsyLogin() {
         )}
 
         <p className="etsy-gate__foot">
-          {en ? "Bought on Etsy? The code is inside your PDF file." : "Etsy’den mi aldınız? Kod PDF dosyanızın içinde."}
+          {en
+            ? "Bought on Etsy? One code = one free product (newspaper or invitation). The code is inside your PDF."
+            : "Etsy’den mi aldınız? Bir kod = bir ücretsiz ürün (gazete veya davetiye). Kod PDF dosyanızın içinde."}
         </p>
       </div>
     </div>

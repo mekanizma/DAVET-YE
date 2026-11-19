@@ -18,5 +18,6 @@ export async function GET() {
     code: session.code,
     slug: session.slug,
     title: session.title,
+    kind: row.kind || session.kind || "gazete",
   });
 }

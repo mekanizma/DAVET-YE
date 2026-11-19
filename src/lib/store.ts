@@ -526,6 +526,91 @@ export async function createStudioDownloadOrder(
   return { ok: false, error: "Sipariş kaydedilemedi." };
 }
 
+/** Etsy access code: one free invitation (or newspaper) with total forced to 0. */
+export async function createEtsyFreeOrder(input: {
+  kind: "davetiye" | "gazete";
+  template: string;
+  languages?: string[];
+  addons?: string[];
+  customer: { name: string; email: string; phone: string };
+  customerNote?: string;
+  snapshot?: Record<string, string>;
+  etsyCode: string;
+  locale?: "tr" | "en";
+}): Promise<{ ok: true; order: OrderRecord } | { ok: false; error: string }> {
+  const cat = await getPublicCatalog();
+  const template = clean(input.template, 80);
+  const etsyCode = clean(input.etsyCode, 24).toUpperCase();
+  const en = input.locale === "en";
+  let title = "";
+  let lines: OrderLine[] = [];
+
+  if (input.kind === "davetiye") {
+    const theme = themes.find((t) => t.slug === template);
+    const live = cat.themes[template];
+    if (!theme || !live || live.hidden) return { ok: false, error: en ? "This invitation is not available." : "Bu davetiye şu an satışta değil." };
+    title = theme.title;
+    const q = invitationQuote({ template, languages: input.languages || ["tr"], addons: input.addons || [] }, cat);
+    lines = q.lines.map((line) => ({ ...line, amount: 0 }));
+  } else {
+    const paper = newspapers.find((n) => n.slug === template);
+    const live = cat.newspapers[template];
+    if (!paper || !live || live.hidden) return { ok: false, error: en ? "This newspaper is not available." : "Bu gazete şu an satışta değil." };
+    title = paper.title;
+    const q = paperQuote(template, cat);
+    lines = q.lines.map((line) => ({ ...line, amount: 0 }));
+  }
+
+  const customer = {
+    name: clean(input.customer.name, 80),
+    email: clean(input.customer.email, 120).toLowerCase(),
+    phone: clean(input.customer.phone, 20),
+  };
+  if (customer.name.length < 3) return { ok: false, error: en ? "Enter your full name." : "Ad soyad en az 3 karakter olmalı." };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(customer.email)) return { ok: false, error: en ? "Enter a valid email." : "Geçerli bir e-posta yazın." };
+  const digits = customer.phone.replace(/\D/g, "");
+  if (digits.length < 10 || digits.length > 15) return { ok: false, error: en ? "Phone number looks incomplete." : "Telefon numarası eksik görünüyor." };
+
+  const snapshot: Record<string, string> = { __etsy: etsyCode };
+  for (const [k, v] of Object.entries(input.snapshot || {}).slice(0, 12)) {
+    const key = clean(k, 40);
+    const val = clean(v, 400);
+    if (key && val && !key.startsWith("__")) snapshot[key] = val;
+  }
+
+  const now = new Date().toISOString();
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const order: OrderRecord = {
+      code: newCode(),
+      status: "onaylandi",
+      kind: input.kind,
+      template,
+      title,
+      total: 0,
+      lines,
+      createdAt: now,
+      updatedAt: now,
+      reportedAt: null,
+      decidedAt: now,
+      senderName: "",
+      customerNote: clean(input.customerNote || "", 500),
+      adminNote: en ? `Etsy code ${etsyCode}: one free product.` : `Etsy kodu ${etsyCode}: 1 ücretsiz ürün.`,
+      customer,
+      snapshot,
+    };
+    try {
+      return { ok: true, order: await upsertOrder(order, null) };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      if (!/duplicate|23505|unique/i.test(msg) || attempt === 3) {
+        console.error(e);
+        return { ok: false, error: en ? "Could not create the order." : "Sipariş kaydedilemedi." };
+      }
+    }
+  }
+  return { ok: false, error: en ? "Could not create the order." : "Sipariş kaydedilemedi." };
+}
+
 export async function findOrderForCustomer(code: string, email: string): Promise<OrderRecord | undefined> {
   noStore();
   const row = await orderForCustomer(code, email);

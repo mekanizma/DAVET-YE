@@ -11,7 +11,7 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   return {
-    title: locale === "en" ? "Etsy newspaper access" : "Etsy gazete erişimi",
+    title: locale === "en" ? "Etsy access" : "Etsy erişimi",
     robots: { index: false, follow: false },
   };
 }

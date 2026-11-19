@@ -1,27 +1,20 @@
 import { NextResponse } from "next/server";
-import { newspapers } from "@/data/newspapers";
-import { localizeNewspaper } from "@/i18n/catalog";
-import { createEtsyCode, listEtsyCodes, revokeEtsyCode } from "@/lib/etsyStore";
+import { createEtsyCode, listEtsyCodes, revokeEtsyCode, type EtsyProductKind } from "@/lib/etsyStore";
 
 export async function GET() {
   const items = await listEtsyCodes();
-  const papers = newspapers.map((n) => {
-    const en = localizeNewspaper(n, "en");
-    return { slug: n.slug, title: n.title, titleEn: en.title };
-  });
-  return NextResponse.json({ items, papers });
+  return NextResponse.json({ items });
 }
 
 export async function POST(req: Request) {
-  let body: { newspaperSlug?: string; note?: string } = {};
+  let body: { kind?: string; note?: string } = {};
   try {
     body = await req.json();
   } catch {
     body = {};
   }
-  const slug = typeof body.newspaperSlug === "string" ? body.newspaperSlug.trim() : "";
-  if (!slug) return NextResponse.json({ error: "Gazete seçin." }, { status: 400 });
-  const result = await createEtsyCode({ newspaperSlug: slug, note: body.note });
+  const kind: EtsyProductKind = body.kind === "davetiye" ? "davetiye" : "gazete";
+  const result = await createEtsyCode({ kind, note: body.note });
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
   return NextResponse.json({ item: result.item });
 }

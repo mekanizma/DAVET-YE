@@ -2,16 +2,35 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomInt } from "crypto";
 import { getNewspaper } from "@/data/newspapers";
-import { localizeNewspaper } from "@/i18n/catalog";
+import { getTheme } from "@/data/themes";
+import { localizeNewspaper, themeTitle } from "@/i18n/catalog";
 import { createSupabaseServer, createSupabaseService } from "@/lib/supabase/server";
 import { supabaseConfigured } from "@/lib/supabase/env";
 
 export type EtsyCodeStatus = "active" | "redeemed" | "revoked";
+export type EtsyProductKind = "gazete" | "davetiye";
+
+/** Code unlocks the product type; customer picks one free item later. */
+export const ETSY_ANY_SLUG = "__any__";
+
+export function isEtsyOpenChoice(slug: string | null | undefined) {
+  return !slug || slug === ETSY_ANY_SLUG;
+}
+
+export function etsyKindTitle(kind: EtsyProductKind, locale: "tr" | "en" = "en") {
+  if (kind === "davetiye") return locale === "en" ? "Any invitation (1 free)" : "Herhangi bir davetiye (1 ücretsiz)";
+  return locale === "en" ? "Any newspaper (1 free)" : "Herhangi bir gazete (1 ücretsiz)";
+}
 
 export type EtsyCode = {
   code: string;
+  kind: EtsyProductKind;
+  /** @deprecated use productSlug */
   newspaperSlug: string;
+  /** @deprecated use productTitle */
   newspaperTitle: string;
+  productSlug: string;
+  productTitle: string;
   note: string;
   status: EtsyCodeStatus;
   createdAt: string;
@@ -30,6 +49,7 @@ type DbRow = {
   redeemed_at: string | null;
   last_used_at: string | null;
   use_count: number;
+  product_kind?: string | null;
 };
 
 const LOCAL_DIR = path.join(process.cwd(), "data", "runtime");
@@ -41,11 +61,21 @@ function serverSecret(): string {
   return secret;
 }
 
+function asKind(value: unknown): EtsyProductKind {
+  return value === "davetiye" ? "davetiye" : "gazete";
+}
+
 function fromRow(row: DbRow): EtsyCode {
+  const kind = asKind(row.product_kind);
+  const productSlug = row.newspaper_slug;
+  const productTitle = row.newspaper_title;
   return {
     code: row.code,
-    newspaperSlug: row.newspaper_slug,
-    newspaperTitle: row.newspaper_title,
+    kind,
+    newspaperSlug: productSlug,
+    newspaperTitle: productTitle,
+    productSlug,
+    productTitle,
     note: row.note || "",
     status: row.status,
     createdAt: row.created_at,
@@ -70,11 +100,44 @@ function newEtsyCode() {
   return `ETSY-${body}`;
 }
 
+function resolveProduct(kind: EtsyProductKind, slug: string): { slug: string; title: string } | null {
+  if (kind === "gazete") {
+    const paper = getNewspaper(slug);
+    if (!paper) return null;
+    return { slug: paper.slug, title: localizeNewspaper(paper, "en").title };
+  }
+  const theme = getTheme(slug);
+  if (!theme) return null;
+  return { slug: theme.slug, title: themeTitle(theme, "en") };
+}
+
 async function readLocal(): Promise<EtsyCode[]> {
   try {
     const raw = await readFile(LOCAL_FILE, "utf8");
-    const parsed = JSON.parse(raw) as EtsyCode[];
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(raw) as Array<Partial<EtsyCode> & DbRow>;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((row) => {
+      if (row.productSlug || row.newspaperSlug) {
+        const kind = asKind(row.kind || row.product_kind);
+        const productSlug = String(row.productSlug || row.newspaperSlug || row.newspaper_slug || "");
+        const productTitle = String(row.productTitle || row.newspaperTitle || row.newspaper_title || "");
+        return {
+          code: String(row.code || ""),
+          kind,
+          newspaperSlug: productSlug,
+          newspaperTitle: productTitle,
+          productSlug,
+          productTitle,
+          note: String(row.note || ""),
+          status: (row.status as EtsyCodeStatus) || "active",
+          createdAt: String(row.createdAt || row.created_at || ""),
+          redeemedAt: (row.redeemedAt ?? row.redeemed_at ?? null) as string | null,
+          lastUsedAt: (row.lastUsedAt ?? row.last_used_at ?? null) as string | null,
+          useCount: Number(row.useCount ?? row.use_count ?? 0) || 0,
+        };
+      }
+      return fromRow(row as DbRow);
+    });
   } catch {
     return [];
   }
@@ -85,13 +148,15 @@ async function writeLocal(list: EtsyCode[]) {
   await writeFile(LOCAL_FILE, JSON.stringify(list, null, 2), "utf8");
 }
 
+const SELECT_COLS = "code, newspaper_slug, newspaper_title, note, status, created_at, redeemed_at, last_used_at, use_count, product_kind";
+
 async function listFromDb(): Promise<EtsyCode[] | null> {
   if (!supabaseConfigured()) return null;
   try {
     const db = await createSupabaseServer();
     const { data, error } = await db
       .from("dv_etsy_codes")
-      .select("code, newspaper_slug, newspaper_title, note, status, created_at, redeemed_at, last_used_at, use_count")
+      .select(SELECT_COLS)
       .order("created_at", { ascending: false });
     if (error) return null;
     return ((data || []) as DbRow[]).map(fromRow);
@@ -108,12 +173,11 @@ export async function listEtsyCodes(): Promise<EtsyCode[]> {
 }
 
 export async function createEtsyCode(input: {
-  newspaperSlug: string;
+  kind?: EtsyProductKind;
   note?: string;
 }): Promise<{ ok: true; item: EtsyCode } | { ok: false; error: string }> {
-  const paper = getNewspaper(input.newspaperSlug);
-  if (!paper) return { ok: false, error: "Gazete şablonu bulunamadı." };
-  const title = localizeNewspaper(paper, "en").title;
+  const kind = asKind(input.kind);
+  const product = { slug: ETSY_ANY_SLUG, title: etsyKindTitle(kind, "en") };
   const note = (input.note || "").replace(/[\u0000-\u001F\u007F]/g, "").trim().slice(0, 200);
   const now = new Date().toISOString();
 
@@ -121,8 +185,11 @@ export async function createEtsyCode(input: {
     const code = newEtsyCode();
     const item: EtsyCode = {
       code,
-      newspaperSlug: paper.slug,
-      newspaperTitle: title,
+      kind,
+      newspaperSlug: product.slug,
+      newspaperTitle: product.title,
+      productSlug: product.slug,
+      productTitle: product.title,
       note,
       status: "active",
       createdAt: now,
@@ -136,8 +203,9 @@ export async function createEtsyCode(input: {
         const db = await createSupabaseServer();
         const { error } = await db.from("dv_etsy_codes").insert({
           code: item.code,
-          newspaper_slug: item.newspaperSlug,
-          newspaper_title: item.newspaperTitle,
+          newspaper_slug: item.productSlug,
+          newspaper_title: item.productTitle,
+          product_kind: item.kind,
           note: item.note,
           status: item.status,
           created_at: item.createdAt,
@@ -146,10 +214,7 @@ export async function createEtsyCode(input: {
           use_count: 0,
         });
         if (!error) return { ok: true, item };
-        if (error.code !== "23505") {
-          // table missing or other error → fall through to local
-          break;
-        }
+        if (error.code !== "23505") break;
       } catch {
         break;
       }
@@ -158,16 +223,17 @@ export async function createEtsyCode(input: {
     }
   }
 
-  // Local fallback (dev / before migration)
   const local = await readLocal();
-  let item: EtsyCode | null = null;
   for (let attempt = 0; attempt < 6; attempt++) {
     const code = newEtsyCode();
     if (local.some((r) => r.code === code)) continue;
-    item = {
+    const item: EtsyCode = {
       code,
-      newspaperSlug: paper.slug,
-      newspaperTitle: title,
+      kind,
+      newspaperSlug: product.slug,
+      newspaperTitle: product.title,
+      productSlug: product.slug,
+      productTitle: product.title,
       note,
       status: "active",
       createdAt: now,
@@ -180,6 +246,71 @@ export async function createEtsyCode(input: {
     return { ok: true, item };
   }
   return { ok: false, error: "Kod üretilemedi. Yeniden deneyin." };
+}
+
+/** Lock an open-choice code to the one free product the customer picked. */
+export async function lockEtsyProduct(
+  code: string,
+  productSlug: string,
+): Promise<{ ok: true; item: EtsyCode } | { ok: false; error: string }> {
+  const clean = normalizeCode(code);
+  if (!isEtsyCodeFormat(clean)) return { ok: false, error: "Invalid access code." };
+  const current = await getEtsyCode(clean);
+  if (!current || current.status === "revoked") return { ok: false, error: "This access code is not valid." };
+
+  if (!isEtsyOpenChoice(current.productSlug)) {
+    if (current.productSlug === productSlug) return { ok: true, item: current };
+    return { ok: false, error: "This code is already locked to another design." };
+  }
+
+  const product = resolveProduct(current.kind, productSlug);
+  if (!product) {
+    return { ok: false, error: current.kind === "davetiye" ? "Invitation not found." : "Newspaper not found." };
+  }
+
+  if (supabaseConfigured()) {
+    try {
+      const db = createSupabaseService();
+      const { data, error } = await db
+        .from("dv_etsy_codes")
+        .update({
+          newspaper_slug: product.slug,
+          newspaper_title: product.title,
+        })
+        .eq("code", clean)
+        .eq("newspaper_slug", ETSY_ANY_SLUG)
+        .select(SELECT_COLS)
+        .maybeSingle();
+      if (!error && data) return { ok: true, item: fromRow(data as DbRow) };
+      // Race: another request locked it
+      const again = await getEtsyCode(clean);
+      if (again && !isEtsyOpenChoice(again.productSlug)) {
+        if (again.productSlug === product.slug) return { ok: true, item: again };
+        return { ok: false, error: "This code is already locked to another design." };
+      }
+    } catch {
+      /* local */
+    }
+  }
+
+  const local = await readLocal();
+  const idx = local.findIndex((r) => r.code === clean);
+  if (idx < 0) return { ok: false, error: "This access code was not found." };
+  const row = local[idx]!;
+  if (!isEtsyOpenChoice(row.productSlug)) {
+    if (row.productSlug === product.slug) return { ok: true, item: row };
+    return { ok: false, error: "This code is already locked to another design." };
+  }
+  const next: EtsyCode = {
+    ...row,
+    productSlug: product.slug,
+    productTitle: product.title,
+    newspaperSlug: product.slug,
+    newspaperTitle: product.title,
+  };
+  local[idx] = next;
+  await writeLocal(local);
+  return { ok: true, item: next };
 }
 
 export async function revokeEtsyCode(code: string): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -216,7 +347,7 @@ export async function getEtsyCode(code: string): Promise<EtsyCode | null> {
       const db = await createSupabaseServer();
       const { data, error } = await db
         .from("dv_etsy_codes")
-        .select("code, newspaper_slug, newspaper_title, note, status, created_at, redeemed_at, last_used_at, use_count")
+        .select(SELECT_COLS)
         .eq("code", clean)
         .maybeSingle();
       if (!error && data) return fromRow(data as DbRow);

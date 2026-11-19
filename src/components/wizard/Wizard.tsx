@@ -8,6 +8,7 @@ import Logo from "../Logo";
 import StepEvent from "./StepEvent";
 import StepInfo from "./StepInfo";
 import StepLanguages from "./StepLanguages";
+import StepEtsyFree from "./StepEtsyFree";
 import StepPayment from "./StepPayment";
 import StepReview from "./StepReview";
 import StepTemplate from "./StepTemplate";
@@ -22,6 +23,8 @@ import { formatTL } from "@/lib/format";
 import { priceLines, priceTotal } from "@/lib/pricing";
 import { applyBabyShowerDefaults, applyPartyDefaults, saveDraft, useDraft, type WizardStepId } from "@/lib/storage";
 import { wizardSteps } from "@/lib/wizardSteps";
+
+export type EtsyWizardAccess = { code: string; slug: string; title: string };
 
 function tx(locale: Locale, tr: string, en: string) {
   return locale === "en" ? en : tr;
@@ -57,7 +60,20 @@ function titles(locale: Locale): Record<WizardStepId, { h: string; sub: string }
   };
 }
 
-export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: string }) {
+function etsyTitles(locale: Locale): Record<WizardStepId, { h: string; sub: string }> {
+  const base = titles(locale);
+  return {
+    ...base,
+    odeme: {
+      h: locale === "en" ? "Activate your free invitation" : "Ücretsiz davetiyeyi etkinleştir",
+      sub: locale === "en"
+        ? "Your Etsy code covers this design. Publish the guest link with no payment on the site."
+        : "Etsy kodunuz bu tasarımı karşılar. Sitede ödeme olmadan misafir linkini yayınlayın.",
+    },
+  };
+}
+
+export default function Wizard({ step, sablon, etsy }: { step: WizardStepId; sablon?: string; etsy?: EtsyWizardAccess }) {
   const router = useRouter();
   const locale = useLocale();
   const cat = useCatalog();
@@ -66,15 +82,16 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
   const [seeded, setSeeded] = useState(false);
   const [totalOpen, setTotalOpen] = useState(false);
   const [previewKey, setPreviewKey] = useState(0);
-  const steps = wizardSteps(locale);
-  const base = lp(locale, "/davetiye-olustur");
+  const etsyMode = Boolean(etsy);
+  const steps = wizardSteps(locale).filter((s) => !etsyMode || (s.id !== "etkinlik" && s.id !== "sablon"));
+  const base = etsyMode ? lp(locale, "/etsy/davetiye") : lp(locale, "/davetiye-olustur");
   const copy = marketing(locale);
   const heading = step === "odeme" && draft.order?.status === "onaylandi"
     ? {
         h: tx(locale, "Yeniden yayınla", "Republish"),
         sub: tx(locale, "Düzenlemeyi kaydedince aynı davet linki güncellenir.", "Saving your edits updates the same invitation link."),
       }
-    : titles(locale)[step];
+    : (etsyMode ? etsyTitles(locale) : titles(locale))[step];
 
   const idx = steps.findIndex((s) => s.id === step);
   const prev = steps[idx - 1];
@@ -87,7 +104,7 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
     let cancelled = false;
     const code = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("siparis") : null;
     async function boot() {
-      if (code) {
+      if (code && !etsy) {
         try {
           const res = await fetch(`/api/hesap/yayin?code=${encodeURIComponent(code)}`);
           const data = await res.json();
@@ -102,26 +119,27 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
         }
       }
       if (cancelled) return;
-      const t = sablon ? getTheme(sablon) : undefined;
-      if (t && draft.template !== t.slug) {
+      const lockSlug = etsy?.slug || sablon;
+      const t = lockSlug ? getTheme(lockSlug) : undefined;
+      if (t && (draft.template !== t.slug || (etsy && draft.order?.status !== "onaylandi" && !draft.template))) {
         const event = draft.event && t.eventTypes.includes(draft.event) ? draft.event : t.eventTypes[0] ?? "nisan-dugun";
         if (event === "bebek" || t.eventTypes.includes("bebek")) {
           saveDraft({
             template: t.slug,
-            order: null,
+            order: etsy ? draft.order : null,
             ...applyBabyShowerDefaults(draft, locale === "en" ? "en" : "tr"),
           });
         } else if (event === "parti" || t.eventTypes.includes("parti")) {
           saveDraft({
             template: t.slug,
-            order: null,
+            order: etsy ? draft.order : null,
             ...applyPartyDefaults(draft, locale === "en" ? "en" : "tr"),
           });
         } else {
           saveDraft({
             template: t.slug,
             event,
-            order: null,
+            order: etsy ? draft.order : null,
           });
         }
       }
@@ -132,7 +150,7 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, seeded, sablon]);
+  }, [ready, seeded, sablon, etsy?.slug]);
 
   const blocker = ready && seeded ? firstIncompleteBefore(step, draft, steps, locale) : null;
   const payBlock = step === "odeme" && !blocker ? (gapCount ? "bilgiler" : !draft.termsAccepted ? "kontrol" : null) : null;
@@ -184,19 +202,19 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
   const theme = draft.template ? getTheme(draft.template) : undefined;
   const themeName = theme ? themeTitle(theme, locale) : "";
   const lines = priceLines(draft, cat, locale);
-  const total = priceTotal(draft, cat, locale);
-  const paidQ = draft.order?.status === "onaylandi" ? "&odendi=1" : "";
+  const total = etsyMode ? 0 : priceTotal(draft, cat, locale);
+  const paidQ = etsyMode || draft.order?.status === "onaylandi" ? "&odendi=1" : "";
   const previewSrc = theme
     ? withLocaleQuery(locale, `/onizleme/tema/${theme.slug}?embed=1&taslak=1${draft.event === "coklu" ? "&mod=kina-dugun" : ""}${paidQ}&v=${previewKey}`)
     : "";
   const disabled = continueDisabled();
 
   return (
-    <div className="studio">
+    <div className="studio" data-etsy={etsyMode ? "1" : undefined}>
       <header className="studio__bar">
         <div className="studio__brand">
           <Logo width={118} priority />
-          <p>{tx(locale, "Davetiye oluştur", "Create an invitation")}</p>
+          <p>{etsyMode ? tx(locale, "Etsy · ücretsiz davetiye", "Etsy · free invitation") : tx(locale, "Davetiye oluştur", "Create an invitation")}</p>
         </div>
         <div className="studio__tools">
           <p className="studio__saved" role="status">
@@ -209,7 +227,7 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
               aria-expanded={totalOpen}
               onClick={() => setTotalOpen((v) => !v)}
             >
-              {tx(locale, "Toplam", "Total")} <strong className="num">{formatTL(total, locale)}</strong>
+              {tx(locale, "Toplam", "Total")} <strong className="num">{etsyMode ? copy.free : formatTL(total, locale)}</strong>
               <Icon name="chevron-down" size={14} />
             </button>
             {totalOpen && (
@@ -218,15 +236,15 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
                   {lines.map((l) => (
                     <li key={l.id}>
                       <span>{l.label}</span>
-                      <span className="num">{l.amount === 0 ? copy.free : formatTL(l.amount, locale)}</span>
+                      <span className="num">{etsyMode || l.amount === 0 ? copy.free : formatTL(l.amount, locale)}</span>
                     </li>
                   ))}
                 </ul>
-                <p><span>{tx(locale, "Toplam", "Total")}</span><strong className="num">{formatTL(total, locale)}</strong></p>
+                <p><span>{tx(locale, "Toplam", "Total")}</span><strong className="num">{etsyMode ? copy.free : formatTL(total, locale)}</strong></p>
               </div>
             )}
           </div>
-          <Link href={`/${locale}`} className="studio__exit" aria-label={tx(locale, "Kaydet ve çık", "Save and exit")}>
+          <Link href={etsyMode ? lp(locale, "/etsy") : `/${locale}`} className="studio__exit" aria-label={tx(locale, "Kaydet ve çık", "Save and exit")}>
             <Icon name="close" size={18} />
           </Link>
         </div>
@@ -266,12 +284,15 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
             <p className="wz-loading" role="status">{blocker || payBlock ? tx(locale, "Önceki adıma yönlendiriliyorsunuz…", "Taking you back to the previous step…") : tx(locale, "Yükleniyor…", "Loading…")}</p>
           ) : (
             <>
-              {step === "etkinlik" && <StepEvent draft={draft} errors={errors} />}
-              {step === "sablon" && <StepTemplate draft={draft} errors={errors} />}
+              {step === "etkinlik" && !etsyMode && <StepEvent draft={draft} errors={errors} />}
+              {step === "sablon" && !etsyMode && <StepTemplate draft={draft} errors={errors} />}
               {step === "diller" && <StepLanguages draft={draft} errors={errors} />}
               {step === "bilgiler" && <StepInfo draft={draft} errors={{ ...gaps, ...errors }} />}
               {step === "kontrol" && <StepReview draft={draft} errors={errors} />}
-              {step === "odeme" && <StepPayment draft={draft} title={themeName || tx(locale, "Davetiye", "Invitation")} />}
+              {step === "odeme" && etsyMode && etsy ? (
+                <StepEtsyFree draft={draft} title={themeName || etsy.title || tx(locale, "Davetiye", "Invitation")} etsyCode={etsy.code} />
+              ) : null}
+              {step === "odeme" && !etsyMode && <StepPayment draft={draft} title={themeName || tx(locale, "Davetiye", "Invitation")} />}
             </>
           )}
         </main>
@@ -309,7 +330,7 @@ export default function Wizard({ step, sablon }: { step: WizardStepId; sablon?: 
               <Icon name="chevron-left" size={16} /> {tx(locale, "Geri", "Back")}
             </Link>
           ) : (
-            <Link href={lp(locale, "/temalar")} className="btn btn--outline studio__back">
+            <Link href={etsyMode ? lp(locale, "/etsy") : lp(locale, "/temalar")} className="btn btn--outline studio__back">
               <Icon name="chevron-left" size={16} /> {tx(locale, "Geri", "Back")}
             </Link>
           )}

@@ -4,10 +4,13 @@ import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import Icon from "@/components/Icon";
 import { adminCached, adminSend } from "./AdminShell";
 
-type PaperOpt = { slug: string; title: string; titleEn: string };
+type Kind = "gazete" | "davetiye";
 
 type Item = {
   code: string;
+  kind?: Kind;
+  productSlug?: string;
+  productTitle?: string;
   newspaperSlug: string;
   newspaperTitle: string;
   note: string;
@@ -23,6 +26,11 @@ const STATUS_TR: Record<Item["status"], string> = {
   revoked: "İptal",
 };
 
+const KIND_TR: Record<Kind, string> = {
+  gazete: "Gazete",
+  davetiye: "Davetiye",
+};
+
 function shortDate(iso: string) {
   try {
     return new Date(iso).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" });
@@ -31,30 +39,45 @@ function shortDate(iso: string) {
   }
 }
 
+function itemKind(item: Item): Kind {
+  return item.kind === "davetiye" ? "davetiye" : "gazete";
+}
+
+function isOpen(item: Item) {
+  const slug = item.productSlug || item.newspaperSlug;
+  return !slug || slug === "__any__";
+}
+
+function itemLabel(item: Item) {
+  if (isOpen(item)) {
+    return itemKind(item) === "davetiye"
+      ? "Müşteri 1 davetiye seçer"
+      : "Müşteri 1 gazete seçer";
+  }
+  return item.productTitle || item.newspaperTitle;
+}
+
 export default function EtsyView() {
   const [items, setItems] = useState<Item[] | null>(null);
-  const [papers, setPapers] = useState<PaperOpt[]>([]);
-  const [slug, setSlug] = useState("");
+  const [kind, setKind] = useState<Kind>("gazete");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
   const [created, setCreated] = useState<Item | null>(null);
 
-  const apply = useCallback((d: { items: Item[]; papers: PaperOpt[] }) => {
+  const apply = useCallback((d: { items: Item[] }) => {
     setItems(d.items);
-    setPapers(d.papers);
-    setSlug((prev) => prev || d.papers[0]?.slug || "");
   }, []);
 
   const load = useCallback(() => {
-    adminSend<{ items: Item[]; papers: PaperOpt[] }>("/api/yonetim/etsy")
+    adminSend<{ items: Item[] }>("/api/yonetim/etsy")
       .then(apply)
       .catch((e: Error) => setError(e.message));
   }, [apply]);
 
   useLayoutEffect(() => {
-    const hit = adminCached<{ items: Item[]; papers: PaperOpt[] }>("/api/yonetim/etsy");
+    const hit = adminCached<{ items: Item[] }>("/api/yonetim/etsy");
     if (hit) apply(hit);
   }, [apply]);
 
@@ -63,7 +86,6 @@ export default function EtsyView() {
   }, [load]);
 
   async function createCode() {
-    if (!slug) return;
     setBusy(true);
     setError("");
     setInfo("");
@@ -71,12 +93,13 @@ export default function EtsyView() {
     try {
       const d = await adminSend<{ item: Item }>("/api/yonetim/etsy", {
         method: "POST",
-        body: JSON.stringify({ newspaperSlug: slug, note }),
+        body: JSON.stringify({ kind, note }),
       });
       setCreated(d.item);
       setNote("");
-      setInfo(`Kod oluşturuldu: ${d.item.code}`);
+      setInfo(`${d.item.code} hazır · 1 ücretsiz ${KIND_TR[kind].toLowerCase()} (müşteri seçer). PDF indiriliyor…`);
       load();
+      window.setTimeout(() => downloadPdf(d.item.code), 120);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Oluşturulamadı");
     } finally {
@@ -125,22 +148,26 @@ export default function EtsyView() {
         <div>
           <h1>Etsy</h1>
           <p>
-            Etsy’de sattığınız gazete için erişim kodu ve İngilizce kullanım PDF’i oluşturun. Müşteri kodla stüdyoya girip gazetesini tasarlayıp indirebilir.
+            Kod yalnızca <strong>ürün tipine</strong> bağlıdır (gazete veya davetiye). Müşteri kodla catalogdan
+            <strong> 1 ücretsiz</strong> ürün seçer. İngilizce PDF Etsy dijital teslimatına yüklenir.
           </p>
         </div>
       </header>
 
       <section className="adm-card etsy-create">
-        <h2>Yeni kod + PDF</h2>
+        <h2>Ürün tipi için kod + PDF</h2>
+        <p className="adm-note" style={{ marginTop: 0 }}>
+          Şablon seçilmez. Müşteri girişten sonra istediği 1 gazete veya 1 davetiyeyi kendisi seçer; seçim koda kilitlenir.
+        </p>
         <div className="adm-grid2">
           <label className="lbl">
-            Gazete şablonu
-            <select value={slug} onChange={(e) => setSlug(e.target.value)}>
-              {papers.map((p) => (
-                <option key={p.slug} value={p.slug}>
-                  {p.title} / {p.titleEn}
-                </option>
-              ))}
+            Ürün tipi
+            <select
+              value={kind}
+              onChange={(e) => setKind(e.target.value === "davetiye" ? "davetiye" : "gazete")}
+            >
+              <option value="gazete">Gazete — müşteri 1 gazete seçer</option>
+              <option value="davetiye">Davetiye — müşteri 1 davetiye seçer</option>
             </select>
           </label>
           <label className="lbl">
@@ -154,8 +181,8 @@ export default function EtsyView() {
           </label>
         </div>
         <div className="adm-actions" style={{ marginTop: 12 }}>
-          <button type="button" className="btn" disabled={busy || !slug} onClick={createCode}>
-            {busy ? "Oluşturuluyor…" : "Kod oluştur"}
+          <button type="button" className="btn btn--dark" disabled={busy} onClick={createCode}>
+            {busy ? "Hazırlanıyor…" : "Kod oluştur"}
           </button>
         </div>
         {(info || error) && (
@@ -167,7 +194,8 @@ export default function EtsyView() {
           <div className="etsy-created">
             <p className="etsy-created__code">{created.code}</p>
             <p>
-              {created.newspaperTitle} · PDF İngilizce kullanım kılavuzu + kod içerir. Etsy dijital ürün olarak yükleyin.
+              <strong>1 ücretsiz {KIND_TR[itemKind(created)].toLowerCase()}:</strong> müşteri katalogdan seçer.
+              PDF’de kod ve İngilizce kullanım adımları var — Etsy’ye dijital dosya olarak yükleyin.
             </p>
             <div className="adm-actions">
               <button type="button" className="btn btn--dark btn--sm" onClick={() => downloadPdf(created.code)}>
@@ -192,8 +220,9 @@ export default function EtsyView() {
                 <div className="etsy-row__main">
                   <strong className="etsy-row__code">{item.code}</strong>
                   <span className={`etsy-badge etsy-badge--${item.status}`}>{STATUS_TR[item.status]}</span>
+                  <span className="etsy-badge etsy-badge--free">1 ücretsiz · {KIND_TR[itemKind(item)]}</span>
                   <p>
-                    {item.newspaperTitle}
+                    {itemLabel(item)}
                     {item.note ? ` · ${item.note}` : ""}
                   </p>
                   <small>

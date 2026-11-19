@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { redeemEtsyCode } from "@/lib/etsyStore";
+import { isEtsyOpenChoice, redeemEtsyCode } from "@/lib/etsyStore";
 import { setEtsyCookie, signEtsySession } from "@/lib/etsySession";
 
 const hits = new Map<string, { n: number; at: number }>();
@@ -33,14 +33,17 @@ export async function POST(req: Request) {
 
   const token = signEtsySession({
     code: result.item.code,
-    slug: result.item.newspaperSlug,
-    title: result.item.newspaperTitle,
+    slug: result.item.productSlug,
+    title: result.item.productTitle,
+    kind: result.item.kind,
   });
   const res = NextResponse.json({
     ok: true,
-    slug: result.item.newspaperSlug,
-    title: result.item.newspaperTitle,
+    slug: result.item.productSlug,
+    title: result.item.productTitle,
+    kind: result.item.kind,
     code: result.item.code,
+    needsPick: isEtsyOpenChoice(result.item.productSlug),
   });
   setEtsyCookie(res, token);
   return res;

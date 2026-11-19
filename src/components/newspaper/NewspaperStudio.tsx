@@ -793,8 +793,8 @@ export default function NewspaperStudio({
                     <>
                       <p className="ns-hint">
                         {tx(
-                          `Etsy kodunuz aktif (${etsy?.code}). Havale gerekmez — tasarımı bitirip indirebilirsiniz.`,
-                          `Your Etsy code is active (${etsy?.code}). No bank transfer — finish the design and download.`,
+                          `Etsy kodunuz aktif (${etsy?.code}): 1 ücretsiz gazete. Ödeme yok — tasarlayıp indirin.`,
+                          `Your Etsy code is active (${etsy?.code}): 1 free newspaper. No payment — design and download.`,
                         )}
                       </p>
                       <Link

@@ -8,6 +8,7 @@ export type EtsySession = {
   code: string;
   slug: string;
   title: string;
+  kind: "gazete" | "davetiye";
   exp: number;
 };
 
@@ -33,6 +34,7 @@ export function signEtsySession(session: Omit<EtsySession, "exp"> & { exp?: numb
     code: session.code,
     slug: session.slug,
     title: session.title,
+    kind: session.kind === "davetiye" ? "davetiye" : "gazete",
     exp: session.exp ?? Math.floor(Date.now() / 1000) + MAX_AGE_SEC,
   };
   const body = b64url(JSON.stringify(payload));
@@ -57,7 +59,10 @@ export function readEtsySession(raw: string | undefined | null): EtsySession | n
     if (!parsed?.code || !parsed?.slug || !parsed?.exp) return null;
     if (parsed.exp * 1000 < Date.now()) return null;
     if (!/^ETSY-[A-Z0-9]{6,16}$/.test(parsed.code)) return null;
-    return parsed;
+    return {
+      ...parsed,
+      kind: parsed.kind === "davetiye" ? "davetiye" : "gazete",
+    };
   } catch {
     return null;
   }

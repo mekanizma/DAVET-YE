@@ -166,6 +166,68 @@
   background: color-mix(in srgb, #9b2c2c 14%, white);
   color: #7f1d1d;
 }
+.etsy-badge--free {
+  background: color-mix(in srgb, var(--emerald, #2d6a4f) 14%, white);
+  color: #1b4332;
+  margin-left: 4px;
+}
+
+.pay-etsy {
+  display: grid;
+  gap: 12px;
+}
+.pay-etsy .field {
+  display: grid;
+  gap: 6px;
+}
+.pay-etsy .input {
+  min-height: 48px;
+  width: 100%;
+}
+
+.etsy-pick {
+  width: min(520px, 100%);
+}
+.etsy-pick__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  max-height: min(58vh, 420px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.etsy-pick__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line, #d9d0c2);
+  background: color-mix(in srgb, var(--surface, #f7f2ea) 88%, white);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.etsy-pick__btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+.etsy-pick__btn strong {
+  display: block;
+  font-size: 0.98rem;
+}
+.etsy-pick__btn small {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-muted, #6b6258);
+  font-size: 0.78rem;
+}
 
 @media (min-width: 720px) {
   .etsy-row {
