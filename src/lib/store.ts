@@ -7,10 +7,12 @@ import { newspapers } from "@/data/newspapers";
 import { themes } from "@/data/themes";
 import {
   DEFAULT_SETTINGS,
+  STUDIO_DOWNLOAD_TEMPLATE,
   STUDIO_PRICE_DEFAULT,
   buildPublicCatalog,
   defaultAddon,
   defaultThemeLive,
+  isStudioDownloadOrder,
   type AddonOverride,
   type PaperOverride,
   type PaymentSettings,
@@ -451,6 +453,79 @@ export async function createOrderAsync(input: CreateOrderInput): Promise<{ ok: t
   return { ok: false, error: "Sipariş kaydedilemedi." };
 }
 
+export interface CreateStudioDownloadInput {
+  customer: { name: string; email: string; phone: string };
+  customerNote?: string;
+  presetId?: string;
+  userId?: string | null;
+  locale?: "tr" | "en";
+}
+
+/** One-off watermark-free PNG download from KendinTasarla. Stored as davetiye + studio-download template. */
+export async function createStudioDownloadOrder(
+  input: CreateStudioDownloadInput,
+): Promise<{ ok: true; order: OrderRecord } | { ok: false; error: string }> {
+  const cat = await getPublicCatalog();
+  const total = Math.max(0, Math.round(Number(cat.studioPrice) || 0));
+  const en = input.locale === "en";
+  const title = en ? "Download without watermark" : "Filigransız kart indirme";
+  const lineLabel = en ? "Invitation card · no watermark" : "Davetiye kartı · filigransız";
+  const customer = {
+    name: clean(input.customer.name, 80),
+    email: clean(input.customer.email, 120).toLowerCase(),
+    phone: clean(input.customer.phone, 20),
+  };
+  if (customer.name.length < 3) return { ok: false, error: "Ad soyad en az 3 karakter olmalı." };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(customer.email)) return { ok: false, error: "Geçerli bir e-posta yazın." };
+  const digits = customer.phone.replace(/\D/g, "");
+  if (digits.length < 10 || digits.length > 15) return { ok: false, error: "Telefon numarası eksik görünüyor." };
+
+  const snapshot: Record<string, string> = {
+    studio: "1",
+    locale: input.locale === "en" ? "en" : "tr",
+  };
+  const preset = clean(input.presetId || "", 80);
+  if (preset) snapshot.presetId = preset;
+
+  const now = new Date().toISOString();
+  const status: OrderStatus = total === 0 ? "onaylandi" : "bekliyor";
+  const lines: OrderLine[] = [{ id: "studio-download", label: lineLabel, amount: total }];
+  const userId = input.userId || null;
+
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const order: OrderRecord = {
+      code: newCode(),
+      status,
+      kind: "davetiye",
+      template: STUDIO_DOWNLOAD_TEMPLATE,
+      title,
+      total,
+      lines,
+      createdAt: now,
+      updatedAt: now,
+      reportedAt: null,
+      decidedAt: status === "onaylandi" ? now : null,
+      senderName: "",
+      customerNote: clean(input.customerNote || "", 500),
+      adminNote: status === "onaylandi" ? (en ? "No payment required." : "Tutar sıfır olduğu için ödeme gerekmeden onaylandı.") : "",
+      customer,
+      snapshot,
+    };
+    try {
+      const saved = await upsertOrder(order, userId);
+      if (saved.total > 0) nudgeShopierProduct(saved);
+      return { ok: true, order: saved };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      if (!/duplicate|23505|unique/i.test(msg) || attempt === 3) {
+        console.error(e);
+        return { ok: false, error: "Sipariş kaydedilemedi." };
+      }
+    }
+  }
+  return { ok: false, error: "Sipariş kaydedilemedi." };
+}
+
 export async function findOrderForCustomer(code: string, email: string): Promise<OrderRecord | undefined> {
   noStore();
   const row = await orderForCustomer(code, email);
@@ -569,7 +644,7 @@ export async function ensureShopierProduct(order: OrderRecord): Promise<OrderRec
     const { createShopierCheckout } = await import("@/lib/shopier");
     const checkout = await createShopierCheckout({
       code: order.code,
-      kind: order.kind,
+      kind: isStudioDownloadOrder(order) ? "kart" : order.kind,
       total: order.total,
       previousProductId: order.snapshot.__shopier,
     });

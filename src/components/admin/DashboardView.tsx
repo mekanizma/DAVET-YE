@@ -103,7 +103,7 @@ export default function DashboardView() {
                 <div className="ord__top">
                   <div>
                     <strong>{o.customer.name}</strong>
-                    <small style={{ display: "block" }}>{o.title} · {o.kind === "gazete" ? "Gazete" : "Davetiye"}</small>
+                    <small style={{ display: "block" }}>{o.title} · {o.snapshot?.studio === "1" || o.template === "studio-download" ? "Filigransız kart" : o.kind === "gazete" ? "Gazete" : "Davetiye"}</small>
                     {o.snapshot.__dekont ? <small style={{ display: "block" }}>Dekont yüklendi</small> : null}
                   </div>
                   <span className={`pill pill--${o.status}`}>{STATUS_LABEL[o.status]}</span>

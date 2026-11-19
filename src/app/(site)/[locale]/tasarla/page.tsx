@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Editor from "@/components/studio/Editor";
 import { isLocale } from "@/i18n/locale";
@@ -40,7 +41,9 @@ export default async function Page({
               : "Metni, renkleri ve yerleşimi değiştirin; kartınız canlı güncellenir."}
           </p>
         </header>
-        <Editor key={t ?? "son"} initialPreset={t} />
+        <Suspense fallback={<p className="muted" role="status">{en ? "Loading editor…" : "Düzenleyici yükleniyor…"}</p>}>
+          <Editor key={t ?? "son"} initialPreset={t} />
+        </Suspense>
       </div>
     </section>
   );

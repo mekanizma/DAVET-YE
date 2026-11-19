@@ -605,6 +605,24 @@
   display: grid;
   gap: 10px;
 }
+.editor__pay {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px 14px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--gold, #c4a46a) 12%);
+}
+.editor__pay .field {
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .editor__pay {
+    padding: 12px;
+    border-radius: 12px;
+  }
+}
 .editor .field__hint {
   margin-top: 8px;
 }

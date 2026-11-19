@@ -4,6 +4,14 @@ import { FEATURED_SLUGS, themes, type Theme } from "@/data/themes";
 import { isValidIban } from "@/lib/format";
 
 export const STUDIO_PRICE_DEFAULT = 99;
+/** Order template for one-off watermark-free card downloads from /tasarla. */
+export const STUDIO_DOWNLOAD_TEMPLATE = "studio-download";
+
+export function isStudioDownloadOrder(order: { template?: string; snapshot?: Record<string, string> } | null | undefined): boolean {
+  if (!order) return false;
+  if (order.template === STUDIO_DOWNLOAD_TEMPLATE) return true;
+  return order.snapshot?.studio === "1" || order.snapshot?.studio === "download";
+}
 
 const INCLUDED_BY_DEFAULT = new Set(["ani-duvari", "ani-cekimi"]);
 const FEATURED = new Set<string>(FEATURED_SLUGS);

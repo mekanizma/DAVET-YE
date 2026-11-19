@@ -1,15 +1,33 @@
 import { NextResponse } from "next/server";
+import { isStudioDownloadOrder } from "@/lib/catalog";
 import { confirmShopierPayment, findOrderByCode } from "@/lib/store";
 import { shopierMessageHtml } from "@/lib/shopier";
 import { verifyClassicShopierCallback } from "@/lib/shopierClassic";
 
 export const dynamic = "force-dynamic";
 
+function siteOrigin() {
+  return process.env.NEXT_PUBLIC_SITE_URL || "https://davetanisi.com";
+}
+
 function html(body: string, status = 200) {
   return new NextResponse(body, {
     status,
     headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
   });
+}
+
+function paidReturnUrl(order: { code: string; template: string; snapshot: Record<string, string>; customer: { email: string } }) {
+  const base = siteOrigin();
+  if (isStudioDownloadOrder(order)) {
+    const locale = order.snapshot.locale === "en" ? "en" : "tr";
+    const q = new URLSearchParams({
+      odeme: order.code,
+      email: order.customer.email,
+    });
+    return new URL(`/${locale}/tasarla?${q.toString()}`, base);
+  }
+  return new URL(`/panel?odeme=${encodeURIComponent(order.code)}`, base);
 }
 
 async function handle(post: Record<string, string>) {
@@ -26,7 +44,7 @@ async function handle(post: Record<string, string>) {
   const order = await findOrderByCode(code);
   if (!order) return html(shopierMessageHtml("Sipariş bulunamadı."), 404);
   if (order.status === "onaylandi") {
-    return NextResponse.redirect(new URL(`/panel?odeme=${encodeURIComponent(code)}`, process.env.NEXT_PUBLIC_SITE_URL || "https://davetanisi.com"), 303);
+    return NextResponse.redirect(paidReturnUrl(order), 303);
   }
   const saved = await confirmShopierPayment({
     code: order.code,
@@ -34,7 +52,7 @@ async function handle(post: Record<string, string>) {
     amount: order.total,
   });
   if (!saved) return html(shopierMessageHtml("Ödeme alındı ama sipariş güncellenemedi. Destek ile iletişime geçin."), 500);
-  return NextResponse.redirect(new URL(`/panel?odeme=${encodeURIComponent(code)}`, process.env.NEXT_PUBLIC_SITE_URL || "https://davetanisi.com"), 303);
+  return NextResponse.redirect(paidReturnUrl(saved), 303);
 }
 
 export async function POST(req: Request) {

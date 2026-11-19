@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { adminSend } from "./AdminShell";
+import { isStudioDownloadOrder } from "@/lib/catalog";
 import { formatTL } from "@/lib/format";
 import { STATUS_LABEL } from "@/lib/orderStatus";
 import type { OrderRecord } from "@/lib/orderTypes";
@@ -57,7 +58,7 @@ export default function OrderDetail({ code }: { code: string }) {
         <div>
           <p className="eyebrow"><Link href="/yonetim/siparisler">Siparişler</Link></p>
           <h1 className="num">{order.code}</h1>
-          <p>{order.title} · {order.kind === "gazete" ? "Gazete" : "Davetiye"}</p>
+          <p>{order.title} · {isStudioDownloadOrder(order) ? "Filigransız kart" : order.kind === "gazete" ? "Gazete" : "Davetiye"}</p>
         </div>
         <span className={`pill pill--${order.status}`}>{STATUS_LABEL[order.status]}</span>
       </header>
@@ -75,10 +76,12 @@ export default function OrderDetail({ code }: { code: string }) {
         </ul>
       </section>
 
-      <section className="adm-card">
-        <h2>Online adres</h2>
-        {share ? <ShareLinkCard share={share} locale="tr" /> : <p>Bu sipariş için adres ayrılmadı.</p>}
-      </section>
+      {!isStudioDownloadOrder(order) ? (
+        <section className="adm-card">
+          <h2>Online adres</h2>
+          {share ? <ShareLinkCard share={share} locale="tr" /> : <p>Bu sipariş için adres ayrılmadı.</p>}
+        </section>
+      ) : null}
 
       <section className="adm-card">
         <h2>Müşteri</h2>
@@ -114,9 +117,9 @@ export default function OrderDetail({ code }: { code: string }) {
               <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
             ))}
           </dl>
-          {order.kind === "davetiye" && (
+          {order.kind === "davetiye" && !isStudioDownloadOrder(order) ? (
             <Link href={`/onizleme/tema/${order.template}`} className="btn btn--outline btn--sm" target="_blank">Şablonu aç</Link>
-          )}
+          ) : null}
         </section>
       )}
 

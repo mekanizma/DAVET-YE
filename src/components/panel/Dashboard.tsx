@@ -10,6 +10,7 @@ import { localizeNewspaper, themeTitle } from "@/i18n/catalog";
 import { lp, withLocaleQuery, type Locale } from "@/i18n/locale";
 import { statusLabel } from "@/i18n/product";
 import { useLocale } from "@/i18n/provider";
+import { isStudioDownloadOrder } from "@/lib/catalog";
 import { downloadBlob, formatTL, longDate } from "@/lib/format";
 import { STATUS_LABEL } from "@/lib/orderStatus";
 import { EMPTY_NEWSPAPER_DRAFT, normalizeNewspaperDraft } from "@/lib/newspaperDraft";
@@ -55,6 +56,13 @@ const RANK: Record<string, number> = { onaylandi: 0, bildirildi: 1, bekliyor: 2,
 function orderLink(order: OrderRecord, locale: Locale) {
   const again = order.status === "reddedildi";
   const pay = again ? tx(locale, "Yeniden öde", "Pay again") : tx(locale, "Ödemeye dön", "Back to payment");
+  if (isStudioDownloadOrder(order)) {
+    const q = new URLSearchParams({ odeme: order.code, email: order.customer.email });
+    return {
+      href: `${lp(locale, "/tasarla")}?${q.toString()}`,
+      label: order.status === "onaylandi" ? tx(locale, "İndir", "Download") : pay,
+    };
+  }
   if (order.status === "onaylandi") {
     if (order.kind === "davetiye" && order.template) return { href: withLocaleQuery(locale, `/onizleme/tema/${order.template}?taslak=1&odendi=1`), label: tx(locale, "Önizle", "Preview") };
     if (order.kind === "gazete" && order.template) return { href: withLocaleQuery(locale, `/times/sablon/${order.template}?odendi=1`), label: tx(locale, "Önizle", "Preview") };
@@ -66,6 +74,12 @@ function orderLink(order: OrderRecord, locale: Locale) {
 
 function editLink(order: OrderRecord, locale: Locale) {
   if (order.status !== "onaylandi") return null;
+  if (isStudioDownloadOrder(order)) {
+    return {
+      href: `${lp(locale, "/tasarla")}?odeme=${encodeURIComponent(order.code)}&email=${encodeURIComponent(order.customer.email)}`,
+      label: tx(locale, "İndir", "Download"),
+    };
+  }
   if (order.kind === "gazete") {
     return {
       href: `${lp(locale, "/gazete-tasarla")}?siparis=${encodeURIComponent(order.code)}`,
@@ -103,6 +117,7 @@ function OrderShare({ code, email, locale, known, names = "" }: { code: string; 
 }
 
 function orderTitle(order: OrderRecord, locale: Locale) {
+  if (isStudioDownloadOrder(order)) return order.title;
   if (order.kind === "davetiye" && order.template) {
     const theme = getTheme(order.template);
     if (theme) return themeTitle(theme, locale);
@@ -284,7 +299,9 @@ export default function Dashboard() {
                     ) : null}
                     <Link href={action.href} className="btn btn--outline btn--sm">{action.label}</Link>
                   </div>
-                  <OrderShare code={o.code} email={o.customer.email} locale={locale} known={live || null} names={orderTitle(o, locale)} />
+                  {!isStudioDownloadOrder(o) ? (
+                    <OrderShare code={o.code} email={o.customer.email} locale={locale} known={live || null} names={orderTitle(o, locale)} />
+                  ) : null}
                 </li>
               );
             })}

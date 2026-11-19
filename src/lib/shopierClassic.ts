@@ -1,4 +1,5 @@
 import { createHmac, randomInt, timingSafeEqual } from "crypto";
+import { isStudioDownloadOrder } from "@/lib/catalog";
 import { siteUrl } from "@/lib/seo";
 import type { OrderRecord } from "@/lib/orderTypes";
 
@@ -43,7 +44,9 @@ export function buildClassicShopierFields(order: OrderRecord): Record<string, st
   const randomNr = String(randomInt(100000, 999999));
   const total = order.total.toFixed(2);
   const currency = "0"; // TRY
-  const productName = `${order.kind === "gazete" ? "Dijital gazete" : "Dijital davetiye"} ${order.code}`.slice(0, 100);
+  const productName = `${
+    isStudioDownloadOrder(order) ? "Filigransız kart" : order.kind === "gazete" ? "Dijital gazete" : "Dijital davetiye"
+  } ${order.code}`.slice(0, 100);
   const callback = `${siteUrl()}/api/shopier/callback`;
   const signature = createHmac("sha256", secret)
     .update(randomNr + order.code + total + currency)

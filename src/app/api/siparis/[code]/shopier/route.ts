@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isStudioDownloadOrder } from "@/lib/catalog";
 import { findOrderByCode, findOrderForCustomer, saveShopierProduct, syncShopierPayment } from "@/lib/store";
 import { createShopierCheckout, deleteShopierProduct, shopierCheckoutHtml, shopierConfigured, shopierMessageHtml, shopierPatConfigured, shopierShopSlug } from "@/lib/shopier";
 import { classicShopierCheckoutHtml, shopierClassicConfigured } from "@/lib/shopierClassic";
@@ -74,7 +75,7 @@ async function start(req: Request, code: string, email: string, fresh: boolean) 
     try {
       const checkout = await createShopierCheckout({
         code: order.code,
-        kind: order.kind,
+        kind: isStudioDownloadOrder(order) ? "kart" : order.kind,
         total: order.total,
         previousProductId: order.snapshot.__shopier,
       });

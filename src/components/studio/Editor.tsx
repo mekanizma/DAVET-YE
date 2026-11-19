@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState, type FormEvent, type PointerEvent } from "react";
 import Icon from "../Icon";
 import DesignCard from "./DesignCard";
+import { useCatalog } from "@/components/CatalogProvider";
+import { TextField } from "@/components/Field";
 import {
   blankState,
   designPresets,
@@ -16,13 +19,20 @@ import {
   type FontKind,
   type FrameKind,
 } from "@/data/designs";
-import { downloadBlob, formatTL } from "@/lib/format";
+import { downloadBlob, formatTL, isEmail } from "@/lib/format";
 import { studioCategory, studioName } from "@/i18n/catalog";
 import { lp } from "@/i18n/locale";
 import { useLocale } from "@/i18n/provider";
 import { getLocalJson, setLocalJson } from "@/lib/storage";
 
 const KEY = "studio-draft";
+const UNLOCK_KEY = "studio-unlock-v1";
+
+interface StudioUnlock {
+  code: string;
+  email: string;
+  at: string;
+}
 const FRAMES_TR: Record<FrameKind, string> = { none: "Çerçevesiz", single: "Tek çizgi", double: "Çift çizgi", ornate: "Süslü köşeli" };
 const FRAMES_EN: Record<FrameKind, string> = { none: "No frame", single: "Single line", double: "Double line", ornate: "Ornate corners" };
 const FONT_EN: Record<FontKind, string> = {
@@ -242,16 +252,28 @@ async function renderPng(d: DesignState, watermarkText: string | null): Promise<
 export default function Editor({ initialPreset }: { initialPreset?: string }) {
   const locale = useLocale();
   const en = locale === "en";
+  const cat = useCatalog();
+  const params = useSearchParams();
   const frames = en ? FRAMES_EN : FRAMES_TR;
+  const price = Math.max(0, Math.round(Number(cat.studioPrice) || 0));
+  const cardsOn = Boolean(cat.cardPayments);
   const [d, setD] = useState<DesignState>(() =>
     initialPreset === "bos" ? blankState() : stateFromPreset(getPreset(initialPreset)),
   );
   const [selected, setSelected] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [unlocked, setUnlocked] = useState(price === 0);
+  const [payOpen, setPayOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [payError, setPayError] = useState("");
+  const [pending, setPending] = useState<StudioUnlock | null>(null);
   const restored = useRef(false);
   const stage = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: string; startY: number; startPct: number; h: number } | null>(null);
+  const autoDl = useRef(false);
 
   // Restore the last local draft when the page was opened without a preset.
   useEffect(() => {
@@ -266,6 +288,82 @@ export default function Editor({ initialPreset }: { initialPreset?: string }) {
     if (!restored.current) return;
     setLocalJson(KEY, d);
   }, [d]);
+
+  useEffect(() => {
+    if (price === 0) {
+      setUnlocked(true);
+      return;
+    }
+    const saved = getLocalJson<StudioUnlock | null>(UNLOCK_KEY, null);
+    if (saved?.code && saved?.email) {
+      setPending(saved);
+      setEmail(saved.email);
+    }
+    const qCode = (params.get("odeme") || "").trim().toUpperCase();
+    const qEmail = (params.get("email") || "").trim().toLowerCase();
+    if (qCode && qEmail) {
+      const next = { code: qCode, email: qEmail, at: new Date().toISOString() };
+      setPending(next);
+      setLocalJson(UNLOCK_KEY, next);
+      setEmail(qEmail);
+    }
+  }, [params, price]);
+
+  useEffect(() => {
+    if (unlocked || price === 0) return;
+    let stop = false;
+    fetch("/api/hesap")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (stop || !data?.orders) return;
+        const paid = (data.orders as { status?: string }[]).some((o) => o.status === "onaylandi");
+        if (paid) setUnlocked(true);
+      })
+      .catch(() => undefined);
+    return () => {
+      stop = true;
+    };
+  }, [unlocked, price]);
+
+  useEffect(() => {
+    if (!pending?.code || !pending.email || unlocked) return;
+    let stop = false;
+    let timer = 0;
+    async function check(silent = false) {
+      try {
+        const res = await fetch(
+          `/api/siparis/${encodeURIComponent(pending!.code)}?email=${encodeURIComponent(pending!.email)}&odeme=1`,
+        );
+        if (stop || !res.ok) return;
+        const data = await res.json();
+        if (data?.order?.status === "onaylandi") {
+          setUnlocked(true);
+          setPending(null);
+          setLocalJson(UNLOCK_KEY, { ...pending!, at: new Date().toISOString() });
+          setMsg(en ? "Payment confirmed. You can download without a watermark." : "Ödeme onaylandı. Filigransız indirebilirsiniz.");
+          return;
+        }
+        if (!silent) {
+          setMsg(en ? "Payment is still pending. This page will refresh when Shopier confirms it." : "Ödeme onay bekliyor. Shopier doğrulayınca bu sayfa güncellenir.");
+        }
+      } catch {
+        /* keep polling */
+      }
+      if (!stop) timer = window.setTimeout(() => void check(true), 4000);
+    }
+    void check();
+    return () => {
+      stop = true;
+      window.clearTimeout(timer);
+    };
+  }, [pending, unlocked, en]);
+
+  useEffect(() => {
+    if (!unlocked || !autoDl.current) return;
+    autoDl.current = false;
+    void downloadClean();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unlocked]);
 
   const patch = (p: Partial<DesignState>) => setD((cur) => ({ ...cur, ...p }));
   const patchBlock = (id: string, p: Partial<Block>) =>
@@ -297,19 +395,99 @@ export default function Editor({ initialPreset }: { initialPreset?: string }) {
     drag.current = null;
   }
 
-  async function download() {
+  async function savePng(watermark: boolean) {
     setBusy(true);
     setMsg("");
     try {
-      const blob = await renderPng(d, en ? "SAMPLE · Davetanisi" : "ÖRNEK · Davetanisi");
+      const mark = watermark ? (en ? "SAMPLE · Davetanisi" : "ÖRNEK · Davetanisi") : null;
+      const blob = await renderPng(d, mark);
       if (!blob) throw new Error("canvas");
-      downloadBlob(`davetiye-karti-${d.presetId}.png`, blob);
-      setMsg(en ? "PNG downloaded (watermarked)." : "PNG indirildi (filigranlı).");
+      downloadBlob(`davetiye-karti-${d.presetId}${watermark ? "" : "-hd"}.png`, blob);
+      setMsg(
+        watermark
+          ? en
+            ? "PNG downloaded (watermarked)."
+            : "PNG indirildi (filigranlı)."
+          : en
+            ? "High-resolution PNG downloaded (no watermark)."
+            : "Yüksek çözünürlüklü PNG indirildi (filigransız).",
+      );
     } catch {
       setMsg(en ? "The image could not be created. Your browser may not support canvas." : "Görsel oluşturulamadı. Tarayıcınız canvas desteklemiyor olabilir.");
     } finally {
       setBusy(false);
     }
+  }
+
+  function download() {
+    void savePng(true);
+  }
+
+  function downloadClean() {
+    void savePng(false);
+  }
+
+  async function startPaid(ev: FormEvent) {
+    ev.preventDefault();
+    setPayError("");
+    const er: string[] = [];
+    if (name.trim().length < 3) er.push(en ? "Enter your full name." : "Ad soyad yazın.");
+    if (!isEmail(email)) er.push(en ? "Enter a valid email." : "Geçerli bir e-posta yazın.");
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 10) er.push(en ? "Enter a valid phone number." : "Geçerli bir telefon yazın.");
+    if (er.length) {
+      setPayError(er[0]);
+      return;
+    }
+    if (!cardsOn) {
+      setPayError(en ? "Card payment is not available right now." : "Kart ödemesi şu an açık değil.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch("/api/studio/odeme", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          locale,
+          presetId: d.presetId,
+          customer: { name: name.trim(), email: email.trim(), phone: phone.trim() },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPayError(typeof data.error === "string" ? data.error : en ? "Order could not be created." : "Sipariş oluşturulamadı.");
+        return;
+      }
+      const order = data.order as { code: string; status: string; customer: { email: string }; total: number };
+      const unlock = { code: order.code, email: order.customer.email, at: new Date().toISOString() };
+      setLocalJson(UNLOCK_KEY, unlock);
+      setPending(unlock);
+      if (order.status === "onaylandi" || order.total <= 0) {
+        setUnlocked(true);
+        autoDl.current = true;
+        setPayOpen(false);
+        return;
+      }
+      if (data.shopierUrl) {
+        window.location.assign(data.shopierUrl as string);
+        return;
+      }
+      setPayError(en ? "Shopier could not be opened. Please try again shortly." : "Shopier açılamadı. Biraz sonra yeniden deneyin.");
+    } catch {
+      setPayError(en ? "The connection could not be made." : "Bağlantı kurulamadı.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function onPaidClick() {
+    if (unlocked || price === 0) {
+      downloadClean();
+      return;
+    }
+    setPayOpen(true);
+    setMsg("");
   }
 
   return (
@@ -324,7 +502,12 @@ export default function Editor({ initialPreset }: { initialPreset?: string }) {
           onPointerUp={onUp}
           onPointerCancel={onUp}
         >
-          <DesignCard design={d} watermark watermarkLabel={en ? "SAMPLE · Davetanisi" : "ÖRNEK · Davetanisi"} selected={selected} />
+          <DesignCard
+            design={d}
+            watermark={!unlocked}
+            watermarkLabel={en ? "SAMPLE · Davetanisi" : "ÖRNEK · Davetanisi"}
+            selected={selected}
+          />
         </div>
         <p className="editor__tip">{en ? "Drag the text with your finger or the mouse, or use the sliders below." : "Metni parmağınızla ya da fareyle sürükleyebilir ya da aşağıdaki kaydırıcıları kullanabilirsiniz."}</p>
       </div>
@@ -425,15 +608,62 @@ export default function Editor({ initialPreset }: { initialPreset?: string }) {
             <button type="button" className="btn btn--dark btn--lg btn--block" onClick={download} disabled={busy} aria-busy={busy}>
               <Icon name="download" size={16} /> {busy ? (en ? "Preparing…" : "Hazırlanıyor…") : en ? "Download PNG (watermarked, free)" : "PNG indir (filigranlı, ücretsiz)"}
             </button>
-            <button type="button" className="btn btn--outline btn--block" disabled aria-describedby="e-paid-note">
-              {en ? `Download without watermark · ${formatTL(99, locale)}` : "Filigransız indir · 99 TL"}
+            <button
+              type="button"
+              className="btn btn--outline btn--block"
+              onClick={onPaidClick}
+              disabled={busy}
+              aria-busy={busy}
+              aria-describedby="e-paid-note"
+            >
+              {unlocked || price === 0
+                ? en
+                  ? "Download without watermark"
+                  : "Filigransız indir"
+                : en
+                  ? `Download without watermark · ${formatTL(price, locale)}`
+                  : `Filigransız indir · ${formatTL(price, locale)}`}
             </button>
           </div>
           <p id="e-paid-note" className="field__hint">
-            {en
-              ? "A download without the watermark, and PDF export, are not in this local copy (payments are in test mode)."
-              : "Filigransız indirme ve PDF çıktısı bu yerel kopyada yoktur (ödeme akışı test modundadır)."}
+            {unlocked
+              ? en
+                ? "Watermark-free download is unlocked on this device."
+                : "Filigransız indirme bu cihazda açık."
+              : en
+                ? "Pay once with Shopier for a high-resolution PNG without the watermark. If you already bought an invitation or newspaper, sign in and it unlocks free."
+                : "Filigransız, yüksek çözünürlüklü PNG için Shopier ile tek seferlik ödeme yapın. Davetiye veya gazete aldıysanız giriş yapınca ücretsiz açılır."}
           </p>
+          {payOpen && !unlocked ? (
+            <form className="editor__pay" onSubmit={startPaid} noValidate>
+              <TextField id="studio-name" label={en ? "Full name" : "Ad soyad"} required value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
+              <TextField id="studio-email" label={en ? "Email" : "E-posta"} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+              <TextField id="studio-phone" label={en ? "Phone" : "Telefon"} type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" inputMode="tel" />
+              {payError ? <p className="field__error" role="alert">{payError}</p> : null}
+              <button type="submit" className="btn btn--dark btn--lg btn--block" disabled={busy || !cardsOn} aria-busy={busy}>
+                {busy
+                  ? en
+                    ? "Opening Shopier…"
+                    : "Shopier açılıyor…"
+                  : cardsOn
+                    ? en
+                      ? `Pay with Shopier · ${formatTL(price, locale)}`
+                      : `Shopier ile öde · ${formatTL(price, locale)}`
+                    : en
+                      ? "Card payment unavailable"
+                      : "Kart ödemesi kapalı"}
+              </button>
+              <button type="button" className="link-btn" onClick={() => setPayOpen(false)}>{en ? "Cancel" : "Vazgeç"}</button>
+            </form>
+          ) : null}
+          {pending && !unlocked ? (
+            <p className="field__hint" role="status">
+              {en ? `Waiting for Shopier · ${pending.code}` : `Shopier onayı bekleniyor · ${pending.code}`}{" "}
+              <a href={`/api/siparis/${encodeURIComponent(pending.code)}/shopier?email=${encodeURIComponent(pending.email)}`}>
+                {en ? "Open payment again" : "Ödemeyi yeniden aç"}
+              </a>
+            </p>
+          ) : null}
           <p className="field__hint" role="status">{msg}</p>
           <button type="button" className="link-btn" onClick={() => choosePreset(d.presetId)}>{en ? "Reset this design" : "Bu tasarımı sıfırla"}</button>
           <p className="field__hint">{en ? "Your draft is saved in this browser automatically." : "Taslağınız bu tarayıcıda otomatik kaydedilir."} <Link href={lp(locale, "/tasarim-studyosu")}>{en ? "Back to ready-made designs" : "Hazır tasarımlara dön"}</Link></p>

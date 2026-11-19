@@ -211,9 +211,15 @@ function edgeCreateUrl(): string {
   return `${base.replace(/\/$/, "")}/functions/v1/shopier-create`;
 }
 
+function shopierProductLabel(kind: "davetiye" | "gazete" | "kart"): string {
+  if (kind === "gazete") return "Dijital gazete";
+  if (kind === "kart") return "Filigransız kart";
+  return "Dijital davetiye";
+}
+
 async function createShopierProductViaEdge(input: {
   code: string;
-  kind: "davetiye" | "gazete";
+  kind: "davetiye" | "gazete" | "kart";
   total: number;
   previousProductId?: string;
 }): Promise<{ productId: string; productUrl: string } | null> {
@@ -231,7 +237,8 @@ async function createShopierProductViaEdge(input: {
     },
     body: JSON.stringify({
       code: input.code,
-      kind: input.kind,
+      // Edge/SQL still expect davetiye|gazete; kart maps to davetiye for the relay.
+      kind: input.kind === "gazete" ? "gazete" : "davetiye",
       total: input.total,
       previousProductId: input.previousProductId || "",
       imageUrl: "https://davetanisi.com/og.jpg",
@@ -257,7 +264,7 @@ async function createShopierProductViaEdge(input: {
 
 async function createShopierProductViaDb(input: {
   code: string;
-  kind: "davetiye" | "gazete";
+  kind: "davetiye" | "gazete" | "kart";
   total: number;
   previousProductId?: string;
 }): Promise<{ productId: string; productUrl: string }> {
@@ -278,7 +285,7 @@ async function createShopierProductViaDb(input: {
     const db = createClient(url, client.key, { auth: { persistSession: false, autoRefreshToken: false } });
     const args: Record<string, unknown> = {
       order_code: input.code,
-      kind: input.kind,
+      kind: input.kind === "gazete" ? "gazete" : "davetiye",
       total: input.total,
       image_url: "https://davetanisi.com/og.jpg",
       previous_product_id: input.previousProductId || null,
@@ -305,11 +312,11 @@ async function createShopierProductViaDb(input: {
 
 async function createShopierProductDirect(input: {
   code: string;
-  kind: "davetiye" | "gazete";
+  kind: "davetiye" | "gazete" | "kart";
   total: number;
   previousProductId?: string;
 }): Promise<{ productId: string; productUrl: string }> {
-  const label = input.kind === "gazete" ? "Dijital gazete" : "Dijital davetiye";
+  const label = shopierProductLabel(input.kind);
   const { status, data, raw } = await shopier<{ id?: string; url?: string }>("/products", {
     method: "POST",
     body: {
@@ -343,7 +350,7 @@ async function createShopierProductDirect(input: {
 
 export async function createShopierCheckout(input: {
   code: string;
-  kind: "davetiye" | "gazete";
+  kind: "davetiye" | "gazete" | "kart";
   total: number;
   previousProductId?: string;
 }): Promise<ShopierCheckout> {
