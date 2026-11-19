@@ -3,3 +3,6 @@
 
 [functions.shopier-create]
 verify_jwt = false
+
+[functions.send-support-mail]
+verify_jwt = false

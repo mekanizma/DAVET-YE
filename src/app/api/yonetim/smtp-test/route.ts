@@ -10,7 +10,7 @@ export async function POST() {
         ok: false,
         error: result.error,
         configured: result.configured,
-        hint: "Render'da RESEND_API_KEY ekleyin (https://resend.com). HTTPS ile gönderir; SMTP portuna ihtiyaç yok.",
+        hint: "Destek maili Supabase fonksiyonundan gider (doğrulama / şifre sıfırlama ile aynı taraf).",
       },
       { status: 502 },
     );

@@ -35,14 +35,10 @@ Depodaki `render.yaml` Frankfurt bölgesinde bir Node web servisi tanımlar. Ren
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVER_SECRET`
+- `SUPABASE_SERVER_SECRET` — destek bildirimi de bununla Supabase fonksiyonuna gider
 - `SUPABASE_SECRET_KEY`
 - `ADMIN_PASSWORD`
-- `RESEND_API_KEY` — canlı destek mailleri (HTTPS → api.resend.com)
-- `MAIL_FROM` — örn. `Davetanisi <onboarding@resend.dev>` (domain doğrulanınca kendi adresiniz)
-- `SUPPORT_NOTIFY_EMAILS` — varsayılan olarak `info@mekanizma.com` her zaman eklenir
-- `SMTP_*` — yalnızca lokal (opsiyonel)
 
-> Canlıda mail **Resend HTTP API** ile gider. Render free SMTP portlarını kapatır; HTTPS açıktır.
+> Destek bildirimi, doğrulama ve şifre sıfırlama gibi Supabase tarafından gönderilir (`send-support-mail`). Render SMTP portuna bağlanmaz.
 
 Servis `npm ci && npm run build` ile derlenir ve `next start` ile `0.0.0.0` üzerinde, Render’ın verdiği `PORT` ile açılır. Sağlık kontrolü `/tr` yoluna bakar. Dekontlar Supabase’te herkese kapalı `dekont` bucket’ına yazılır; bunun için `SUPABASE_SECRET_KEY` gerekir.

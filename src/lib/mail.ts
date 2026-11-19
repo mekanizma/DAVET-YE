@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
-export type MailVia = "resend" | "brevo" | "smtp";
+export type MailVia = "supabase" | "resend" | "brevo" | "smtp";
 
 function env(name: string) {
   return (process.env[name] || "").trim();
@@ -19,9 +19,14 @@ export function smtpConfigured() {
   return Boolean(env("SMTP_HOST") && env("SMTP_USER") && env("SMTP_PASS"));
 }
 
+/** Auth mail and support mail both leave from Supabase (edge function → SMTP). */
+export function supabaseMailConfigured() {
+  return Boolean(env("NEXT_PUBLIC_SUPABASE_URL") && env("SUPABASE_SERVER_SECRET"));
+}
+
 /** HTTPS providers work on Render; SMTP is for local / paid instances. */
 export function mailConfigured() {
-  return resendConfigured() || brevoConfigured() || smtpConfigured();
+  return supabaseMailConfigured() || resendConfigured() || brevoConfigured() || smtpConfigured();
 }
 
 /** Always includes info@mekanizma.com; merges SUPPORT_NOTIFY_EMAILS / ADMIN_EMAIL. */
@@ -52,6 +57,39 @@ type Payload = {
   html?: string;
   replyTo?: string;
 };
+
+function supportMailUrl() {
+  const base = env("NEXT_PUBLIC_SUPABASE_URL").replace(/\/$/, "");
+  if (!base) return "";
+  return `${base}/functions/v1/send-support-mail`;
+}
+
+/** Same side of the network as verification / password-reset mail. */
+async function sendViaSupabase(input: {
+  id?: string;
+  test?: boolean;
+}): Promise<{ ok: true; via: "supabase"; duplicate?: boolean } | { ok: false; error: string }> {
+  const url = supportMailUrl();
+  const secret = env("SUPABASE_SERVER_SECRET");
+  if (!url || !secret) return { ok: false, error: "Supabase mail ayarı yok." };
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret, id: input.id, test: input.test || undefined }),
+      signal: AbortSignal.timeout(25_000),
+    });
+    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; duplicate?: boolean };
+    if (!res.ok || data.ok === false) {
+      return { ok: false, error: data.error || `Supabase mail HTTP ${res.status}` };
+    }
+    return { ok: true, via: "supabase", duplicate: data.duplicate };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Supabase mail gönderimi başarısız.";
+    console.error("[mail-supabase]", message);
+    return { ok: false, error: message };
+  }
+}
 
 async function sendViaResend(input: Payload): Promise<{ ok: true; via: "resend" } | { ok: false; error: string }> {
   const key = env("RESEND_API_KEY");
@@ -186,7 +224,8 @@ export async function sendMail(input: {
     replyTo: input.replyTo,
   };
 
-  // Prefer HTTPS APIs (work on Render). SMTP only as local fallback.
+  // Support mail is sent by the Supabase function (see notifySupportRequest).
+  // This fallback is for the admin probe when that function is not configured.
   if (resendConfigured()) {
     const r = await sendViaResend(payload);
     if (r.ok) return r;
@@ -213,15 +252,21 @@ export async function probeMail(): Promise<{
   ok: boolean;
   via?: MailVia;
   error?: string;
-  configured: { resend: boolean; brevo: boolean; smtp: boolean };
+  configured: { supabase: boolean; resend: boolean; brevo: boolean; smtp: boolean };
 }> {
   const configured = {
+    supabase: supabaseMailConfigured(),
     resend: resendConfigured(),
     brevo: brevoConfigured(),
     smtp: smtpConfigured(),
   };
+  if (configured.supabase) {
+    const viaSupabase = await sendViaSupabase({ test: true });
+    if (viaSupabase.ok) return { ok: true, via: "supabase", configured };
+    return { ok: false, error: viaSupabase.error, configured };
+  }
   if (!configured.resend && !configured.brevo && !configured.smtp) {
-    return { ok: false, error: "RESEND_API_KEY / BREVO_API_KEY / SMTP yok.", configured };
+    return { ok: false, error: "Supabase mail veya RESEND_API_KEY / SMTP yok.", configured };
   }
   const result = await sendMail({
     to: supportNotifyEmails(),
@@ -249,10 +294,16 @@ export async function notifySupportRequest(input: {
   source: string;
   createdAt: string;
 }): Promise<{ ok: true; via: MailVia } | { ok: false; error: string }> {
+  if (supabaseMailConfigured()) {
+    // The dv_support insert trigger queues send-support-mail on Supabase.
+    // Waiting here would hold the form for the SMTP round-trip (~20s).
+    return { ok: true, via: "supabase" };
+  }
+
   const to = supportNotifyEmails();
   if (!to.length || !mailConfigured()) {
     console.warn("[support-mail] skipped: mail not configured");
-    return { ok: false, error: "Mail yapılandırılmamış (RESEND_API_KEY ekleyin)." };
+    return { ok: false, error: "Mail yapılandırılmamış." };
   }
 
   const who = `${input.firstName} ${input.lastName}`.trim();
