@@ -47,7 +47,15 @@ if (!is_array($toList) || !$toList) {
   echo json_encode(['ok' => false, 'error' => 'to required']);
   exit;
 }
-$toList = array_values(array_filter(array_map('strval', $toList)));
+$toList = array_values(array_filter(array_map(static function ($addr) {
+  $addr = strtolower(trim((string)$addr));
+  return in_array($addr, ['info@mekanizma.com', 'yonetici@davetanisi.com'], true) ? $addr : '';
+}, $toList)));
+if (!$toList) {
+  http_response_code(400);
+  echo json_encode(['ok' => false, 'error' => 'to required']);
+  exit;
+}
 
 $subject = trim((string)($data['subject'] ?? ''));
 $text = (string)($data['text'] ?? '');
@@ -85,20 +93,25 @@ function smtp_cmd($fp, string $cmd): string {
 try {
   $errno = 0;
   $errstr = '';
-  $fp = stream_socket_client(
-    "ssl://{$host}:{$port}",
-    $errno,
-    $errstr,
-    20,
-    STREAM_CLIENT_CONNECT
-  );
+  $remote = $port === 465 ? "ssl://{$host}:{$port}" : "tcp://{$host}:{$port}";
+  $fp = stream_socket_client($remote, $errno, $errstr, 20, STREAM_CLIENT_CONNECT);
   if (!$fp) {
     throw new RuntimeException("connect failed: {$errstr}");
   }
   stream_set_timeout($fp, 20);
-  smtp_read($fp);
+  $banner = smtp_read($fp);
+  if (strpos($banner, '220') !== 0) throw new RuntimeException('banner rejected');
   $ehlo = smtp_cmd($fp, 'EHLO davetanisi.com');
   if (strpos($ehlo, '250') !== 0) throw new RuntimeException('EHLO failed');
+  if ($port !== 465) {
+    $start = smtp_cmd($fp, 'STARTTLS');
+    if (strpos($start, '220') !== 0) throw new RuntimeException('STARTTLS failed');
+    if (!stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+      throw new RuntimeException('TLS failed');
+    }
+    $ehlo = smtp_cmd($fp, 'EHLO davetanisi.com');
+    if (strpos($ehlo, '250') !== 0) throw new RuntimeException('EHLO after TLS failed');
+  }
 
   $auth = smtp_cmd($fp, 'AUTH LOGIN');
   if (strpos($auth, '334') !== 0) throw new RuntimeException('AUTH not accepted');

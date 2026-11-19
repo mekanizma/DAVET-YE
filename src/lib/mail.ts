@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
 import type SMTPTransport from "nodemailer/lib/smtp-transport";
 
-export type MailVia = "supabase" | "resend" | "brevo" | "smtp";
+export type MailVia = "relay" | "supabase" | "resend" | "brevo" | "smtp";
 
 function env(name: string) {
   return (process.env[name] || "").trim();
@@ -58,6 +58,38 @@ type Payload = {
   html?: string;
   replyTo?: string;
 };
+
+const RELAY_URL = "https://mekanizma.com/davetiye-mail/davetanisi-mail-relay.php";
+
+/** Render cannot open SMTP. The hosting account can, over HTTPS. */
+async function sendViaRelay(input: Payload): Promise<{ ok: true; via: "relay" } | { ok: false; error: string }> {
+  const secret = env("SUPABASE_SERVER_SECRET");
+  if (!secret) return { ok: false, error: "Mail relay ayarı yok." };
+  try {
+    const res = await fetch(RELAY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secret,
+        to: input.to,
+        subject: input.subject,
+        text: input.text,
+        html: input.html,
+        replyTo: input.replyTo,
+      }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+    if (!res.ok || data.ok === false) {
+      return { ok: false, error: data.error || `Mail relay HTTP ${res.status}` };
+    }
+    return { ok: true, via: "relay" };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Mail relay gönderimi başarısız.";
+    console.error("[mail-relay]", message);
+    return { ok: false, error: message };
+  }
+}
 
 async function sendViaResend(input: Payload): Promise<{ ok: true; via: "resend" } | { ok: false; error: string }> {
   const key = env("RESEND_API_KEY");
@@ -284,15 +316,14 @@ export async function probeMail(): Promise<{
     brevo: brevoConfigured(),
     smtp: smtpConfigured(),
   };
-  const stored = await storedSmtp();
-  if (stored) {
-    const viaStored = await sendViaStoredSmtp({
-      to: stored.notify.split(/[,;\s]+/).map((v) => v.trim()).filter((v) => v.includes("@")),
+  if (env("SUPABASE_SERVER_SECRET")) {
+    const viaRelay = await sendViaRelay({
+      to: supportNotifyEmails(),
       subject: "[Davetanisi] Mail test",
       text: "Bu bir test mesajıdır. Destek bildirimi çalışıyor.",
     });
-    if (viaStored.ok) return { ok: true, via: viaStored.via, configured };
-    return { ok: false, error: viaStored.error, configured };
+    if (viaRelay.ok) return { ok: true, via: viaRelay.via, configured };
+    return { ok: false, error: viaRelay.error, configured };
   }
   if (!configured.resend && !configured.brevo && !configured.smtp) {
     return { ok: false, error: "Supabase mail veya RESEND_API_KEY / SMTP yok.", configured };
@@ -364,9 +395,11 @@ export async function notifySupportRequest(input: {
     </div>
   `;
 
-  const result = stored
-    ? await sendViaStoredSmtp({ to, subject, text, html, replyTo: input.email })
-    : await sendMail({ to, subject, text, html, replyTo: input.email });
+  const result = env("SUPABASE_SERVER_SECRET")
+    ? await sendViaRelay({ to, subject, text, html, replyTo: input.email })
+    : stored
+      ? await sendViaStoredSmtp({ to, subject, text, html, replyTo: input.email })
+      : await sendMail({ to, subject, text, html, replyTo: input.email });
   if (!result.ok) {
     console.error("[support-mail] failed:", result.error);
     return result;

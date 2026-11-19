@@ -1,0 +1,3 @@
+<Files "davetanisi-mail-relay.config.php">
+  Require all denied
+</Files>
