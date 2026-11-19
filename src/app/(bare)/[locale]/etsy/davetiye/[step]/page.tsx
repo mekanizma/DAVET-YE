@@ -46,7 +46,7 @@ export default async function Page({
   const row = await getEtsyCode(session.code);
   if (!row || row.status === "revoked") redirect(`/${locale}/etsy`);
   if (row.kind !== "davetiye") redirect(`/${locale}/etsy/tasarla`);
-  if (isEtsyOpenChoice(row.productSlug)) redirect(`/${locale}/etsy/sec`);
+  if (isEtsyOpenChoice(row)) redirect(`/${locale}/etsy/sec`);
 
   return (
     <Wizard

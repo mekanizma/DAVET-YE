@@ -14,13 +14,15 @@ export default function EtsyLogin() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [session, setSession] = useState<{ slug: string; title: string; code: string; kind: "gazete" | "davetiye" } | null>(null);
+  const [session, setSession] = useState<{ slug: string; title: string; code: string; kind: "gazete" | "davetiye" | "any" } | null>(null);
 
   useEffect(() => {
     fetch("/api/etsy/oturum")
       .then((r) => r.json())
       .then((d) => {
-        if (d?.ok) setSession({ slug: d.slug, title: d.title, code: d.code, kind: d.kind === "davetiye" ? "davetiye" : "gazete" });
+        if (!d?.ok) return;
+        const kind = d.kind === "davetiye" ? "davetiye" : d.kind === "any" ? "any" : "gazete";
+        setSession({ slug: d.slug, title: d.title, code: d.code, kind });
       })
       .catch(() => undefined);
   }, []);
@@ -40,7 +42,9 @@ export default function EtsyLogin() {
         setError((data as { error?: string }).error || (en ? "Could not sign in." : "Giriş yapılamadı."));
         return;
       }
-      router.push(lp(locale, (data as { needsPick?: boolean }).needsPick ? "/etsy/sec" : "/etsy/tasarla"));
+      // Always open the picker route first (Gazeteler / Davetiyeler).
+      // Locked codes are forwarded to the studio by /etsy/sec itself.
+      window.location.assign(lp(locale, "/etsy/sec"));
     } catch {
       setError(en ? "Network error. Try again." : "Bağlantı hatası. Yeniden deneyin.");
     } finally {
@@ -71,11 +75,26 @@ export default function EtsyLogin() {
               <br />
               <span className="etsy-gate__code">{session.code}</span>
             </p>
-            <Link href={lp(locale, "/etsy/tasarla")} className="btn btn--dark btn--lg btn--block">
-              {session.kind === "davetiye"
-                ? en ? "Continue invitation" : "Davetiyeye devam et"
-                : en ? "Continue newspaper" : "Gazeteye devam et"}
-            </Link>
+            {session.kind === "any" || session.slug === "__any__" ? (
+              <div className="etsy-pick__kinds">
+                <Link href={`${lp(locale, "/etsy/sec")}?tip=gazete`} className="etsy-pick__kind">
+                  <strong>{en ? "Newspapers" : "Gazeteler"}</strong>
+                  <small>{en ? "Then pick one free design" : "Sonra 1 ücretsiz tasarım seçin"}</small>
+                  <Icon name="arrow" size={16} />
+                </Link>
+                <Link href={`${lp(locale, "/etsy/sec")}?tip=davetiye`} className="etsy-pick__kind">
+                  <strong>{en ? "Invitations" : "Davetiyeler"}</strong>
+                  <small>{en ? "Then pick one free design" : "Sonra 1 ücretsiz tasarım seçin"}</small>
+                  <Icon name="arrow" size={16} />
+                </Link>
+              </div>
+            ) : (
+              <Link href={lp(locale, "/etsy/tasarla")} className="btn btn--dark btn--lg btn--block">
+                {session.kind === "davetiye"
+                  ? en ? "Continue invitation" : "Davetiyeye devam et"
+                  : en ? "Continue newspaper" : "Gazeteye devam et"}
+              </Link>
+            )}
             <button type="button" className="btn btn--ghost btn--block" onClick={logout}>
               {en ? "Sign out of this code" : "Bu koddan çık"}
             </button>

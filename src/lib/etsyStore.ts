@@ -8,18 +8,21 @@ import { createSupabaseServer, createSupabaseService } from "@/lib/supabase/serv
 import { supabaseConfigured } from "@/lib/supabase/env";
 
 export type EtsyCodeStatus = "active" | "redeemed" | "revoked";
-export type EtsyProductKind = "gazete" | "davetiye";
+/** Locked product type, or `any` until the customer chooses. */
+export type EtsyProductKind = "gazete" | "davetiye" | "any";
+export type EtsyLockedKind = "gazete" | "davetiye";
 
-/** Code unlocks the product type; customer picks one free item later. */
+/** Code unlocks one free product; customer picks newspaper or invitation later. */
 export const ETSY_ANY_SLUG = "__any__";
 
-export function isEtsyOpenChoice(slug: string | null | undefined) {
-  return !slug || slug === ETSY_ANY_SLUG;
+export function isEtsyOpenChoice(item: { productSlug?: string | null; kind?: string | null } | string | null | undefined) {
+  if (item == null) return true;
+  if (typeof item === "string") return !item || item === ETSY_ANY_SLUG;
+  return item.kind === "any" || !item.productSlug || item.productSlug === ETSY_ANY_SLUG;
 }
 
-export function etsyKindTitle(kind: EtsyProductKind, locale: "tr" | "en" = "en") {
-  if (kind === "davetiye") return locale === "en" ? "Any invitation (1 free)" : "Herhangi bir davetiye (1 ücretsiz)";
-  return locale === "en" ? "Any newspaper (1 free)" : "Herhangi bir gazete (1 ücretsiz)";
+export function etsyOpenTitle(locale: "tr" | "en" = "en") {
+  return locale === "en" ? "1 free product (newspaper or invitation)" : "1 ücretsiz ürün (gazete veya davetiye)";
 }
 
 export type EtsyCode = {
@@ -62,7 +65,14 @@ function serverSecret(): string {
 }
 
 function asKind(value: unknown): EtsyProductKind {
-  return value === "davetiye" ? "davetiye" : "gazete";
+  if (value === "davetiye") return "davetiye";
+  if (value === "any") return "any";
+  return "gazete";
+}
+
+function asLockedKind(value: unknown): EtsyLockedKind | null {
+  if (value === "davetiye" || value === "gazete") return value;
+  return null;
 }
 
 function fromRow(row: DbRow): EtsyCode {
@@ -100,7 +110,7 @@ function newEtsyCode() {
   return `ETSY-${body}`;
 }
 
-function resolveProduct(kind: EtsyProductKind, slug: string): { slug: string; title: string } | null {
+function resolveProduct(kind: EtsyLockedKind, slug: string): { slug: string; title: string } | null {
   if (kind === "gazete") {
     const paper = getNewspaper(slug);
     if (!paper) return null;
@@ -173,11 +183,9 @@ export async function listEtsyCodes(): Promise<EtsyCode[]> {
 }
 
 export async function createEtsyCode(input: {
-  kind?: EtsyProductKind;
   note?: string;
 }): Promise<{ ok: true; item: EtsyCode } | { ok: false; error: string }> {
-  const kind = asKind(input.kind);
-  const product = { slug: ETSY_ANY_SLUG, title: etsyKindTitle(kind, "en") };
+  const product = { slug: ETSY_ANY_SLUG, title: etsyOpenTitle("en") };
   const note = (input.note || "").replace(/[\u0000-\u001F\u007F]/g, "").trim().slice(0, 200);
   const now = new Date().toISOString();
 
@@ -185,7 +193,7 @@ export async function createEtsyCode(input: {
     const code = newEtsyCode();
     const item: EtsyCode = {
       code,
-      kind,
+      kind: "any",
       newspaperSlug: product.slug,
       newspaperTitle: product.title,
       productSlug: product.slug,
@@ -205,7 +213,7 @@ export async function createEtsyCode(input: {
           code: item.code,
           newspaper_slug: item.productSlug,
           newspaper_title: item.productTitle,
-          product_kind: item.kind,
+          product_kind: "any",
           note: item.note,
           status: item.status,
           created_at: item.createdAt,
@@ -229,7 +237,7 @@ export async function createEtsyCode(input: {
     if (local.some((r) => r.code === code)) continue;
     const item: EtsyCode = {
       code,
-      kind,
+      kind: "any",
       newspaperSlug: product.slug,
       newspaperTitle: product.title,
       productSlug: product.slug,
@@ -248,24 +256,31 @@ export async function createEtsyCode(input: {
   return { ok: false, error: "Kod üretilemedi. Yeniden deneyin." };
 }
 
-/** Lock an open-choice code to the one free product the customer picked. */
+/** Lock an open code to the one free product (type + design) the customer picked. */
 export async function lockEtsyProduct(
   code: string,
+  kind: EtsyLockedKind,
   productSlug: string,
 ): Promise<{ ok: true; item: EtsyCode } | { ok: false; error: string }> {
   const clean = normalizeCode(code);
-  if (!isEtsyCodeFormat(clean)) return { ok: false, error: "Invalid access code." };
+  const lockedKind = asLockedKind(kind);
+  if (!isEtsyCodeFormat(clean) || !lockedKind) return { ok: false, error: "Invalid access code." };
   const current = await getEtsyCode(clean);
   if (!current || current.status === "revoked") return { ok: false, error: "This access code is not valid." };
 
-  if (!isEtsyOpenChoice(current.productSlug)) {
-    if (current.productSlug === productSlug) return { ok: true, item: current };
+  if (!isEtsyOpenChoice(current)) {
+    if (current.kind === lockedKind && current.productSlug === productSlug) return { ok: true, item: current };
     return { ok: false, error: "This code is already locked to another design." };
   }
 
-  const product = resolveProduct(current.kind, productSlug);
+  // Older type-scoped codes may already have gazete|davetiye; keep that type.
+  if (current.kind !== "any" && current.kind !== lockedKind) {
+    return { ok: false, error: "This code is for a different product type." };
+  }
+
+  const product = resolveProduct(lockedKind, productSlug);
   if (!product) {
-    return { ok: false, error: current.kind === "davetiye" ? "Invitation not found." : "Newspaper not found." };
+    return { ok: false, error: lockedKind === "davetiye" ? "Invitation not found." : "Newspaper not found." };
   }
 
   if (supabaseConfigured()) {
@@ -276,16 +291,16 @@ export async function lockEtsyProduct(
         .update({
           newspaper_slug: product.slug,
           newspaper_title: product.title,
+          product_kind: lockedKind,
         })
         .eq("code", clean)
         .eq("newspaper_slug", ETSY_ANY_SLUG)
         .select(SELECT_COLS)
         .maybeSingle();
       if (!error && data) return { ok: true, item: fromRow(data as DbRow) };
-      // Race: another request locked it
       const again = await getEtsyCode(clean);
-      if (again && !isEtsyOpenChoice(again.productSlug)) {
-        if (again.productSlug === product.slug) return { ok: true, item: again };
+      if (again && !isEtsyOpenChoice(again)) {
+        if (again.kind === lockedKind && again.productSlug === product.slug) return { ok: true, item: again };
         return { ok: false, error: "This code is already locked to another design." };
       }
     } catch {
@@ -297,12 +312,13 @@ export async function lockEtsyProduct(
   const idx = local.findIndex((r) => r.code === clean);
   if (idx < 0) return { ok: false, error: "This access code was not found." };
   const row = local[idx]!;
-  if (!isEtsyOpenChoice(row.productSlug)) {
-    if (row.productSlug === product.slug) return { ok: true, item: row };
+  if (!isEtsyOpenChoice(row)) {
+    if (row.kind === lockedKind && row.productSlug === product.slug) return { ok: true, item: row };
     return { ok: false, error: "This code is already locked to another design." };
   }
   const next: EtsyCode = {
     ...row,
+    kind: lockedKind,
     productSlug: product.slug,
     productTitle: product.title,
     newspaperSlug: product.slug,

@@ -4,11 +4,13 @@ import type { NextResponse } from "next/server";
 export const ETSY_COOKIE = "dv_etsy";
 const MAX_AGE_SEC = 60 * 60 * 24 * 30; // 30 days
 
+export type EtsySessionKind = "gazete" | "davetiye" | "any";
+
 export type EtsySession = {
   code: string;
   slug: string;
   title: string;
-  kind: "gazete" | "davetiye";
+  kind: EtsySessionKind;
   exp: number;
 };
 
@@ -29,12 +31,18 @@ function fromB64url(input: string) {
   return Buffer.from(input.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64").toString("utf8");
 }
 
+function asSessionKind(value: unknown): EtsySessionKind {
+  if (value === "davetiye") return "davetiye";
+  if (value === "any") return "any";
+  return "gazete";
+}
+
 export function signEtsySession(session: Omit<EtsySession, "exp"> & { exp?: number }): string {
   const payload: EtsySession = {
     code: session.code,
     slug: session.slug,
     title: session.title,
-    kind: session.kind === "davetiye" ? "davetiye" : "gazete",
+    kind: asSessionKind(session.kind),
     exp: session.exp ?? Math.floor(Date.now() / 1000) + MAX_AGE_SEC,
   };
   const body = b64url(JSON.stringify(payload));
@@ -61,7 +69,7 @@ export function readEtsySession(raw: string | undefined | null): EtsySession | n
     if (!/^ETSY-[A-Z0-9]{6,16}$/.test(parsed.code)) return null;
     return {
       ...parsed,
-      kind: parsed.kind === "davetiye" ? "davetiye" : "gazete",
+      kind: asSessionKind(parsed.kind),
     };
   } catch {
     return null;

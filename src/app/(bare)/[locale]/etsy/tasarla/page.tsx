@@ -35,7 +35,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const row = await getEtsyCode(session.code);
   if (!row || row.status === "revoked") redirect(`/${locale}/etsy`);
 
-  if (isEtsyOpenChoice(row.productSlug)) {
+  if (isEtsyOpenChoice(row)) {
     redirect(`/${locale}/etsy/sec`);
   }
 

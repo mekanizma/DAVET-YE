@@ -94,9 +94,11 @@ class Page {
   }
 }
 
+type GuideKind = "gazete" | "davetiye" | "any";
+
 type GuideInput = {
   code: string;
-  kind: "gazete" | "davetiye";
+  kind: GuideKind;
   newspaperTitle: string;
   description: string;
   headline: string;
@@ -104,8 +106,14 @@ type GuideInput = {
   openChoice?: boolean;
 };
 
-function productWord(kind: GuideInput["kind"]) {
+function productWord(kind: GuideKind) {
+  if (kind === "any") return "newspaper or invitation";
   return kind === "davetiye" ? "invitation" : "newspaper";
+}
+
+function productHeadline(kind: GuideKind) {
+  if (kind === "any") return "Digital newspaper or invitation";
+  return kind === "davetiye" ? "Digital invitation" : "Digital newspaper";
 }
 
 function paintPage(p: Page) {
@@ -144,13 +152,13 @@ function coverPage(input: GuideInput, gold: RGB, ink: RGB) {
 
   const product = productWord(input.kind);
   p.text(36, 756, "1 FREE PRODUCT", 8, true, gold);
-  p.text(36, 726, input.kind === "davetiye" ? "Digital invitation" : "Digital newspaper", 24, true, ink);
+  p.text(36, 726, productHeadline(input.kind), 22, true, ink);
 
   let y = p.paragraph(
     36,
     690,
-    input.openChoice
-      ? `This code unlocks one free ${product} of your choice. After you sign in you pick any design from the catalogue. No payment on the site.`
+    input.kind === "any" || input.openChoice
+      ? `This code unlocks one free product. After you sign in, choose newspaper or invitation, then pick one design from the catalogue. No payment on the site.`
       : `This code unlocks one free ${product}. Open the link, enter the code, then design and finish online. No payment on the site.`,
     520,
     11,
@@ -161,22 +169,28 @@ function coverPage(input: GuideInput, gold: RGB, ink: RGB) {
 
   y -= 18;
   p.fill(CARD);
-  p.rect(36, y - 120, 523, 120);
+  p.rect(36, y - 132, 523, 132);
   p.strokeColor(LINE);
-  p.frame(36, y - 120, 523, 120, 0.7);
+  p.frame(36, y - 132, 523, 132, 0.7);
   p.text(52, y - 28, "WHAT YOU GET", 8, true, gold);
   const bullets =
-    input.kind === "davetiye"
+    input.kind === "any"
       ? [
-          "One free invitation design (you choose which one)",
-          "Edit names, date, place and pages in the studio",
-          "Publish a guest link — no Shopier payment",
+          "One free product: newspaper or invitation (you choose)",
+          "Then pick any design of that type from the catalogue",
+          "Finish in the studio — no Shopier payment on the site",
         ]
-      : [
-          "One free newspaper design (you choose which one)",
-          "Edit text and photos in the studio",
-          "Download or print as PDF — no payment on the site",
-        ];
+      : input.kind === "davetiye"
+        ? [
+            "One free invitation design (you choose which one)",
+            "Edit names, date, place and pages in the studio",
+            "Publish a guest link — no Shopier payment",
+          ]
+        : [
+            "One free newspaper design (you choose which one)",
+            "Edit text and photos in the studio",
+            "Download or print as PDF — no payment on the site",
+          ];
   let by = y - 48;
   for (const line of bullets) {
     p.fill(gold);
@@ -192,7 +206,7 @@ function coverPage(input: GuideInput, gold: RGB, ink: RGB) {
   p.text(52, 128, input.code, 22, true, WHITE);
   p.text(52, 98, "1. Open this address", 10, true, [0.93, 0.9, 0.84]);
   p.text(52, 82, input.url, 10, false, WHITE);
-  p.text(52, 58, "2. Enter the code  ·  3. Follow the steps on screen", 9, false, [0.93, 0.9, 0.84]);
+  p.text(52, 58, "2. Enter the code  ·  3. Choose type & design on screen", 9, false, [0.93, 0.9, 0.84]);
   return p.body();
 }
 
@@ -208,8 +222,8 @@ function howPage(input: GuideInput, gold: RGB, ink: RGB) {
   p.paragraph(
     36,
     702,
-    input.openChoice
-      ? `Your code is for one free ${product}. Pick any design after you sign in; that choice locks to this code.`
+    input.kind === "any" || input.openChoice
+      ? "Your code is for one free product. After sign-in choose newspaper or invitation, then one design; that choice locks to this code."
       : `Your code is for one free ${product}. Sign in and finish the design online.`,
     520,
     10,
@@ -219,33 +233,42 @@ function howPage(input: GuideInput, gold: RGB, ink: RGB) {
   );
 
   const steps: [string, string][] =
-    input.kind === "davetiye"
+    input.kind === "any"
       ? [
           ["Open the link", `On your phone or computer, go to ${input.url}`],
-          ["Enter the code", `Type ${input.code} and open the studio.`],
-          [
-            input.openChoice ? "Pick one invitation" : "Open your invitation",
-            input.openChoice
-              ? "Choose any invitation from the list. Your choice locks to this code."
-              : "Your invitation is already selected. Other designs stay locked.",
-          ],
-          ["Edit the details", "Set the language, then fill names, date, place and the other pages."],
-          ["Activate for free", "On the last step enter your contact details. There is no Shopier payment — the code covers it."],
-          ["Share the link", "Publish once, then send the guest link. Come back with the same code to edit again."],
+          ["Enter the code", `Type ${input.code} and continue.`],
+          ["Choose product type", "Pick newspaper or invitation. Next you will see designs for that type only."],
+          ["Pick one design", "Choose any design from the list. Your choice locks to this code."],
+          ["Finish in the studio", "Edit text and photos. For invitations publish a guest link; for newspapers download PDF."],
+          ["No payment on site", "The Etsy code covers one free product. Come back with the same code to edit again."],
         ]
-      : [
-          ["Open the link", `On your phone or computer, go to ${input.url}`],
-          ["Enter the code", `Type ${input.code} and open the studio.`],
-          [
-            input.openChoice ? "Pick one newspaper" : "Open your newspaper",
-            input.openChoice
-              ? "Choose any newspaper from the list. Your choice locks to this code."
-              : "Your newspaper is already selected. Other designs stay locked.",
-          ],
-          ["Edit the words", "Use Pages, then Text. Replace the headline, names, date, place and story."],
-          ["Add photographs", "Open Photos and upload a clear picture for each frame."],
-          ["Download free", "Tap Download, then Print / Save PDF. No payment on the site."],
-        ];
+      : input.kind === "davetiye"
+        ? [
+            ["Open the link", `On your phone or computer, go to ${input.url}`],
+            ["Enter the code", `Type ${input.code} and open the studio.`],
+            [
+              input.openChoice ? "Pick one invitation" : "Open your invitation",
+              input.openChoice
+                ? "Choose any invitation from the list. Your choice locks to this code."
+                : "Your invitation is already selected. Other designs stay locked.",
+            ],
+            ["Edit the details", "Set the language, then fill names, date, place and the other pages."],
+            ["Activate for free", "On the last step enter your contact details. There is no Shopier payment — the code covers it."],
+            ["Share the link", "Publish once, then send the guest link. Come back with the same code to edit again."],
+          ]
+        : [
+            ["Open the link", `On your phone or computer, go to ${input.url}`],
+            ["Enter the code", `Type ${input.code} and open the studio.`],
+            [
+              input.openChoice ? "Pick one newspaper" : "Open your newspaper",
+              input.openChoice
+                ? "Choose any newspaper from the list. Your choice locks to this code."
+                : "Your newspaper is already selected. Other designs stay locked.",
+            ],
+            ["Edit the words", "Use Pages, then Text. Replace the headline, names, date, place and story."],
+            ["Add photographs", "Open Photos and upload a clear picture for each frame."],
+            ["Download free", "Tap Download, then Print / Save PDF. No payment on the site."],
+          ];
 
   steps.forEach((step, i) => {
     const y = 650 - i * 92;
@@ -306,7 +329,7 @@ function buildPdf(pages: string[]): Buffer {
 
 export function buildEtsyGuidePdf(input: {
   code: string;
-  kind?: "gazete" | "davetiye";
+  kind?: GuideKind;
   newspaperTitle: string;
   description: string;
   headline: string;
@@ -315,15 +338,17 @@ export function buildEtsyGuidePdf(input: {
   ink?: string;
   openChoice?: boolean;
 }): Buffer {
-  const kind = input.kind === "davetiye" ? "davetiye" : "gazete";
+  const kind: GuideKind = input.kind === "davetiye" ? "davetiye" : input.kind === "any" ? "any" : "gazete";
   const guide: GuideInput = {
     code: input.code,
     kind,
-    newspaperTitle: input.newspaperTitle || (kind === "davetiye" ? "Any invitation" : "Any newspaper"),
+    newspaperTitle:
+      input.newspaperTitle
+      || (kind === "any" ? "1 free product" : kind === "davetiye" ? "Any invitation" : "Any newspaper"),
     description: input.description,
     headline: input.headline,
     url: `${siteUrl()}/en/etsy`,
-    openChoice: Boolean(input.openChoice),
+    openChoice: Boolean(input.openChoice) || kind === "any",
   };
   return buildPdf([coverPage(guide, GOLD, INK), howPage(guide, GOLD, INK)]);
 }

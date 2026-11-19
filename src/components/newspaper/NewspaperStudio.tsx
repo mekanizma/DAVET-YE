@@ -137,7 +137,13 @@ export default function NewspaperStudio({
           if (access) window.location.assign(lp(locale, "/etsy"));
           return;
         }
-        const info = { code: d.code as string, slug: d.slug as string, title: d.title as string };
+        const slug = String(d.slug || "");
+        // Open Etsy codes must pick Gazeteler/Davetiyeler before the studio.
+        if (access && (d.kind === "any" || slug === "__any__")) {
+          window.location.assign(lp(locale, "/etsy/sec"));
+          return;
+        }
+        const info = { code: d.code as string, slug, title: d.title as string };
         setEtsy(info);
         if (getNewspaper(info.slug)) setBootSlug(info.slug);
       })

@@ -31,19 +31,23 @@ export async function POST(req: Request) {
   const result = await redeemEtsyCode(code);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
 
+  const needsPick = isEtsyOpenChoice(result.item);
+  const kind = needsPick ? "any" : result.item.kind === "davetiye" ? "davetiye" : "gazete";
   const token = signEtsySession({
     code: result.item.code,
     slug: result.item.productSlug,
     title: result.item.productTitle,
-    kind: result.item.kind,
+    kind,
   });
   const res = NextResponse.json({
     ok: true,
     slug: result.item.productSlug,
     title: result.item.productTitle,
-    kind: result.item.kind,
+    kind,
     code: result.item.code,
-    needsPick: isEtsyOpenChoice(result.item.productSlug),
+    needsPick,
+    // Client must open the picker before any studio when the code is still open.
+    next: needsPick ? "/etsy/sec" : "/etsy/tasarla",
   });
   setEtsyCookie(res, token);
   return res;

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EtsyPick from "@/components/etsy/EtsyPick";
@@ -34,6 +35,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   if (!session) redirect(`/${locale}/etsy`);
   const row = await getEtsyCode(session.code);
   if (!row || row.status === "revoked") redirect(`/${locale}/etsy`);
-  if (!isEtsyOpenChoice(row.productSlug)) redirect(`/${locale}/etsy/tasarla`);
-  return <EtsyPick />;
+  if (!isEtsyOpenChoice(row)) redirect(`/${locale}/etsy/tasarla`);
+  return (
+    <Suspense fallback={<div className="etsy-gate"><div className="etsy-gate__card"><p role="status">…</p></div></div>}>
+      <EtsyPick />
+    </Suspense>
+  );
 }

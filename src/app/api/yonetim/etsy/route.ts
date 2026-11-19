@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createEtsyCode, listEtsyCodes, revokeEtsyCode, type EtsyProductKind } from "@/lib/etsyStore";
+import { createEtsyCode, listEtsyCodes, revokeEtsyCode } from "@/lib/etsyStore";
 
 export async function GET() {
   const items = await listEtsyCodes();
@@ -7,14 +7,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  let body: { kind?: string; note?: string } = {};
+  let body: { note?: string } = {};
   try {
     body = await req.json();
   } catch {
     body = {};
   }
-  const kind: EtsyProductKind = body.kind === "davetiye" ? "davetiye" : "gazete";
-  const result = await createEtsyCode({ kind, note: body.note });
+  const result = await createEtsyCode({ note: body.note });
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
   return NextResponse.json({ item: result.item });
 }

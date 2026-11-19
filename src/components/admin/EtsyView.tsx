@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import Icon from "@/components/Icon";
 import { adminCached, adminSend } from "./AdminShell";
 
-type Kind = "gazete" | "davetiye";
+type Kind = "gazete" | "davetiye" | "any";
 
 type Item = {
   code: string;
@@ -26,11 +26,6 @@ const STATUS_TR: Record<Item["status"], string> = {
   revoked: "İptal",
 };
 
-const KIND_TR: Record<Kind, string> = {
-  gazete: "Gazete",
-  davetiye: "Davetiye",
-};
-
 function shortDate(iso: string) {
   try {
     return new Date(iso).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" });
@@ -39,27 +34,26 @@ function shortDate(iso: string) {
   }
 }
 
-function itemKind(item: Item): Kind {
-  return item.kind === "davetiye" ? "davetiye" : "gazete";
-}
-
 function isOpen(item: Item) {
   const slug = item.productSlug || item.newspaperSlug;
-  return !slug || slug === "__any__";
+  return item.kind === "any" || !slug || slug === "__any__";
 }
 
 function itemLabel(item: Item) {
-  if (isOpen(item)) {
-    return itemKind(item) === "davetiye"
-      ? "Müşteri 1 davetiye seçer"
-      : "Müşteri 1 gazete seçer";
-  }
+  if (isOpen(item)) return "Müşteri gazete veya davetiye seçer (1 ücretsiz)";
+  if (item.kind === "davetiye") return `Davetiye · ${item.productTitle || item.newspaperTitle}`;
+  if (item.kind === "gazete") return `Gazete · ${item.productTitle || item.newspaperTitle}`;
   return item.productTitle || item.newspaperTitle;
+}
+
+function lockBadge(item: Item) {
+  if (isOpen(item)) return "Açık · gazete veya davetiye";
+  if (item.kind === "davetiye") return "Kilitli · davetiye";
+  return "Kilitli · gazete";
 }
 
 export default function EtsyView() {
   const [items, setItems] = useState<Item[] | null>(null);
-  const [kind, setKind] = useState<Kind>("gazete");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
@@ -93,11 +87,11 @@ export default function EtsyView() {
     try {
       const d = await adminSend<{ item: Item }>("/api/yonetim/etsy", {
         method: "POST",
-        body: JSON.stringify({ kind, note }),
+        body: JSON.stringify({ note }),
       });
       setCreated(d.item);
       setNote("");
-      setInfo(`${d.item.code} hazır · 1 ücretsiz ${KIND_TR[kind].toLowerCase()} (müşteri seçer). PDF indiriliyor…`);
+      setInfo(`${d.item.code} hazır · 1 ücretsiz ürün (müşteri gazete veya davetiye seçer). PDF indiriliyor…`);
       load();
       window.setTimeout(() => downloadPdf(d.item.code), 120);
     } catch (e) {
@@ -148,38 +142,26 @@ export default function EtsyView() {
         <div>
           <h1>Etsy</h1>
           <p>
-            Kod yalnızca <strong>ürün tipine</strong> bağlıdır (gazete veya davetiye). Müşteri kodla catalogdan
-            <strong> 1 ücretsiz</strong> ürün seçer. İngilizce PDF Etsy dijital teslimatına yüklenir.
+            Tek kod üretilir. Müşteri girişten sonra <strong>gazete</strong> veya <strong>davetiye</strong> seçer,
+            sonra 1 ücretsiz tasarımı kilitler. İngilizce PDF Etsy dijital teslimatına yüklenir.
           </p>
         </div>
       </header>
 
       <section className="adm-card etsy-create">
-        <h2>Ürün tipi için kod + PDF</h2>
+        <h2>Tek kod + PDF</h2>
         <p className="adm-note" style={{ marginTop: 0 }}>
-          Şablon seçilmez. Müşteri girişten sonra istediği 1 gazete veya 1 davetiyeyi kendisi seçer; seçim koda kilitlenir.
+          Ürün tipi seçilmez. Müşteri kodla girdikten sonra gazete veya davetiye ekranına yönlenir; seçim koda kilitlenir.
         </p>
-        <div className="adm-grid2">
-          <label className="lbl">
-            Ürün tipi
-            <select
-              value={kind}
-              onChange={(e) => setKind(e.target.value === "davetiye" ? "davetiye" : "gazete")}
-            >
-              <option value="gazete">Gazete — müşteri 1 gazete seçer</option>
-              <option value="davetiye">Davetiye — müşteri 1 davetiye seçer</option>
-            </select>
-          </label>
-          <label className="lbl">
-            Not (Etsy sipariş no vb.)
-            <input
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Opsiyonel"
-              maxLength={200}
-            />
-          </label>
-        </div>
+        <label className="lbl">
+          Not (Etsy sipariş no vb.)
+          <input
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Opsiyonel"
+            maxLength={200}
+          />
+        </label>
         <div className="adm-actions" style={{ marginTop: 12 }}>
           <button type="button" className="btn btn--dark" disabled={busy} onClick={createCode}>
             {busy ? "Hazırlanıyor…" : "Kod oluştur"}
@@ -194,8 +176,8 @@ export default function EtsyView() {
           <div className="etsy-created">
             <p className="etsy-created__code">{created.code}</p>
             <p>
-              <strong>1 ücretsiz {KIND_TR[itemKind(created)].toLowerCase()}:</strong> müşteri katalogdan seçer.
-              PDF’de kod ve İngilizce kullanım adımları var — Etsy’ye dijital dosya olarak yükleyin.
+              <strong>1 ücretsiz ürün:</strong> müşteri girişte gazete veya davetiye seçer.
+              PDF’de kod, link ve İngilizce adımlar var — Etsy’ye dijital dosya olarak yükleyin.
             </p>
             <div className="adm-actions">
               <button type="button" className="btn btn--dark btn--sm" onClick={() => downloadPdf(created.code)}>
@@ -220,7 +202,7 @@ export default function EtsyView() {
                 <div className="etsy-row__main">
                   <strong className="etsy-row__code">{item.code}</strong>
                   <span className={`etsy-badge etsy-badge--${item.status}`}>{STATUS_TR[item.status]}</span>
-                  <span className="etsy-badge etsy-badge--free">1 ücretsiz · {KIND_TR[itemKind(item)]}</span>
+                  <span className="etsy-badge etsy-badge--free">{lockBadge(item)}</span>
                   <p>
                     {itemLabel(item)}
                     {item.note ? ` · ${item.note}` : ""}

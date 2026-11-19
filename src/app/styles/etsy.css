@@ -188,6 +188,50 @@
 .etsy-pick {
   width: min(520px, 100%);
 }
+.etsy-pick__kinds {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+  width: 100%;
+}
+.etsy-pick__kind {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: center;
+  min-height: 72px;
+  padding: 16px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line, #d9d0c2);
+  background: color-mix(in srgb, var(--surface, #f7f2ea) 88%, white);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+a.etsy-pick__kind:hover,
+button.etsy-pick__kind:hover {
+  border-color: color-mix(in srgb, var(--ink, #1c1814) 28%, var(--line, #d9d0c2));
+}
+.etsy-pick__kind strong {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 1.05rem;
+}
+.etsy-pick__kind small {
+  grid-column: 1;
+  grid-row: 2;
+  color: var(--ink-muted, #6b6258);
+  font-size: 0.82rem;
+}
+.etsy-pick__kind svg {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
 .etsy-pick__list {
   list-style: none;
   margin: 0;
