@@ -751,7 +751,7 @@ export default function NewspaperStudio({
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => {
-                if (previewData) stashStudioFullPreview(paper.slug, previewData);
+                stashStudioFullPreview(paper.slug, draft);
               }}
             >
               <Icon name="expand" size={14} />
