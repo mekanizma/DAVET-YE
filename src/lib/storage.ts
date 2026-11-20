@@ -511,6 +511,15 @@ export interface NewspaperDraft {
   };
   size: "A3" | "A2";
   style: "original" | "sepia" | "mono";
+  /**
+   * How many template pages to keep while designing (1…template length).
+   * `0` / unset = use every page in the template.
+   */
+  pageCount?: number;
+  /** Free components placed on pages (icons, shapes, stickers, text). */
+  extras?: import("@/lib/newspaperExtras").NewspaperExtra[];
+  /** Canvas drag overrides for element ids (template slots + extras). */
+  layout?: Record<string, { x: number; y: number; w?: number; h?: number }>;
   /** Language the draft text was seeded in. Etsy English does not reuse a Turkish draft. */
   locale?: "tr" | "en";
   updatedAt: string;

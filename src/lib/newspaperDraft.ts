@@ -1,5 +1,6 @@
 import type { NewspaperDraft, NewspaperProgramItem, NewspaperTimelineItem } from "@/lib/storage";
 import { newspapers } from "@/data/newspapers";
+import { normalizeExtras } from "@/lib/newspaperExtras";
 
 export const DEFAULT_TIMELINE: NewspaperTimelineItem[] = [
   { title: "İlk tanışma", text: "Her şey bir merhaba ile başladı." },
@@ -51,6 +52,9 @@ export const EMPTY_NEWSPAPER_DRAFT: NewspaperDraft = {
   photos: { cover: "", collage: ["", "", "", "", ""] },
   size: "A3",
   style: "original",
+  pageCount: 0,
+  extras: [],
+  layout: {},
   updatedAt: "",
 };
 
@@ -105,7 +109,29 @@ export function normalizeNewspaperDraft(raw: Partial<NewspaperDraft> | null | un
     },
     size: base.size === "A2" ? "A2" : "A3",
     style: base.style === "sepia" || base.style === "mono" ? base.style : "original",
+    pageCount:
+      typeof raw?.pageCount === "number" && Number.isFinite(raw.pageCount) && raw.pageCount > 0
+        ? Math.floor(raw.pageCount)
+        : 0,
+    extras: normalizeExtras(raw?.extras),
+    layout: normalizeLayout(raw?.layout),
   };
+}
+
+function normalizeLayout(raw: unknown): Record<string, { x: number; y: number; w?: number; h?: number }> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const out: Record<string, { x: number; y: number; w?: number; h?: number }> = {};
+  for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) continue;
+    const v = value as Record<string, unknown>;
+    out[id] = {
+      x: Number(v.x) || 0,
+      y: Number(v.y) || 0,
+      ...(v.w != null ? { w: Number(v.w) || 0 } : {}),
+      ...(v.h != null ? { h: Number(v.h) || 0 } : {}),
+    };
+  }
+  return out;
 }
 
 export function draftDisplayNames(d: NewspaperDraft) {

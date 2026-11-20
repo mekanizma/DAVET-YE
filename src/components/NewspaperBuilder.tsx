@@ -39,6 +39,7 @@ import {
 } from "@/lib/timesFields";
 import {
   applyTimesDraft,
+  resolveTimesPageCount,
   seedTimesContents,
   timesPageEditors,
   type TimesPageSlot,
@@ -84,6 +85,11 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
   const paper = useMemo(() => localizeNewspaper(paperSource, locale), [paperSource, locale]);
 
   const pageEditors = useMemo(() => timesPageEditors(design), [design]);
+  const templatePageTotal = pageEditors.length;
+  const activePageCount = useMemo(
+    () => resolveTimesPageCount(templatePageTotal, draft.pageCount),
+    [templatePageTotal, draft.pageCount],
+  );
 
   const values = useMemo(() => {
     return { ...legacyDraftToTimesValues(draft), ...(draft.values || {}) };
@@ -92,21 +98,22 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
   const contents = useMemo(() => ({ ...(draft.contents || {}) }), [draft.contents]);
   const deferredValues = useDeferredValue(values);
   const deferredContents = useDeferredValue(contents);
+  const deferredPageCount = useDeferredValue(activePageCount);
 
   const previewData = useMemo(() => {
     if (!design) return null;
     return applyTimesDraft(
       design,
-      { values: deferredValues, contents: deferredContents },
+      { values: deferredValues, contents: deferredContents, pageCount: deferredPageCount },
       { embedded: true },
     );
-  }, [design, deferredValues, deferredContents]);
+  }, [design, deferredValues, deferredContents, deferredPageCount]);
 
   const pages = useMemo(() => {
     const items: { id: PageId; no: string; label: string; hint: string }[] = [
       { id: "baski", no: "", label: tx("Şablon", "Template"), hint: tx("Gazete seç", "Choose a newspaper") },
     ];
-    pageEditors.forEach((p, i) => {
+    pageEditors.slice(0, activePageCount || templatePageTotal).forEach((p, i) => {
       items.push({
         id: `p:${p.index}`,
         no: String(i + 1).padStart(2, "0"),
@@ -116,7 +123,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
     });
     items.push({ id: "siparis", no: "", label: tx("Sipariş", "Order"), hint: tx("Ödeme", "Payment") });
     return items;
-  }, [pageEditors, en, tx]);
+  }, [pageEditors, en, tx, activePageCount, templatePageTotal]);
 
   useEffect(() => {
     let cancelled = false;
@@ -305,7 +312,7 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                     onChange={() => {
                       seededFor.current = "";
                       setBootSlug(undefined);
-                      patch({ template: n.slug, values: {}, contents: {} });
+                      patch({ template: n.slug, values: {}, contents: {}, pageCount: 0 });
                       setPage("baski");
                     }}
                   />
@@ -346,6 +353,36 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                 </select>
               </div>
             </div>
+            {!designLoading && templatePageTotal > 0 ? (
+              <div className="field" style={{ marginTop: 16 }}>
+                <span className="field__label">{tx("Sayfa sayısı", "Page count")}</span>
+                <div className="ns-pagecount__chips" role="group" aria-label={tx("Sayfa sayısı", "Page count")}>
+                  {Array.from({ length: templatePageTotal }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      className={activePageCount === n ? "is-on" : undefined}
+                      onClick={() => {
+                        patch({ pageCount: n });
+                        if (page.startsWith("p:")) {
+                          const idx = Number(page.slice(2));
+                          if (Number.isFinite(idx) && idx >= n) setPage(`p:${n - 1}`);
+                        }
+                      }}
+                      aria-pressed={activePageCount === n}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <p className="field__hint">
+                  {tx(
+                    `${activePageCount} / ${templatePageTotal} sayfa kullanılıyor`,
+                    `${activePageCount} of ${templatePageTotal} pages in use`,
+                  )}
+                </p>
+              </div>
+            ) : null}
             {designLoading ? <p className="field__hint">{tx("Sayfa alanları yükleniyor…", "Page fields are loading…")}</p> : null}
             {designErr ? (
               <p className="field__error" role="alert">
@@ -355,8 +392,12 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
             {!designLoading && pageEditors.length ? (
               <p className="field__hint">
                 {en
-                  ? `${pageEditors.length} ${pageEditors.length === 1 ? "page" : "pages"} · ${pageEditors.reduce((n, p) => n + p.slots.length, 0)} editable fields`
-                  : `${pageEditors.length} sayfa · ${pageEditors.reduce((n, p) => n + p.slots.length, 0)} düzenlenebilir alan`}
+                  ? `${activePageCount} ${activePageCount === 1 ? "page" : "pages"} · ${pageEditors
+                      .slice(0, activePageCount)
+                      .reduce((n, p) => n + p.slots.length, 0)} editable fields`
+                  : `${activePageCount} sayfa · ${pageEditors
+                      .slice(0, activePageCount)
+                      .reduce((n, p) => n + p.slots.length, 0)} düzenlenebilir alan`}
               </p>
             ) : null}
           </section>
@@ -439,7 +480,14 @@ export default function NewspaperBuilder({ initialTemplate }: { initialTemplate?
                     [en ? "Story" : "Hikaye"]: (values.story || "").slice(0, 280),
                   }}
                   shareSlug={suggestShareSlug(titleLine || paper.title)}
-                  design={{ template: paper.slug, values, contents, size: draft.size, style: draft.style }}
+                  design={{
+                    template: paper.slug,
+                    values,
+                    contents,
+                    size: draft.size,
+                    style: draft.style,
+                    pageCount: activePageCount,
+                  }}
                   resume={draft.orderCode && draft.orderEmail ? { code: draft.orderCode, email: draft.orderEmail } : null}
                   onUpdate={remember}
                 />

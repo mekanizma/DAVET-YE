@@ -1,6 +1,7 @@
 import type { TimesReaderData } from "@/lib/times";
 import type { TimesFieldDef } from "@/lib/timesFields";
 import { applyTimesValues, timesFieldsFromData } from "@/lib/timesFields";
+import { injectExtrasIntoPages, type NewspaperExtra } from "@/lib/newspaperExtras";
 
 export type TimesPageSlot =
   | {
@@ -45,6 +46,10 @@ type StageEl = {
   text?: string;
   edit?: string | boolean;
   fieldId?: string;
+  x?: number;
+  y?: number;
+  w?: number;
+  h?: number;
   style?: { size?: number };
   elements?: StageEl[];
 };
@@ -177,19 +182,62 @@ function applyContentsToPages(pages: StagePage[], contents: Record<string, strin
   });
 }
 
+type LayoutMap = Record<string, { x: number; y: number; w?: number; h?: number }>;
+
+function applyLayoutToPages(pages: StagePage[], layout: LayoutMap): StagePage[] {
+  if (!layout || !Object.keys(layout).length) return pages;
+  return pages.map((page) => {
+    const nextEls = structuredClone(page.elements || []) as StageEl[];
+    walkElements(nextEls, (el) => {
+      if (!el?.id) return;
+      const hit = layout[el.id];
+      if (!hit) return;
+      el.x = hit.x;
+      el.y = hit.y;
+      if (hit.w != null) el.w = hit.w;
+      if (hit.h != null) el.h = hit.h;
+    });
+    return { ...page, elements: nextEls };
+  });
+}
+
+/** Clamp a requested page count to the template’s available pages. `0` = all. */
+export function resolveTimesPageCount(total: number, requested?: number) {
+  if (!total) return 0;
+  if (!requested || requested < 1) return total;
+  return Math.min(total, Math.floor(requested));
+}
+
 /** Merge values + page content overrides into a mountable times payload. */
 export function applyTimesDraft(
   data: TimesReaderData,
-  draft: { values: Record<string, string>; contents: Record<string, string> },
+  draft: {
+    values: Record<string, string>;
+    contents: Record<string, string>;
+    pageCount?: number;
+    extras?: NewspaperExtra[];
+    layout?: LayoutMap;
+  },
   opts?: { embedded?: boolean },
 ): TimesReaderData {
   const withValues = applyTimesValues(data, draft.values, opts);
   const payload = { ...(withValues.payload as Record<string, unknown>) };
   const design = { ...((payload.design as Record<string, unknown>) || {}) };
-  const pages = (design.pages as StagePage[] | undefined) || [];
-  if (pages.length && Object.keys(draft.contents || {}).length) {
-    design.pages = applyContentsToPages(pages, draft.contents);
-    payload.design = design;
+  let pages = (design.pages as StagePage[] | undefined) || [];
+  const keep = resolveTimesPageCount(pages.length, draft.pageCount);
+  if (pages.length && keep > 0 && keep < pages.length) {
+    pages = pages.slice(0, keep);
   }
+  if (pages.length && draft.extras?.length) {
+    pages = injectExtrasIntoPages(pages, draft.extras);
+  }
+  if (pages.length && Object.keys(draft.contents || {}).length) {
+    pages = applyContentsToPages(pages, draft.contents);
+  }
+  if (pages.length && draft.layout && Object.keys(draft.layout).length) {
+    pages = applyLayoutToPages(pages, draft.layout);
+  }
+  design.pages = pages;
+  payload.design = design;
   return { ...withValues, payload, preview: true, embedded: opts?.embedded ?? true };
 }

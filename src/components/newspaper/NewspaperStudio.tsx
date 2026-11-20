@@ -8,8 +8,15 @@ import TimesReader from "@/components/TimesReader";
 import IbanCheckout, { type PlacedOrder } from "@/components/checkout/IbanCheckout";
 import RepublishPanel from "@/components/share/RepublishPanel";
 import { useCatalog } from "@/components/CatalogProvider";
+import CanvasEditOverlay, {
+  buildCanvasHits,
+  type CanvasHit,
+  type CanvasLayoutMap,
+} from "@/components/newspaper/CanvasEditOverlay";
+import ComponentsPanel from "@/components/newspaper/ComponentsPanel";
 import { SlotControl } from "@/components/newspaper/SlotControls";
 import { applyNewspaper } from "@/lib/catalog";
+import type { NewspaperComponentItem } from "@/data/newspaperComponents";
 import { getNewspaper, newspaperStyles, newspapers } from "@/data/newspapers";
 import { localizeNewspaper } from "@/i18n/catalog";
 import { suggestShareSlug } from "@/lib/shareSlug";
@@ -21,6 +28,7 @@ import {
   fileToDraftPhoto,
   normalizeNewspaperDraft,
 } from "@/lib/newspaperDraft";
+import { extraFromComponent } from "@/lib/newspaperExtras";
 import {
   getLocalJson,
   NEWSPAPER_DRAFT,
@@ -37,19 +45,21 @@ import {
 } from "@/lib/timesFields";
 import {
   applyTimesDraft,
+  resolveTimesPageCount,
   seedTimesContents,
   timesPageEditors,
 } from "@/lib/timesPages";
 
-type ToolId = "templates" | "pages" | "text" | "photos" | "order";
+type ToolId = "templates" | "pages" | "components" | "text" | "photos" | "order";
 type PageId = string;
 
-type Snap = Pick<NewspaperDraft, "template" | "values" | "contents" | "size" | "style">;
+type Snap = Pick<NewspaperDraft, "template" | "values" | "contents" | "size" | "style" | "pageCount" | "extras" | "layout">;
 type EtsySessionInfo = { code: string; slug: string; title: string };
 
-const TOOLS: { id: ToolId; label: string; icon: "sparkle" | "doc" | "type" | "image" | "wallet" | "download" }[] = [
+const TOOLS: { id: ToolId; label: string; icon: "sparkle" | "doc" | "grid" | "type" | "image" | "wallet" | "download" }[] = [
   { id: "templates", label: "Şablonlar", icon: "sparkle" },
   { id: "pages", label: "Sayfalar", icon: "doc" },
+  { id: "components", label: "Bileşenler", icon: "grid" },
   { id: "text", label: "Metin", icon: "type" },
   { id: "photos", label: "Fotoğraf", icon: "image" },
   { id: "order", label: "Sipariş", icon: "wallet" },
@@ -62,12 +72,16 @@ function snapOf(d: NewspaperDraft): Snap {
     contents: { ...(d.contents || {}) },
     size: d.size,
     style: d.style,
+    pageCount: d.pageCount || 0,
+    extras: [...(d.extras || [])],
+    layout: { ...(d.layout || {}) },
   };
 }
 
 const TOOL_EN: Record<ToolId, string> = {
   templates: "Templates",
   pages: "Pages",
+  components: "Elements",
   text: "Text",
   photos: "Photos",
   order: "Order",
@@ -118,6 +132,8 @@ export default function NewspaperStudio({
   const [design, setDesign] = useState<TimesReaderData | null>(null);
   const [designErr, setDesignErr] = useState("");
   const [designLoading, setDesignLoading] = useState(true);
+  const [selectedHitId, setSelectedHitId] = useState<string | null>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const seededFor = useRef<string>("");
   const past = useRef<Snap[]>([]);
   const future = useRef<Snap[]>([]);
@@ -218,18 +234,38 @@ export default function NewspaperStudio({
   const paper = useMemo(() => localizeNewspaper(paperSource, locale), [paperSource, locale]);
 
   const pageEditors = useMemo(() => timesPageEditors(design), [design]);
+  const templatePageTotal = pageEditors.length;
+  const activePageCount = useMemo(
+    () => resolveTimesPageCount(templatePageTotal, draft.pageCount),
+    [templatePageTotal, draft.pageCount],
+  );
   const values = useMemo(() => ({ ...legacyDraftToTimesValues(draft), ...(draft.values || {}) }), [draft]);
   const contents = useMemo(() => ({ ...(draft.contents || {}) }), [draft.contents]);
+  const extras = useMemo(() => draft.extras || [], [draft.extras]);
+  const layout = useMemo(() => (draft.layout || {}) as CanvasLayoutMap, [draft.layout]);
   const deferredValues = useDeferredValue(values);
   const deferredContents = useDeferredValue(contents);
+  const deferredPageCount = useDeferredValue(activePageCount);
+  const deferredExtras = useDeferredValue(extras);
+  const deferredLayout = useDeferredValue(layout);
 
   const previewData = useMemo(() => {
     if (!design) return null;
-    return applyTimesDraft(design, { values: deferredValues, contents: deferredContents }, { embedded: true });
-  }, [design, deferredValues, deferredContents]);
+    return applyTimesDraft(
+      design,
+      {
+        values: deferredValues,
+        contents: deferredContents,
+        pageCount: deferredPageCount,
+        extras: deferredExtras,
+        layout: deferredLayout,
+      },
+      { embedded: true },
+    );
+  }, [design, deferredValues, deferredContents, deferredPageCount, deferredExtras, deferredLayout]);
 
   const pages = useMemo(() => {
-    return pageEditors.map((p, i) => ({
+    return pageEditors.slice(0, activePageCount || templatePageTotal).map((p, i) => ({
       id: `p:${p.index}` as PageId,
       no: String(i + 1).padStart(2, "0"),
       label: p.name,
@@ -237,11 +273,55 @@ export default function NewspaperStudio({
       slots: p.slots,
       index: p.index,
     }));
-  }, [pageEditors, en]);
+  }, [pageEditors, en, activePageCount, templatePageTotal]);
 
   const active = pages.find((p) => p.id === page) || pages[0];
   const textSlots = active?.slots.filter((s) => s.kind === "field" || s.kind === "content") || [];
   const photoSlots = active?.slots.filter((s) => s.kind === "image") || [];
+  const designCanvas = useMemo(() => {
+    const c = (design?.payload as { design?: { canvas?: { width?: number; height?: number } } } | undefined)?.design?.canvas;
+    return { width: c?.width || 800, height: c?.height || 1131 };
+  }, [design]);
+
+  const activeDesignPageId = useMemo(() => {
+    const idx = active?.index ?? 0;
+    const pagesRaw =
+      ((design?.payload as { design?: { pages?: { id?: string }[] } } | undefined)?.design?.pages) || [];
+    return pagesRaw[idx]?.id || `p${idx + 1}`;
+  }, [active?.index, design]);
+
+  const activePageElements = useMemo(() => {
+    const idx = active?.index ?? 0;
+    const pagesRaw =
+      ((design?.payload as { design?: { pages?: { id?: string; elements?: Record<string, unknown>[] }[] } } | undefined)
+        ?.design?.pages) || [];
+    return (pagesRaw[idx]?.elements || []) as Array<
+      Record<string, unknown> & {
+        id?: string;
+        type?: string;
+        name?: string;
+        x?: number;
+        y?: number;
+        w?: number;
+        h?: number;
+        fieldId?: string;
+        edit?: unknown;
+      }
+    >;
+  }, [active?.index, design]);
+
+  const canvasHits = useMemo(
+    () =>
+      buildCanvasHits({
+        pageElements: activePageElements,
+        slots: active?.slots || [],
+        extras,
+        pageId: activeDesignPageId,
+        layout,
+        locale,
+      }),
+    [activePageElements, active?.slots, extras, activeDesignPageId, layout, locale],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -417,6 +497,77 @@ export default function NewspaperStudio({
     patch({ contents: { ...contents, [id]: value } });
   }
 
+  function addComponent(item: NewspaperComponentItem) {
+    const next = extraFromComponent(item, activeDesignPageId);
+    const nextContents =
+      next.kind === "text" && next.text
+        ? { ...contents, [next.id]: next.text }
+        : contents;
+    patch({ extras: [...extras, next], contents: nextContents });
+    setInspectorOpen(true);
+  }
+
+  function removeExtra(id: string) {
+    const nextContents = { ...contents };
+    delete nextContents[id];
+    const nextLayout = { ...layout };
+    delete nextLayout[id];
+    patch({ extras: extras.filter((e) => e.id !== id), contents: nextContents, layout: nextLayout });
+    if (selectedHitId === id) setSelectedHitId(null);
+  }
+
+  function moveCanvasHit(id: string, x: number, y: number) {
+    const extra = extras.find((e) => e.id === id);
+    if (extra) {
+      patch({
+        extras: extras.map((e) => (e.id === id ? { ...e, x, y } : e)),
+      });
+      return;
+    }
+    patch({
+      layout: {
+        ...layout,
+        [id]: { ...(layout[id] || { x, y }), x, y, w: layout[id]?.w, h: layout[id]?.h },
+      },
+    });
+  }
+
+  function resizeCanvasHit(id: string, x: number, y: number, w: number, h: number) {
+    const extra = extras.find((e) => e.id === id);
+    if (extra) {
+      patch({
+        extras: extras.map((e) => (e.id === id ? { ...e, x, y, w, h } : e)),
+      });
+      return;
+    }
+    patch({
+      layout: {
+        ...layout,
+        [id]: { x, y, w, h },
+      },
+    });
+  }
+
+  function selectCanvasHit(hit: CanvasHit | null) {
+    setSelectedHitId(hit?.id || null);
+    if (!hit) return;
+    setInspectorOpen(true);
+    if (hit.source === "slot") {
+      setTool(hit.editable === "photo" ? "photos" : "text");
+      setPanelOpen(true);
+    } else if (hit.editable === "text") {
+      setTool("components");
+      setPanelOpen(true);
+    }
+  }
+
+  function editCanvasHit(hit: CanvasHit) {
+    selectCanvasHit(hit);
+    if (hit.source === "slot" && hit.slot.kind === "content") {
+      // focus happens via panel fields; keep selection
+    }
+  }
+
   function chooseTemplate(slug: string) {
     if (etsy && slug !== etsy.slug) return;
     if (!design && slug !== paper.slug) {
@@ -433,16 +584,31 @@ export default function NewspaperStudio({
         template: slug,
         values: {},
         contents: {},
+        pageCount: 0,
+        extras: [],
+        layout: {},
         updatedAt: new Date().toISOString(),
       }),
     );
     setPage("p:0");
+    setSelectedHitId(null);
     setTool("text");
+  }
+
+  function setPageCount(count: number) {
+    const next = resolveTimesPageCount(templatePageTotal, count);
+    patch({ pageCount: next });
+    if (pages.length && next > 0) {
+      const maxIdx = next - 1;
+      const cur = pages.find((p) => p.id === page);
+      if (!cur || cur.index > maxIdx) setPage(`p:${Math.max(0, maxIdx)}`);
+    }
   }
 
   function validate() {
     const e: Record<string, string> = {};
-    for (const editor of pageEditors) {
+    const editors = pageEditors.slice(0, activePageCount || pageEditors.length);
+    for (const editor of editors) {
       for (const slot of editor.slots) {
         if (slot.kind === "field" && slot.field.required) {
           if (!(values[slot.field.id] || "").trim()) e[slot.field.id] = en ? `${editorLabel(slot.field.label, locale)} is required.` : `${slot.field.label} gerekli.`;
@@ -454,7 +620,7 @@ export default function NewspaperStudio({
     }
     setErrors(e);
     if (Object.keys(e).length) {
-      const hit = pageEditors.find((ed) =>
+      const hit = editors.find((ed) =>
         ed.slots.some((s) => (s.kind === "field" && e[s.field.id]) || (s.kind === "image" && e[s.fieldId])),
       );
       if (hit) {
@@ -518,13 +684,15 @@ export default function NewspaperStudio({
       ? tx("Hazır gazeteler", "Ready-made newspapers")
       : tool === "pages"
         ? tx("Sayfalar", "Pages")
-        : tool === "text"
-          ? tx("Metin alanları", "Text fields")
-          : tool === "photos"
-            ? tx("Fotoğraflar", "Photos")
-            : etsyMode
-              ? tx("İndir / Yazdır", "Download / Print")
-              : tx("Sipariş", "Order");
+        : tool === "components"
+          ? tx("Bileşenler", "Elements")
+          : tool === "text"
+            ? tx("Metin alanları", "Text fields")
+            : tool === "photos"
+              ? tx("Fotoğraflar", "Photos")
+              : etsyMode
+                ? tx("İndir / Yazdır", "Download / Print")
+                : tx("Sipariş", "Order");
 
   return (
     <div className="ns-page">
@@ -675,7 +843,36 @@ export default function NewspaperStudio({
 
               {tool === "pages" ? (
                 <>
-                  <p className="ns-hint">{tx("Düzenlemek istediğiniz gazete sayfasını seçin.", "Choose the newspaper page you want to edit.")}</p>
+                  <p className="ns-hint">
+                    {tx(
+                      "Kaç sayfa tasarlamak istediğinizi seçin, sonra düzenlenecek sayfaya geçin.",
+                      "Choose how many pages you want to design, then open the page to edit.",
+                    )}
+                  </p>
+                  {templatePageTotal > 0 ? (
+                    <div className="ns-pagecount" role="group" aria-label={tx("Sayfa sayısı", "Page count")}>
+                      <span className="ns-pagecount__label">{tx("Sayfa sayısı", "Page count")}</span>
+                      <div className="ns-pagecount__chips">
+                        {Array.from({ length: templatePageTotal }, (_, i) => i + 1).map((n) => (
+                          <button
+                            key={n}
+                            type="button"
+                            className={activePageCount === n ? "is-on" : undefined}
+                            onClick={() => setPageCount(n)}
+                            aria-pressed={activePageCount === n}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                      </div>
+                      <small className="ns-pagecount__meta">
+                        {tx(
+                          `${activePageCount} / ${templatePageTotal} sayfa kullanılıyor`,
+                          `${activePageCount} of ${templatePageTotal} pages in use`,
+                        )}
+                      </small>
+                    </div>
+                  ) : null}
                   <div className="ns-pagelist">
                     {pages.map((p) => (
                       <button
@@ -697,6 +894,16 @@ export default function NewspaperStudio({
                     ))}
                   </div>
                 </>
+              ) : null}
+
+              {tool === "components" ? (
+                <ComponentsPanel
+                  locale={locale}
+                  extras={extras}
+                  activePageId={activeDesignPageId}
+                  onAdd={addComponent}
+                  onRemove={removeExtra}
+                />
               ) : null}
 
               {tool === "text" ? (
@@ -822,7 +1029,15 @@ export default function NewspaperStudio({
                         <RepublishPanel
                           locale={locale}
                           code={draft.orderCode}
-                          design={{ template: paper.slug, values, contents, size: draft.size, style: draft.style }}
+                          design={{
+                            template: paper.slug,
+                            values,
+                            contents,
+                            size: draft.size,
+                            style: draft.style,
+                            pageCount: activePageCount,
+                            extras,
+                          }}
                           names={paper.title}
                         />
                       ) : payOpen || draft.orderCode ? (
@@ -836,10 +1051,19 @@ export default function NewspaperStudio({
                             [en ? "Date" : "Tarih"]: values.weddingDate || values.eventDate || "",
                             [en ? "Venue" : "Mekan"]: values.venue || "",
                             [en ? "Size" : "Boyut"]: draft.size,
+                            [en ? "Pages" : "Sayfa"]: String(activePageCount),
                             [en ? "Story" : "Hikaye"]: (values.story || "").slice(0, 280),
                           }}
                           shareSlug={suggestShareSlug(titleLine || paper.title)}
-                          design={{ template: paper.slug, values, contents, size: draft.size, style: draft.style }}
+                          design={{
+                            template: paper.slug,
+                            values,
+                            contents,
+                            size: draft.size,
+                            style: draft.style,
+                            pageCount: activePageCount,
+                            extras,
+                          }}
                           resume={draft.orderCode && draft.orderEmail ? { code: draft.orderCode, email: draft.orderEmail } : null}
                           onUpdate={remember}
                         />
@@ -863,12 +1087,27 @@ export default function NewspaperStudio({
 
           <main className="ns-center" aria-label={tx("Gazete tasarım alanı", "Newspaper canvas")}>
             <div className="ns-canvas" style={{ transform: `scale(${zoom})` }}>
-              <div className="ns-canvas__stage">
+              <div className="ns-canvas__stage" ref={stageRef} data-edit="1">
                 {previewData ? (
                   <TimesReader key={paper.slug} data={previewData} slug={paper.slug} embedded />
                 ) : (
                   <div className="ns-canvas__empty">{designLoading ? tx("Gazete yükleniyor…", "The newspaper is loading…") : tx("Şablon bulunamadı", "Template not found")}</div>
                 )}
+                {previewData ? (
+                  <CanvasEditOverlay
+                    stageRef={stageRef}
+                    canvas={designCanvas}
+                    pageIndex={active?.index ?? 0}
+                    hits={canvasHits}
+                    selectedId={selectedHitId}
+                    locale={locale}
+                    onSelect={selectCanvasHit}
+                    onMove={moveCanvasHit}
+                    onResize={resizeCanvasHit}
+                    onRemove={removeExtra}
+                    onEditText={editCanvasHit}
+                  />
+                ) : null}
               </div>
             </div>
             <div className="ns-fab">

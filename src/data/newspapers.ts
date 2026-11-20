@@ -432,6 +432,21 @@ export const newspapers: Newspaper[] = [
     accent: "#0d3229",
   },
   {
+    slug: "yilbasi-ozel",
+    title: "Yılbaşı Özel",
+    eyebrow: "Yılbaşı Özel gazete şablonu",
+    description:
+      "Tek yapraklık (ön + arka), tam yılbaşı temalı özel sayı: siyah-altın zemin, havai fişek şeridi, şampanya kadehi, gece yarısı programı, mekân-sofra-müzik fotoğrafları; arkada teşekkür ve kutlama. Parti adınız manşette; davet metni, tarih ve adres düzenlenebilir. Dijital olarak paylaşılır, A3/A2 baskıyla yılbaşı masasının yıldızı olur.",
+    price: 990,
+    compareAt: 1290,
+    cover: "/img/times/yilbasi-ozel-kapak-v2.jpg",
+    headline: "YILBAŞI ÖZEL",
+    tagline: "Tek sayfada yeni yıl",
+    paper: "#100e0c",
+    ink: "#f7efd8",
+    accent: "#e8c778",
+  },
+  {
     slug: "yaz-gecesi",
     title: "Yaz Gecesi",
     eyebrow: "Yaz Gecesi gazete şablonu",

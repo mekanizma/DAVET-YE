@@ -58,7 +58,11 @@ export default function EtsyPrint({ slug }: { slug?: string }) {
     if (!design || !draft) return null;
     const values = { ...legacyDraftToTimesValues(draft), ...(draft.values || {}) };
     const contents = { ...(draft.contents || {}) };
-    return applyTimesDraft(design, { values, contents }, { embedded: false });
+    return applyTimesDraft(
+      design,
+      { values, contents, pageCount: draft.pageCount || 0, extras: draft.extras || [], layout: draft.layout || {} },
+      { embedded: false },
+    );
   }, [design, draft]);
 
   function collectSheets() {

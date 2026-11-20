@@ -512,6 +512,13 @@ const PAPER_EN: Record<string, PaperEn> = {
     description:
       "A black-and-gold New Year paper that says “Hello, New Year,” with gold sparkle, fireworks, and champagne glasses. The flow of the night, the venue, the menu and surprises, a photo collage, and a thank-you page make the celebration hard to forget. Share it digitally, or let the A3/A2 print star on the New Year table.",
   },
+  "yilbasi-ozel": {
+    title: "New Year Special",
+    eyebrow: "New Year Special newspaper template",
+    headline: "NEW YEAR SPECIAL",
+    description:
+      "A one-sheet (front and back), fully New Year-themed special: black-and-gold ground, a fireworks banner, champagne toast, midnight programme, venue–table–music photos; on the back, thanks and celebration. Your party name is the headline; invite copy, date and address are editable. Share it digitally, or let the A3/A2 print star on the New Year table.",
+  },
   "yaz-gecesi": {
     title: "Summer Night",
     eyebrow: "Summer Night newspaper template",

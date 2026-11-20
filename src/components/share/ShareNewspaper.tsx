@@ -39,7 +39,29 @@ export default function ShareNewspaper({
 
   const values = design.values && typeof design.values === "object" ? design.values as Record<string, string> : {};
   const contents = design.contents && typeof design.contents === "object" ? design.contents as Record<string, string> : {};
-  const preview = useMemo(() => (data ? applyTimesDraft(data, { values, contents }, { embedded: false }) : null), [data, values, contents]);
+  const pageCount = typeof design.pageCount === "number" ? design.pageCount : 0;
+  const extras = Array.isArray(design.extras) ? design.extras : [];
+  const layout =
+    design.layout && typeof design.layout === "object" && !Array.isArray(design.layout)
+      ? (design.layout as Record<string, { x: number; y: number; w?: number; h?: number }>)
+      : {};
+  const preview = useMemo(
+    () =>
+      data
+        ? applyTimesDraft(
+            data,
+            {
+              values,
+              contents,
+              pageCount,
+              extras: extras as import("@/lib/newspaperExtras").NewspaperExtra[],
+              layout,
+            },
+            { embedded: false },
+          )
+        : null,
+    [data, values, contents, pageCount, extras, layout],
+  );
 
   if (failed) {
     return <p className="share-note">{en ? "This newspaper could not be opened." : "Bu gazete açılamadı."}</p>;
