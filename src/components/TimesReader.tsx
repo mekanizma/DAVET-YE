@@ -95,11 +95,58 @@ function englishReader(data: TimesReaderData, slug: string): TimesReaderData {
  * Hosts the times-reader with Davetanisi chrome skins (background + fonts)
  * that differ from the original Go Post desk look — unique per newspaper.
  */
+type FlipApi = {
+  jump?: (n: number) => void;
+  state?: number;
+  mode?: string;
+  layout?: (w: number, h: number) => void;
+  w?: number;
+  h?: number;
+  __studioSingle?: boolean;
+};
+
+function readerFlip(): FlipApi | undefined {
+  return (window.DavetanisiTimes as { _inst?: { flip?: FlipApi } } | undefined)?._inst?.flip;
+}
+
+function jumpReaderToPage(pageIndex: number) {
+  const flip = readerFlip();
+  if (!flip || typeof flip.jump !== "function") return;
+  if (flip.state === pageIndex) return;
+  try {
+    flip.jump(pageIndex);
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Studio canvas must stay single-page. times-reader switches to spread when
+ * the stage is ≥720px wide, which shows an empty second leaf and shifts the sheet.
+ */
+function forceEmbeddedSinglePage(stageEl: HTMLElement | null) {
+  const flip = readerFlip();
+  if (!flip || typeof flip.layout !== "function" || flip.__studioSingle) return;
+  const orig = flip.layout.bind(flip);
+  flip.layout = (w: number, h: number) => orig(Math.min(Math.max(0, w), 719), h);
+  flip.__studioSingle = true;
+  const w = stageEl?.clientWidth || flip.w || 0;
+  const h = stageEl?.clientHeight || flip.h || 0;
+  if (w > 0 && h > 0) {
+    try {
+      flip.layout(w, h);
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
 export default function TimesReader({
   data,
   slug,
   embedded = false,
   locale: localeProp,
+  pageIndex = 0,
 }: {
   data: TimesReaderData;
   slug: string;
@@ -107,6 +154,8 @@ export default function TimesReader({
   embedded?: boolean;
   /** Wins over the site cookie so a recording stays in the requested language. */
   locale?: Locale;
+  /** After mount / remount, open this design page (0-based). */
+  pageIndex?: number;
 }) {
   const siteLocale = useLocale();
   const locale = localeProp ?? siteLocale;
@@ -163,7 +212,14 @@ export default function TimesReader({
       const run = () => {
         window.DavetanisiTimes?.mount(root, { ...patched, embedded } as TimesReaderData);
         applyChromeVars();
-        requestAnimationFrame(applyChromeVars);
+        requestAnimationFrame(() => {
+          applyChromeVars();
+          if (embedded) {
+            const stage = root.closest(".ns-canvas__stage") as HTMLElement | null;
+            forceEmbeddedSinglePage(stage || root);
+          }
+          jumpReaderToPage(pageIndex);
+        });
       };
       if (window.DavetanisiTimes?.mount) {
         run();
@@ -191,7 +247,15 @@ export default function TimesReader({
         document.body.classList.remove("tr-body");
       }
     };
+    // pageIndex is applied after mount via a separate effect; include it here only for initial jump after remount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- remount on data/skin only
   }, [patched, skin, embedded]);
+
+  useEffect(() => {
+    jumpReaderToPage(pageIndex);
+    const t = window.setTimeout(() => jumpReaderToPage(pageIndex), 50);
+    return () => window.clearTimeout(t);
+  }, [pageIndex, patched]);
 
   return (
     <>

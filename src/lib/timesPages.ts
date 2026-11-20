@@ -76,6 +76,26 @@ function contentLabel(el: StageEl) {
   return t.slice(0, 36) || el.id || "Metin";
 }
 
+/** Locked masthead / logo / footer lines that still say Go Post — editable in studio. */
+function isEditableBrandMark(el: StageEl) {
+  if (el.edit !== "locked") return false;
+  if (el.type !== "text" && el.type !== "field") return false;
+  if (el.fieldId) return false;
+  const t = String(el.text || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!t || t.length > 80) return false;
+  return /go\s*post/i.test(t);
+}
+
+function brandMarkLabel(el: StageEl) {
+  if (el.name?.trim()) return el.name.trim();
+  const id = String(el.id || "").toLowerCase();
+  if (/logo|brand|mast/.test(id)) return "Gazete adı";
+  if (/foot|credit|byline/.test(id)) return "Alt bilgi";
+  return contentLabel(el);
+}
+
 /**
  * Build page-by-page editors from design.pages (original panel surface):
  * - edit:"content" texts → contents[elementId]
@@ -100,14 +120,18 @@ export function timesPageEditors(data: TimesReaderData | null | undefined): Time
     walkElements(page.elements, (el) => {
       if (!el?.id) return;
 
-      if ((el.type === "text" || el.type === "field") && (el.edit === "content" || el.edit === true) && !el.fieldId) {
+      if (
+        (el.type === "text" || el.type === "field") &&
+        (el.edit === "content" || el.edit === true || isEditableBrandMark(el)) &&
+        !el.fieldId
+      ) {
         const text = typeof el.text === "string" ? el.text : "";
         slots.push({
           kind: "content",
           id: el.id,
           pageIndex: index,
           pageName,
-          label: contentLabel(el),
+          label: isEditableBrandMark(el) ? brandMarkLabel(el) : contentLabel(el),
           text,
           multiline: text.includes("\n") || text.length > 48 || (el.style?.size || 0) < 18,
           maxLength: text.length > 200 ? 900 : 220,

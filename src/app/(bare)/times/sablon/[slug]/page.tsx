@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import NewspaperFlip from "@/components/NewspaperFlip";
 import TimesReader from "@/components/TimesReader";
+import StudioDraftPreview from "@/components/newspaper/StudioDraftPreview";
 import { getNewspaper, newspapers } from "@/data/newspapers";
 import { localizeNewspaper } from "@/i18n/catalog";
 import { lp } from "@/i18n/locale";
@@ -47,6 +48,7 @@ export default async function NewspaperPreview({
   const dil = Array.isArray(sp.dil) ? sp.dil[0] : sp.dil;
   const kayit = (Array.isArray(sp.kayit) ? sp.kayit[0] : sp.kayit) === "1";
   const paid = (Array.isArray(sp.odendi) ? sp.odendi[0] : sp.odendi) === "1";
+  const fromStudio = (Array.isArray(sp.tasarla) ? sp.tasarla[0] : sp.tasarla) === "1";
   const locale = dil === "en" || dil === "tr" ? dil : await getLocale();
   const found = getNewspaper(slug);
   if (!found) notFound();
@@ -54,6 +56,9 @@ export default async function NewspaperPreview({
 
   const design = loadTimesDesign(slug, locale);
   if (design) {
+    if (fromStudio) {
+      return <StudioDraftPreview slug={slug} fallback={design} locale={locale} />;
+    }
     return <TimesReader data={design} slug={slug} embedded={kayit} locale={locale} />;
   }
 

@@ -77,15 +77,36 @@ function measureSheet(stage: HTMLElement, pageIndex: number): SheetFrame | null 
 }
 
 function syncReaderPage(pageIndex: number) {
-  const inst = (window as unknown as { DavetanisiTimes?: { _inst?: { jump?: (n: number) => void; leaves?: { jump?: (n: number) => void } } } })
-    .DavetanisiTimes?._inst;
-  if (!inst) return;
+  const inst = (
+    window as unknown as {
+      DavetanisiTimes?: {
+        _inst?: {
+          jump?: (n: number) => void;
+          flip?: { jump?: (n: number) => void; state?: number };
+          leaves?: { jump?: (n: number) => void };
+        };
+      };
+    }
+  ).DavetanisiTimes?._inst;
+  if (!inst) return false;
   try {
-    if (typeof inst.jump === "function") inst.jump(pageIndex);
-    else if (inst.leaves && typeof inst.leaves.jump === "function") inst.leaves.jump(pageIndex);
+    const flip = inst.flip;
+    if (flip && typeof flip.jump === "function") {
+      if (flip.state !== pageIndex) flip.jump(pageIndex);
+      return true;
+    }
+    if (typeof inst.jump === "function") {
+      inst.jump(pageIndex);
+      return true;
+    }
+    if (inst.leaves && typeof inst.leaves.jump === "function") {
+      inst.leaves.jump(pageIndex);
+      return true;
+    }
   } catch {
     /* ignore */
   }
+  return false;
 }
 
 export default function CanvasEditOverlay({
@@ -126,17 +147,18 @@ export default function CanvasEditOverlay({
     const update = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
+        syncReaderPage(pageIndex);
         setFrame(measureSheet(stage, pageIndex));
       });
     };
-    update();
     syncReaderPage(pageIndex);
+    update();
     const ro = new ResizeObserver(update);
     ro.observe(stage);
     const mo = new MutationObserver(update);
     mo.observe(stage, { childList: true, subtree: true, attributes: true });
     window.addEventListener("resize", update);
-    const t = window.setInterval(update, 800);
+    const t = window.setInterval(update, 500);
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();

@@ -248,26 +248,30 @@
   min-width: 0;
   min-height: 0;
   display: grid;
-  place-items: center;
+  place-items: stretch;
   overflow: auto;
   background:
     radial-gradient(1200px 600px at 50% -10%, #f6efe4 0%, transparent 60%),
     #e7dfd2;
 }
 .ns-canvas {
-  width: min(100%, 920px);
-  padding: 16px 12px 88px;
-  transform-origin: top center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  transform-origin: center center;
+  display: grid;
+  will-change: transform;
 }
 .ns-canvas__stage {
   position: relative;
   width: 100%;
-  height: min(72vh, 820px);
-  min-height: 420px;
-  border-radius: 4px;
-  box-shadow: 0 18px 50px rgba(40, 28, 12, 0.18);
+  height: 100%;
+  min-height: 0;
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
-  background: #1f1c19;
+  background: #ddd4c6;
 }
 .ns-canvas__stage .tr,
 .ns-canvas__stage .tr--embedded {
@@ -276,17 +280,145 @@
   width: 100% !important;
   height: 100% !important;
   min-height: 0 !important;
+  /* Studio = design page only; full reader chrome lives behind Önizle */
+  background: transparent !important;
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+}
+.ns-canvas__stage .tr-bar,
+.ns-canvas__stage .tr-controls,
+.ns-canvas__stage .tr-cover,
+.ns-canvas__stage .tr-badge,
+.ns-canvas__stage .tr-share,
+.ns-canvas__stage .tr-toast,
+.ns-canvas__stage .tr-hint,
+.ns-canvas__stage .tr-actions,
+.ns-canvas__stage .tr-brand,
+.ns-canvas__stage .tr-title,
+.ns-canvas__stage .tr-tool,
+.ns-canvas__stage footer,
+.ns-canvas__stage [class*="tr-label"] {
+  display: none !important;
+}
+.ns-canvas__stage .tr-main,
+.ns-canvas__stage .tr-stage,
+.ns-canvas__stage .tr-zoom {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  display: grid !important;
+  place-items: center !important;
+}
+.ns-canvas__stage {
+  container-type: size;
+}
+/* Keep studio on one page — never show empty spread leaf beside the sheet */
+.ns-canvas__stage .fb,
+.ns-canvas__stage .fb__book {
+  max-width: 100% !important;
+  transform: none !important;
+}
+.ns-canvas__stage .tr-sheet {
+  /* Fit whole page into the design area — no crop, no distortion */
+  box-sizing: border-box !important;
+  width: min(100cqw, calc(100cqh * 800 / 1131)) !important;
+  height: min(100cqh, calc(100cqw * 1131 / 800)) !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 12px 32px rgba(40, 28, 12, 0.18) !important;
+  aspect-ratio: 800 / 1131 !important;
+  overflow: hidden !important;
+  /* Flipbook parks backs off-canvas; pin every sheet to the stage center in studio */
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+}
+/* Only the selected design page is visible — kills empty neighbour + jump flicker */
+.ns-canvas__stage[data-edit="1"] .tr-sheet {
+  visibility: hidden !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+}
+.ns-canvas__stage[data-edit="1"][data-page="1"] .tr-sheet[data-page="1"],
+.ns-canvas__stage[data-edit="1"][data-page="2"] .tr-sheet[data-page="2"],
+.ns-canvas__stage[data-edit="1"][data-page="3"] .tr-sheet[data-page="3"],
+.ns-canvas__stage[data-edit="1"][data-page="4"] .tr-sheet[data-page="4"] {
+  visibility: visible !important;
+  box-shadow: 0 12px 32px rgba(40, 28, 12, 0.18) !important;
+}
+.ns-canvas__stage .tr-sheet > .tr-art,
+.ns-canvas__stage .tr-sheet > .stg-art {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  aspect-ratio: 800 / 1131 !important;
 }
 .ns-canvas__stage[data-edit="1"] .tr-sheet,
 .ns-canvas__stage[data-edit="1"] .tr-art,
 .ns-canvas__stage[data-edit="1"] .stg-art {
   pointer-events: none !important;
 }
-.ns-canvas__stage[data-edit="1"] .tr-bar,
-.ns-canvas__stage[data-edit="1"] .tr-controls,
-.ns-canvas__stage[data-edit="1"] .tr-tool,
-.ns-canvas__stage[data-edit="1"] .tr-actions {
-  pointer-events: auto !important;
+
+.ns-viewtools {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 6;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(26, 21, 16, 0.88);
+  color: #f7efd8;
+  box-shadow: 0 8px 24px rgba(20, 12, 4, 0.28);
+  backdrop-filter: blur(8px);
+}
+.ns-viewtools__btn,
+.ns-viewtools__value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.ns-viewtools__btn:hover,
+.ns-viewtools__value:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.ns-viewtools__value {
+  min-width: 52px;
+  letter-spacing: 0.02em;
+}
+.ns-viewtools__fit span {
+  display: none;
+}
+@media (min-width: 700px) {
+  .ns-viewtools__fit span {
+    display: inline;
+  }
 }
 
 .ns-edit {
@@ -307,20 +439,7 @@
   touch-action: none;
 }
 .ns-edit__hint {
-  position: absolute;
-  left: 50%;
-  top: 8px;
-  transform: translateX(-50%);
-  margin: 0;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(16, 12, 8, 0.72);
-  color: #f7efd8;
-  font-size: 0.68rem;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 2;
+  display: none;
 }
 .ns-edit__hit {
   position: absolute;
@@ -904,12 +1023,11 @@
   .ns-app[data-inspector-open="1"] .ns-inspector {
     display: flex;
   }
-  .ns-canvas {
-    padding-bottom: 24px;
+  .ns-viewtools {
+    bottom: calc(12px + env(safe-area-inset-bottom));
   }
-  .ns-canvas__stage {
-    height: min(58vh, 560px);
-    min-height: 320px;
+  .ns-fab {
+    bottom: calc(58px + env(safe-area-inset-bottom));
   }
 }
 
@@ -944,9 +1062,6 @@
   }
   .ns-fab {
     display: none;
-  }
-  .ns-canvas {
-    padding: 28px 20px 40px;
   }
 }
 

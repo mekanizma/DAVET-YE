@@ -15,6 +15,7 @@ import CanvasEditOverlay, {
 } from "@/components/newspaper/CanvasEditOverlay";
 import ComponentsPanel from "@/components/newspaper/ComponentsPanel";
 import { SlotControl } from "@/components/newspaper/SlotControls";
+import { stashStudioFullPreview } from "@/components/newspaper/StudioDraftPreview";
 import { applyNewspaper } from "@/lib/catalog";
 import type { NewspaperComponentItem } from "@/data/newspaperComponents";
 import { getNewspaper, newspaperStyles, newspapers } from "@/data/newspapers";
@@ -731,21 +732,6 @@ export default function NewspaperStudio({
             </button>
           </div>
 
-          <div className="ns-top__group ns-desktop-only" role="group" aria-label={tx("Yakınlaştırma", "Zoom")}>
-            <button type="button" className="ns-iconbtn" aria-label={tx("Uzaklaştır", "Zoom out")} onClick={() => setZoom((z) => Math.max(0.5, Math.round((z - 0.1) * 10) / 10))}>
-              <Icon name="minus" size={16} />
-            </button>
-            <button type="button" className="ns-zoom__value" aria-label={tx(`Yakınlaştırma %${Math.round(zoom * 100)}`, `Zoom ${Math.round(zoom * 100)}%`)} onClick={() => setZoom(1)}>
-              %{Math.round(zoom * 100)}
-            </button>
-            <button type="button" className="ns-iconbtn" aria-label={tx("Yakınlaştır", "Zoom in")} onClick={() => setZoom((z) => Math.min(1.6, Math.round((z + 0.1) * 10) / 10))}>
-              <Icon name="plus" size={16} />
-            </button>
-            <button type="button" className="ns-btn ns-btn--ghost ns-btn--sm" onClick={() => setFitTick((n) => n + 1)}>
-              {tx("Sığdır", "Fit")}
-            </button>
-          </div>
-
           <button
             type="button"
             className="ns-chip ns-desktop-only"
@@ -756,10 +742,21 @@ export default function NewspaperStudio({
           </button>
 
           <div className="ns-top__end">
-            <Link href={withLocaleQuery(locale, `/times/sablon/${paper.slug}${orderPaid ? "?odendi=1" : ""}`)} className="ns-btn ns-btn--ghost ns-btn--sm" target="_blank" rel="noopener noreferrer">
+            <a
+              href={withLocaleQuery(
+                locale,
+                `/times/sablon/${paper.slug}?tasarla=1${orderPaid ? "&odendi=1" : ""}`,
+              )}
+              className="ns-btn ns-btn--ghost ns-btn--sm"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                if (previewData) stashStudioFullPreview(paper.slug, previewData);
+              }}
+            >
               <Icon name="expand" size={14} />
               <span className="ns-desktop-only">{tx("Önizle", "Preview")}</span>
-            </Link>
+            </a>
             {etsyMode ? (
               <Link
                 href={`${lp(locale, "/etsy/yazdir")}?sablon=${encodeURIComponent(paper.slug)}`}
@@ -1086,10 +1083,27 @@ export default function NewspaperStudio({
           </section>
 
           <main className="ns-center" aria-label={tx("Gazete tasarım alanı", "Newspaper canvas")}>
-            <div className="ns-canvas" style={{ transform: `scale(${zoom})` }}>
-              <div className="ns-canvas__stage" ref={stageRef} data-edit="1">
+            <div
+              className="ns-canvas"
+              style={{
+                transform: `scale(${zoom})`,
+                ["--ns-zoom" as string]: String(zoom),
+              }}
+            >
+              <div
+                className="ns-canvas__stage"
+                ref={stageRef}
+                data-edit="1"
+                data-page={String((active?.index ?? 0) + 1)}
+              >
                 {previewData ? (
-                  <TimesReader key={paper.slug} data={previewData} slug={paper.slug} embedded />
+                  <TimesReader
+                    key={paper.slug}
+                    data={previewData}
+                    slug={paper.slug}
+                    embedded
+                    pageIndex={active?.index ?? 0}
+                  />
                 ) : (
                   <div className="ns-canvas__empty">{designLoading ? tx("Gazete yükleniyor…", "The newspaper is loading…") : tx("Şablon bulunamadı", "Template not found")}</div>
                 )}
@@ -1109,6 +1123,41 @@ export default function NewspaperStudio({
                   />
                 ) : null}
               </div>
+            </div>
+            <div className="ns-viewtools" role="toolbar" aria-label={tx("Yakınlaştırma", "Zoom")}>
+              <button
+                type="button"
+                className="ns-viewtools__btn"
+                aria-label={tx("Uzaklaştır", "Zoom out")}
+                onClick={() => setZoom((z) => Math.max(0.5, Math.round((z - 0.1) * 10) / 10))}
+              >
+                <Icon name="minus" size={16} />
+              </button>
+              <button
+                type="button"
+                className="ns-viewtools__value"
+                aria-label={tx(`Yakınlaştırma %${Math.round(zoom * 100)}`, `Zoom ${Math.round(zoom * 100)}%`)}
+                onClick={() => setZoom(1)}
+              >
+                %{Math.round(zoom * 100)}
+              </button>
+              <button
+                type="button"
+                className="ns-viewtools__btn"
+                aria-label={tx("Yakınlaştır", "Zoom in")}
+                onClick={() => setZoom((z) => Math.min(2, Math.round((z + 0.1) * 10) / 10))}
+              >
+                <Icon name="plus" size={16} />
+              </button>
+              <button
+                type="button"
+                className="ns-viewtools__btn ns-viewtools__fit"
+                aria-label={tx("Sığdır", "Fit")}
+                onClick={() => setFitTick((n) => n + 1)}
+              >
+                <Icon name="expand" size={15} />
+                <span>{tx("Sığdır", "Fit")}</span>
+              </button>
             </div>
             <div className="ns-fab">
               <button type="button" className="ns-btn ns-btn--ghost ns-btn--sm" onClick={() => setInspectorOpen((v) => !v)}>
